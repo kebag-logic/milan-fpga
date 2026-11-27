@@ -23,7 +23,8 @@ when ctrl_loop.h states THE TRANSMIT's figure under its row. The flip at 1x1/1if
 8x8/2if's rows by every source are reported, not held (#894, the owner's decision of 2026-11-12, owed to #872).
 
 8x8/1if is the flip's other point (#894's shape ruling, items (a) and (b)), held by --check --point
-8x8/1if to its load, at most 0.76 (#977's owner decision of 2026-11-25; 0.75 before), the 8x8 shape's stated costs
+8x8/1if to its load, at most 0.77 (#977's owner decision of 2026-11-27; 0.76 by its decision of 2026-11-25, 0.75
+before), the 8x8 shape's stated costs
 with THE TRANSMIT's builds at its own shape (load_grade.NEAREST), and to ctrl_loop.h's table of shapes
 (shape_costs.findings: its slice at most 1,600 us). Its measured rows are the CPU budget harness's on its built
 image (run.py --point 8x8-1if: 0 budget misses, every row within its bound and its join intervals in range); its
@@ -60,9 +61,9 @@ import shape_costs  # noqa: E402
 
 ROOT = load_grade.ROOT
 #: The points whose load the flip check holds, and each one's ceiling: 8x8/2if's 0.70 (#665, option D) and 8x8/1if's
-#: 0.76 (#894's shape ruling, item (b), at 0.75; raised to 0.76 by #977's owner decision of 2026-11-25,
-#: #977).
-FLIP = {'8x8/2if': 0.70, '8x8/1if': 0.76}
+#: 0.77 (#894's shape ruling, item (b), at 0.75; raised to 0.76 by #977's owner decision of 2026-11-25, and to
+#: 0.77 by its owner decision of 2026-11-27, for the registration cost its swap record states by the rule).
+FLIP = {'8x8/2if': 0.70, '8x8/1if': 0.77}
 #: The points the flip check names: the rows' (rows_grade.POINTS) and 8x8/1if, whose rows by every source are reported
 #: apart, owed to #872 (REPORTED), and whose measured rows the CPU budget harness holds.
 POINTS = (*rows_grade.POINTS, '8x8/1if')
@@ -130,6 +131,11 @@ def row_report(root: Path, points: tuple[str, ...], design: str = DESIGNS[0]) ->
     return rows_tiers.report(root, rows_tiers.BUILT, points)
 
 
+def over(total: float, top: float) -> bool:
+    """A load over its ceiling: past it, not at it."""
+    return total > top
+
+
 def findings(root: Path, table: dict | None = None, ceiling: dict | None = None) -> list[str]:
     """Each held point whose load at the pin is over its ceiling, whose table lacks a cost the load needs, or whose
     load counts a term without a source."""
@@ -142,7 +148,7 @@ def findings(root: Path, table: dict | None = None, ceiling: dict | None = None)
             continue
         out += [f'{point}: the term {term} has no source in the term list' for term in load_grade.unsourced(terms)]
         total = sum(terms.values())
-        if total > top:
+        if over(total, top):
             out.append(f'{point}: the load {total:.3f} at the pin is over the flip ceiling {top:.2f}')
     return out
 
@@ -185,8 +191,12 @@ def controls(root: Path) -> list[str]:
         escaped.append('a stated cost missing')
     # the held point and its ceiling (#665: the 0.70 long-window ceiling, option D), read at the pin (#665, #890:
     # item 6), never on the graded column
-    if FLIP != {'8x8/2if': 0.70, '8x8/1if': 0.76}:
-        escaped.append('the flip ceilings not 0.70 at 8x8/2if and 0.76 at 8x8/1if')
+    if FLIP != {'8x8/2if': 0.70, '8x8/1if': 0.77}:
+        escaped.append('the flip ceilings not 0.70 at 8x8/2if and 0.77 at 8x8/1if')
+    # 8x8/1if's ceiling at #977's owner decision of 2026-11-27: a load of 0.761, over the 0.76 before it, passes,
+    # and one of 0.771 fails
+    if over(0.761, FLIP['8x8/1if']) or not over(0.771, FLIP['8x8/1if']):
+        escaped.append('8x8/1if: 0.761 refused or 0.771 passed')
     if COLUMN is not load_grade.STATED_US:
         escaped.append('the graded column read, not the pin')
     # ctrl_loop.h's table of shapes, which the flip check holds at every point (#894's shape ruling,
@@ -406,7 +416,8 @@ def rule_controls(root: Path) -> list[str]:
 
 #: The planted defects controls() plants, in its order: the load's, then the rows'.
 CONTROLS = ('an over-ceiling row', 'a row within its ceiling', 'a cost raised over the ceiling',
-            'a stated cost missing', 'the flip ceilings not 0.70 at 8x8/2if and 0.76 at 8x8/1if',
+            'a stated cost missing', 'the flip ceilings not 0.70 at 8x8/2if and 0.77 at 8x8/1if',
+            '8x8/1if: 0.761 refused or 0.771 passed',
             'the graded column read, not the pin', 'an over-ceiling row at 8x8/1if',
             'a row within its ceiling at 8x8/1if', *(f'the table of shapes: {name}' for name in shape_costs.CONTROLS),
             *TX_HELD_CONTROLS, CHECK_HELD_CONTROL)

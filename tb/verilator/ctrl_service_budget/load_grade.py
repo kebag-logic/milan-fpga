@@ -123,7 +123,8 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
           '8x8/1if': dict(n_if=1, sinks_per_if=8, registrations=16, counter_descriptors=20),
           '32x32/2if': dict(n_if=2, sinks_per_if=16, registrations=16, counter_descriptors=68)}
 #: The points whose stated costs are another's, the nearest shape each is measured at in both columns (#894's shape
-#: ruling, item (b): 8x8/1if's load at most 0.75, 0.76 by #977's owner decision of 2026-11-25): 8x8/1if's records,
+#: ruling, item (b): 8x8/1if's load at most 0.75, 0.76 by #977's owner decision of 2026-11-25, 0.77 by its decision of
+#: 2026-11-27): 8x8/1if's records,
 #: events and THE STEP's pass are 8x8/2if's, the 8x8 shape's at two interfaces, measured over every group of both arms
 #: there, as #894 derived that load; THE TRANSMIT's builds and an owed MRPDU, a build of one's, are its own shape's
 #: (ctrl_loop.h, THE SHAPES), and the polls' base and items its own shape's (poll_grade.STATED_US; the held-egress
@@ -231,11 +232,11 @@ OWN_MEASURED = {'8x8/1if': {'record.adp': (12_779, 'arm A, backlog-adp-refill, u
 #: (15,976 in valid-destinations' srp-talker-held) and the AECP notice item 150 (14,084 in the declaring-outputs
 #: arm's aecp-fanout; 210 before). With a waiting SET_STREAM_FORMAT's running check made again (#950), whose code
 #: moves AECP's, measured over every arm and group, 1x1/1if's AECP record raised by the rule in both columns: 255 us
-#: (23,858 CPU cycles, the same SET_STREAM_INFO). With #977's drain and settlement change, over every arm at 1x1/1if (3de17804), the walk
-#: 80 (7,289 in srp-register-burst), in both columns, as poll_grade.py's ONE states it; 35 again with the sink index change, whose
-#: registering records walk no registrar of their sinks after them. With #977's ACMP completion cut the AECP notice item at
-#: 1x1/1if is 15,464 CPU cycles (the answering-ports arm), 165 us by the rule in both columns, restated by the ruling
-#: of 2026-11-26 on #977, item 1.
+#: (23,858 CPU cycles, the same SET_STREAM_INFO). With #977's drain and settlement change, over every arm at 1x1/1if
+#: (3de17804), the walk 80 (7,289 in srp-register-burst), in both columns, as poll_grade.py's ONE states it; 35 again
+#: with the sink index change, whose registering records walk no registrar of their sinks after them. With #977's ACMP
+#: completion cut the AECP notice item at 1x1/1if is 15,464 CPU cycles (the answering-ports arm), 165 us by the rule in
+#: both columns, restated by the ruling of 2026-11-26 on #977, item 1.
 STATED_US = {
     '1x1/1if': {'record.srp': 285, 'record.aecp': 255, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 55,
@@ -334,27 +335,28 @@ GM_INTERVALS_MS = (1000, 1000, 3000)
 #: at; the two-interface points' registrations are not measured (#977's scope), so they count none.
 JOIN_MIN_MS = 180
 TX_PER_JOIN = 3
-#: Measured at the head with #977's initial drain and settlement change over srp-register and srp-register-burst: at 8x8/1if a record of the burst replacing
-#: every input's Talker, 143,047 CPU cycles, 105,547 past the 37,500-cycle unit, and THE SETTLE after it, 46,784, over
-#: nine values, 16,926 cycles; at 1x1/1if 46,654 cycles, 18,154 past the unit, and its settle, 10,108, over two values,
-#: 14,131 cycles. Measured again over every arm on the f7d07720 image: at 8x8/1if 145,803 cycles, 108,303 past the
-#: unit, and its settle, 50,075, over nine values, 17,598 cycles, 185 us by the rule (f7d07720, the image 3de17804 links
-#: unchanged there); at 1x1/1if 48,672 cycles, 20,172 past the unit, and its settle, 9,649, over two values, 14,910
-#: cycles, 160 us by the rule (3de17804). Measured on the 8b4a79d5 image: at 8x8/1if a record of the burst,
-#: 115,159 cycles, 77,659 past the unit, and its settle, 47,231, over nine values, 13,877 cycles, 150 us by the rule; at
-#: 1x1/1if 43,169 cycles, 14,669 past the unit, and its settle, 10,347, over two values, 12,508 cycles, 135 us, in the
-#: none arm; over both arms that run the registering groups (none, answering-ports) the dearest at 1x1/1if is the
-#: answering-ports arm's, 45,390 cycles, 16,890 past the unit, and its settle, 9,892, over two values, 13,391 cycles,
-#: 145 us by the rule (#977; 8x8/1if's dearest is the none arm's above in both). Measured on the image
-#: (7c300127: tsn-c-stack f71c8870, THE SETTLE's cut, and the hot list relearned on it) over both arms that run the
-#: registering groups: at 8x8/1if the none arm's record of the burst, 114,450 cycles, 76,950 past the unit, and its
-#: settle, 35,720, over nine values, 12,519 cycles, 135 us by the rule (the answering-ports arm's 12,508); at 1x1/1if
-#: the none arm's, 43,072 cycles, 14,572 past the unit, and its settle, 7,079, over two values, 10,826 cycles, 115 us
-#: by the rule (the answering-ports arm's 10,292). Measured on the image (fda89791: tsn-c-stack 175cf9e0, the join
-#: timer's fix, and the hot list relearned on it) over both arms: at 8x8/1if the answering-ports arm's record of the
-#: burst, 116,302 cycles, 78,802 past the unit, and its settle, 35,604, over nine values, 12,712 cycles, 135 us by the
-#: rule (the none arm's 12,468); at 1x1/1if the answering-ports arm's, 43,725 cycles, 15,225 past the unit, and its
-#: settle, 7,076, over two values, 11,150 cycles, 120 us by the rule (the none arm's 10,193).
+#: Measured at the head with #977's initial drain and settlement change over srp-register and srp-register-burst: at
+#: 8x8/1if a record of the burst replacing every input's Talker, 143,047 CPU cycles, 105,547 past the 37,500-cycle
+#: unit, and THE SETTLE after it, 46,784, over nine values, 16,926 cycles; at 1x1/1if 46,654 cycles, 18,154 past the
+#: unit, and its settle, 10,108, over two values, 14,131 cycles. Measured again over every arm on the f7d07720 image:
+#: at 8x8/1if 145,803 cycles, 108,303 past the unit, and its settle, 50,075, over nine values, 17,598 cycles, 185 us by
+#: the rule (f7d07720, the image 3de17804 links unchanged there); at 1x1/1if 48,672 cycles, 20,172 past the unit, and
+#: its settle, 9,649, over two values, 14,910 cycles, 160 us by the rule (3de17804). Measured on the 8b4a79d5 image: at
+#: 8x8/1if a record of the burst, 115,159 cycles, 77,659 past the unit, and its settle, 47,231, over nine values,
+#: 13,877 cycles, 150 us by the rule; at 1x1/1if 43,169 cycles, 14,669 past the unit, and its settle, 10,347, over two
+#: values, 12,508 cycles, 135 us, in the none arm; over both arms that run the registering groups (none,
+#: answering-ports) the dearest at 1x1/1if is the answering-ports arm's, 45,390 cycles, 16,890 past the unit, and its
+#: settle, 9,892, over two values, 13,391 cycles, 145 us by the rule (#977; 8x8/1if's dearest is the none arm's above
+#: in both). Measured on the image (7c300127: tsn-c-stack f71c8870, THE SETTLE's cut, and the hot list relearned on it)
+#: over both arms that run the registering groups: at 8x8/1if the none arm's record of the burst, 114,450 cycles,
+#: 76,950 past the unit, and its settle, 35,720, over nine values, 12,519 cycles, 135 us by the rule (the
+#: answering-ports arm's 12,508); at 1x1/1if the none arm's, 43,072 cycles, 14,572 past the unit, and its settle,
+#: 7,079, over two values, 10,826 cycles, 115 us by the rule (the answering-ports arm's 10,292). Measured on the image
+#: (fda89791: tsn-c-stack 175cf9e0, the join timer's fix, and the hot list relearned on it) over both arms: at 8x8/1if
+#: the answering-ports arm's record of the burst, 116,302 cycles, 78,802 past the unit, and its settle, 35,604, over
+#: nine values, 12,712 cycles, 135 us by the rule (the none arm's 12,468); at 1x1/1if the answering-ports arm's, 43,725
+#: cycles, 15,225 past the unit, and its settle, 7,076, over two values, 11,150 cycles, 120 us by the rule (the none
+#: arm's 10,193).
 REGISTRATION_US = {'1x1/1if': 120, '8x8/1if': 135}
 #: V, the Talker values one SRP record may register, as srp_mbx.h states it at each point's shape (SRP_RECORD_VALUES;
 #: #977, its ruling of 2026-11-27, item 2): the registrations term counts V a record, the bound and the kept together.
