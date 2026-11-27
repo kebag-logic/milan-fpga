@@ -1,0 +1,32 @@
+[
+  {
+    "plant": "baseline_epochs",
+    "check": "",
+    "result": "PASS"
+  },
+  {
+    "plant": "baseline_media",
+    "check": "",
+    "result": "PASS"
+  },
+  {
+    "plant": "q2_status_epoch_live",
+    "check": "BRIDGE_SNAPSHOT_ACK_BEFORE_CAPTURE",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "q3_publish_first_beat",
+    "check": "BRIDGE_SNAPSHOT_ACK_BEFORE_CAPTURE",
+    "result": "NOT_CAUGHT"
+  },
+  {
+    "plant": "q4_consume_on_apply",
+    "check": "MEDIA_DEFERRED_FRAME_RETAINED",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "q6_no_reprime",
+    "check": "MEDIA_DEFERRED_FRAME_RETAINED",
+    "result": "NOT_CAUGHT"
+  }
+]

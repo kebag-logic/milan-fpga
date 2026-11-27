@@ -1,0 +1,11 @@
+baseline_epochs: PASS bridge epochs: partial interval abandonment, channel-zero restart, applied and published acknowledgement gates, independent direction changes
+baseline_media: PASS media endpoint: prefill, atomic frames, independent epochs, acknowledgement, all bits and loss counts
+bridge_snapshot_epoch: CHECK BRIDGE_SNAPSHOT_ACK_BEFORE_CAPTURE
+media_deferred_ack: CHECK MEDIA_DEFERRED_ACK_AFTER_APPLY
+media_deferred_frame: CHECK MEDIA_DEFERRED_FRAME_RETAINED
+baseline_epochs: PASS bridge epochs: partial interval abandonment, channel-zero restart, applied and published acknowledgement gates, independent direction changes
+baseline_media: PASS media endpoint: prefill, atomic frames, independent epochs, acknowledgement, all bits and loss counts
+q2_status_epoch_live: CHECK BRIDGE_SNAPSHOT_ACK_BEFORE_CAPTURE
+q3_publish_first_beat: CHECK BRIDGE_PUBLISHED_ACK_GATE
+q4_consume_on_apply: CHECK MEDIA_DEFERRED_FRAME_RETAINED
+q6_no_reprime: CHECK MEDIA_PLAYBACK_BITS

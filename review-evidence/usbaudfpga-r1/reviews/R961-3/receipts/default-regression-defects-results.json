@@ -1,0 +1,107 @@
+[
+  {
+    "plant": "baseline_epochs",
+    "check": "",
+    "result": "PASS"
+  },
+  {
+    "plant": "baseline_gpif",
+    "check": "",
+    "result": "PASS"
+  },
+  {
+    "plant": "baseline_levels",
+    "check": "",
+    "result": "PASS"
+  },
+  {
+    "plant": "baseline_media",
+    "check": "",
+    "result": "PASS"
+  },
+  {
+    "plant": "baseline_packet",
+    "check": "",
+    "result": "PASS"
+  },
+  {
+    "plant": "baseline_reference",
+    "check": "",
+    "result": "PASS"
+  },
+  {
+    "plant": "bridge_snapshot_epoch",
+    "check": "BRIDGE_SNAPSHOT_ACK_BEFORE_CAPTURE",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "media_deferred_frame",
+    "check": "MEDIA_DEFERRED_FRAME_RETAINED",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "media_deferred_ack",
+    "check": "MEDIA_DEFERRED_ACK_AFTER_APPLY",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "bridge_applied_epoch",
+    "check": "BRIDGE_MEDIA_APPLIED_GATE",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "bridge_capture_abort",
+    "check": "BRIDGE_CAPTURE_ABORT",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "bridge_packet_fence",
+    "check": "BRIDGE_CAPTURE_CHANNEL_ZERO_RESTART",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "bridge_status_epoch",
+    "check": "BRIDGE_ACK_AFTER_MEDIA_APPLY",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "bridge_published_epoch",
+    "check": "BRIDGE_PUBLISHED_ACK_GATE",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "levels_clock_launch",
+    "check": "LEVEL_CLOCK_GLITCH",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "levels_playback_launch",
+    "check": "LEVEL_PLAYBACK_GLITCH",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "levels_capture_launch",
+    "check": "LEVEL_CAPTURE_GLITCH",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "reference_count_alignment",
+    "check": "REFERENCE_FIELDS_REJECTED",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "media_epoch_trailing",
+    "check": "MEDIA_EPOCH_TRAILING_BEATS_CLEAN",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "packet_fence",
+    "check": "PACKET_EPOCH_ABANDON",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "gpif_blocked_status",
+    "check": "GPIF_BLOCKED_STATUS_FAIRNESS",
+    "result": "CAUGHT"
+  }
+]

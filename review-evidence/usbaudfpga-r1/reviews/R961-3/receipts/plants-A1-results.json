@@ -1,0 +1,27 @@
+[
+  {
+    "plant": "baseline_epochs",
+    "check": "",
+    "result": "PASS"
+  },
+  {
+    "plant": "baseline_media",
+    "check": "",
+    "result": "PASS"
+  },
+  {
+    "plant": "bridge_snapshot_epoch",
+    "check": "BRIDGE_SNAPSHOT_ACK_BEFORE_CAPTURE",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "media_deferred_frame",
+    "check": "MEDIA_DEFERRED_FRAME_RETAINED",
+    "result": "CAUGHT"
+  },
+  {
+    "plant": "media_deferred_ack",
+    "check": "MEDIA_DEFERRED_ACK_AFTER_APPLY",
+    "result": "CAUGHT"
+  }
+]
