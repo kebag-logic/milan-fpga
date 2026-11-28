@@ -1,0 +1,24 @@
+$ gitlinks differing dev-soft-core tip..HEAD
+:160000 160000 d1bb4f4e59 e27b34c923 M	third_party/lwSRP
+:160000 160000 c3bff8f3de 5a07d9b7d8 M	third_party/tsn-c-stack
+$ pin text at HEAD
+HEAD:docs/reference/SUBMODULES.md:27:tsn-c-stack` | `5a07d9b7d87298f04b15aa28f0304ec88b0aef81
+HEAD:docs/reference/SUBMODULES.md:1281:tsn-c-stack/blob/5a07d9b7d87298f04b15aa28f0304ec88b0aef81
+HEAD:docs/reference/SUBMODULES.md:1326:tsn-c-stack/blob/5a07d9b7d87298f04b15aa28f0304ec88b0aef81
+HEAD:docs/diagrams/submodule_boundaries.svg:33:pin 801ef2283ec7
+HEAD:docs/diagrams/submodule_boundaries.svg:43:pin 3ce71b768a2f
+HEAD:docs/diagrams/submodule_boundaries.svg:54:pin 48ff7a7e2ef7
+HEAD:docs/diagrams/submodule_boundaries.svg:64:pin efeb541ae5fe
+HEAD:docs/diagrams/submodule_boundaries.svg:74:pin e27b34c9231a
+HEAD:docs/diagrams/submodule_boundaries.svg:84:pin 5a07d9b7d872
+$ any c3bff8f3 left as a current pin in docs at HEAD (context only)
+HEAD:CHANGELOG.md:1
+HEAD:docs/reference/SUBMODULES.md:3
+$ hdl paths in PR #1015 delta
+0
+$ commit object
+tree 222e3e20fa0f6313632775aabf4f74a26c4417fc
+parent a5b19f70a4ba63bf5a7bb4bd29b2056977a85e35
+parent 0b5940237e8de8bd5912db87e5e036a78f59b5a6
+
+Merge dev-soft-core into the Talker registration branch

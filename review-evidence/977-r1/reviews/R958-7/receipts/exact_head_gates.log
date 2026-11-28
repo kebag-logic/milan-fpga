@@ -1,0 +1,13 @@
+$ git merge-base --all origin-dev-soft-core(0b594023) HEAD
+0b5940237e8de8bd5912db87e5e036a78f59b5a6
+$ python3 -B scripts/check_em_dash.py --base 0b5940237e8de8bd5912db87e5e036a78f59b5a6
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+$ git diff --check 0b594023 HEAD
+rc=0
+$ git diff --check 71bad8c0 HEAD
+rc=0
+$ git grep conflict markers at HEAD (rc 1 = none)
+rc=1
+$ B-prefix residue of PR #1015 comments at HEAD in test_plat_boot.cpp (rc 1 = none)
+rc=1
