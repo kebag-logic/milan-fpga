@@ -18,6 +18,7 @@ requires with two or more AAF inputs, all on the one 100 Mb/s interface.
 Each listener is the 1x1 split's: eight clusters, the 2-channel 48 kHz Base format current and the 48 kHz family
 derived after it; each talker is the stereo framer with two clusters.
 The scheduler shape is one interface, five sources and five sinks, and its service-budget point is `arty-4x4`.
+Its sys/CPU clock is 100 MHz, the 800 MHz VCO divided by eight; the datapath stays at 50 MHz.
 The Arty recipe takes it through `BUILD_CFG=configs/endstation_arty_split_4x4.yaml`.
 
 The Arty sys/CPU clock is exactly 80,000,000 Hz.

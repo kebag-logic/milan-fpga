@@ -29404,8 +29404,9 @@ GPTP_LAT_SUM_TOL_NS = 10
 #: because no one has measured them on this plane.
 GPTP_LAT_MEASURED = ("ax7101_8x8", "ax7101_1x1_tdm8", "arty_split", "arty_split_4x4")
 #: Board-specific measured sums; the AX7101 default remains 875 ns. The Arty's
-#: is its board's (#829: the same PHY, MII path and 80 MHz clock at either
-#: split shape), measured on the 1x1 image.
+#: is its board's (#829: the same PHY and MII path at either split shape),
+#: measured on the 1x1 image at an 80 MHz sys; the 4x4 image runs sys at
+#: 100 MHz, where the sum is owed to the bench and this one stands meanwhile.
 GPTP_LAT_MEASURED_SUM_OF = {"arty_split": 1509, "arty_split_4x4": 1509}
 
 

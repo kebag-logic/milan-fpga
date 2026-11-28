@@ -352,7 +352,8 @@ The existing AX7101 1x1 point has two sources and separate costs.
 The datapath remains at 50 MHz.
 The same recipe takes the 4x4/1if shape from `configs/endstation_arty_split_4x4.yaml`
 through `BUILD_CFG`: four AAF streams and the CRF each way, the scheduler shape (1,5,5),
-measured as its own `arty-4x4` service-budget point at the same 80 MHz.
+measured as its own `arty-4x4` service-budget point with sys and the CPU at 100 MHz.
+That is the same 800 MHz VCO divided by eight, so the exact-divider contract holds; the datapath stays at 50 MHz.
 As for every recipe, the entity-shape gate launches it only once the tracked entity
 definition is that configuration's.
 

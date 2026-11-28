@@ -23,7 +23,8 @@
 # Generate this shape through the split recipe:
 #   BUILD_CFG=configs/endstation_arty_split_4x4.yaml sw/litex/build.sh arty
 # The CPU and sys share 100 MHz (the 800 MHz VCO / 8); the datapath runs at 50 MHz.
-# The runtime latency pair resets to the measured 1409/100 ns (#829).
+# The runtime latency pair resets to 1409/100 ns, measured at an 80 MHz system
+# clock (#829); its figure at this image's 100 MHz is owed to the bench.
 # No tap compensation is included in this configuration.
 
 schema: kebag-logic/milan-endstation-config
@@ -200,7 +201,9 @@ gptp:
   # the peer delay read 752 ns, the same sum. THE SUM IS MEASURED, THE SPLIT
   # IS NOT: egress takes the DP83848's 100BASE-TX figures, one 40 ns MII
   # clock to the PHY's sampling edge and 6 bit times to the wire, and ingress
-  # the rest. The measurement used the same 80 MHz system clock selected
-  # here. #878 keeps this board's calibration.
+  # the rest. The measurement used an 80 MHz system clock, and two of its
+  # ingress terms cross into sys, so at this image's 100 MHz the pair needs
+  # measuring again on the board (#878 read a 1,465 ns sum at a 100 MHz sys
+  # on an earlier image). Until then this keeps the 80 MHz calibration.
   ingress_latency_ns: 1409
   egress_latency_ns: 100
