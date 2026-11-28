@@ -296,6 +296,14 @@ The all-fabric placement's boot path is not covered by #972, and this derivation
 > the revisit trigger and the adoption plan are in the
 > [gPTP plane record](../design/GPTP_PLANE.md#propagation-asymmetry-is-not-modelled).
 
+> **Owed (#878):** the Arty 4x4/1if image (`configs/endstation_arty_split_4x4.yaml`,
+> sys and the CPU at 100 MHz) carries the Arty board's measured correction pair,
+> 1409 ns ingress and 100 ns egress, measured with an 80 MHz system clock (#829).
+> Two of its ingress terms cross into sys, so FR-CLK-05's measured physical
+> correction for that image is owed to a measurement of the pair on the board at
+> 100 MHz. Until then the image keeps the 80 MHz calibration. The service-budget
+> model and the 100 Mb/s egress row do not use the pair.
+
 ### 2.7 Streaming  -  AVTP AAF talker/listener  *(1722-2016 Section 7; Milan Section 6)*
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
