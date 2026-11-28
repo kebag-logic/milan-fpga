@@ -15365,7 +15365,7 @@ def selftest_slot_validation_path(
         """Record the boundary's slot and yield it populated."""
         events.append(f"boundary-enter-{planned.slot}")
         yield replace(
-            planned, network_id="a" * 64, gateway="10.231.2.1",
+            planned, network_id="a" * 64, gateway="192.0.2.1",
             toolcache_owned=True, toolcache_seeded=True,
         )
         events.append("boundary-exit")

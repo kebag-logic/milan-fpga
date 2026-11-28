@@ -649,7 +649,7 @@ row (§3.5) — and no board software drives the window. Measured twice on a
 | evidence | reading |
 |---|---|
 | `A_STRMW_SRP` `0x85C` via `A_STRM_SEL` `0x100+idx` | `0x0000_037E` at idx 0, **`0x0000_0000` at idx 1/2/3** |
-| ProfiShark inline, licensed stream running | MSRP Talker Advertise for `{02:00:00:00:00:02, uid 0}` and `{…, uid 4}` (the CRF output) — **nothing for uid 1/2/3** |
+| Inline capture tap, licensed stream running | MSRP Talker Advertise for `{02:00:00:00:00:02, uid 0}` and `{…, uid 4}` (the CRF output) -- **nothing for uid 1/2/3** |
 
 Idx 0 is a live hard alias of the legacy flat row, which is why every
 idx-0-only read looked healthy. The two stream_ids on the wire were exactly

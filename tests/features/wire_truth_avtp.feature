@@ -271,7 +271,7 @@ Feature: AVTP wire truth - the declared format is the format on the wire
     Then the analyser reports FAIL on "stream-frames-present"
 
   @class:decoder @regression
-  Scenario: a ProfiShark tap capture only decodes with its 28-octet offset
+  Scenario: an inline-tap capture only decodes with its 28-octet offset
     # Tap records carry a 28-byte header and keep the FCS. Reading such a file
     # without the offset yields zero AVTP
     # frames - and a check that treats "no frames" as a pass would call that

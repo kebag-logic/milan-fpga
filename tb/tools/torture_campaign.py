@@ -2986,7 +2986,7 @@ def _physical_switch_cycle_steps(dut, peer, fmt, ti, li, dli):
          "settle_gap_s": 10, "gm_changes_max": 8,
          "clkv_stat_addr": CLKV_STAT_ADDR},
         needs_human=True,
-        human_action="Power off the AVB switch (DN-1) at the powerstrip for "
+        human_action="Power off the AVB switch at the powerstrip for "
                      "~20 s, then power it back on and wait for links and "
                      "gPTP to recover. AUTOMATED when the runner is "
                      "given --powerstrip-cmd and --switch-outlet (bench: "
@@ -3064,7 +3064,7 @@ def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
     """The powerstrip-driven physical family - LAST, always, and never faked.
 
     USER AUTHORIZATION (2026-08-02): the bench powerstrip may drive OUT4 =
-    the AVB switch ("DN-1") and OUT0 = the DUT (the AX cold-cycle precedent).
+    the AVB switch and OUT0 = the DUT (the AX cold-cycle precedent).
     Per-port CABLE PULLS stay needs_human in the torture area: a powerstrip
     cannot pull one cable, and simulating a port bounce by cutting the whole
     switch would assert something the cable-pull step does not claim.
@@ -3098,7 +3098,7 @@ def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
       * switch hold 20 s - an order of magnitude past the 802.1AS
         announce-receipt timeout (3 announce intervals = 3 s), so both
         islands provably re-elect their own GM before power returns;
-      * switch recovery 240 s to reachability (the DN-1 must BOOT before any
+      * switch recovery 240 s to reachability (the AVB switch must BOOT before any
         board is reachable through it - the 180 s floor plus switch boot
         margin), then 180 s more to ONE GM (BMCA + Pdelay asCapable + the
         servo, all automatic by standing rule; 120 s floor plus margin);
@@ -6780,7 +6780,7 @@ class _StreamingLicenceChecks:
         # a stream-scoped pcap wire source still convicts alone
         pc = sides(None, 0)
         pc["tap"] = {"role": "wire", "source": "pcap", "frames": 99,
-                     "device": "profishark"}
+                     "device": "capture-tap"}
         v, _ = one(cross_side_growth(pc, licensed=False),
                    "xside.unlicensed-silent-everywhere")
         self.assertEqual(v, "FAIL")

@@ -17,7 +17,7 @@
 # WHERE TO RUN IT. The AVB switch forwards a stream ONLY to registered
 # listeners, so the peer test host does NOT see stream frames it has not
 # subscribed to - a capture there returns a handful of ADP/ACMP control frames
-# and nothing else. Use an inline ProfiShark tap for stream traffic and pass
+# and nothing else. Use an inline capture tap for stream traffic and pass
 # --tap: those records carry a 28-byte header, so every offset shifts by +28.
 #
 # WHERE THE BIT IS. The fabric writes fb[21] = {7'h00, tu}: frame byte 21,

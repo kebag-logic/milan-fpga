@@ -229,8 +229,8 @@ measured peer delay, a published path, `sync=1`, `asCapable=1`,
 
 Then generate and capture traffic from the bench hosts named in
 [the build guide](../integration/BUILDING.md#41-bench-hosts-and-the-one-dut-acceptance-contract):
-the controller and audio endpoint on `pw1`, the ProfiShark taps on the Ubuntu
-server.
+the controller and audio endpoint on the controller bench host, the inline
+capture taps on the Ubuntu server.
 Preserve the exact bitstream identity, generated configuration, UART
 transcript, packet capture, and any external CSR transcript with the result.
 The UART intentionally exposes a small documented command set; it is not a

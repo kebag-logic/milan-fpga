@@ -213,7 +213,7 @@ def read_capture(path: str | Path, tap_header: int = 0,
                  strip_fcs: bool = False) -> list[tuple[float, bytes]]:
     """Every frame of a pcap/pcapng as (timestamp, ethernet bytes).
 
-    `tap_header` strips a fixed per-record prefix.  A ProfiShark inline tap
+    `tap_header` strips a fixed per-record prefix.  An inline capture tap
     writes a 28-BYTE RECORD HEADER before the Ethernet frame - every ether[]
     offset shifts by +28 - and it keeps the FCS, which is 4 trailing octets
     that are NOT part of the frame's own length arithmetic.  Both are documented
