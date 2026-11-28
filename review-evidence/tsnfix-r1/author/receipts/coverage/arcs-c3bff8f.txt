@@ -1,0 +1,58 @@
+  30 reject_reentry               arcs=[122, 513491]  if (port_active) {
+  55 draw_ms                      arcs=[145157, 37152]  uint32_t max_ms = kind == ADP_DRAW_STARTUP ? ADP_DELAY_STARTUP_MAX_MS : ADP_DELA
+ 108 leave_down                   arcs=[174255, 1]  a->rng = x != 0u ? x : 1u;
+ 114 adp_build                    arcs=[12, 16557]  if (reject_reentry()) {
+ 123 adp_build                    arcs=[16115, 442]  uint8_t valid_time = message_type == ADP_MSG_ENTITY_AVAILABLE ? ADP_VALID_TIME :
+ 159 send                         arcs=[8536, 7999]  if (sent) {
+ 169 depart                       arcs=[9, 433]  if (!send(a, ADP_MSG_ENTITY_DEPARTING, a->departing_index)) {
+ 183 advertise                    arcs=[16093, 6, 7990, 8103]  if (a->departing_owed != 0u || !send(a, ADP_MSG_ENTITY_AVAILABLE, a->available_i
+ 195 adp_init                     arcs=[12, 122325]  if (reject_reentry()) {
+ 208 adp_set_current_configuration arcs=[12, 121]  if (reject_reentry()) {
+ 217 shutdown                     arcs=[3, 100434]  if (a->state == ADP_STATE_DOWN) {
+ 227 shutdown                     arcs=[431, 100003]  if (a->departing_owed == 0u) {
+ 231 shutdown                     arcs=[2, 100001]  } else if (a->departing_owed < ADP_DEPARTING_OWED_MAX) {
+ 240 adp_set_enable               arcs=[12, 274078]  if (reject_reentry()) {
+ 243 adp_set_enable               arcs=[2, 274076]  if (enable == a->enabled) {
+ 246 adp_set_enable               arcs=[100437, 173639]  if (!enable) {
+ 255 adp_set_enable               arcs=[145157, 28482]  if (a->link_up) {
+ 264 adp_link_change              arcs=[12, 41807]  if (reject_reentry()) {
+ 269 adp_link_change              arcs=[41802, 5, 4100, 37702]  if (!a->enabled || up == was) {
+ 272 adp_link_change              arcs=[29099, 8603]  if (up) {
+ 273 adp_link_change              arcs=[29099, 0]  if (a->state == ADP_STATE_DOWN) {
+ 278 adp_link_change              arcs=[8603, 0]  if (a->state != ADP_STATE_DOWN) {
+ 287 adp_gm_change                arcs=[12, 60]  if (reject_reentry()) {
+ 291 adp_gm_change                arcs=[59, 1, 58, 1]  if (a->enabled && a->state == ADP_STATE_WAITING) {
+ 298 adp_timer_expired            arcs=[14, 16106]  if (reject_reentry()) {
+ 302 adp_timer_expired            arcs=[2, 16104]  if (kind == ADP_TIMER_NONE) {
+ 307 adp_timer_expired            arcs=[16094, 10, 16094, 0]  if (a->state == ADP_STATE_DELAY && kind == ADP_TIMER_DELAY) {
+ 309 adp_timer_expired            arcs=[10, 0, 10, 0]  } else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {
+ 318 adp_rx                       arcs=[12, 41932]  if (reject_reentry()) {
+ 326 adp_rx                       arcs=[41111, 821, 41110, 1]  if (len < ADP_FRAME_BYTES || wire_be16(frame + 12) != ADP_ETHERTYPE ||
+ 327 adp_rx                       arcs=[41109, 1]  frame[ADP_HEADER_BYTES] != ADP_SUBTYPE ||
+ 328 adp_rx                       arcs=[41039, 70]  (frame[ADP_HEADER_BYTES + 1u] & 0x70u) != 0u ||
+ 329 adp_rx                       arcs=[39919, 1120]  (wire_be16(frame + ADP_HEADER_BYTES + 2u) & 0x07FFu) < ADP_CONTROL_DATA_LENGTH |
+ 330 adp_rx                       arcs=[1, 39918]  (frame[ADP_HEADER_BYTES + 1u] & 0x0Fu) != ADP_MSG_ENTITY_DISCOVER) {
+ 335 adp_rx                       arcs=[19958, 19960, 1, 19957]  if (target != 0u && target != a->entity->entity_id) {
+ 339 adp_rx                       arcs=[31934, 7983, 23949, 7985]  if (!a->enabled || a->state != ADP_STATE_WAITING) {             // Milan v1.2 Ta
+ 350 adp_poll                     arcs=[12, 21]  if (reject_reentry()) {
+ 353 adp_poll                     arcs=[11, 10]  if (a->departing_owed != 0u) {
+ 355 adp_poll                     arcs=[5, 5]  } else if (a->available_owed) {
+ 356 adp_poll                     arcs=[5, 0, 5, 0]  if (a->enabled && a->state == ADP_STATE_DELAY) {
+ 362 adp_poll                     arcs=[18, 3, 3, 15]  return a->departing_owed != 0u || a->available_owed;
+total arcs 102 lines 217
+  adp_build                    4
+  adp_gm_change                6
+  adp_init                     2
+  adp_link_change              12
+  adp_poll                     14
+  adp_rx                       22
+  adp_set_current_configuration 2
+  adp_set_enable               8
+  adp_timer_expired            12
+  advertise                    4
+  depart                       2
+  draw_ms                      2
+  leave_down                   2
+  reject_reentry               2
+  send                         2
+  shutdown                     6

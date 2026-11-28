@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+"""arcs.py SRC BUILD: per-line gcov arcs of src/adp.c, via SRC's own scripts/coverage.py reader."""
+import sys
+from pathlib import Path
+src, build = Path(sys.argv[1]).resolve(), Path(sys.argv[2]).resolve()
+sys.path.insert(0, str(src / "scripts"))
+import coverage as reader
+assert reader.ROOT == src
+merged = reader.collect([build])
+s = merged["src/adp.c"]
+text = (src / "src/adp.c").read_text().splitlines()
+owner = lambda n: next((f for f, (a, b) in s.functions.items() if a <= n <= b), "?")
+per_fn = {}
+for n in sorted(s.lines):
+    ln = s.lines[n]
+    if ln.arcs:
+        per_fn[owner(n)] = per_fn.get(owner(n), 0) + len(ln.arcs)
+        print(f"{n:4} {owner(n):28} arcs={ln.arcs}  {text[n-1].strip()[:80]}")
+print("total arcs", sum(len(l.arcs) for l in s.lines.values()), "lines", len(s.lines))
+for f, k in sorted(per_fn.items()):
+    print(f"  {f:28} {k}")

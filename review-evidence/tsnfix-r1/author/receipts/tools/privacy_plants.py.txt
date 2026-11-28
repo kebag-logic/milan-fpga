@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+"""privacy_plants.py REPO OUTDIR: plant defects in copies of REPO's scripts/check_privacy.py; each must fail --selftest."""
+import subprocess, sys
+from pathlib import Path
+repo, out = Path(sys.argv[1]), Path(sys.argv[2]); out.mkdir(parents=True, exist_ok=True)
+src = (repo / "scripts/check_privacy.py").read_text()
+rule = 'commit not in TWO_LINE_MERGES and len([line for line in lines[2:] if line.strip()]) != 1'
+plants = {
+  "no-one-line-rule": (rule, 'False'),
+  "exemption-removed": ('commit not in TWO_LINE_MERGES and ', ''),
+  "prefix-match-exemption": ('commit not in TWO_LINE_MERGES', 'commit[:8] not in {m[:8] for m in TWO_LINE_MERGES}'),
+  "exemption-skips-identity": ('if commit != OWNER_SQUASH and not identity_ok(lines):', 'if commit != OWNER_SQUASH and commit not in TWO_LINE_MERGES and not identity_ok(lines):'),
+  "non-exception-commit-exempted": ('TWO_LINE_MERGES = {', 'TWO_LINE_MERGES = {"' + "0"*40 + '", '),
+}
+caught = 0
+r = subprocess.run(["python3", "-I", str(repo / "scripts/check_privacy.py"), "--selftest"], capture_output=True, text=True)
+print(f"{'unplanted':32} rc={r.returncode} {r.stdout.strip()}")
+for name, (a, b) in plants.items():
+    assert src.count(a) == 1, name
+    p = out / (name + ".py"); p.write_text(src.replace(a, b, 1))
+    r = subprocess.run(["python3", "-I", str(p), "--selftest"], capture_output=True, text=True)
+    caught += r.returncode != 0
+    print(f"{name:32} rc={r.returncode} {r.stdout.strip()}")
+print(f"{caught} of {len(plants)} plants refused")
+sys.exit(caught != len(plants))

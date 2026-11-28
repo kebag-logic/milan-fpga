@@ -1,0 +1,11 @@
+#!/bin/bash
+# measure.sh SRC BUILD: gcc coverage build + ctest + scripts/coverage.py (as validate.py's gcc arm does)
+set -e
+. $LANES/tsn-fix-work/bin/env.sh
+SRC=$1; B=$2
+cmake -S "$SRC" -B "$B" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DTSN_COVERAGE=ON > "$B.cfg.log" 2>&1
+cmake --build "$B" -j16 > "$B.build.log" 2>&1
+find "$B" -name '*.gcda' -delete
+ctest --test-dir "$B" --output-on-failure -j16 > "$B.ctest.log" 2>&1
+echo "ctest: $(grep -E 'tests passed' "$B.ctest.log")"
+cd "$SRC" && echo "HEAD $(git rev-parse HEAD) dirty $(git status --porcelain | wc -l)" && python3 scripts/coverage.py "$B"

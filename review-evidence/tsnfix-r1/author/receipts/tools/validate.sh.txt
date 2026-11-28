@@ -1,0 +1,6 @@
+#!/bin/bash
+# validate.sh SRC WORK: the quality job's command (scripts/validate.py --jobs 16 --graphs) with the pinned toolchain.
+. $LANES/tsn-fix-work/bin/env.sh
+export PUPPETEER_CACHE_DIR=$WORKSPACE_HOME/.cache/puppeteer
+cd "$1" && echo "HEAD $(git rev-parse HEAD) dirty $(git status --porcelain | wc -l)" && echo "clang: $(clang-18 --version | head -1); clang-tidy: $(clang-tidy --version | grep version); gtest: $CMAKE_PREFIX_PATH; mmdc $(mmdc --version)" && python3 scripts/validate.py --work "$2" --jobs 16 --graphs
+echo "validate rc=$?"
