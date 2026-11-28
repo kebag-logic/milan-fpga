@@ -1,0 +1,6 @@
+  - docs/design/SPLIT_CONTROL_MEMORY.md:3501: [T] retired-stack term 'Linux': "The Linux host's scheduling profile is outside this FPGA point." (#259: the checkout is bare-metal only; history lives in git)
+  - sw/firmware/ctrl/loop/ctrl_loop.h:355: [T] retired-stack term 'Linux': '// a Linux-host scheduling profile. Section 15 of SPLIT_CONTROL_MEMORY.md' (#259: the checkout is bare-metal only; history lives in git)
+  - tb/verilator/ctrl_service_budget/README.md:49: [T] retired-stack term 'Linux': '`arty-1x1` is `endstation_arty_current` with one interface, one AAF source and two sinks (AAF and CR' (#259: the checkout is bare-metal only; history lives in git)
+  - tb/verilator/ctrl_service_budget/arty_grade.py:52: [R] prohibited target runtime/service surface '/sys': "out.append(f'{config}: CPU/sys clock is not exactly {CLOCK_HZ} Hz')" (#259: no target OS or retired helper-service plane)
+  - tb/verilator/ctrl_service_budget/egress_ledger.py:97: [R] prohibited target runtime/service surface '/sys': "#: #878's Arty (1,1,2) point, CPU/sys exactly 80 MHz: its own backlog-owed measurements." (#259: no target OS or retired helper-service plane)
+baremetal-only: FAIL (5 finding(s) across 2014 scanned file(s))
