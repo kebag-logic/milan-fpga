@@ -132,7 +132,7 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
           '32x32/2if': dict(n_if=2, sinks_per_if=16, registrations=16, counter_descriptors=68)}
 #: The points whose stated costs are another's, the nearest shape each is measured at in both columns (#894's shape
 #: ruling, item (b): 8x8/1if's load at most 0.75, 0.76 by #977's owner decision of 2026-11-25, 0.77 by its decision of
-#: 2026-11-27): 8x8/1if's records,
+#: 2026-11-27, 0.79 by its decision of 2026-11-28 on the 8x8/1if load ceiling): 8x8/1if's records,
 #: events and THE STEP's pass are 8x8/2if's, the 8x8 shape's at two interfaces, measured over every group of both arms
 #: there, as #894 derived that load; THE TRANSMIT's builds and an owed MRPDU, a build of one's, are its own shape's
 #: (ctrl_loop.h, THE SHAPES), and the polls' base and items its own shape's (poll_grade.STATED_US; the held-egress
