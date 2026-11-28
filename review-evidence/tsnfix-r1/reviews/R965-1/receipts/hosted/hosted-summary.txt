@@ -1,0 +1,37 @@
+Hosted runs read through the GitHub API (read-only); the manager owns hosted acceptance.
+run 46132708242 event=push head=a8551cdd3cf715c52cca164a57d6d7f022e62c00 branch=main-gate-fixes conclusion=success
+  job quality: status=completed conclusion=success 2026-11-28T09:55:21Z..2026-11-28T10:01:03Z
+  job bare-metal: status=completed conclusion=success 2026-11-28T09:55:21Z..2026-11-28T09:56:31Z
+run 46132722374 event=pull_request head=a8551cdd3cf715c52cca164a57d6d7f022e62c00 branch=main-gate-fixes conclusion=success
+  job bare-metal: status=completed conclusion=success 2026-11-28T09:55:31Z..2026-11-28T09:56:00Z
+  job quality: status=completed conclusion=success 2026-11-28T09:55:31Z..2026-11-28T10:02:33Z
+run 45963640932 event=push head=5a07d9b7d87298f04b15aa28f0304ec88b0aef81 branch=main conclusion=failure
+  job bare-metal: status=completed conclusion=success 2026-11-27T08:10:30Z..2026-11-27T08:11:26Z
+  job quality: status=completed conclusion=failure 2026-11-27T08:10:31Z..2026-11-27T08:14:47Z
+
+== exact-head pull_request run 46132722374, artifact quality-evidence 15258339669
+28 gates executed; nonzero rc: []
+-- The C compiler identification is GNU 13.3.0
+-- The CXX compiler identification is GNU 13.3.0
+-- The C compiler identification is Clang 18.1.3
+-- The CXX compiler identification is Clang 18.1.3
+file                                                 lines    branches   after exclusions
+include/wire.h                                    14/14        2/2       lines 100.00 %  branches 100.00 %
+src/acmp.c                                       877/877     468/468     lines 100.00 %  branches 100.00 %
+src/adp.c                                        215/217      95/102     lines 100.00 %  branches 100.00 %
+src/maap.c                                       209/209     140/140     lines 100.00 %  branches 100.00 %
+privacy: exact owner squash metadata exception; content scanning remains enabled
+privacy: exact #29 and #41 merge one-line exceptions; identity and content checks remain enabled
+privacy: 67 commits, 522 historical blobs, 100 current files; pass
+privacy selftest: 17 commit controls pass
+{"CAUGHT": 522, "ESCAPED": 0, "ERROR": 0}
+
+== base main push run 45963640932 (5a07d9b7), artifact quality-evidence 15182481704
+17 gates executed (fail-fast before builds); nonzero rc: ['privacy']
+privacy: exact owner squash metadata exception; content scanning remains enabled
+privacy: exact #29 merge one-line exception; identity and content checks remain enabled
+5a07d9b7d87298f04b15aa28f0304ec88b0aef81: commit message must be one line
+
+== RV32 results.json, base main run vs exact-head pull_request run
+Debug rc 0 0 elf d07b13e980eb72e0 d07b13e980eb72e0 equal ; core and generated objects equal
+Release rc 0 0 elf 9fecf241fcda2ede 9fecf241fcda2ede equal ; core and generated objects equal

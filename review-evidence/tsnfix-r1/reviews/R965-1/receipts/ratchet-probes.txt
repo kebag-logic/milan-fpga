@@ -1,0 +1,10 @@
+head a8551cdd3cf715c52cca164a57d6d7f022e62c00
+coverage.py --write rc 0
+regenerated ratchet is byte-identical to the committed one
+6d1cde8a82fe38fb34ecb81e5ee021380b6c55f09ab22dece07557200f6da8de  tests/coverage.ratchet
+probe [committed ratchet]: rc 0 : 
+probe [base ratchet 205/97 813/424 at head's measurement]: rc 0 (fraction compare: record-only change)
+probe [adp row removed]: rc 1 : src/adp.c: measured, but the ratchet does not record it 
+probe [adp row recorded at 216/216 96/96 (not the measurement)]: rc 0 : 
+probe [adp branches floor above measurement as a fraction (95/94)]: rc 1 : src/adp.c: branches 95/95 fell below the recorded 95/94 
+probe [extra file row]: rc 1 : src/extra.c: recorded in the ratchet, but nothing measured it 

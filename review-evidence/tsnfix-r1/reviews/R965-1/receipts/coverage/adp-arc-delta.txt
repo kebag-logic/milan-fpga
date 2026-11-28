@@ -1,0 +1,33 @@
+adp.c branch-bearing lines present on one side only across PR #40 (a795471 -> c3bff8f), compared by function, arc count and statement (hit counts ignored), raw gcov arcs before exclusions:
+  removed  a795471 line 180  adp_init         2 arcs hits=[1, 40316]  if (a->rng == 0u) {
+  removed  a795471 line 234  adp_set_enable   2 arcs hits=[1, 132615]  if (a->rng == 0u) {
+  added    c3bff8f line 108  leave_down       2 arcs hits=[174255, 1]  a->rng = x != 0u ? x : 1u;
+  net raw arcs: -2
+
+(arc count per function; per-line hit-count changes are not listed:)
+<   src/adp.c fn adp_init                           lines   12 arcs    4
+>   src/adp.c fn adp_init                           lines    9 arcs    2
+<   src/adp.c fn adp_set_enable                     lines   21 arcs   10
+>   src/adp.c fn adp_set_enable                     lines   16 arcs    8
+>   src/adp.c fn leave_down                         lines   11 arcs    2
+>   src/adp.c fn mix                                lines    7 arcs    0
+a795471/arcs.txt:src/adp.c raw: lines 205/207 arcs 97/104
+a795471/arcs.txt:src/acmp.c raw: lines 847/847 arcs 436/436
+c3bff8f/arcs.txt:src/adp.c raw: lines 215/217 arcs 95/102
+c3bff8f/arcs.txt:src/acmp.c raw: lines 847/847 arcs 436/436
+5a07d9b/arcs.txt:src/adp.c raw: lines 215/217 arcs 95/102
+5a07d9b/arcs.txt:src/acmp.c raw: lines 877/877 arcs 468/468
+a8551cd/arcs.txt:src/adp.c raw: lines 215/217 arcs 95/102
+a8551cd/arcs.txt:src/acmp.c raw: lines 877/877 arcs 468/468
+
+Exclusion rows: docs/COVERAGE.md and scripts/coverage.py unchanged 8a1cb08..a8551cd: 0 changed-file lines
+adp.c unchanged c3bff8f..a8551cd: 0 diff lines; src/ include/ examples/ unchanged 5a07d9b..a8551cd: 0 diff lines
+#38 adp.c change (69bac7c..a795471), count-neutral (!= became <):
++	// IEEE 1722.1-2021 6.2.7.1.3
+-	    (wire_be16(frame + ADP_HEADER_BYTES + 2u) & 0x07FFu) != ADP_CONTROL_DATA_LENGTH ||
++	    (wire_be16(frame + ADP_HEADER_BYTES + 2u) & 0x07FFu) < ADP_CONTROL_DATA_LENGTH ||
+
+Cross-check with the author's published arcs receipts (same lines, same hit counts):
+ 180 adp_init                     arcs=[1, 40316]  if (a->rng == 0u) {
+ 234 adp_set_enable               arcs=[1, 132615]  if (a->rng == 0u) {
+ 108 leave_down                   arcs=[174255, 1]  a->rng = x != 0u ? x : 1u;

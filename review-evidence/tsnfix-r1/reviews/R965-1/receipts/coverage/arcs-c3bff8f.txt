@@ -1,0 +1,146 @@
+src/adp.c:30   reject_reentry               arcs=[122, 513491] uncovered=0  if (port_active) {
+src/adp.c:55   draw_ms                      arcs=[145157, 37152] uncovered=0  uint32_t max_ms = kind == ADP_DRAW_STARTUP ? ADP_DELAY_STARTUP_MAX_MS : ADP_DELAY_MAX_MS;
+src/adp.c:108  leave_down                   arcs=[174255, 1] uncovered=0  a->rng = x != 0u ? x : 1u;
+src/adp.c:114  adp_build                    arcs=[12, 16557] uncovered=0  if (reject_reentry()) {
+src/adp.c:123  adp_build                    arcs=[16115, 442] uncovered=0  uint8_t valid_time = message_type == ADP_MSG_ENTITY_AVAILABLE ? ADP_VALID_TIME : 0u;
+src/adp.c:159  send                         arcs=[8536, 7999] uncovered=0  if (sent) {
+src/adp.c:169  depart                       arcs=[9, 433] uncovered=0  if (!send(a, ADP_MSG_ENTITY_DEPARTING, a->departing_index)) {
+src/adp.c:183  advertise                    arcs=[16093, 6, 7990, 8103] uncovered=0  if (a->departing_owed != 0u || !send(a, ADP_MSG_ENTITY_AVAILABLE, a->available_index)) {
+src/adp.c:195  adp_init                     arcs=[12, 122325] uncovered=0  if (reject_reentry()) {
+src/adp.c:208  adp_set_current_configuration arcs=[12, 121] uncovered=0  if (reject_reentry()) {
+src/adp.c:217  shutdown                     arcs=[3, 100434] uncovered=0  if (a->state == ADP_STATE_DOWN) {
+src/adp.c:227  shutdown                     arcs=[431, 100003] uncovered=0  if (a->departing_owed == 0u) {
+src/adp.c:231  shutdown                     arcs=[2, 100001] uncovered=0  } else if (a->departing_owed < ADP_DEPARTING_OWED_MAX) {
+src/adp.c:240  adp_set_enable               arcs=[12, 274078] uncovered=0  if (reject_reentry()) {
+src/adp.c:243  adp_set_enable               arcs=[2, 274076] uncovered=0  if (enable == a->enabled) {
+src/adp.c:246  adp_set_enable               arcs=[100437, 173639] uncovered=0  if (!enable) {
+src/adp.c:255  adp_set_enable               arcs=[145157, 28482] uncovered=0  if (a->link_up) {
+src/adp.c:264  adp_link_change              arcs=[12, 41807] uncovered=0  if (reject_reentry()) {
+src/adp.c:269  adp_link_change              arcs=[41802, 5, 4100, 37702] uncovered=0  if (!a->enabled || up == was) {
+src/adp.c:272  adp_link_change              arcs=[29099, 8603] uncovered=0  if (up) {
+src/adp.c:273  adp_link_change              arcs=[29099, 0] uncovered=1  if (a->state == ADP_STATE_DOWN) {
+src/adp.c:278  adp_link_change              arcs=[8603, 0] uncovered=1  if (a->state != ADP_STATE_DOWN) {
+src/adp.c:287  adp_gm_change                arcs=[12, 60] uncovered=0  if (reject_reentry()) {
+src/adp.c:291  adp_gm_change                arcs=[59, 1, 58, 1] uncovered=0  if (a->enabled && a->state == ADP_STATE_WAITING) {
+src/adp.c:298  adp_timer_expired            arcs=[14, 16106] uncovered=0  if (reject_reentry()) {
+src/adp.c:302  adp_timer_expired            arcs=[2, 16104] uncovered=0  if (kind == ADP_TIMER_NONE) {
+src/adp.c:307  adp_timer_expired            arcs=[16094, 10, 16094, 0] uncovered=1  if (a->state == ADP_STATE_DELAY && kind == ADP_TIMER_DELAY) {
+src/adp.c:309  adp_timer_expired            arcs=[10, 0, 10, 0] uncovered=2  } else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {
+src/adp.c:318  adp_rx                       arcs=[12, 41932] uncovered=0  if (reject_reentry()) {
+src/adp.c:326  adp_rx                       arcs=[41111, 821, 41110, 1] uncovered=0  if (len < ADP_FRAME_BYTES || wire_be16(frame + 12) != ADP_ETHERTYPE ||
+src/adp.c:327  adp_rx                       arcs=[41109, 1] uncovered=0  frame[ADP_HEADER_BYTES] != ADP_SUBTYPE ||
+src/adp.c:328  adp_rx                       arcs=[41039, 70] uncovered=0  (frame[ADP_HEADER_BYTES + 1u] & 0x70u) != 0u ||
+src/adp.c:329  adp_rx                       arcs=[39919, 1120] uncovered=0  (wire_be16(frame + ADP_HEADER_BYTES + 2u) & 0x07FFu) < ADP_CONTROL_DATA_LENGTH ||
+src/adp.c:330  adp_rx                       arcs=[1, 39918] uncovered=0  (frame[ADP_HEADER_BYTES + 1u] & 0x0Fu) != ADP_MSG_ENTITY_DISCOVER) {
+src/adp.c:335  adp_rx                       arcs=[19958, 19960, 1, 19957] uncovered=0  if (target != 0u && target != a->entity->entity_id) {
+src/adp.c:339  adp_rx                       arcs=[31934, 7983, 23949, 7985] uncovered=0  if (!a->enabled || a->state != ADP_STATE_WAITING) {             // Milan v1.2 Table 5.51
+src/adp.c:350  adp_poll                     arcs=[12, 21] uncovered=0  if (reject_reentry()) {
+src/adp.c:353  adp_poll                     arcs=[11, 10] uncovered=0  if (a->departing_owed != 0u) {
+src/adp.c:355  adp_poll                     arcs=[5, 5] uncovered=0  } else if (a->available_owed) {
+src/adp.c:356  adp_poll                     arcs=[5, 0, 5, 0] uncovered=2  if (a->enabled && a->state == ADP_STATE_DELAY) {
+src/adp.c:362  adp_poll                     arcs=[18, 3, 3, 15] uncovered=0  return a->departing_owed != 0u || a->available_owed;
+src/adp.c raw: lines 215/217 arcs 95/102
+  src/adp.c fn adp_build                          lines   32 arcs    4
+  src/adp.c fn adp_gm_change                      lines    6 arcs    6
+  src/adp.c fn adp_init                           lines    9 arcs    2
+  src/adp.c fn adp_link_change                    lines   15 arcs   12
+  src/adp.c fn adp_poll                           lines   10 arcs   14
+  src/adp.c fn adp_reentry_count                  lines    3 arcs    0
+  src/adp.c fn adp_rx                             lines   18 arcs   22
+  src/adp.c fn adp_set_current_configuration      lines    4 arcs    2
+  src/adp.c fn adp_set_enable                     lines   16 arcs    8
+  src/adp.c fn adp_timer_expired                  lines   13 arcs   12
+  src/adp.c fn advertise                          lines    8 arcs    4
+  src/adp.c fn depart                             lines    5 arcs    2
+  src/adp.c fn draw_ms                            lines    8 arcs    2
+  src/adp.c fn enter_delay                        lines    4 arcs    0
+  src/adp.c fn leave_down                         lines   11 arcs    2
+  src/adp.c fn mix                                lines    7 arcs    0
+  src/adp.c fn reject_reentry                     lines    5 arcs    2
+  src/adp.c fn rng_next                           lines    7 arcs    0
+  src/adp.c fn send                               lines    9 arcs    2
+  src/adp.c fn shutdown                           lines   15 arcs    6
+  src/adp.c fn timer_start                        lines    6 arcs    0
+  src/adp.c fn timer_stop                         lines    6 arcs    0
+src/acmp.c raw: lines 847/847 arcs 436/436
+  src/acmp.c fn acmp_adp_rx                        lines   30 arcs   26
+  src/acmp.c fn acmp_binding_latch                 lines    5 arcs    2
+  src/acmp.c fn acmp_change_pending                lines    2 arcs    4
+  src/acmp.c fn acmp_declaring                     lines   11 arcs   14
+  src/acmp.c fn acmp_init                          lines   19 arcs   20
+  src/acmp.c fn acmp_listener_registered           lines    7 arcs    6
+  src/acmp.c fn acmp_open                          lines    4 arcs    2
+  src/acmp.c fn acmp_poll                          lines   16 arcs   10
+  src/acmp.c fn acmp_restore_binding               lines   20 arcs    8
+  src/acmp.c fn acmp_restore_rollback              lines    7 arcs    4
+  src/acmp.c fn acmp_rx                            lines   37 arcs   36
+  src/acmp.c fn acmp_rx_ready                      lines    2 arcs    4
+  src/acmp.c fn acmp_set_started                   lines    9 arcs    6
+  src/acmp.c fn acmp_timer_expired                 lines   20 arcs   16
+  src/acmp.c fn acmp_tk_kind_changed               lines    9 arcs    6
+  src/acmp.c fn acmp_tk_registered                 lines   12 arcs    6
+  src/acmp.c fn acmp_tk_unregistered               lines   10 arcs    6
+  src/acmp.c fn acmp_view                          lines    5 arcs    2
+  src/acmp.c fn admit                              lines   11 arcs   10
+  src/acmp.c fn adp_arm                            lines    4 arcs    0
+  src/acmp.c fn bind                               lines   26 arcs   10
+  src/acmp.c fn bind_response                      lines    6 arcs    0
+  src/acmp.c fn build                              lines   20 arcs    0
+  src/acmp.c fn decode                             lines   15 arcs    0
+  src/acmp.c fn delay                              lines    4 arcs    0
+  src/acmp.c fn disc_available                     lines   22 arcs   10
+  src/acmp.c fn disc_departing                     lines    5 arcs    4
+  src/acmp.c fn disc_start                         lines    5 arcs    0
+  src/acmp.c fn disc_stop                          lines    5 arcs    0
+  src/acmp.c fn draw_ms                            lines   15 arcs    4
+  src/acmp.c fn due                                lines    2 arcs    0
+  src/acmp.c fn earliest                           lines    5 arcs    6
+  src/acmp.c fn echo                               lines   11 arcs    0
+  src/acmp.c fn enter                              lines    7 arcs    2
+  src/acmp.c fn finish                             lines   19 arcs   10
+  src/acmp.c fn get_rx_state                       lines   16 arcs   12
+  src/acmp.c fn gm_matches                         lines    5 arcs    6
+  src/acmp.c fn listener_command                   lines   15 arcs    8
+  src/acmp.c fn lock_refuses                       lines    6 arcs    4
+  src/acmp.c fn mark                               lines    4 arcs    0
+  src/acmp.c fn marked                             lines    2 arcs    0
+  src/acmp.c fn no_resp_from_send                  lines    4 arcs    0
+  src/acmp.c fn now                                lines    7 arcs    2
+  src/acmp.c fn p_admit                            lines    5 arcs    0
+  src/acmp.c fn p_changed                          lines    5 arcs    0
+  src/acmp.c fn p_gptp                             lines    5 arcs    0
+  src/acmp.c fn p_locked                           lines    5 arcs    0
+  src/acmp.c fn p_persist                          lines    5 arcs    0
+  src/acmp.c fn p_publish                          lines    5 arcs    0
+  src/acmp.c fn p_seed                             lines    5 arcs    0
+  src/acmp.c fn p_send                             lines   12 arcs    8
+  src/acmp.c fn p_source                           lines    5 arcs    0
+  src/acmp.c fn p_srp                              lines    5 arcs    0
+  src/acmp.c fn p_timer                            lines    5 arcs    0
+  src/acmp.c fn passive                            lines    5 arcs    0
+  src/acmp.c fn probe                              lines   10 arcs    0
+  src/acmp.c fn probe_left                         lines    7 arcs    6
+  src/acmp.c fn probe_response                     lines   28 arcs   16
+  src/acmp.c fn probe_yields                       lines    9 arcs    8
+  src/acmp.c fn publish                            lines   14 arcs   16
+  src/acmp.c fn rearm                              lines   19 arcs   18
+  src/acmp.c fn record_of                          lines    9 arcs    6
+  src/acmp.c fn reprobe                            lines    7 arcs    2
+  src/acmp.c fn respond                            lines    4 arcs    0
+  src/acmp.c fn room                               lines    5 arcs    2
+  src/acmp.c fn same_record                        lines    5 arcs    2
+  src/acmp.c fn send_probe                         lines   21 arcs    4
+  src/acmp.c fn sink_reset                         lines   17 arcs    0
+  src/acmp.c fn sink_settle                        lines    4 arcs    0
+  src/acmp.c fn sm_expired                         lines   27 arcs   24
+  src/acmp.c fn sm_running                         lines    2 arcs    4
+  src/acmp.c fn sm_stop                            lines    5 arcs    0
+  src/acmp.c fn sm_timer                           lines    5 arcs    0
+  src/acmp.c fn srp_stop                           lines    6 arcs    0
+  src/acmp.c fn talker_command                     lines   37 arcs   20
+  src/acmp.c fn tk_departed                        lines    7 arcs    8
+  src/acmp.c fn tk_discovered                      lines    7 arcs    2
+  src/acmp.c fn transmit                           lines   18 arcs   10
+  src/acmp.c fn unbind                             lines   18 arcs    4
+  src/acmp.c fn view_equal                         lines    8 arcs    0
+  src/acmp.c fn view_of                            lines   15 arcs   10

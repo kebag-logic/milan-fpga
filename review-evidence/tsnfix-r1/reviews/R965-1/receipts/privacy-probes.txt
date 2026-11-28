@@ -1,0 +1,72 @@
+== 1. base and head
+OK  base gate on base history (the defect): rc 1 (want nonzero)
+    privacy: exact owner squash metadata exception; content scanning remains enabled
+    privacy: exact #29 merge one-line exception; identity and content checks remain enabled
+    5a07d9b7d87298f04b15aa28f0304ec88b0aef81: commit message must be one line
+OK  base self-test: rc 0 (want 0)
+    privacy selftest: 14 commit controls pass
+OK  head gate on base history (exemption alone repairs main): rc 0 (want 0)
+    privacy: exact owner squash metadata exception; content scanning remains enabled
+    privacy: exact #29 and #41 merge one-line exceptions; identity and content checks remain enabled
+    privacy: 65 commits, 516 historical blobs, 100 current files; pass
+OK  head gate on head history: rc 0 (want 0)
+    privacy: exact owner squash metadata exception; content scanning remains enabled
+    privacy: exact #29 and #41 merge one-line exceptions; identity and content checks remain enabled
+    privacy: 67 commits, 522 historical blobs, 100 current files; pass
+OK  head self-test: rc 0 (want 0)
+    privacy selftest: 17 commit controls pass
+== 2. self-test independent of set order
+OK  head self-test PYTHONHASHSEED=0: rc 0 (want 0)
+    privacy selftest: 17 commit controls pass
+OK  head self-test PYTHONHASHSEED=1: rc 0 (want 0)
+    privacy selftest: 17 commit controls pass
+OK  head self-test PYTHONHASHSEED=2: rc 0 (want 0)
+    privacy selftest: 17 commit controls pass
+OK  head self-test PYTHONHASHSEED=3: rc 0 (want 0)
+    privacy selftest: 17 commit controls pass
+OK  head self-test PYTHONHASHSEED=12345: rc 0 (want 0)
+    privacy selftest: 17 commit controls pass
+OK  head self-test PYTHONHASHSEED=random: rc 0 (want 0)
+    privacy selftest: 17 commit controls pass
+== 3. real commits on top of head, in the disposable clone
+OK  history + one-line holder commit: rc 0 (want 0)
+    privacy: exact owner squash metadata exception; content scanning remains enabled
+    privacy: exact #29 and #41 merge one-line exceptions; identity and content checks remain enabled
+    privacy: 68 commits, 522 historical blobs, 100 current files; pass
+OK  history + two-paragraph holder commit (non-exempt): rc 1 (want nonzero)
+    privacy: exact owner squash metadata exception; content scanning remains enabled
+    privacy: exact #29 and #41 merge one-line exceptions; identity and content checks remain enabled
+    0fe406f3fb9498d2206a0848662f1dd640b8ce36: commit message must be one line
+OK  history + one-line foreign identity commit: rc 1 (want nonzero)
+    privacy: exact owner squash metadata exception; content scanning remains enabled
+    privacy: exact #29 and #41 merge one-line exceptions; identity and content checks remain enabled
+    5227ffb6c92203e3de3e3295ea967035f0060d4f: unexpected identity
+== 4. planted defects in copies of the head gate
+OK  plant [drop the #41 exemption] head history run refuses: rc 1 (want nonzero)
+    privacy: exact owner squash metadata exception; content scanning remains enabled
+    privacy: exact #29 and #41 merge one-line exceptions; identity and content checks remain enabled
+    5a07d9b7d87298f04b15aa28f0304ec88b0aef81: commit message must be one line
+OK  plant [drop the #29 exemption] head history run refuses: rc 1 (want nonzero)
+    privacy: exact owner squash metadata exception; content scanning remains enabled
+    privacy: exact #29 and #41 merge one-line exceptions; identity and content checks remain enabled
+    d7e6a2a19a57a8277cd26042557a8c99f2ee5496: commit message must be one line
+OK  plant [#41 exemption typed one digit off] head history run refuses: rc 1 (want nonzero)
+    privacy: exact owner squash metadata exception; content scanning remains enabled
+    privacy: exact #29 and #41 merge one-line exceptions; identity and content checks remain enabled
+    5a07d9b7d87298f04b15aa28f0304ec88b0aef81: commit message must be one line
+OK  plant [no one-line rule] self-test refuses: rc 1 (want nonzero)
+    privacy selftest: fail web-flow-two-lines, holder-two-lines, two-line-merge-near-miss 5a07d9b7, two-line-merge-near-miss d7e6a2a1
+OK  plant [exemption by 7-digit prefix] self-test refuses: rc 1 (want nonzero)
+    privacy selftest: fail two-line-merge-near-miss 5a07d9b7, two-line-merge-near-miss d7e6a2a1
+OK  plant [exemption also skips identity] self-test refuses: rc 1 (want nonzero)
+    privacy selftest: fail two-line-merge-foreign 5a07d9b7, two-line-merge-foreign d7e6a2a1
+OK  plant [all-zero commit exempted] self-test refuses: rc 1 (want nonzero)
+    privacy selftest: fail web-flow-two-lines, holder-two-lines
+OK  plant [any 'Merge' subject exempted] self-test refuses: rc 1 (want nonzero)
+    privacy selftest: fail two-line-merge-near-miss 5a07d9b7, two-line-merge-near-miss d7e6a2a1
+OK  plant [self-test near miss uses the exact merge] self-test refuses: rc 1 (want nonzero)
+    privacy selftest: fail two-line-merge-near-miss 5a07d9b7, two-line-merge-near-miss d7e6a2a1
+INFO plant [self-test drops the exemption loop] self-test: rc 0: privacy selftest: 11 commit controls pass  (count drops below 17: detectable only by the recorded count)
+INFO plant [self-test checks only the first exempt merge] self-test: rc 0: privacy selftest: 14 commit controls pass  (count drops below 17: detectable only by the recorded count)
+INFO plant [one-line rule counts blank lines (pre-existing line, outside the delta)] self-test: rc 0: privacy selftest: 17 commit controls pass; history run: rc 1: b2fb516129fa941f43e8adcd10fb0a62cb686c50: commit message must be one line
+RESULT all probes as expected
