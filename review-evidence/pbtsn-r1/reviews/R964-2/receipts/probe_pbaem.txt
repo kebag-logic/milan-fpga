@@ -1,0 +1,28 @@
+SURVIVED   control-none                             
+KILLED     name-copy-32                             PbaemIdentity.FullWidthStringsAndModel
+KILLED     firmware-copy-32                         PbaemIdentity.FullWidthStringsAndModel
+KILLED     group-copy-32                            PbaemIdentity.FullWidthStringsAndModel
+KILLED     serial-copy-32                           PbaemIdentity.FullWidthStringsAndModel
+KILLED     model-id-constant                        PbaemIdentity.FullWidthStringsAndModel
+KILLED     aaf-ignore-samples-per-frame             Pbaem.AafFieldRefusals
+KILLED     aaf-ignore-format-field                  Pbaem.AafFieldRefusals
+KILLED     aaf-ignore-bit-depth                     Pbaem.StreamFormats
+KILLED     aaf-ignore-up-to-bit                     Pbaem.StreamFormats
+KILLED     aaf-ignore-reserved-low                  Pbaem.AafFieldRefusals
+KILLED     aaf-ignore-subtype                       Pbaem.AafFieldRefusals
+KILLED     aaf-stream-bound-off-by-one-supported    Pbaem.AbsentInputRefusesEverything
+KILLED     set-format-wrong-stream                  Pbaem.StreamFormats
+KILLED     init-keeps-old-state                     Pbaem.InitResetsHeldState,EntityYaml.AemImageRoundTrip
+SURVIVED   init-clock-default                       
+KILLED     descriptor-not-zeroed                    Pbaem.ClockSourcesAndControl,Pbaem.ConfigurationAndAudioUnit,Pbaem.DescriptorBounds,Pbaem.EntityFromIdentity,EntityYaml.AemImageRoundTrip
+KILLED     output-format-bound                      Pbaem.StreamFormats
+KILLED     crf-output-not-sync                      Pbaem.StreamFormats,EntityYaml.AemImageRoundTrip
+KILLED     strings-model-name                       EntityYaml.AemImageRoundTrip
+KILLED     locale-count                             EntityYaml.AemImageRoundTrip
+SURVIVED   aaf-ignore-reserved-high                 
+SURVIVED   aaf-ignore-reserved-low-bits-1-to-11     
+KILLED     aaf-ignore-version-bit                   Pbaem.AafFieldRefusals
+KILLED     aaf-ignore-rate                          Pbaem.StreamFormats
+KILLED     set-format-unchecked                     Pbaem.StreamFormats
+KILLED     init-skips-formats                       Pbaem.InitResetsHeldState,EntityYaml.AemImageRoundTrip
+KILLED     locale-en-EN                             Pbaem.ClockSourcesAndControl,EntityYaml.AemImageRoundTrip

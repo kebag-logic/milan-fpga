@@ -1,0 +1,13 @@
+== stack frames of src/pbaem.c at 40c3111, riscv64-elf-gcc 16.2.0 -march=rv32i -mabi=ilp32 -ffreestanding -fstack-usage
+flags -O0 -g:
+src/pbaem.c:333:8:pbaem_descriptor	512	static
+src/pbaem.c:289:15:audio_map	80	static
+src/pbaem.c:320:15:clock_domain	64	static
+flags -O2 -DNDEBUG:
+src/pbaem.c:333:8:pbaem_descriptor	496	static
+src/pbaem.c:191:15:stream	48	static
+src/pbaem.c:126:13:named	48	static
+flags -Os -DNDEBUG:
+src/pbaem.c:333:8:pbaem_descriptor	496	static
+src/pbaem.c:126:13:named	48	static
+src/pbaem.c:66:6:pbaem_set_input_format	32	static

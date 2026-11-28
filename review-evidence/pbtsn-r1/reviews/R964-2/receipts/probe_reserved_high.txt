@@ -1,0 +1,11 @@
+== scripts/reserved_high.c against src/pbaem.c at the exact head 40c3111
+offered 224, supported 0, stored 0
+== the same harness against the probe copy aaf-ignore-reserved-high (bits 53 to 55 dropped from the comparison), which passes every pbaem and entity test
+offered 224, supported 224, stored 224, last stored current format 0x02e5022002006000
+== the probe's one changed line
+< 	return (format & ~(AAF_CHANNEL_MASK << AAF_CHANNEL_SHIFT)) == AAF_BASE && count >= 1u && count <= 8u;
+---
+> 	return (format & ~(AAF_CHANNEL_MASK << AAF_CHANNEL_SHIFT) & ~(UINT64_C(0x7) << 53)) == AAF_BASE && count >= 1u && count <= 8u;
+== test results of that probe copy
+aaf-ignore-reserved-high/pbaem_tests.log:[  PASSED  ] 9 tests.
+aaf-ignore-reserved-high/entity_tests.log:[  PASSED  ] 5 tests.
