@@ -1,0 +1,47 @@
+test_tap_clock_docs:
+[clock contract] 7 tap conversions and presence declarations match configurations
+test_control_placement_key:
+  [gate 23n] 7 configs, 4 shipping the split, each split variant differing from its all-fabric one in CTRL_SPLIT_P = 1 and --ctrl-mailbox --ctrl-firmware <its split image> alone; 3 bad keys refused by name; a split key naming the fabric firmware refused; the flip reverted at 8x8 refused
+test_port_layout_invariants:
+  [gate 6] arty_current: 1+1 stream ports, 16 clusters, 1 maps - invariants hold
+  [gate 6] arty_4x4: 4+4 stream ports, 32 clusters, 4 maps - invariants hold
+  [gate 6] ax7101_8x8: 8+8 stream ports, 80 clusters, 0 maps - invariants hold
+test_resource_calibration:
+  [gate 11] SKIP: real report not on disk ($HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+test_station_mac_ul_bit_warns:
+  7 configs: decided identity, no zero octet, one U/L-bit warning each
+  U/L bit alone decides the warning: 2 universal variants silent, 2 local warn
+  CLI: warning on stderr, exit 0, outputs written
+test_milan_base_formats_are_rate_complete:
+  [gate 29] the builder's aaf_pcm32 derivation reproduces all 15 Milan Table 6.2 Base format strings (3 rates x 5 channel counts) and the AVTP I.2.4 ut bit of each
+  [gate 29] arty_current: 1 Base Stream Input(s) complete at [48000] Hz (1 rate famil(ies) x 5 channel counts), 1 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000, 96000, 192000]
+  [gate 29] arty_4x4: 4 Base Stream Input(s) complete at [48000] Hz (4 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] arty_8ch: 4 Base Stream Input(s) complete at [48000] Hz (4 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] arty_split: 1 Base Stream Input(s) complete at [48000] Hz (1 rate famil(ies) x 5 channel counts), 1 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000, 96000, 192000]
+  [gate 29] arty_split_4x4: 4 Base Stream Input(s) complete at [48000] Hz (4 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] ax7101_8x8: 8 Base Stream Input(s) complete at [48000] Hz (8 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] ax7101_1x1_tdm8: 1 Base Stream Input(s) complete at [48000] Hz (1 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] longest STREAM descriptor 154 octets (ax7101_8x8 STREAM_INPUT[7] ('Stream In 7')), 422 clear of the 576-octet line buffer
+test_gptp_latency_corrections_are_declared_and_carried:
+test_gptp_latency_writable_key:
+test_audio_unit_rates_loader_contract:
+  [gate 36a] eight distinct entries and defaults pass; distinct ninth, duplicates, empty and missing-current lists refused by cause
+test_audio_unit_shipping_rates:
+  [gate 36a] arty_current: image advertises [48000, 96000, 192000], offset 144
+  [gate 36a] arty_4x4: image advertises [48000], offset 144
+  [gate 36a] arty_8ch: image advertises [48000], offset 144
+  [gate 36a] arty_split: image advertises [48000, 96000, 192000], offset 144
+  [gate 36a] arty_split_4x4: image advertises [48000], offset 144
+  [gate 36a] ax7101_8x8: image advertises [48000], offset 144
+  [gate 36a] ax7101_1x1_tdm8: image advertises [48000], offset 144
+test_pp_shadow_audio_unit_rates_match_config:
+  [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent value/order/length/initializer/declaration controls refused
+test_split_record_space_bounds_the_split_output:
+  [gate 39] layout 3 read from sw/firmware/ctrl_nvm/nvm_layout3.h: NAME ids 222 to 1128 of 1129; the 32x32 TDM8 shape's 907 names accepted by the split output, 908 refused; the all-fabric header refuses the same shape (N_NAME_MAX_C) and its 32 rows; the 1x1 build writes nvm_split.json
+  [gate 39] 10/10 planted defects turned their check red: #define NVM3_CAP_NAME 906u; #define NVM3_CAP_NAME 908u; a block before NAME grown; refusal naming no figure; refusal removed; the all-fabric bound read from the split's; declaration commented out; declaration in hex; declaration repeated; NAME base off the chain
+
+SUBSET: 12 of 115 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+
+1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 11] real report not on disk ($HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+ALL GATES PASS EXCEPT 1 NOT RUN

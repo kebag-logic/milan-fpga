@@ -1,0 +1,9 @@
+#878's Arty model gate: the (1,1,2) FPGA point at exactly 80 MHz and the (1,5,5) point at exactly 100 MHz.
+
+This checks the stated costs and the rows derived from them. Measurement
+completeness and the measured 2 ms share remain the service harness's gates;
+a passing model alone does not qualify an image. Both points are held to the
+same owner bounds; neither takes the other's costs.
+
+usage: python3 -I arty_grade.py [--point arty-1x1|arty-4x4] [--selftest]
+

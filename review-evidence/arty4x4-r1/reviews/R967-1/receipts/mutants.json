@@ -1,0 +1,1422 @@
+[
+ {
+  "name": "clean",
+  "mutation": null,
+  "caught_by": [],
+  "verdict": "CLEAN-PASS",
+  "checks": {
+   "arty-4x4": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "    \"txL\": 48.72",
+     "  },",
+     "  \"slice_us\": 1250,",
+     "  \"slice_margin\": 0.005714285714285738,",
+     "  \"pace_ms\": 5",
+     "}"
+    ]
+   },
+   "arty-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "PASS Arty owner gate refuses an unbounded last: no finite solution",
+     "PASS Arty owner gate refuses a larger ACMP: 0.01 ms over",
+     "PASS Arty owner gate refuses an unbounded ACMP: no finite solution",
+     "PASS Arty owner gate refuses load over 0.70: 0.000001 over",
+     "PASS the Arty 4x4 configuration states the (1,5,5) shape: [Shape(interfaces=1, sources=5, sinks=5)]",
+     "PASS the two Arty points are different shapes: no point takes the other's costs"
+    ]
+   },
+   "ledger-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "caught mutant \"a figure at the earlier images' measurements where the train's and the pin merge's are larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a figure at the train's measurement where the pin merge's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"service.aecp.last at the pin merge's measurement where the train's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a run's refusals not read\": 8x8-1if: a results directory whose run refused a group fails",
+     "caught mutant \"a ledger row's name taken in any group\": 8x8-1if: a ledger row's name in another group is a new miss",
+     "RESULT: PASS: 24 mutants, 0 failure(s)"
+    ]
+   },
+   "mii-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "CAUGHT grade-drifted: the grade runs the testbench's queue and agrees with it; a held egress is the ledger's, not the row's",
+     "CAUGHT held-counted: a held egress is the ledger's, not the row's",
+     "CAUGHT no-margin: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT no-gptp: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT agreement-loose: a departure one datapath cycle off the replay fails",
+     "egress_mii selftest: 17 of 17 passed"
+    ]
+   },
+   "record-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "record classes: 26 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's",
+     "Arty record checks: 9 of 9 passed"
+    ]
+   },
+   "shape-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |",
+     "| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |",
+     "| (1, 1, 2) | 1250 | 1035 | 660 | 300 | 130 | 30 | 125 | 35 | arty-1x1 |",
+     "| (1, 5, 5) | 1250 | 825 | 600 | 300 | 125 | 25 | 125 | 29 | arty-4x4 |",
+     "with no shape header: (2, 2) streams",
+     "RESULT: PASS"
+    ]
+   },
+   "load-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "HELD arty-1x1 with tsn-c-stack#32: the load 0.501, its ceiling 0.70",
+     "HELD arty-4x4 at the pin: the load 0.469, its ceiling 0.70",
+     "HELD arty-4x4 with tsn-c-stack#32: the load 0.469, its ceiling 0.70",
+     "HELD 1x1/1if at the pin: the load 0.512, its ceiling 0.70",
+     "HELD 1x1/1if with tsn-c-stack#32: the load 0.509, its ceiling 0.70",
+     "RESULT: PASS"
+    ]
+   }
+  }
+ },
+ {
+  "name": "crf-frame-not-counted",
+  "mutation": {
+   "file": "tb/verilator/ctrl_service_budget/egress_mii.py",
+   "old": "    return aaf + crf\n",
+   "new": "    return aaf\n"
+  },
+  "caught_by": [],
+  "verdict": "SURVIVED",
+  "checks": {
+   "arty-4x4": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "    \"txL\": 48.72",
+     "  },",
+     "  \"slice_us\": 1250,",
+     "  \"slice_margin\": 0.005714285714285738,",
+     "  \"pace_ms\": 5",
+     "}"
+    ]
+   },
+   "arty-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "PASS Arty owner gate refuses an unbounded last: no finite solution",
+     "PASS Arty owner gate refuses a larger ACMP: 0.01 ms over",
+     "PASS Arty owner gate refuses an unbounded ACMP: no finite solution",
+     "PASS Arty owner gate refuses load over 0.70: 0.000001 over",
+     "PASS the Arty 4x4 configuration states the (1,5,5) shape: [Shape(interfaces=1, sources=5, sinks=5)]",
+     "PASS the two Arty points are different shapes: no point takes the other's costs"
+    ]
+   },
+   "ledger-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "caught mutant \"a figure at the earlier images' measurements where the train's and the pin merge's are larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a figure at the train's measurement where the pin merge's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"service.aecp.last at the pin merge's measurement where the train's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a run's refusals not read\": 8x8-1if: a results directory whose run refused a group fails",
+     "caught mutant \"a ledger row's name taken in any group\": 8x8-1if: a ledger row's name in another group is a new miss",
+     "RESULT: PASS: 24 mutants, 0 failure(s)"
+    ]
+   },
+   "mii-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "CAUGHT grade-drifted: the grade runs the testbench's queue and agrees with it; a held egress is the ledger's, not the row's",
+     "CAUGHT held-counted: a held egress is the ledger's, not the row's",
+     "CAUGHT no-margin: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT no-gptp: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT agreement-loose: a departure one datapath cycle off the replay fails",
+     "egress_mii selftest: 17 of 17 passed"
+    ]
+   },
+   "record-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "record classes: 26 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's",
+     "Arty record checks: 9 of 9 passed"
+    ]
+   },
+   "shape-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |",
+     "| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |",
+     "| (1, 1, 2) | 1250 | 1035 | 660 | 300 | 130 | 30 | 125 | 35 | arty-1x1 |",
+     "| (1, 5, 5) | 1250 | 825 | 600 | 300 | 125 | 25 | 125 | 29 | arty-4x4 |",
+     "with no shape header: (2, 2) streams",
+     "RESULT: PASS"
+    ]
+   },
+   "load-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "HELD arty-1x1 with tsn-c-stack#32: the load 0.501, its ceiling 0.70",
+     "HELD arty-4x4 at the pin: the load 0.469, its ceiling 0.70",
+     "HELD arty-4x4 with tsn-c-stack#32: the load 0.469, its ceiling 0.70",
+     "HELD 1x1/1if at the pin: the load 0.512, its ceiling 0.70",
+     "HELD 1x1/1if with tsn-c-stack#32: the load 0.509, its ceiling 0.70",
+     "RESULT: PASS"
+    ]
+   }
+  }
+ },
+ {
+  "name": "crf-avtpdu-zero",
+  "mutation": {
+   "file": "tb/verilator/ctrl_service_budget/egress_mii.py",
+   "old": "CRF_AVTPDU = 28\n",
+   "new": "CRF_AVTPDU = 0\n"
+  },
+  "caught_by": [],
+  "verdict": "SURVIVED",
+  "checks": {
+   "arty-4x4": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "    \"txL\": 48.72",
+     "  },",
+     "  \"slice_us\": 1250,",
+     "  \"slice_margin\": 0.005714285714285738,",
+     "  \"pace_ms\": 5",
+     "}"
+    ]
+   },
+   "arty-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "PASS Arty owner gate refuses an unbounded last: no finite solution",
+     "PASS Arty owner gate refuses a larger ACMP: 0.01 ms over",
+     "PASS Arty owner gate refuses an unbounded ACMP: no finite solution",
+     "PASS Arty owner gate refuses load over 0.70: 0.000001 over",
+     "PASS the Arty 4x4 configuration states the (1,5,5) shape: [Shape(interfaces=1, sources=5, sinks=5)]",
+     "PASS the two Arty points are different shapes: no point takes the other's costs"
+    ]
+   },
+   "ledger-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "caught mutant \"a figure at the earlier images' measurements where the train's and the pin merge's are larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a figure at the train's measurement where the pin merge's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"service.aecp.last at the pin merge's measurement where the train's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a run's refusals not read\": 8x8-1if: a results directory whose run refused a group fails",
+     "caught mutant \"a ledger row's name taken in any group\": 8x8-1if: a ledger row's name in another group is a new miss",
+     "RESULT: PASS: 24 mutants, 0 failure(s)"
+    ]
+   },
+   "mii-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "CAUGHT grade-drifted: the grade runs the testbench's queue and agrees with it; a held egress is the ledger's, not the row's",
+     "CAUGHT held-counted: a held egress is the ledger's, not the row's",
+     "CAUGHT no-margin: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT no-gptp: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT agreement-loose: a departure one datapath cycle off the replay fails",
+     "egress_mii selftest: 17 of 17 passed"
+    ]
+   },
+   "record-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "record classes: 26 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's",
+     "Arty record checks: 9 of 9 passed"
+    ]
+   },
+   "shape-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |",
+     "| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |",
+     "| (1, 1, 2) | 1250 | 1035 | 660 | 300 | 130 | 30 | 125 | 35 | arty-1x1 |",
+     "| (1, 5, 5) | 1250 | 825 | 600 | 300 | 125 | 25 | 125 | 29 | arty-4x4 |",
+     "with no shape header: (2, 2) streams",
+     "RESULT: PASS"
+    ]
+   },
+   "load-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "HELD arty-1x1 with tsn-c-stack#32: the load 0.501, its ceiling 0.70",
+     "HELD arty-4x4 at the pin: the load 0.469, its ceiling 0.70",
+     "HELD arty-4x4 with tsn-c-stack#32: the load 0.469, its ceiling 0.70",
+     "HELD 1x1/1if at the pin: the load 0.512, its ceiling 0.70",
+     "HELD 1x1/1if with tsn-c-stack#32: the load 0.509, its ceiling 0.70",
+     "RESULT: PASS"
+    ]
+   }
+  }
+ },
+ {
+  "name": "row-tx-28",
+  "mutation": {
+   "file": "sw/firmware/ctrl/loop/ctrl_loop.h",
+   "old": "#define CTRL_LOOP_TX_MS 29u\n",
+   "new": "#define CTRL_LOOP_TX_MS 28u\n"
+  },
+  "caught_by": [
+   "arty-4x4"
+  ],
+  "verdict": "CAUGHT",
+  "checks": {
+   "arty-4x4": {
+    "rc": 1,
+    "refused": [
+     "REFUSED arty-4x4: CTRL_LOOP_TX_MS states 28 ms, under the built design's tx row 28.88 ms"
+    ],
+    "tail": [
+     "  },",
+     "  \"slice_us\": 1250,",
+     "  \"slice_margin\": 0.005714285714285738,",
+     "  \"pace_ms\": 5",
+     "}",
+     "REFUSED arty-4x4: CTRL_LOOP_TX_MS states 28 ms, under the built design's tx row 28.88 ms"
+    ]
+   },
+   "arty-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "PASS Arty owner gate refuses an unbounded last: no finite solution",
+     "PASS Arty owner gate refuses a larger ACMP: 0.01 ms over",
+     "PASS Arty owner gate refuses an unbounded ACMP: no finite solution",
+     "PASS Arty owner gate refuses load over 0.70: 0.000001 over",
+     "PASS the Arty 4x4 configuration states the (1,5,5) shape: [Shape(interfaces=1, sources=5, sinks=5)]",
+     "PASS the two Arty points are different shapes: no point takes the other's costs"
+    ]
+   },
+   "ledger-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "caught mutant \"a figure at the earlier images' measurements where the train's and the pin merge's are larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a figure at the train's measurement where the pin merge's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"service.aecp.last at the pin merge's measurement where the train's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a run's refusals not read\": 8x8-1if: a results directory whose run refused a group fails",
+     "caught mutant \"a ledger row's name taken in any group\": 8x8-1if: a ledger row's name in another group is a new miss",
+     "RESULT: PASS: 24 mutants, 0 failure(s)"
+    ]
+   },
+   "mii-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "CAUGHT grade-drifted: the grade runs the testbench's queue and agrees with it; a held egress is the ledger's, not the row's",
+     "CAUGHT held-counted: a held egress is the ledger's, not the row's",
+     "CAUGHT no-margin: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT no-gptp: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT agreement-loose: a departure one datapath cycle off the replay fails",
+     "egress_mii selftest: 17 of 17 passed"
+    ]
+   },
+   "record-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "record classes: 26 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's",
+     "Arty record checks: 9 of 9 passed"
+    ]
+   },
+   "shape-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |",
+     "| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |",
+     "| (1, 1, 2) | 1250 | 1035 | 660 | 300 | 130 | 30 | 125 | 35 | arty-1x1 |",
+     "| (1, 5, 5) | 1250 | 825 | 600 | 300 | 125 | 25 | 125 | 28 | arty-4x4 |",
+     "with no shape header: (2, 2) streams",
+     "RESULT: PASS"
+    ]
+   },
+   "load-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "HELD arty-1x1 with tsn-c-stack#32: the load 0.501, its ceiling 0.70",
+     "HELD arty-4x4 at the pin: the load 0.469, its ceiling 0.70",
+     "HELD arty-4x4 with tsn-c-stack#32: the load 0.469, its ceiling 0.70",
+     "HELD 1x1/1if at the pin: the load 0.512, its ceiling 0.70",
+     "HELD 1x1/1if with tsn-c-stack#32: the load 0.509, its ceiling 0.70",
+     "RESULT: PASS"
+    ]
+   }
+  }
+ },
+ {
+  "name": "row-queued-130",
+  "mutation": {
+   "file": "sw/firmware/ctrl/loop/ctrl_loop.h",
+   "old": "#define CTRL_LOOP_QUEUED_MS 125u\n#define CTRL_LOOP_TX_MS 29u\n",
+   "new": "#define CTRL_LOOP_QUEUED_MS 130u\n#define CTRL_LOOP_TX_MS 29u\n"
+  },
+  "caught_by": [
+   "arty-4x4"
+  ],
+  "verdict": "CAUGHT",
+  "checks": {
+   "arty-4x4": {
+    "rc": 1,
+    "refused": [
+     "REFUSED arty-4x4: ctrl_loop.h states AECP_QUEUED_MS 130 ms, not the 125 ms its row 117.68 ms rules",
+     "REFUSED Arty slice 1250 us is not the rule's 1000 us"
+    ],
+    "tail": [
+     "  \"slice_us\": 1250,",
+     "  \"slice_margin\": 0.011428571428571475,",
+     "  \"pace_ms\": 5",
+     "}",
+     "REFUSED arty-4x4: ctrl_loop.h states AECP_QUEUED_MS 130 ms, not the 125 ms its row 117.68 ms rules",
+     "REFUSED Arty slice 1250 us is not the rule's 1000 us"
+    ]
+   },
+   "arty-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "PASS Arty owner gate refuses an unbounded last: no finite solution",
+     "PASS Arty owner gate refuses a larger ACMP: 0.01 ms over",
+     "PASS Arty owner gate refuses an unbounded ACMP: no finite solution",
+     "PASS Arty owner gate refuses load over 0.70: 0.000001 over",
+     "PASS the Arty 4x4 configuration states the (1,5,5) shape: [Shape(interfaces=1, sources=5, sinks=5)]",
+     "PASS the two Arty points are different shapes: no point takes the other's costs"
+    ]
+   },
+   "ledger-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "caught mutant \"a figure at the earlier images' measurements where the train's and the pin merge's are larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a figure at the train's measurement where the pin merge's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"service.aecp.last at the pin merge's measurement where the train's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a run's refusals not read\": 8x8-1if: a results directory whose run refused a group fails",
+     "caught mutant \"a ledger row's name taken in any group\": 8x8-1if: a ledger row's name in another group is a new miss",
+     "RESULT: PASS: 24 mutants, 0 failure(s)"
+    ]
+   },
+   "mii-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "CAUGHT grade-drifted: the grade runs the testbench's queue and agrees with it; a held egress is the ledger's, not the row's",
+     "CAUGHT held-counted: a held egress is the ledger's, not the row's",
+     "CAUGHT no-margin: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT no-gptp: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT agreement-loose: a departure one datapath cycle off the replay fails",
+     "egress_mii selftest: 17 of 17 passed"
+    ]
+   },
+   "record-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "record classes: 26 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's",
+     "Arty record checks: 9 of 9 passed"
+    ]
+   },
+   "shape-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |",
+     "| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |",
+     "| (1, 1, 2) | 1250 | 1035 | 660 | 300 | 130 | 30 | 125 | 35 | arty-1x1 |",
+     "| (1, 5, 5) | 1250 | 825 | 600 | 300 | 125 | 25 | 130 | 29 | arty-4x4 |",
+     "with no shape header: (2, 2) streams",
+     "RESULT: PASS"
+    ]
+   },
+   "load-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "HELD arty-1x1 with tsn-c-stack#32: the load 0.501, its ceiling 0.70",
+     "HELD arty-4x4 at the pin: the load 0.469, its ceiling 0.70",
+     "HELD arty-4x4 with tsn-c-stack#32: the load 0.469, its ceiling 0.70",
+     "HELD 1x1/1if at the pin: the load 0.512, its ceiling 0.70",
+     "HELD 1x1/1if with tsn-c-stack#32: the load 0.509, its ceiling 0.70",
+     "RESULT: PASS"
+    ]
+   }
+  }
+ },
+ {
+  "name": "row-slice-1000",
+  "mutation": {
+   "file": "sw/firmware/ctrl/loop/ctrl_loop.h",
+   "old": "#elif CTRL_LOOP_SHAPE(1u, 5u, 5u)      // Arty FPGA 4x4: one interface, four AAF and the CRF each way, 100 MHz\n#define CTRL_LOOP_SLICE_US 1250u\n",
+   "new": "#elif CTRL_LOOP_SHAPE(1u, 5u, 5u)      // Arty FPGA 4x4: one interface, four AAF and the CRF each way, 100 MHz\n#define CTRL_LOOP_SLICE_US 1000u\n"
+  },
+  "caught_by": [
+   "arty-4x4"
+  ],
+  "verdict": "CAUGHT",
+  "checks": {
+   "arty-4x4": {
+    "rc": 1,
+    "refused": [
+     "REFUSED arty-4x4 last: under the tiers (slice 1000 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 127.79 ms, over its bound 125 ms; the largest term srp 27.30 ms",
+     "REFUSED arty-4x4: ctrl_loop.h states AECP_QUEUED_MS 125 ms, not the 130 ms its row 127.79 ms rules",
+     "REFUSED Arty slice 1000 us is not the rule's 1250 us"
+    ],
+    "tail": [
+     "  \"slice_margin\": 0.005714285714285738,",
+     "  \"pace_ms\": 5",
+     "}",
+     "REFUSED arty-4x4 last: under the tiers (slice 1000 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 127.79 ms, over its bound 125 ms; the largest term srp 27.30 ms",
+     "REFUSED arty-4x4: ctrl_loop.h states AECP_QUEUED_MS 125 ms, not the 130 ms its row 127.79 ms rules",
+     "REFUSED Arty slice 1000 us is not the rule's 1250 us"
+    ]
+   },
+   "arty-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "PASS Arty owner gate refuses an unbounded last: no finite solution",
+     "PASS Arty owner gate refuses a larger ACMP: 0.01 ms over",
+     "PASS Arty owner gate refuses an unbounded ACMP: no finite solution",
+     "PASS Arty owner gate refuses load over 0.70: 0.000001 over",
+     "PASS the Arty 4x4 configuration states the (1,5,5) shape: [Shape(interfaces=1, sources=5, sinks=5)]",
+     "PASS the two Arty points are different shapes: no point takes the other's costs"
+    ]
+   },
+   "ledger-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "caught mutant \"a figure at the earlier images' measurements where the train's and the pin merge's are larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a figure at the train's measurement where the pin merge's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"service.aecp.last at the pin merge's measurement where the train's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a run's refusals not read\": 8x8-1if: a results directory whose run refused a group fails",
+     "caught mutant \"a ledger row's name taken in any group\": 8x8-1if: a ledger row's name in another group is a new miss",
+     "RESULT: PASS: 24 mutants, 0 failure(s)"
+    ]
+   },
+   "mii-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "CAUGHT grade-drifted: the grade runs the testbench's queue and agrees with it; a held egress is the ledger's, not the row's",
+     "CAUGHT held-counted: a held egress is the ledger's, not the row's",
+     "CAUGHT no-margin: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT no-gptp: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT agreement-loose: a departure one datapath cycle off the replay fails",
+     "egress_mii selftest: 17 of 17 passed"
+    ]
+   },
+   "record-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "record classes: 26 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's",
+     "Arty record checks: 9 of 9 passed"
+    ]
+   },
+   "shape-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |",
+     "| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |",
+     "| (1, 1, 2) | 1250 | 1035 | 660 | 300 | 130 | 30 | 125 | 35 | arty-1x1 |",
+     "| (1, 5, 5) | 1000 | 825 | 600 | 300 | 125 | 25 | 125 | 29 | arty-4x4 |",
+     "with no shape header: (2, 2) streams",
+     "RESULT: PASS"
+    ]
+   },
+   "load-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "HELD arty-1x1 with tsn-c-stack#32: the load 0.501, its ceiling 0.70",
+     "HELD arty-4x4 at the pin: the load 0.469, its ceiling 0.70",
+     "HELD arty-4x4 with tsn-c-stack#32: the load 0.469, its ceiling 0.70",
+     "HELD 1x1/1if at the pin: the load 0.512, its ceiling 0.70",
+     "HELD 1x1/1if with tsn-c-stack#32: the load 0.509, its ceiling 0.70",
+     "RESULT: PASS"
+    ]
+   }
+  }
+ },
+ {
+  "name": "row-pace-10",
+  "mutation": {
+   "file": "sw/firmware/ctrl/loop/ctrl_loop.h",
+   "old": "#define AECP_NOTICE_US 195u\n#define AECP_PACE_MS 5u\n",
+   "new": "#define AECP_NOTICE_US 195u\n#define AECP_PACE_MS 10u\n"
+  },
+  "caught_by": [
+   "arty-4x4"
+  ],
+  "verdict": "CAUGHT",
+  "checks": {
+   "arty-4x4": {
+    "rc": 1,
+    "refused": [
+     "REFUSED aecp_mbx.h states AECP_PACE_MS 10 ms, not the model's 5 ms"
+    ],
+    "tail": [
+     "  },",
+     "  \"slice_us\": 1250,",
+     "  \"slice_margin\": 0.07920000000000005,",
+     "  \"pace_ms\": 10",
+     "}",
+     "REFUSED aecp_mbx.h states AECP_PACE_MS 10 ms, not the model's 5 ms"
+    ]
+   },
+   "arty-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "PASS Arty owner gate refuses an unbounded last: no finite solution",
+     "PASS Arty owner gate refuses a larger ACMP: 0.01 ms over",
+     "PASS Arty owner gate refuses an unbounded ACMP: no finite solution",
+     "PASS Arty owner gate refuses load over 0.70: 0.000001 over",
+     "PASS the Arty 4x4 configuration states the (1,5,5) shape: [Shape(interfaces=1, sources=5, sinks=5)]",
+     "PASS the two Arty points are different shapes: no point takes the other's costs"
+    ]
+   },
+   "ledger-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "caught mutant \"a figure at the earlier images' measurements where the train's and the pin merge's are larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a figure at the train's measurement where the pin merge's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"service.aecp.last at the pin merge's measurement where the train's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a run's refusals not read\": 8x8-1if: a results directory whose run refused a group fails",
+     "caught mutant \"a ledger row's name taken in any group\": 8x8-1if: a ledger row's name in another group is a new miss",
+     "RESULT: PASS: 24 mutants, 0 failure(s)"
+    ]
+   },
+   "mii-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "CAUGHT grade-drifted: the grade runs the testbench's queue and agrees with it; a held egress is the ledger's, not the row's",
+     "CAUGHT held-counted: a held egress is the ledger's, not the row's",
+     "CAUGHT no-margin: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT no-gptp: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT agreement-loose: a departure one datapath cycle off the replay fails",
+     "egress_mii selftest: 17 of 17 passed"
+    ]
+   },
+   "record-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "record classes: 26 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's",
+     "Arty record checks: 9 of 9 passed"
+    ]
+   },
+   "shape-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |",
+     "| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |",
+     "| (1, 1, 2) | 1250 | 1035 | 660 | 300 | 130 | 30 | 125 | 35 | arty-1x1 |",
+     "| (1, 5, 5) | 1250 | 825 | 600 | 300 | 125 | 25 | 125 | 29 | arty-4x4 |",
+     "with no shape header: (2, 2) streams",
+     "RESULT: PASS"
+    ]
+   },
+   "load-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "HELD arty-1x1 with tsn-c-stack#32: the load 0.501, its ceiling 0.70",
+     "HELD arty-4x4 at the pin: the load 0.469, its ceiling 0.70",
+     "HELD arty-4x4 with tsn-c-stack#32: the load 0.469, its ceiling 0.70",
+     "HELD 1x1/1if at the pin: the load 0.512, its ceiling 0.70",
+     "HELD 1x1/1if with tsn-c-stack#32: the load 0.509, its ceiling 0.70",
+     "RESULT: PASS"
+    ]
+   }
+  }
+ },
+ {
+  "name": "config-sys-80mhz",
+  "mutation": {
+   "file": "configs/endstation_arty_split_4x4.yaml",
+   "old": "sys_clk_hz: 100000000 ",
+   "new": "sys_clk_hz: 80000000  "
+  },
+  "caught_by": [
+   "arty-4x4"
+  ],
+  "verdict": "CAUGHT",
+  "checks": {
+   "arty-4x4": {
+    "rc": 1,
+    "refused": [
+     "REFUSED endstation_arty_split_4x4: CPU (sys domain) clock is not exactly 100000000 Hz"
+    ],
+    "tail": [
+     "    1,",
+     "    5,",
+     "    5",
+     "  ]",
+     "}",
+     "REFUSED endstation_arty_split_4x4: CPU (sys domain) clock is not exactly 100000000 Hz"
+    ]
+   },
+   "arty-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "PASS Arty owner gate refuses an unbounded last: no finite solution",
+     "PASS Arty owner gate refuses a larger ACMP: 0.01 ms over",
+     "PASS Arty owner gate refuses an unbounded ACMP: no finite solution",
+     "PASS Arty owner gate refuses load over 0.70: 0.000001 over",
+     "PASS the Arty 4x4 configuration states the (1,5,5) shape: [Shape(interfaces=1, sources=5, sinks=5)]",
+     "PASS the two Arty points are different shapes: no point takes the other's costs"
+    ]
+   },
+   "ledger-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "caught mutant \"a figure at the earlier images' measurements where the train's and the pin merge's are larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a figure at the train's measurement where the pin merge's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"service.aecp.last at the pin merge's measurement where the train's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a run's refusals not read\": 8x8-1if: a results directory whose run refused a group fails",
+     "caught mutant \"a ledger row's name taken in any group\": 8x8-1if: a ledger row's name in another group is a new miss",
+     "RESULT: PASS: 24 mutants, 0 failure(s)"
+    ]
+   },
+   "mii-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "CAUGHT grade-drifted: the grade runs the testbench's queue and agrees with it; a held egress is the ledger's, not the row's",
+     "CAUGHT held-counted: a held egress is the ledger's, not the row's",
+     "CAUGHT no-margin: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT no-gptp: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT agreement-loose: a departure one datapath cycle off the replay fails",
+     "egress_mii selftest: 17 of 17 passed"
+    ]
+   },
+   "record-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "record classes: 26 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's",
+     "Arty record checks: 9 of 9 passed"
+    ]
+   },
+   "shape-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |",
+     "| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |",
+     "| (1, 1, 2) | 1250 | 1035 | 660 | 300 | 130 | 30 | 125 | 35 | arty-1x1 |",
+     "| (1, 5, 5) | 1250 | 825 | 600 | 300 | 125 | 25 | 125 | 29 | arty-4x4 |",
+     "with no shape header: (2, 2) streams",
+     "RESULT: PASS"
+    ]
+   },
+   "load-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "HELD arty-1x1 with tsn-c-stack#32: the load 0.501, its ceiling 0.70",
+     "HELD arty-4x4 at the pin: the load 0.469, its ceiling 0.70",
+     "HELD arty-4x4 with tsn-c-stack#32: the load 0.469, its ceiling 0.70",
+     "HELD 1x1/1if at the pin: the load 0.512, its ceiling 0.70",
+     "HELD 1x1/1if with tsn-c-stack#32: the load 0.509, its ceiling 0.70",
+     "RESULT: PASS"
+    ]
+   }
+  }
+ },
+ {
+  "name": "grade-clock-80mhz",
+  "mutation": {
+   "file": "tb/verilator/ctrl_service_budget/arty_grade.py",
+   "old": "CLOCKS = {POINT: CLOCK_HZ, 'arty-4x4': 100_000_000}",
+   "new": "CLOCKS = {POINT: CLOCK_HZ, 'arty-4x4': 80_000_000}"
+  },
+  "caught_by": [
+   "arty-4x4"
+  ],
+  "verdict": "CAUGHT",
+  "checks": {
+   "arty-4x4": {
+    "rc": 1,
+    "refused": [
+     "REFUSED endstation_arty_split_4x4: CPU (sys domain) clock is not exactly 80000000 Hz"
+    ],
+    "tail": [
+     "    1,",
+     "    5,",
+     "    5",
+     "  ]",
+     "}",
+     "REFUSED endstation_arty_split_4x4: CPU (sys domain) clock is not exactly 80000000 Hz"
+    ]
+   },
+   "arty-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "PASS Arty owner gate refuses an unbounded last: no finite solution",
+     "PASS Arty owner gate refuses a larger ACMP: 0.01 ms over",
+     "PASS Arty owner gate refuses an unbounded ACMP: no finite solution",
+     "PASS Arty owner gate refuses load over 0.70: 0.000001 over",
+     "PASS the Arty 4x4 configuration states the (1,5,5) shape: [Shape(interfaces=1, sources=5, sinks=5)]",
+     "PASS the two Arty points are different shapes: no point takes the other's costs"
+    ]
+   },
+   "ledger-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "caught mutant \"a figure at the earlier images' measurements where the train's and the pin merge's are larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a figure at the train's measurement where the pin merge's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"service.aecp.last at the pin merge's measurement where the train's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a run's refusals not read\": 8x8-1if: a results directory whose run refused a group fails",
+     "caught mutant \"a ledger row's name taken in any group\": 8x8-1if: a ledger row's name in another group is a new miss",
+     "RESULT: PASS: 24 mutants, 0 failure(s)"
+    ]
+   },
+   "mii-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "CAUGHT grade-drifted: the grade runs the testbench's queue and agrees with it; a held egress is the ledger's, not the row's",
+     "CAUGHT held-counted: a held egress is the ledger's, not the row's",
+     "CAUGHT no-margin: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT no-gptp: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT agreement-loose: a departure one datapath cycle off the replay fails",
+     "egress_mii selftest: 17 of 17 passed"
+    ]
+   },
+   "record-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "record classes: 26 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's",
+     "Arty record checks: 9 of 9 passed"
+    ]
+   },
+   "shape-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |",
+     "| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |",
+     "| (1, 1, 2) | 1250 | 1035 | 660 | 300 | 130 | 30 | 125 | 35 | arty-1x1 |",
+     "| (1, 5, 5) | 1250 | 825 | 600 | 300 | 125 | 25 | 125 | 29 | arty-4x4 |",
+     "with no shape header: (2, 2) streams",
+     "RESULT: PASS"
+    ]
+   },
+   "load-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "HELD arty-1x1 with tsn-c-stack#32: the load 0.501, its ceiling 0.70",
+     "HELD arty-4x4 at the pin: the load 0.469, its ceiling 0.70",
+     "HELD arty-4x4 with tsn-c-stack#32: the load 0.469, its ceiling 0.70",
+     "HELD 1x1/1if at the pin: the load 0.512, its ceiling 0.70",
+     "HELD 1x1/1if with tsn-c-stack#32: the load 0.509, its ceiling 0.70",
+     "RESULT: PASS"
+    ]
+   }
+  }
+ },
+ {
+  "name": "record-clock-80mhz",
+  "mutation": {
+   "file": "tb/verilator/ctrl_service_budget/record_classes.py",
+   "old": "ARTY_CLOCKS = {'arty-1x1': 80_000_000, 'arty-4x4': 100_000_000}",
+   "new": "ARTY_CLOCKS = {'arty-1x1': 80_000_000, 'arty-4x4': 80_000_000}"
+  },
+  "caught_by": [],
+  "verdict": "SURVIVED",
+  "checks": {
+   "arty-4x4": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "    \"txL\": 48.72",
+     "  },",
+     "  \"slice_us\": 1250,",
+     "  \"slice_margin\": 0.005714285714285738,",
+     "  \"pace_ms\": 5",
+     "}"
+    ]
+   },
+   "arty-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "PASS Arty owner gate refuses an unbounded last: no finite solution",
+     "PASS Arty owner gate refuses a larger ACMP: 0.01 ms over",
+     "PASS Arty owner gate refuses an unbounded ACMP: no finite solution",
+     "PASS Arty owner gate refuses load over 0.70: 0.000001 over",
+     "PASS the Arty 4x4 configuration states the (1,5,5) shape: [Shape(interfaces=1, sources=5, sinks=5)]",
+     "PASS the two Arty points are different shapes: no point takes the other's costs"
+    ]
+   },
+   "ledger-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "caught mutant \"a figure at the earlier images' measurements where the train's and the pin merge's are larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a figure at the train's measurement where the pin merge's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"service.aecp.last at the pin merge's measurement where the train's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a run's refusals not read\": 8x8-1if: a results directory whose run refused a group fails",
+     "caught mutant \"a ledger row's name taken in any group\": 8x8-1if: a ledger row's name in another group is a new miss",
+     "RESULT: PASS: 24 mutants, 0 failure(s)"
+    ]
+   },
+   "mii-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "CAUGHT grade-drifted: the grade runs the testbench's queue and agrees with it; a held egress is the ledger's, not the row's",
+     "CAUGHT held-counted: a held egress is the ledger's, not the row's",
+     "CAUGHT no-margin: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT no-gptp: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT agreement-loose: a departure one datapath cycle off the replay fails",
+     "egress_mii selftest: 17 of 17 passed"
+    ]
+   },
+   "record-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "record classes: 26 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's",
+     "Arty record checks: 9 of 9 passed"
+    ]
+   },
+   "shape-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |",
+     "| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |",
+     "| (1, 1, 2) | 1250 | 1035 | 660 | 300 | 130 | 30 | 125 | 35 | arty-1x1 |",
+     "| (1, 5, 5) | 1250 | 825 | 600 | 300 | 125 | 25 | 125 | 29 | arty-4x4 |",
+     "with no shape header: (2, 2) streams",
+     "RESULT: PASS"
+    ]
+   },
+   "load-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "HELD arty-1x1 with tsn-c-stack#32: the load 0.501, its ceiling 0.70",
+     "HELD arty-4x4 at the pin: the load 0.469, its ceiling 0.70",
+     "HELD arty-4x4 with tsn-c-stack#32: the load 0.469, its ceiling 0.70",
+     "HELD 1x1/1if at the pin: the load 0.512, its ceiling 0.70",
+     "HELD 1x1/1if with tsn-c-stack#32: the load 0.509, its ceiling 0.70",
+     "RESULT: PASS"
+    ]
+   }
+  }
+ },
+ {
+  "name": "doc-ledger-63.49",
+  "mutation": {
+   "file": "docs/design/SPLIT_CONTROL_MEMORY.md",
+   "old": "| `backlog.owed_behind3.if0` | 63.32736 | 63.50 |",
+   "new": "| `backlog.owed_behind3.if0` | 63.32736 | 63.49 |"
+  },
+  "caught_by": [
+   "ledger-selftest"
+  ],
+  "verdict": "CAUGHT",
+  "checks": {
+   "arty-4x4": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "    \"txL\": 48.72",
+     "  },",
+     "  \"slice_us\": 1250,",
+     "  \"slice_margin\": 0.005714285714285738,",
+     "  \"pace_ms\": 5",
+     "}"
+    ]
+   },
+   "arty-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "PASS Arty owner gate refuses an unbounded last: no finite solution",
+     "PASS Arty owner gate refuses a larger ACMP: 0.01 ms over",
+     "PASS Arty owner gate refuses an unbounded ACMP: no finite solution",
+     "PASS Arty owner gate refuses load over 0.70: 0.000001 over",
+     "PASS the Arty 4x4 configuration states the (1,5,5) shape: [Shape(interfaces=1, sources=5, sinks=5)]",
+     "PASS the two Arty points are different shapes: no point takes the other's costs"
+    ]
+   },
+   "ledger-selftest": {
+    "rc": 1,
+    "refused": [
+     "FAIL [in process, arty-4x4] the ledger is section 15's table, row for row and figure for figure: {'backlog.owed.if0': 62.78, 'backlog.owed_behind0.if0': 62.97, 'backlog.owed_behind1.if0': 63.14, 'backlog.owed_behind2.if0': 63.32, 'backlog.owed_behind3.if0': 63.49, 'backlog-owed.service.acmp.last.if0': 61.91, 'backlog-owed.service.aecp.last.if0': 61.65}",
+     "FAIL [as a process, arty-4x4] the ledger is section 15's table, row for row and figure for figure: {'backlog.owed.if0': 62.78, 'backlog.owed_behind0.if0': 62.97, 'backlog.owed_behind1.if0': 63.14, 'backlog.owed_behind2.if0': 63.32, 'backlog.owed_behind3.if0': 63.49, 'backlog-owed.service.acmp.last.if0': 61.91, 'backlog-owed.service.aecp.last.if0': 61.65}"
+    ],
+    "tail": [
+     "caught mutant \"a figure at the earlier images' measurements where the train's and the pin merge's are larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a figure at the train's measurement where the pin merge's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"service.aecp.last at the pin merge's measurement where the train's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a run's refusals not read\": 8x8-1if: a results directory whose run refused a group fails",
+     "caught mutant \"a ledger row's name taken in any group\": 8x8-1if: a ledger row's name in another group is a new miss",
+     "RESULT: FAIL: 24 mutants, 2 failure(s)"
+    ]
+   },
+   "mii-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "CAUGHT grade-drifted: the grade runs the testbench's queue and agrees with it; a held egress is the ledger's, not the row's",
+     "CAUGHT held-counted: a held egress is the ledger's, not the row's",
+     "CAUGHT no-margin: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT no-gptp: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT agreement-loose: a departure one datapath cycle off the replay fails",
+     "egress_mii selftest: 17 of 17 passed"
+    ]
+   },
+   "record-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "record classes: 26 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's",
+     "Arty record checks: 9 of 9 passed"
+    ]
+   },
+   "shape-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |",
+     "| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |",
+     "| (1, 1, 2) | 1250 | 1035 | 660 | 300 | 130 | 30 | 125 | 35 | arty-1x1 |",
+     "| (1, 5, 5) | 1250 | 825 | 600 | 300 | 125 | 25 | 125 | 29 | arty-4x4 |",
+     "with no shape header: (2, 2) streams",
+     "RESULT: PASS"
+    ]
+   },
+   "load-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "HELD arty-1x1 with tsn-c-stack#32: the load 0.501, its ceiling 0.70",
+     "HELD arty-4x4 at the pin: the load 0.469, its ceiling 0.70",
+     "HELD arty-4x4 with tsn-c-stack#32: the load 0.469, its ceiling 0.70",
+     "HELD 1x1/1if at the pin: the load 0.512, its ceiling 0.70",
+     "HELD 1x1/1if with tsn-c-stack#32: the load 0.509, its ceiling 0.70",
+     "RESULT: PASS"
+    ]
+   }
+  }
+ },
+ {
+  "name": "measured-behind3-up",
+  "mutation": {
+   "file": "tb/verilator/ctrl_service_budget/egress_ledger.py",
+   "old": "'backlog.owed_behind3.if0': 63.32736",
+   "new": "'backlog.owed_behind3.if0': 63.33736"
+  },
+  "caught_by": [
+   "ledger-selftest"
+  ],
+  "verdict": "CAUGHT",
+  "checks": {
+   "arty-4x4": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "    \"txL\": 48.72",
+     "  },",
+     "  \"slice_us\": 1250,",
+     "  \"slice_margin\": 0.005714285714285738,",
+     "  \"pace_ms\": 5",
+     "}"
+    ]
+   },
+   "arty-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "PASS Arty owner gate refuses an unbounded last: no finite solution",
+     "PASS Arty owner gate refuses a larger ACMP: 0.01 ms over",
+     "PASS Arty owner gate refuses an unbounded ACMP: no finite solution",
+     "PASS Arty owner gate refuses load over 0.70: 0.000001 over",
+     "PASS the Arty 4x4 configuration states the (1,5,5) shape: [Shape(interfaces=1, sources=5, sinks=5)]",
+     "PASS the two Arty points are different shapes: no point takes the other's costs"
+    ]
+   },
+   "ledger-selftest": {
+    "rc": 1,
+    "refused": [
+     "FAIL [in process, arty-4x4] the ledger is section 15's table, row for row and figure for figure: {'backlog.owed.if0': 62.78, 'backlog.owed_behind0.if0': 62.97, 'backlog.owed_behind1.if0': 63.14, 'backlog.owed_behind2.if0': 63.32, 'backlog.owed_behind3.if0': 63.5, 'backlog-owed.service.acmp.last.if0': 61.91, 'backlog-owed.service.aecp.last.if0': 61.65}",
+     "FAIL [in process, arty-4x4] section 15's measurement is the one the ledger derives from: {'backlog.owed.if0': 62.64658, 'backlog.owed_behind0.if0': 62.82023, 'backlog.owed_behind1.if0': 62.98813, 'backlog.owed_behind2.if0': 63.15874, 'backlog.owed_behind3.if0': 63.32736, 'backlog-owed.service.acmp.last.if0': 61.81513, 'backlog-owed.service.aecp.last.if0': 61.56471}",
+     "FAIL [as a process, arty-4x4] the ledger is section 15's table, row for row and figure for figure: {'backlog.owed.if0': 62.78, 'backlog.owed_behind0.if0': 62.97, 'backlog.owed_behind1.if0': 63.14, 'backlog.owed_behind2.if0': 63.32, 'backlog.owed_behind3.if0': 63.5, 'backlog-owed.service.acmp.last.if0': 61.91, 'backlog-owed.service.aecp.last.if0': 61.65}",
+     "FAIL [as a process, arty-4x4] section 15's measurement is the one the ledger derives from: {'backlog.owed.if0': 62.64658, 'backlog.owed_behind0.if0': 62.82023, 'backlog.owed_behind1.if0': 62.98813, 'backlog.owed_behind2.if0': 63.15874, 'backlog.owed_behind3.if0': 63.32736, 'backlog-owed.service.acmp.last.if0': 61.81513, 'backlog-owed.service.aecp.last.if0': 61.56471}"
+    ],
+    "tail": [
+     "caught mutant \"a figure at the earlier images' measurements where the train's and the pin merge's are larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a figure at the train's measurement where the pin merge's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"service.aecp.last at the pin merge's measurement where the train's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a run's refusals not read\": 8x8-1if: a results directory whose run refused a group fails",
+     "caught mutant \"a ledger row's name taken in any group\": 8x8-1if: a ledger row's name in another group is a new miss",
+     "RESULT: FAIL: 24 mutants, 4 failure(s)"
+    ]
+   },
+   "mii-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "CAUGHT grade-drifted: the grade runs the testbench's queue and agrees with it; a held egress is the ledger's, not the row's",
+     "CAUGHT held-counted: a held egress is the ledger's, not the row's",
+     "CAUGHT no-margin: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT no-gptp: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT agreement-loose: a departure one datapath cycle off the replay fails",
+     "egress_mii selftest: 17 of 17 passed"
+    ]
+   },
+   "record-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "record classes: 26 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's",
+     "Arty record checks: 9 of 9 passed"
+    ]
+   },
+   "shape-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |",
+     "| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |",
+     "| (1, 1, 2) | 1250 | 1035 | 660 | 300 | 130 | 30 | 125 | 35 | arty-1x1 |",
+     "| (1, 5, 5) | 1250 | 825 | 600 | 300 | 125 | 25 | 125 | 29 | arty-4x4 |",
+     "with no shape header: (2, 2) streams",
+     "RESULT: PASS"
+    ]
+   },
+   "load-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "HELD arty-1x1 with tsn-c-stack#32: the load 0.501, its ceiling 0.70",
+     "HELD arty-4x4 at the pin: the load 0.469, its ceiling 0.70",
+     "HELD arty-4x4 with tsn-c-stack#32: the load 0.469, its ceiling 0.70",
+     "HELD 1x1/1if at the pin: the load 0.512, its ceiling 0.70",
+     "HELD 1x1/1if with tsn-c-stack#32: the load 0.509, its ceiling 0.70",
+     "RESULT: PASS"
+    ]
+   }
+  }
+ },
+ {
+  "name": "ledger-4x4-cycle-12.5ns",
+  "mutation": {
+   "file": "tb/verilator/ctrl_service_budget/egress_ledger.py",
+   "old": "'arty-4x4': 100_000}",
+   "new": "'arty-4x4': 80_000}"
+  },
+  "caught_by": [],
+  "verdict": "SURVIVED",
+  "checks": {
+   "arty-4x4": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "    \"txL\": 48.72",
+     "  },",
+     "  \"slice_us\": 1250,",
+     "  \"slice_margin\": 0.005714285714285738,",
+     "  \"pace_ms\": 5",
+     "}"
+    ]
+   },
+   "arty-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "PASS Arty owner gate refuses an unbounded last: no finite solution",
+     "PASS Arty owner gate refuses a larger ACMP: 0.01 ms over",
+     "PASS Arty owner gate refuses an unbounded ACMP: no finite solution",
+     "PASS Arty owner gate refuses load over 0.70: 0.000001 over",
+     "PASS the Arty 4x4 configuration states the (1,5,5) shape: [Shape(interfaces=1, sources=5, sinks=5)]",
+     "PASS the two Arty points are different shapes: no point takes the other's costs"
+    ]
+   },
+   "ledger-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "caught mutant \"a figure at the earlier images' measurements where the train's and the pin merge's are larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a figure at the train's measurement where the pin merge's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"service.aecp.last at the pin merge's measurement where the train's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a run's refusals not read\": 8x8-1if: a results directory whose run refused a group fails",
+     "caught mutant \"a ledger row's name taken in any group\": 8x8-1if: a ledger row's name in another group is a new miss",
+     "RESULT: PASS: 24 mutants, 0 failure(s)"
+    ]
+   },
+   "mii-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "CAUGHT grade-drifted: the grade runs the testbench's queue and agrees with it; a held egress is the ledger's, not the row's",
+     "CAUGHT held-counted: a held egress is the ledger's, not the row's",
+     "CAUGHT no-margin: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT no-gptp: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT agreement-loose: a departure one datapath cycle off the replay fails",
+     "egress_mii selftest: 17 of 17 passed"
+    ]
+   },
+   "record-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "record classes: 26 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's",
+     "Arty record checks: 9 of 9 passed"
+    ]
+   },
+   "shape-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |",
+     "| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |",
+     "| (1, 1, 2) | 1250 | 1035 | 660 | 300 | 130 | 30 | 125 | 35 | arty-1x1 |",
+     "| (1, 5, 5) | 1250 | 825 | 600 | 300 | 125 | 25 | 125 | 29 | arty-4x4 |",
+     "with no shape header: (2, 2) streams",
+     "RESULT: PASS"
+    ]
+   },
+   "load-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "HELD arty-1x1 with tsn-c-stack#32: the load 0.501, its ceiling 0.70",
+     "HELD arty-4x4 at the pin: the load 0.469, its ceiling 0.70",
+     "HELD arty-4x4 with tsn-c-stack#32: the load 0.469, its ceiling 0.70",
+     "HELD 1x1/1if at the pin: the load 0.512, its ceiling 0.70",
+     "HELD 1x1/1if with tsn-c-stack#32: the load 0.509, its ceiling 0.70",
+     "RESULT: PASS"
+    ]
+   }
+  }
+ },
+ {
+  "name": "poll-base-under",
+  "mutation": {
+   "file": "tb/verilator/ctrl_service_budget/poll_grade.py",
+   "old": "    'base': 230, 'withdraw': 100, 'rebuild': 185,",
+   "new": "    'base': 200, 'withdraw': 100, 'rebuild': 185,"
+  },
+  "caught_by": [],
+  "verdict": "SURVIVED",
+  "checks": {
+   "arty-4x4": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "    \"txL\": 48.03",
+     "  },",
+     "  \"slice_us\": 1250,",
+     "  \"slice_margin\": 0.019795918367346916,",
+     "  \"pace_ms\": 5",
+     "}"
+    ]
+   },
+   "arty-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "PASS Arty owner gate refuses an unbounded last: no finite solution",
+     "PASS Arty owner gate refuses a larger ACMP: 0.01 ms over",
+     "PASS Arty owner gate refuses an unbounded ACMP: no finite solution",
+     "PASS Arty owner gate refuses load over 0.70: 0.000001 over",
+     "PASS the Arty 4x4 configuration states the (1,5,5) shape: [Shape(interfaces=1, sources=5, sinks=5)]",
+     "PASS the two Arty points are different shapes: no point takes the other's costs"
+    ]
+   },
+   "ledger-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "caught mutant \"a figure at the earlier images' measurements where the train's and the pin merge's are larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a figure at the train's measurement where the pin merge's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"service.aecp.last at the pin merge's measurement where the train's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a run's refusals not read\": 8x8-1if: a results directory whose run refused a group fails",
+     "caught mutant \"a ledger row's name taken in any group\": 8x8-1if: a ledger row's name in another group is a new miss",
+     "RESULT: PASS: 24 mutants, 0 failure(s)"
+    ]
+   },
+   "mii-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "CAUGHT grade-drifted: the grade runs the testbench's queue and agrees with it; a held egress is the ledger's, not the row's",
+     "CAUGHT held-counted: a held egress is the ledger's, not the row's",
+     "CAUGHT no-margin: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT no-gptp: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT agreement-loose: a departure one datapath cycle off the replay fails",
+     "egress_mii selftest: 17 of 17 passed"
+    ]
+   },
+   "record-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "record classes: 26 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's",
+     "Arty record checks: 9 of 9 passed"
+    ]
+   },
+   "shape-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |",
+     "| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |",
+     "| (1, 1, 2) | 1250 | 1035 | 660 | 300 | 130 | 30 | 125 | 35 | arty-1x1 |",
+     "| (1, 5, 5) | 1250 | 825 | 600 | 300 | 125 | 25 | 125 | 29 | arty-4x4 |",
+     "with no shape header: (2, 2) streams",
+     "RESULT: PASS"
+    ]
+   },
+   "load-check": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "HELD arty-1x1 with tsn-c-stack#32: the load 0.501, its ceiling 0.70",
+     "HELD arty-4x4 at the pin: the load 0.469, its ceiling 0.70",
+     "HELD arty-4x4 with tsn-c-stack#32: the load 0.469, its ceiling 0.70",
+     "HELD 1x1/1if at the pin: the load 0.512, its ceiling 0.70",
+     "HELD 1x1/1if with tsn-c-stack#32: the load 0.509, its ceiling 0.70",
+     "RESULT: PASS"
+    ]
+   }
+  }
+ },
+ {
+  "name": "arty-shapes-drop-155",
+  "mutation": {
+   "file": "tb/verilator/ctrl_service_budget/shape_costs.py",
+   "old": "ARTY_SHAPES = ((1, 1, 2), (1, 5, 5))",
+   "new": "ARTY_SHAPES = ((1, 1, 2),)"
+  },
+  "caught_by": [
+   "arty-4x4",
+   "arty-selftest",
+   "shape-check",
+   "load-check"
+  ],
+  "verdict": "CAUGHT",
+  "checks": {
+   "arty-4x4": {
+    "rc": 1,
+    "refused": [],
+    "tail": [
+     "                   ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^",
+     "  File \"$PACKET/scratch/mut/arty-shapes-drop-155/tb/verilator/ctrl_service_budget/shape_costs.py\", line 173, in at",
+     "    table = listed(text)",
+     "  File \"$PACKET/scratch/mut/arty-shapes-drop-155/tb/verilator/ctrl_service_budget/shape_costs.py\", line 129, in listed",
+     "    raise ValueError(f'ctrl_loop.h states {lines[k]!r} for the shape {tuple(shape)}')",
+     "ValueError: ctrl_loop.h states '#define CTRL_LOOP_STEP_PASS_US 850u' for the shape (1, 5, 5)"
+    ]
+   },
+   "arty-selftest": {
+    "rc": 1,
+    "refused": [],
+    "tail": [
+     "                   ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^",
+     "  File \"$PACKET/scratch/mut/arty-shapes-drop-155/tb/verilator/ctrl_service_budget/shape_costs.py\", line 173, in at",
+     "    table = listed(text)",
+     "  File \"$PACKET/scratch/mut/arty-shapes-drop-155/tb/verilator/ctrl_service_budget/shape_costs.py\", line 129, in listed",
+     "    raise ValueError(f'ctrl_loop.h states {lines[k]!r} for the shape {tuple(shape)}')",
+     "ValueError: ctrl_loop.h states '#define CTRL_LOOP_STEP_PASS_US 850u' for the shape (1, 5, 5)"
+    ]
+   },
+   "ledger-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "caught mutant \"a figure at the earlier images' measurements where the train's and the pin merge's are larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a figure at the train's measurement where the pin merge's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"service.aecp.last at the pin merge's measurement where the train's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from",
+     "caught mutant \"a run's refusals not read\": 8x8-1if: a results directory whose run refused a group fails",
+     "caught mutant \"a ledger row's name taken in any group\": 8x8-1if: a ledger row's name in another group is a new miss",
+     "RESULT: PASS: 24 mutants, 0 failure(s)"
+    ]
+   },
+   "mii-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "CAUGHT grade-drifted: the grade runs the testbench's queue and agrees with it; a held egress is the ledger's, not the row's",
+     "CAUGHT held-counted: a held egress is the ledger's, not the row's",
+     "CAUGHT no-margin: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT no-gptp: a wait just past the bound less its margin and gPTP fails",
+     "CAUGHT agreement-loose: a departure one datapath cycle off the replay fails",
+     "egress_mii selftest: 17 of 17 passed"
+    ]
+   },
+   "record-selftest": {
+    "rc": 0,
+    "refused": [],
+    "tail": [
+     "record classes: 26 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's",
+     "Arty record checks: 9 of 9 passed"
+    ]
+   },
+   "shape-check": {
+    "rc": 1,
+    "refused": [],
+    "tail": [
+     "                    ~~~~~~^^^^^^",
+     "  File \"$PACKET/scratch/mut/arty-shapes-drop-155/tb/verilator/ctrl_service_budget/shape_costs.py\", line 428, in report",
+     "    table = listed(text_of(root))",
+     "  File \"$PACKET/scratch/mut/arty-shapes-drop-155/tb/verilator/ctrl_service_budget/shape_costs.py\", line 129, in listed",
+     "    raise ValueError(f'ctrl_loop.h states {lines[k]!r} for the shape {tuple(shape)}')",
+     "ValueError: ctrl_loop.h states '#define CTRL_LOOP_STEP_PASS_US 850u' for the shape (1, 5, 5)"
+    ]
+   },
+   "load-check": {
+    "rc": 1,
+    "refused": [],
+    "tail": [
+     "                                                 ~~~~~~~~~~~~~~^^^^^^^^^^^^",
+     "  File \"$PACKET/scratch/mut/arty-shapes-drop-155/tb/verilator/ctrl_service_budget/shape_costs.py\", line 173, in at",
+     "    table = listed(text)",
+     "  File \"$PACKET/scratch/mut/arty-shapes-drop-155/tb/verilator/ctrl_service_budget/shape_costs.py\", line 129, in listed",
+     "    raise ValueError(f'ctrl_loop.h states {lines[k]!r} for the shape {tuple(shape)}')",
+     "ValueError: ctrl_loop.h states '#define CTRL_LOOP_STEP_PASS_US 850u' for the shape (1, 5, 5)"
+    ]
+   }
+  }
+ }
+]

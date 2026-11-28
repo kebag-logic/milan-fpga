@@ -1,0 +1,19 @@
+PASS ledger backlog.owed.if0: measured 62.64658, rule 62.78, tool 62.78
+PASS ledger backlog.owed_behind0.if0: measured 62.82023, rule 62.97, tool 62.97
+PASS ledger backlog.owed_behind1.if0: measured 62.98813, rule 63.14, tool 63.14
+PASS ledger backlog.owed_behind2.if0: measured 63.15874, rule 63.32, tool 63.32
+PASS ledger backlog.owed_behind3.if0: measured 63.32736, rule 63.5, tool 63.5
+PASS ledger backlog-owed.service.acmp.last.if0: measured 61.81513, rule 61.91, tool 61.91
+PASS ledger backlog-owed.service.aecp.last.if0: measured 61.56471, rule 61.65, tool 61.65
+PASS ledger max: the largest figure is 63.50 ms
+PASS 1x1 and 8x8/1if ledgers untouched: ['8x8-1if', 'arty-1x1', 'arty-4x4']
+PASS bind in flight: 2 x 253.671 = 507.342 -> 550
+PASS bind burst saves: floor(530 / 253.671) + 2 = 4
+PASS 100 Mb/s egress row: (446.76 + 54.88) x 1.05 + 320 ns = 527.042 us
+INFO with the 300.0 ns measured at 100 MHz instead of the stated 320: 527.022 us
+PASS 4x4 SR load: (90, 90, 90, 90, 46), sys 10000 ps
+PASS egress envelope: 4 x 7360 + 5632 = 35072 kb/s
+PASS ingress envelope: 4 x 16576 + 5632 = 71936 kb/s
+PASS SHARE: 173322 cycles at 100 MHz = 1.733 ms
+PASS memory ledger: ROM 132658 of 133120, SRAM 69480 of 69632, 49.5 RAMB36
+RESULT PASS
