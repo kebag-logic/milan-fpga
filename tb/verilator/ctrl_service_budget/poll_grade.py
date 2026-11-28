@@ -144,10 +144,10 @@ STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_
 STATED_US[shape_costs.Shape(1, 1, 2)] = {
     'base': 235, 'withdraw': 95, 'rebuild': 255, 'walk': 30, 'reclaim': 20, 'retained': 300, 'mrpdu': 0,
     'acmp': 60, 'aecp': 200, 'aecp_long': 385, 'acmp_declined': 20}
-# The Arty 4x4 point (1,5,5), #878: the 1x1's figures until its own 80 MHz census restates them by the rule.
+# The Arty 4x4 point (1,5,5), #878: its own 100 MHz census by the rule.
 STATED_US[shape_costs.Shape(1, 5, 5)] = {
-    'base': 230, 'withdraw': 100, 'rebuild': 190, 'walk': 25, 'reclaim': 15, 'retained': 300, 'mrpdu': 0,
-    'acmp': 60, 'aecp': 140, 'aecp_long': 315, 'acmp_declined': 20}
+    'base': 230, 'withdraw': 100, 'rebuild': 185, 'walk': 30, 'reclaim': 15, 'retained': 300, 'mrpdu': 0,
+    'acmp': 60, 'aecp': 140, 'aecp_long': 310, 'acmp_declined': 20}
 
 
 #: An SRP record's own apply (srp_mbx:apply_receive outside the polls), held to the retained item's stated cost.

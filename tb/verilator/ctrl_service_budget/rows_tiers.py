@@ -101,7 +101,7 @@ DATAPATH = {'AVB_INFO_CHANGED': 'interface', 'AS_PATH_CHANGED': 'interface', 'AM
 #: 29.06, 23.33 us at 1x1/1if, 36.57, 34.43, 23.02 at 8x8; direct index 30.55, 31.57, 25.51; #895 AMAP 8x8 24.65).
 DATAPATH_US = {
     'arty-1x1': {'AVB_INFO_CHANGED': 30, 'AS_PATH_CHANGED': 30, 'AMAP_LIVE_WRITE': 15},
-    'arty-4x4': {'AVB_INFO_CHANGED': 30, 'AS_PATH_CHANGED': 30, 'AMAP_LIVE_WRITE': 15},
+    'arty-4x4': {'AVB_INFO_CHANGED': 30, 'AS_PATH_CHANGED': 25, 'AMAP_LIVE_WRITE': 15},
     '1x1/1if': {'AVB_INFO_CHANGED': 35, 'AS_PATH_CHANGED': 35, 'AMAP_LIVE_WRITE': 30},
                '8x8/2if': {'AVB_INFO_CHANGED': 40, 'AS_PATH_CHANGED': 40, 'AMAP_LIVE_WRITE': 30}}
 #: The five rows decision D bounds, the slice rule's (slice_choice).
@@ -137,7 +137,7 @@ LONG_NOTICE_US = {p: poll_grade.stated_us(shape_costs.of_point(p))[poll_grade.LO
 #: before), and at 8x8/1if (THE SHAPES) 162,969 on the image that merges dev-soft-core 70f4056f (#901; 143,648 before,
 #: 1,510 us), 1,715 us (#904: one decode, one pass), 1,720 (#943: 163,520). record.aecp is shorter ones'.
 LONG_RECORD_US = {
-    'arty-1x1': 1105, 'arty-4x4': 915, '1x1/1if': 975, '8x8/2if': 1650, '8x8/1if': 1720}
+    'arty-1x1': 1105, 'arty-4x4': 890, '1x1/1if': 975, '8x8/2if': 1650, '8x8/1if': 1720}
 #: The terms a tier-1 row may not carry: tier 2's work, for which only the one slice its window opens on stands.
 TIER2_TERMS = ('srp', 'item.retained', 'item.mrpdu', 'builds', 'rounds', 'item.withdraw', 'item.rebuild')
 #: Each term these models count and its source: rows_grade's list, the three datapath events, and the tier model's.
