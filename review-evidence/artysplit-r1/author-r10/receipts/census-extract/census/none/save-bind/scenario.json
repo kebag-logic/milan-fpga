@@ -1,0 +1,65 @@
+{
+ "name": "save-bind",
+ "steps": [
+  "wait ready",
+  "mark booted",
+  "wait cycles 5000000",
+  "wait quiet 3 within 2000000",
+  "link 0 1",
+  "wait cycles 60000000",
+  "wait quiet 3 within 2000000",
+  "mark settled",
+  "frame 0 91e0f00100000a0b0c0d0e0122f0fc06002c00000000000000000a0b0c0d0e0f00010c0d0e0f10110001024b4cfffe4b4c020001000000000000000000009500000000000000",
+  "wait cycles 120000000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f00019501002300050000000000000000000000000000000000000000",
+  "wait cycles 120000000",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000010024b4cfffe4b4c020a0b0c0d0e0f00019502002200050000000000000000000000000000000000000000",
+  "wait cycles 120000000",
+  "frame 0 91e0f00100000a0b0c0d0e0122f0fc08002c00000000000000000a0b0c0d0e0f00010c0d0e0f10110001024b4cfffe4b4c020001000000000000000000009503000000000000",
+  "wait cycles 120000000"
+ ],
+ "probes": [],
+ "sim_ms": 6300,
+ "load": {},
+ "admission": {},
+ "save": {
+  "journal": true,
+  "flash_us": [
+   120000,
+   500
+  ],
+  "bind": {
+   "kind": "idle",
+   "image": 2600,
+   "base": 26,
+   "target_ms": 800,
+   "ops": [
+    {
+     "kind": "BIND_RX",
+     "sink": 0,
+     "seq": 38144,
+     "value": "030000010c0d0e0f101100010a0b0c0d0e0f0001"
+    },
+    {
+     "kind": "STOP_STREAMING",
+     "sink": 0,
+     "seq": 38145,
+     "value": "010000010c0d0e0f101100010a0b0c0d0e0f0001"
+    },
+    {
+     "kind": "START_STREAMING",
+     "sink": 0,
+     "seq": 38146,
+     "value": "030000010c0d0e0f101100010a0b0c0d0e0f0001"
+    },
+    {
+     "kind": "UNBIND_RX",
+     "sink": 0,
+     "seq": 38147,
+     "value": "0000000000000000000000000000000000000000"
+    }
+   ]
+  }
+ },
+ "sys_hz": 80000000
+}

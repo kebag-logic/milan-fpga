@@ -1,0 +1,50 @@
+{
+ "name": "save-bind-in-blank-late",
+ "steps": [
+  "wait ready",
+  "mark booted",
+  "wait cycles 5000000",
+  "wait quiet 3 within 2000000",
+  "link 0 1",
+  "wait cycles 60000000",
+  "wait quiet 3 within 2000000",
+  "mark settled",
+  "frame 0 024b4c4b4c020a0b0c0d0e0122f0fb000054024b4cfffe4b4c020a0b0c0d0e0f00026f000010000000000000000073617665000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "wait tx 2 1 within 5000000",
+  "wait flash erase 1 within 300000000",
+  "wait call nvm_flash_litespi:ls_read 19 within 300000000",
+  "frame 0 91e0f00100000a0b0c0d0e0122f0fc06002c00000000000000000a0b0c0d0e0f00010c0d0e0f10110001024b4cfffe4b4c020001000000000000000000009a00000000000000",
+  "wait cycles 200000000"
+ ],
+ "probes": [],
+ "sim_ms": 4500,
+ "load": {},
+ "admission": {},
+ "save": {
+  "journal": true,
+  "flash_us": [
+   120000,
+   500
+  ],
+  "bind": {
+   "kind": "flight",
+   "image": 2600,
+   "base": 26,
+   "target_ms": 400,
+   "ops": [
+    {
+     "kind": "BIND_RX",
+     "sink": 0,
+     "seq": 39424,
+     "value": "030000010c0d0e0f101100010a0b0c0d0e0f0001"
+    }
+   ],
+   "phase": "blank",
+   "part": [
+    0.5,
+    1.0
+   ]
+  }
+ },
+ "sys_hz": 80000000
+}

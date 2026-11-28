@@ -1,0 +1,99 @@
+{
+ "name": "srp-kept",
+ "steps": [
+  "wait ready",
+  "mark booted",
+  "wait cycles 5000000",
+  "wait quiet 3 within 2000000",
+  "link 0 1",
+  "wait cycles 60000000",
+  "wait quiet 3 within 2000000",
+  "mark settled",
+  "wait cycles 260000000",
+  "wait quiet 3 within 2000000",
+  "mark srp.kept_advertise.if0",
+  "frame 0 0180c200000e0c0d0e0f100122ea000119001e00020c0d0e0f1002000091e0f000fd00000200e0000170000186a02a00000000000000000000000000 srp.kept_advertise.if0",
+  "wait cycles 3000000",
+  "wait quiet 3 within 2000000",
+  "frame 0 0180c200000e0c0d0e0f100122ea000119001e00010c0d0e0f1002000091e0f000fd00000200e0000170000186a0b400000000000000000000000000",
+  "wait cycles 600000000",
+  "wait quiet 3 within 2000000",
+  "mark srp.kept_recount.if0",
+  "frame 0 0180c200000e0c0d0e0f100122ea000119001e00030c0d0e0f1002000291e0f000fd02000200e0000170000186a02b00000000000000000000000000 srp.kept_recount.if0",
+  "wait cycles 3000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 790000000",
+  "wait quiet 3 within 2000000",
+  "link 0 0",
+  "wait cycles 60000000",
+  "wait quiet 3 within 2000000",
+  "link 0 1",
+  "wait cycles 60000000",
+  "wait quiet 3 within 2000000",
+  "mark srp.kept_failed.if0",
+  "frame 0 0180c200000e0c0d0e0f100122ea000222002700020c0d0e0f1002000091e0f000fd00000200e0000170000186a080000e0e0e0e0e01012a00000000 srp.kept_failed.if0",
+  "wait cycles 3000000",
+  "wait quiet 3 within 2000000"
+ ],
+ "probes": [
+  {
+   "name": "srp.kept_advertise.if0",
+   "row": "Talker Advertise RX for every input, no binding (kept)",
+   "family": "srp",
+   "start": "rxc:4",
+   "ends": [
+    "pass_end:4"
+   ],
+   "wait_ms": 0.0,
+   "expect": "",
+   "accesses": null,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "srp.kept_recount.if0",
+   "row": "Talker RX at the bound after a freed block (count)",
+   "family": "srp",
+   "start": "rxc:4",
+   "ends": [
+    "pass_end:4"
+   ],
+   "wait_ms": 0.0,
+   "expect": "",
+   "accesses": null,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "srp.kept_failed.if0",
+   "row": "Talker Failed RX for every input, no binding (kept)",
+   "family": "srp",
+   "start": "rxc:4",
+   "ends": [
+    "pass_end:4"
+   ],
+   "wait_ms": 0.0,
+   "expect": "",
+   "accesses": null,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  }
+ ],
+ "sim_ms": 19350,
+ "load": {},
+ "admission": {},
+ "save": {},
+ "sys_hz": 80000000
+}

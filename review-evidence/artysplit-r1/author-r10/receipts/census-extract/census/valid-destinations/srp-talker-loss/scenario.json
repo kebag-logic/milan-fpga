@@ -1,0 +1,70 @@
+{
+ "name": "srp-talker-loss",
+ "steps": [
+  "wait ready",
+  "mark booted",
+  "wait cycles 5000000",
+  "wait quiet 3 within 2000000",
+  "link 0 1",
+  "wait cycles 60000000",
+  "wait quiet 3 within 2000000",
+  "mark settled",
+  "wait cycles 260000000",
+  "wait quiet 3 within 2000000",
+  "mark srp.talker_declare.s0.if0",
+  "frame 0 91e0f00100000a0b0c0d0e0122f0fc00002c00000000000000000a0b0c0d0e0f0001024b4cfffe4b4c020d0e0f10111200020000000300000000000000005300000000000000 srp.talker_declare.s0.if0",
+  "wait tx 4 1 within 30000000",
+  "wait quiet 3 within 2000000",
+  "mark srp.talker_loss.if0",
+  "reply 0 3 15:03 on=0 6=0e0000000000 tag=srp.talker_loss.if0",
+  "wait tx 4 1 within 30000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 250000000",
+  "wait quiet 3 within 2000000"
+ ],
+ "probes": [
+  {
+   "name": "srp.talker_declare.s0.if0",
+   "row": "PROBE_TX -> Talker Advertise (JoinTime wait)",
+   "family": "srp",
+   "start": "rxc:1",
+   "ends": [
+    "resp:1:5300",
+    "tx:4"
+   ],
+   "wait_ms": 200.0,
+   "expect": "acmp:PROBE_TX_RESPONSE:SUCCESS",
+   "accesses": null,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "srp.talker_loss.if0",
+   "row": "range lost -> Talker Leave (JoinTime wait)",
+   "family": "srp",
+   "start": "rxc:3",
+   "ends": [
+    "tx:3",
+    "tx:4"
+   ],
+   "wait_ms": 200.0,
+   "expect": "maap_type:1",
+   "accesses": null,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  }
+ ],
+ "sim_ms": 10000,
+ "load": {},
+ "admission": {},
+ "save": {},
+ "sys_hz": 80000000
+}

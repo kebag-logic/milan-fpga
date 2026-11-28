@@ -1,0 +1,200 @@
+{
+ "name": "acmp-cmd",
+ "steps": [
+  "wait ready",
+  "mark booted",
+  "wait cycles 5000000",
+  "wait quiet 3 within 2000000",
+  "link 0 1",
+  "wait cycles 60000000",
+  "wait quiet 3 within 2000000",
+  "mark settled",
+  "mark acmp.bind_rx.if0",
+  "frame 0 91e0f00100000a0b0c0d0e0122f0fc06002c00000000000000000a0b0c0d0e0f00010c0d0e0f10110001024b4cfffe4b4c020001000000000000000000004100000000000000 acmp.bind_rx.if0",
+  "wait tx 1 2 within 2000000",
+  "wait quiet 3 within 2000000",
+  "mark acmp.probe_tx_response.if0",
+  "reply 0 1 15:00 6=0c0d0e0f1001 15=01 16=002c 18=0c0d0e0f10010000 54=91e0f000fe01 66=0002 tag=acmp.probe_tx_response.if0",
+  "wait tmr 1 1 within 30000000",
+  "wait quiet 3 within 2000000",
+  "mark acmp.get_rx_state.if0",
+  "frame 0 91e0f00100000a0b0c0d0e0122f0fc0a002c00000000000000000a0b0c0d0e0f00010c0d0e0f10110001024b4cfffe4b4c020001000000000000000000004101000000000000 acmp.get_rx_state.if0",
+  "wait tx 1 1 within 2000000",
+  "wait quiet 3 within 2000000",
+  "mark acmp.unbind_rx.if0",
+  "frame 0 91e0f00100000a0b0c0d0e0122f0fc08002c00000000000000000a0b0c0d0e0f00010c0d0e0f10110001024b4cfffe4b4c020001000000000000000000004102000000000000 acmp.unbind_rx.if0",
+  "wait tx 1 1 within 2000000",
+  "wait quiet 3 within 2000000",
+  "mark acmp.probe_tx.if0",
+  "frame 0 91e0f00100000a0b0c0d0e0122f0fc00002c00000000000000000a0b0c0d0e0f0001024b4cfffe4b4c020d0e0f10111200020000000300000000000000004103000000000000 acmp.probe_tx.if0",
+  "wait tx 1 1 within 2000000",
+  "wait quiet 3 within 2000000",
+  "mark acmp.get_tx_state.if0",
+  "frame 0 91e0f00100000a0b0c0d0e0122f0fc04002c00000000000000000a0b0c0d0e0f0001024b4cfffe4b4c020d0e0f10111200020000000300000000000000004104000000000000 acmp.get_tx_state.if0",
+  "wait tx 1 1 within 2000000",
+  "wait quiet 3 within 2000000",
+  "mark acmp.disconnect_tx.if0",
+  "frame 0 91e0f00100000a0b0c0d0e0122f0fc02002c00000000000000000a0b0c0d0e0f0001024b4cfffe4b4c020d0e0f10111200020000000300000000000000004105000000000000 acmp.disconnect_tx.if0",
+  "wait tx 1 1 within 2000000",
+  "wait quiet 3 within 2000000",
+  "mark acmp.get_tx_connection.if0",
+  "frame 0 91e0f00100000a0b0c0d0e0122f0fc0c002c00000000000000000a0b0c0d0e0f0001024b4cfffe4b4c020d0e0f10111200020000000300000000000000004106000000000000 acmp.get_tx_connection.if0",
+  "wait tx 1 1 within 2000000",
+  "wait quiet 3 within 2000000"
+ ],
+ "probes": [
+  {
+   "name": "acmp.bind_rx.if0",
+   "row": "BIND_RX",
+   "family": "acmp",
+   "start": "rxc:1",
+   "ends": [
+    "resp:1:4100",
+    "acmp_cmd:1:PROBE_TX",
+    "arm:1",
+    "pub:578"
+   ],
+   "wait_ms": 0.0,
+   "expect": "acmp:BIND_RX_RESPONSE:SUCCESS",
+   "accesses": 77,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "acmp.probe_tx_response.if0",
+   "row": "PROBE_TX_RESPONSE",
+   "family": "acmp",
+   "start": "rxc:1",
+   "ends": [
+    "arm:1"
+   ],
+   "wait_ms": 0.0,
+   "expect": "",
+   "accesses": 32,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "acmp.get_rx_state.if0",
+   "row": "GET_RX_STATE",
+   "family": "acmp",
+   "start": "rxc:1",
+   "ends": [
+    "resp:1:4101"
+   ],
+   "wait_ms": 0.0,
+   "expect": "acmp:GET_RX_STATE_RESPONSE:SUCCESS",
+   "accesses": 47,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "acmp.unbind_rx.if0",
+   "row": "UNBIND_RX",
+   "family": "acmp",
+   "start": "rxc:1",
+   "ends": [
+    "resp:1:4102",
+    "tmr:1"
+   ],
+   "wait_ms": 0.0,
+   "expect": "acmp:UNBIND_RX_RESPONSE:SUCCESS",
+   "accesses": 50,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "acmp.probe_tx.if0",
+   "row": "PROBE_TX, refused TALKER_DEST_MAC_FAIL",
+   "family": "acmp",
+   "start": "rxc:1",
+   "ends": [
+    "resp:1:4103"
+   ],
+   "wait_ms": 0.0,
+   "expect": "acmp:PROBE_TX_RESPONSE:TALKER_DEST_MAC_FAIL",
+   "accesses": 48,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "acmp.get_tx_state.if0",
+   "row": "GET_TX_STATE",
+   "family": "acmp",
+   "start": "rxc:1",
+   "ends": [
+    "resp:1:4104"
+   ],
+   "wait_ms": 0.0,
+   "expect": "acmp:GET_TX_STATE_RESPONSE:SUCCESS",
+   "accesses": 48,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "acmp.disconnect_tx.if0",
+   "row": "DISCONNECT_TX",
+   "family": "acmp",
+   "start": "rxc:1",
+   "ends": [
+    "resp:1:4105"
+   ],
+   "wait_ms": 0.0,
+   "expect": "acmp:DISCONNECT_TX_RESPONSE:SUCCESS",
+   "accesses": 48,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "acmp.get_tx_connection.if0",
+   "row": "GET_TX_CONNECTION, refused NOT_SUPPORTED",
+   "family": "acmp",
+   "start": "rxc:1",
+   "ends": [
+    "resp:1:4106"
+   ],
+   "wait_ms": 0.0,
+   "expect": "acmp:GET_TX_CONNECTION_RESPONSE:NOT_SUPPORTED",
+   "accesses": 48,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  }
+ ],
+ "sim_ms": 2500,
+ "load": {},
+ "admission": {},
+ "save": {},
+ "sys_hz": 80000000
+}

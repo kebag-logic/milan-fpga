@@ -1,0 +1,107 @@
+{
+ "name": "srp",
+ "steps": [
+  "wait ready",
+  "mark booted",
+  "wait cycles 5000000",
+  "wait quiet 3 within 2000000",
+  "mark srp.startup.if0",
+  "link 0 1",
+  "wait tx 4 2 within 10000000",
+  "wait quiet 3 within 2000000",
+  "wait cycles 260000000",
+  "wait quiet 3 within 2000000",
+  "mark srp.listener_ready.if0",
+  "frame 0 0180c200000e0e0e0e0e0e0122ea000308000e0001024b4c4b4c02000024800000000000000000000000000000000000000000000000000000000000 srp.listener_ready.if0",
+  "wait cycles 3000000",
+  "wait quiet 3 within 2000000",
+  "mark srp.malformed.if0",
+  "frame 0 0180c200000e0e0e0e0e0e0122ea000308000e0001024b4c4b4c020000d8800000000000000000000000000000000000000000000000000000000000 srp.malformed.if0",
+  "wait cycles 3000000",
+  "wait quiet 3 within 2000000",
+  "mark srp.domain.if0",
+  "frame 0 0180c200000e0e0e0e0e0e0122ea00040400090001060400032400000000000000000000000000000000000000000000000000000000000000000000 srp.domain.if0",
+  "wait tx 4 1 within 30000000",
+  "wait quiet 3 within 2000000"
+ ],
+ "probes": [
+  {
+   "name": "srp.startup.if0",
+   "row": "startup declarations (LINK_UP)",
+   "family": "srp",
+   "start": "pad:LINK:0",
+   "ends": [
+    "tx:4:2"
+   ],
+   "wait_ms": 0.0,
+   "expect": "srp_frames",
+   "accesses": null,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "srp.listener_ready.if0",
+   "row": "Listener Ready RX (registrar)",
+   "family": "srp",
+   "start": "rxc:4",
+   "ends": [
+    "pass_end:4"
+   ],
+   "wait_ms": 0.0,
+   "expect": "",
+   "accesses": null,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "srp.malformed.if0",
+   "row": "malformed MRPDU discard",
+   "family": "srp",
+   "start": "rxc:4",
+   "ends": [
+    "pass_end:4"
+   ],
+   "wait_ms": 0.0,
+   "expect": "",
+   "accesses": null,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  },
+  {
+   "name": "srp.domain.if0",
+   "row": "Domain RX -> declarations (JoinTime wait)",
+   "family": "srp",
+   "start": "rxc:4",
+   "ends": [
+    "pub:515",
+    "tx:4"
+   ],
+   "wait_ms": 200.0,
+   "expect": "",
+   "accesses": null,
+   "until": "",
+   "also_from": "",
+   "recipients": [],
+   "path": "",
+   "owed": [],
+   "may_drop": false
+  }
+ ],
+ "sim_ms": 4500,
+ "load": {},
+ "admission": {},
+ "save": {},
+ "sys_hz": 80000000
+}
