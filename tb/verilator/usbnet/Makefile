@@ -26,9 +26,9 @@ TAP_SRCS = $(RTL)/KL_usbnet_pkg.sv $(RTL)/KL_usbnet_rx_copy.sv $(RTL)/KL_usbnet_
            $(RTL)/KL_usbnet_tx_arb.sv $(RTL)/KL_usbnet_tap.sv
 TAP_G    = -GCLK_HZ_P=1000000 -GRATE_BPS_P=800000 -GBURST_OCTETS_P=3200
 
-.PHONY: all run tap leds truth local wait clock attachment mutants clean
+.PHONY: all run tap leds truth local wait clock attachment egress egress-plants mutants clean
 all: run
-run: tap leds truth local wait clock attachment
+run: tap leds truth local wait clock attachment egress
 
 tap:
 	mkdir -p $(OBJ)/tap
@@ -64,6 +64,14 @@ wait:
 
 mutants:
 	python3 mutants.py
+
+egress:
+	python3 egress_measure.py $(OBJ)/egress
+	python3 egress_controls.py
+
+egress-plants:
+	python3 egress_measure.py $(OBJ)/egress-plants --plants
+	python3 egress_controls.py
 
 clock: truth
 	python3 clock_commands.py $(OBJ)/clock $(OBJ)/truth

@@ -18,6 +18,14 @@ A new reader is debt until review classifies it here.
 """
 
 DUT_READER_DISPOSITIONS = {
+    "tb/verilator/usbnet/egress_measure.py":
+        "mutation campaign; substitutes early release and delayed acknowledgement in isolated arbiters; "
+        "the first must fail the named waiting assertion, the second must complete every phase and "
+        "exceed the independently measured handshake allowance",
+    "tb/verilator/ctrl_service_budget/egress_mii.py":
+        "queue configuration; reads shipping capacities and gasket spacing to instantiate the ruled "
+        "link-rate replay; wire timing and owner bounds are independent constants, and its controls "
+        "plant wrong rates, capacities, spacing, traffic, margin and replay agreement",
     "tb/verilator/usbnet/mutants.py":
         "mutation campaign; plants one named filter, record, reset, rate, local-delivery or LED "
         "defect in an isolated RTL copy and requires its independently specified assertion to fail "

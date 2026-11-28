@@ -153,18 +153,47 @@ The product's TX trunk has no credit-based shaper (see the TX-trunk note in
 `hdl/milan/milan_datapath.sv`). This arbiter is therefore the strict-priority
 stage below the SR classes (IEEE 802.1Q-2018 8.6.8).
 
-**Egress qualification remains open at 100 Mb/s.** The control row reserves
+**Egress qualification at 100 Mb/s.** The control row reserves
 1 ms for egress: `49 = 240 - 190 - T_egress`, as `rows_tiers.py` derives it.
 The injected frame's 123.2 us must fit inside that allowance together with
 the existing egress path. It cannot simply be added outside the 49 ms bound.
-The capacity proof in [FR_NFR 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
-uses 250 Mb/s of a gigabit link. That premise does not hold for this board.
-The current five rings can hold 254 minimum records accepted by `KL_mbx_tx`.
-Their predecessors alone occupy 1700.16 us at 100 Mb/s, before injection,
-even without competing traffic. This is a counterexample to that capacity
-argument, not evidence that the production firmware generates that backlog.
-A tighter bound on reachable Arty traffic and arbitration is required.
-Firmware identity and CPU census results do not establish it.
+The [egress ruling](https://github.com/kebag-logic/milan-fpga/pull/1020#issuecomment-7216971645)
+replaces the gigabit capacity argument with a measured row.
+[FR_NFR 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
+states the inherited queue, traffic and 254-record capacity.
+The USB envelope adds one injection before each busy period.
+That frame consumes no datapath FIFO slot.
+Its delay changes FIFO releases and mailbox backpressure.
+The envelope conservatively takes no token-bucket credit.
+
+The production MII chain measures the additional handshake.
+Across 512 length/phase cases, its maximum is 257.5 ns.
+The stated term rounds upward to 260 ns.
+It includes grant startup and the acknowledgement crossing.
+The live census queue charges both injection and handshake.
+Every firmware TX-tail reader therefore sees the delayed queue.
+Changed ring availability requires the complete census again.
+All eight images and the inherited dispositions remain included.
+The row rule and owner bounds remain unchanged.
+
+The final grader replays every native departure exactly.
+It sweeps eight SR-stream phases and adds the gPTP burst.
+It applies 5% margin and the 320 ns fixed path.
+It separately adds the measured 260 ns handshake allowance.
+That last addition conservatively repeats the queue's handshake charge.
+The complete result must remain within 1000 us.
+Firmware identity alone cannot establish this egress result.
+
+The complete injected census covers 159 cases across eight images.
+Its largest commit-to-last-octet wait is 558.835 us.
+With the inherited 54.88 us gPTP burst, the complete expression is
+`(558.835 + 54.88) * 1.05 + 0.32 + 0.26 = 644.98075 us`.
+This fits the 1000 us wire allowance.
+However, the held-egress ledger still blocks qualification.
+The last AECP delivery in `none/backlog-owed` measures 62.03635 ms,
+exceeding its unchanged 61.99 ms allowance by 46.35 us.
+The other six held-egress rows remain within their allowances.
+No ledger entry or owner bound is relaxed by the wire result.
 
 **Rate limit.** A token bucket in octets on the wire, refilled at 10 Mb/s (a
 tenth of the Arty's link) with a 3200-octet burst. Each frame costs at least 60
@@ -370,6 +399,13 @@ run with the fabric benches. No firmware LED observer is linked into an image.
   A planted grant-release defect must fail the named wait check.
 - **The stand-alone shaper suites** (`tb/verilator/cbs`, `shaper_core`,
   `queues`) are unchanged by this path and pass.
+- **MII egress.** `make egress` measures the production injection handshake.
+  `make egress-plants` also checks early release and delayed acknowledgement.
+  Arithmetic controls plant missing or wrongly repeated interference.
+  They also plant ignored ring changes and handshake allowances.
+  `egress_census.py` extends the inherited queue without changing its sources.
+  `egress_grade.py` requires that extension's live census declaration.
+  It rejects any departure that differs from its replay.
 
 The sweep registers this suite with its provisional timeout.
 Every harness reports executed checks and failures to the sweep tally.
