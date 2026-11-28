@@ -1608,18 +1608,18 @@
     "PTP_ILAT": {
       "acronym": "PTP_INGRESS_LAT",
       "name": "Ingress latency (scratch)",
-      "purpose": "Readable inert scratch; corrections are published at GPTP_LAT.",
+      "purpose": "Scratch unless `gptp.latency_writable` enables the plane's runtime correction.\n\nBits 15:0 apply.\nBits 31:16 remain readable scratch.\n\nThe applied correction resets to the configured value.\nWritable builds reset readback to the configured correction.\n\nThe reset annotations describe the default disabled build.\n\n`GPTP_LAT` reads the applied pair.",
       "fields": {
-        "PTP_ILAT": "🟡 **Readable, inert scratch since `0x0056`.** A read returns the last written value; no timestamp-correction consumer reads the word at this VERSION. The live owner since `0x005E` is the fabric gPTP plane, which applies its board's correction as an elaboration constant and publishes the applied pair at `GPTP_LAT` (`0x7F0`); this word stays scratch so the same correction cannot be applied by two owners (#358). Ingress latency correction, ns, that the `ptp_ts_core` RX tap **SUBTRACTED** from its captures; that tap is no longer instantiated"
+        "PTP_ILAT": "Low half: runtime correction when enabled; otherwise inert scratch."
       },
       "notes": []
     },
     "PTP_ELAT": {
       "acronym": "PTP_EGRESS_LAT",
       "name": "Egress latency (scratch)",
-      "purpose": "Readable inert scratch; corrections are published at GPTP_LAT.",
+      "purpose": "Scratch unless `gptp.latency_writable` enables the plane's runtime correction.\n\nBits 15:0 apply.\nBits 31:16 remain readable scratch.\n\nThe applied correction resets to the configured value.\nWritable builds reset readback to the configured correction.\n\nThe reset annotations describe the default disabled build.\n\n`GPTP_LAT` reads the applied pair.",
       "fields": {
-        "PTP_ELAT": "🟡 **Readable, inert scratch since `0x0056`.** A read returns the last written value; no timestamp-correction consumer reads the word at this VERSION. The live owner since `0x005E` is the fabric gPTP plane, which applies its board's correction as an elaboration constant and publishes the applied pair at `GPTP_LAT` (`0x7F0`); this word stays scratch so the same correction cannot be applied by two owners (#358). Egress latency correction, ns, that the TX tap **ADDED**; that tap is no longer instantiated"
+        "PTP_ELAT": "Low half: runtime correction when enabled; otherwise inert scratch."
       },
       "notes": []
     },
@@ -3272,7 +3272,7 @@
       "purpose": "Ingress and egress timestamp corrections the plane applies.",
       "fields": {},
       "notes": [
-        "Elaboration constants: a write changes nothing. Option OFF reads 0."
+        "A write here changes nothing.\nOption OFF reads 0.\n\nWith `gptp.latency_writable`, `0x540` and `0x544` change the applied pair.\nOtherwise the pair stays constant for the bitstream.\n\nThe Arty split resets to 1409/100 ns (#829)."
       ],
       "record": "gptp_lat-offset-0x7f0",
       "split": {

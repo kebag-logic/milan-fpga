@@ -3498,7 +3498,7 @@ The [entity-shape ruling](https://github.com/kebag-logic/milan-fpga/issues/878#i
 keeps that shape under Milan v1.2 7.2.2 and 7.2.3.
 It has its own row in `ctrl_loop.h`'s THE SHAPES contract and its own measured
 costs in the service-budget harness.
-The Linux host's scheduling profile is outside this FPGA point.
+No host's scheduling profile is part of this FPGA point (#983's host point is separate).
 
 The [clock ruling](https://github.com/kebag-logic/milan-fpga/issues/878#issuecomment-7097204685)
 sets the system bus and split CPU to exactly 80,000,000 Hz.

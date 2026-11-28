@@ -57,7 +57,7 @@ def inspect(root: Path = ROOT, point: str = POINT) -> tuple[dict, list[str]]:
     for config in configs:
         cfg = eb.load_config(root / 'configs' / f'{config}.yaml')
         if cfg['constraints']['sys_clk_hz'] != CLOCKS[point]:
-            out.append(f'{config}: CPU/sys clock is not exactly {CLOCKS[point]} Hz')
+            out.append(f'{config}: CPU (sys domain) clock is not exactly {CLOCKS[point]} Hz')
         if cfg['constraints']['milan_clk_hz'] != 50_000_000:
             out.append(f'{config}: datapath clock is not 50000000 Hz')
         if shape_costs.of_config(root / 'configs' / f'{config}.yaml', 1, root) != shape:
