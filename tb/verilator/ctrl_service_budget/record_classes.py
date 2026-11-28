@@ -97,13 +97,13 @@ CONTROLS = ('a pass missing a group of arm A', 'an unpaced edit charged at the e
             "an 8x8/1if pass missing arm B's SET_CONFIGURATION",
             "a mixed-point pass missing 1x1/1if's arm A and its arm B's SET_CONFIGURATION")
 #: The points a pass is held complete at, each at its own statements: 1x1/1if, #902's flip point, and 8x8/1if, #894's
-#: 8x8/1if gate (THE SHAPES), and #878's Arty point at its own 80 MHz costs.
+#: 8x8/1if gate (THE SHAPES), #878's Arty 1x1 point and #1027's Arty 4x4 point, each at its own clock's costs.
 COMPLETE = ('1x1/1if', '8x8/1if', 'arty-1x1', 'arty-4x4')
 #: run.POINTS' label of each point a pass is held complete at.
 LABELS = {'1x1/1if': '1x1', '8x8/1if': '8x8-1if', 'arty-1x1': 'arty-1x1', 'arty-4x4': 'arty-4x4'}
 #: The points whose answering-ports leg must also run aecp-reboot's REBOOTs and the answered GET_AS_PATH (#871, #897).
 REBOOT_PATH_POINTS = ('1x1/1if', 'arty-1x1', 'arty-4x4')
-#: #878's Arty points and the exact clock each is measured at for its CPU and bus: the 1x1 at 80 MHz, the 4x4 at
+#: The Arty points and the exact clock each is measured at for its CPU and bus: #878's 1x1 at 80 MHz, #1027's 4x4 at
 #: 100 MHz (the same 800 MHz VCO divided by 8).
 ARTY_CLOCKS = {'arty-1x1': 80_000_000, 'arty-4x4': 100_000_000}
 ARTY_POINTS = tuple(ARTY_CLOCKS)
@@ -141,7 +141,7 @@ def rule(cycles: int, cpu_hz: int) -> int:
 
 
 def point_name(spec: dict) -> str:
-    """The stated-cost point of a build, including #878's distinct Arty (1,1,2) and (1,5,5) shapes."""
+    """The stated-cost point of a build, including the distinct Arty (1,1,2) and (1,5,5) shapes (#878, #1027)."""
     arty = {'endstation_arty_current': 'arty-1x1', 'endstation_arty_split': 'arty-1x1',
             'endstation_arty_split_4x4': 'arty-4x4'}
     if spec['shape'] in arty:
@@ -451,55 +451,101 @@ def controls() -> list[str]:
 
 
 def arty_checks() -> list[tuple[str, bool, str]]:
-    """Arty's own completeness and 80 MHz conversion, including a mixed-point pass.
+    """Each Arty point's own completeness and clock conversion, including a mixed-point pass, and each Arty
+    configuration named to its own point and read at its own statements."""
+    return [c for point in ARTY_POINTS for c in arty_point_checks(point)] + arty_config_checks()
 
-    The synthetic records preserve synthetic()'s elapsed times at 80 MHz. Its ordinary
-    cost is deliberately distinct from that fixture's AX cost: 17,500 cycles exceed
-    Arty's 225 us statement by the rule, but fit 235 us and would fit at 100 MHz.
-    """
+
+#: Each Arty point's fixture: its clock against synthetic()'s 100 MHz, and the record plant over its own 225 us
+#: statement there, with what a defect would read instead. At 80 MHz, 17,500 cycles exceed 225 us by the rule but
+#: fit 235 us and would fit at 100 MHz; at 100 MHz, 22,500 cycles exceed it, and 20,000 fit it there but not at 80.
+ARTY_FIXTURES = {'arty-1x1': dict(scale=(4, 5), over=17_500, fits=None, wrong=100_000_000),
+                 'arty-4x4': dict(scale=(1, 1), over=22_500, fits=20_000, wrong=80_000_000)}
+
+
+def arty_point_checks(point: str) -> list[tuple[str, bool, str]]:
+    """One Arty point's completeness, at its own clock (ARTY_CLOCKS), and the plants it must refuse.
+
+    The synthetic records keep synthetic()'s elapsed times at the point's clock. Its ordinary cost is deliberately
+    distinct from that fixture's AX cost (ARTY_FIXTURES)."""
     import copy
+    fix, hz = ARTY_FIXTURES[point], ARTY_CLOCKS[point]
     legs, groups, ax = synthetic()
     own = {**ax, 'other': 225, 'paced': 310, 'long': 1000}
+    num, den = fix['scale']
     for leg in legs:
-        leg.point = 'arty-1x1'
-        leg.sys_hz = leg.cpu_hz = 80_000_000
+        leg.point = point
+        leg.sys_hz = leg.cpu_hz = 100_000_000 * num // den
         for records in leg.groups.values():
             for r in records:
-                r.start = r.start * 4 // 5
-                r.cycles = r.cycles * 4 // 5
-    wanted = {'arty-1x1': groups}
-    at = lambda point: own if point == 'arty-1x1' else ax  # noqa: E731
+                r.start = r.start * num // den
+                r.cycles = r.cycles * num // den
+    wanted = {point: groups}
+    at = lambda name: own if name == point else ax  # noqa: E731
     clean, reported = findings(legs, wanted, at)
-    checks = [('Arty record classes accept their complete 80 MHz fixture',
+    mhz = 100 * num // den
+    checks = [(f'{point} record classes accept their complete {mhz} MHz fixture',
                not clean and len(reported) == 1, '; '.join(clean) or 'complete')]
-    plants = (
-        ('missing Arty arm A', lambda p: p.pop(0), 'the pass runs no arm A leg at arty-1x1'),
-        ('missing Arty accepted REBOOT', lambda p: p[1].groups[REBOOT_GROUP].pop(1),
+    plants = [
+        (f'missing {point} arm A', lambda p: p.pop(0), f'the pass runs no arm A leg at {point}'),
+        (f'missing {point} accepted REBOOT', lambda p: p[1].groups[REBOOT_GROUP].pop(1),
          "missing arm B's accepted REBOOT"),
-        ('missing Arty GET_AS_PATH', lambda p: p[1].groups['aecp'].clear(), "missing arm B's GET_AS_PATH"),
-        ('Arty record over its own cost', lambda p: setattr(p[0].groups['aecp'][0], 'cycles', 17_500),
+        (f'missing {point} GET_AS_PATH', lambda p: p[1].groups['aecp'].clear(), "missing arm B's GET_AS_PATH"),
+        (f'{point} record over its own cost', lambda p: setattr(p[0].groups['aecp'][0], 'cycles', fix['over']),
          "over the other record's 225 us"),
-        ('Arty measured on a 100 MHz CPU basis', lambda p: setattr(p[0], 'cpu_hz', 100_000_000),
-         'must both be exactly 80000000 Hz'),
-        ('Arty measured on a 100 MHz bus basis', lambda p: setattr(p[0], 'sys_hz', 100_000_000),
-         'must both be exactly 80000000 Hz'),
-    )
+        (f'{point} measured on a {fix["wrong"] // 10**6} MHz CPU basis',
+         lambda p: setattr(p[0], 'cpu_hz', fix['wrong']), f'must both be exactly {hz} Hz'),
+        (f'{point} measured on a {fix["wrong"] // 10**6} MHz bus basis',
+         lambda p: setattr(p[0], 'sys_hz', fix['wrong']), f'must both be exactly {hz} Hz'),
+    ]
     for name, plant, words in plants:
         changed = copy.deepcopy(legs)
         plant(changed)
         caught = any(words in f for f in findings(changed, wanted, at)[0])
         checks.append((f'the record classes refuse {name}', caught, 'refused' if caught else 'escaped'))
+    if fix['fits'] is not None:
+        changed = copy.deepcopy(legs)
+        changed[0].groups['aecp'][0].cycles = fix['fits']
+        over = [f for f in findings(changed, wanted, at)[0] if "over the other record's" in f]
+        checks.append((f'{point}: {fix["fits"]} cycles fit 225 us at its own {mhz} MHz', not over,
+                       '; '.join(over) or 'fits'))
     axes, ax_groups, _ = synthetic()
     mixed = findings(axes + [copy.deepcopy(legs[1])], {'1x1/1if': ax_groups}, at)[0]
-    caught = 'the pass runs no arm A leg at arty-1x1' in mixed
-    checks.append(('an AX pass does not supply Arty arm A', caught, 'refused' if caught else 'escaped'))
+    caught = f'the pass runs no arm A leg at {point}' in mixed
+    checks.append((f'an AX pass does not supply {point} arm A', caught, 'refused' if caught else 'escaped'))
     caught = False
     try:
-        point_name({'shape': 'endstation_arty_current', 'interfaces': 2})
+        point_name({'shape': POINT_CONFIGS[point][0], 'interfaces': 2})
     except ValueError as refused:
         caught = 'exactly one interface' in str(refused)
-    checks.append(('an Arty leg with two interfaces is refused', caught, 'refused' if caught else 'escaped'))
+    checks.append((f'a {point} leg with two interfaces is refused', caught, 'refused' if caught else 'escaped'))
     return checks
+
+
+#: Each Arty point's configurations, named by hand: the census's and the product's.
+POINT_CONFIGS = {'arty-1x1': ('endstation_arty_current', 'endstation_arty_split'),
+                 'arty-4x4': ('endstation_arty_split_4x4',)}
+
+
+def arty_config_checks(root: Path = ROOT) -> list[tuple[str, bool, str]]:
+    """Each Arty configuration is its own point's (point_name), and at its shape the polls' kept-record cost is that
+    point's own ACMP record statement (poll_grade.record_us against load_grade.STATED_US), never another point's."""
+    import load_grade
+    import poll_grade
+    import shape_costs
+    out = []
+    for point, configs in POINT_CONFIGS.items():
+        for config in configs:
+            named = point_name({'shape': config, 'interfaces': 1})
+            out.append((f'{config} is named to {point}', named == point, named))
+            shape = shape_costs.of_config(root / 'configs' / f'{config}.yaml', 1, root)
+            got, want = poll_grade.record_us(shape), load_grade.STATED_US[point]['record.acmp']
+            out.append((f"{config}: its shape {tuple(shape)} reads {point}'s ACMP record cost, {want} us", got == want,
+                        f'{got} us'))
+    costs = {load_grade.STATED_US[point]['record.acmp'] for point in POINT_CONFIGS}
+    out.append(("the Arty points' ACMP record costs differ, so a point read at the other's is seen",
+                len(costs) == len(POINT_CONFIGS), str(sorted(costs))))
+    return out
 
 
 def port_findings() -> list[str]:

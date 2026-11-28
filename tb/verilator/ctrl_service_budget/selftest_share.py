@@ -164,9 +164,11 @@ def clock_checks(built: Callable[..., tuple[str, dict]], main_verdict: Callable[
     points = {point: yaml.safe_load((ROOT / 'configs' / f'{shape}.yaml').read_text())['board']['constraints']
               for point, (shape, _) in run.POINTS.items()}
     got = {point: (c['sys_clk_hz'], c['milan_clk_hz']) for point, c in points.items()}
-    expected = {point: (80_000_000 if point == 'arty-1x1' else PRODUCT_CPU_HZ, MILAN_HZ)
+    import arty_grade
+    expected = {point: (arty_grade.CLOCKS.get(point, PRODUCT_CPU_HZ), MILAN_HZ)
                 for point in ('1x1', '8x8', '8x8-1if', 'arty-1x1', 'arty-4x4')}
-    out.append(("each point's split CPU uses its own bus clock; Arty is exactly 80,000,000 Hz",
+    out.append(("each point's split CPU uses its own bus clock; arty-1x1 is exactly 80,000,000 Hz and arty-4x4 "
+                "100,000,000 Hz, each its arty_grade clock",
                 got == expected and contract == MILAN_HZ, str((got, contract))))
     out.extend(stimulus_clock_checks())
     with tempfile.TemporaryDirectory() as tmp:
