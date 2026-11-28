@@ -1,0 +1,44 @@
+scripts/act_ci.py	structure_identical_with_strings_masked=True	string_constants=6875/6875	differing=1
+  line 15368	NON-DOCSTRING STRING	lines_in_string=1/1	changed_lines=1
+    - <address inside the slot pool>
+    + 192.0.2.1
+scripts/check_baremetal_only.py	structure_identical_with_strings_masked=True	string_constants=1424/1424	differing=1
+  line 1137	NON-DOCSTRING STRING	lines_in_string=1/1	changed_lines=1
+    - ssh -p 2222 root@<private address> reboot
+    + ssh -p 2222 root@192.0.2.2 reboot
+tb/tools/avtp_wire_truth.py	structure_identical_with_strings_masked=True	string_constants=60/60	differing=2
+  line 4	DOCSTRING	lines_in_string=98/98	changed_lines=1
+    - # CLI over a <tap-product> inline tap (28-byte record header, FCS present)
+    + # CLI over an inline capture tap (28-byte record header, FCS present)
+  line 185	NON-DOCSTRING STRING	lines_in_string=1/1	changed_lines=1
+    - the capture came from a <tap-product> inline tap: a 28-octet record header before every frame AND the FCS present. Every ether offset is +28, so a BPF fi
+    + the capture came from an inline capture tap: a 28-octet record header before every frame AND the FCS present. Every ether offset is +28, so a BPF filt
+tb/tools/avtp_wire_truth_selftest.py	structure_identical_with_strings_masked=True	string_constants=212/212	differing=2
+  line 617	DOCSTRING	lines_in_string=2/2	changed_lines=1
+    - The capture itself: the 28-octet <tap-product> record header and the
+    + The capture itself: the 28-octet capture-tap record header and the
+  line 621	DOCSTRING	lines_in_string=5/5	changed_lines=1
+    - The <tap-product> inline tap prepends a 28-octet record header, so
+    + The inline capture tap prepends a 28-octet record header, so
+tb/tools/avtp_wire_truth_wire.py	structure_identical_with_strings_masked=True	string_constants=144/144	differing=1
+  line 214	DOCSTRING	lines_in_string=8/8	changed_lines=1
+    - `tap_header` strips a fixed per-record prefix.  A <tap-product> inline tap
+    + `tap_header` strips a fixed per-record prefix.  An inline capture tap
+tb/tools/torture_campaign.py	structure_identical_with_strings_masked=True	string_constants=6946/6946	differing=3
+  line 3064	DOCSTRING	lines_in_string=45/45	changed_lines=2
+    - the AVB switch ("<switch-label>") and OUT0 = the DUT (the AX cold-cycle precedent).
+    + the AVB switch and OUT0 = the DUT (the AX cold-cycle precedent).
+    - * switch recovery 240 s to reachability (the <switch-label> must BOOT before any
+    + * switch recovery 240 s to reachability (the AVB switch must BOOT before any
+  line 6783	NON-DOCSTRING STRING	lines_in_string=1/1	changed_lines=1
+    - <tap-product>
+    + capture-tap
+  line 2989	NON-DOCSTRING STRING	lines_in_string=1/1	changed_lines=1
+    - Power off the AVB switch (<switch-label>) at the powerstrip for ~20 s, then power it back on and wait for links and gPTP to recover. AUTOMATED when the runner i
+    + Power off the AVB switch at the powerstrip for ~20 s, then power it back on and wait for links and gPTP to recover. AUTOMATED when the runner is given
+tests/steps/milan_streaming_licence_steps.py	structure_identical_with_strings_masked=True	string_constants=163/163	differing=0
+tests/steps/torture_plan_steps.py	structure_identical_with_strings_masked=True	string_constants=421/421	differing=0
+tests/steps/wire_truth_steps.py	structure_identical_with_strings_masked=True	string_constants=279/279	differing=1
+  line 244	DOCSTRING	lines_in_string=3/3	changed_lines=1
+    - Writes a real pcap of <tap-product>-shaped tap records: a per-record
+    + Writes a real pcap of inline-tap records: a per-record

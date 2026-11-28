@@ -1,0 +1,408 @@
+ipv4-any	docs/history/v1/NXN_ARCHITECTURE.md:145	5.3.8.10	| [M-5.3.8.10] | Milan v1.2 | 5.3.8.10, Table 5.6 | 10 diagnostic counters per Stream Input; 32-bit wrap; rese
+ipv4-any	docs/history/v1/NXN_ARCHITECTURE.md:145	5.3.8.10	| [M-5.3.8.10] | Milan v1.2 | 5.3.8.10, Table 5.6 | 10 diagnostic counters per Stream Input; 32-bit wrap; rese
+ipv4-any	docs/history/v1/NXN_ARCHITECTURE.md:146	5.4.2.25	| [M-5.4.2.25] | Milan v1.2 | 5.4.2.25 | GET_COUNTERS per descriptor — needs a coherent per-stream counter blo
+ipv4-any	docs/history/v1/NXN_ARCHITECTURE.md:146	5.4.2.25	| [M-5.4.2.25] | Milan v1.2 | 5.4.2.25 | GET_COUNTERS per descriptor — needs a coherent per-stream counter blo
+ipv4-any	docs/history/v1/NXN_ARCHITECTURE.md:174	5.3.8.3	([M-5.3.8.3]: sid/dmac/vlan come from the last PROBE_TX_RESPONSE) and may
+ipv4-any	docs/history/v1/NXN_ARCHITECTURE.md:222	5.3.8.10	`0b00` = NULL (discarded — monitor still counts, [M-5.3.8.10] counters run
+ipv4-any	docs/history/v1/NXN_ARCHITECTURE.md:242	5.3.8.1	| w2 | `FMT_LO` | [31:0] | AECP SET_STREAM_FORMAT (current format u64, [M-5.3.8.1]) |
+ipv4-any	docs/history/v1/NXN_ARCHITECTURE.md:257	5.3.8.10	on that stream's not-bound→bound edge — [M-5.3.8.10]). RAM word, wire offset
+ipv4-any	docs/history/v1/NXN_ARCHITECTURE.md:302	5.4.2.25	| 0x804 | `A_STRM_SNAP` | W strobe / R [0] busy | Latches the selected stream's full CNT region + STATE into t
+ipv4-any	docs/history/v1/NXN_ARCHITECTURE.md:423	5.3.8.5	| `lsm_state` | 3 (acmp_lsm_t, [M-5.5.3] states) | 5.3.8.5/.6 |
+ipv4-any	docs/history/v1/NXN_ARCHITECTURE.md:424	5.3.8.3	| `bnd_ctlr` | 64 | 5.3.8.3 |
+ipv4-any	docs/history/v1/NXN_ARCHITECTURE.md:425	5.3.8.3	| `bnd_talker` | 64 | 5.3.8.3 |
+ipv4-any	docs/history/v1/NXN_ARCHITECTURE.md:426	5.3.8.3	| `bnd_tuid` | 16 | 5.3.8.3 |
+ipv4-any	docs/history/v1/NXN_ARCHITECTURE.md:428	5.3.8.5	| `sid` | 64 | 5.3.8.5 (authoritative post-probe) |
+ipv4-any	docs/history/v1/NXN_ARCHITECTURE.md:433	5.3.8.6	| `acmp_status` | 5, `probing` 2 | 5.3.8.6 |
+ipv4-any	docs/history/v1/NXN_ARCHITECTURE.md:434	5.3.8.4	| `tk_avail` | 1 | 5.3.8.4 (per-sink ADP discovery watch) |
+ipv4-any	docs/history/v1/NXN_ARCHITECTURE.md:441	5.3.8.10	`ctx_bind_rise[s]`, which resets that stream's LCTX CNT region ([M-5.3.8.10]
+ipv4-any	docs/history/v1/NXN_ARCHITECTURE.md:448	5.3.8.10	reset and the stream-table write still happen exactly at the [M-5.3.8.10] edge.
+mac-ish	docs/history/v1/NXN_ARCHITECTURE.md:652	02:00:00:00:00:02	| Inline capture tap, licensed stream running | MSRP Talker Advertise for `{02:00:00:00:00:02, uid 0}` and `{…
+ipv4-any	docs/history/v1/NXN_ARCHITECTURE.md:656	5.3.7.3	the two rows that had a provisioner, and Milan v1.2 5.3.7.3 makes the
+ipv4-any	docs/history/v1/NXN_ARCHITECTURE.md:667	5.5.2.7	| not ACMP | `acmp_talker_active` is deliberately absent | Milan 5.5.2.7 licences a stream on SRP alone, so th
+ipv4-any	docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:32	7.4.39.2	>   `IDENTIFY_NOTIFICATION`-as-command → `BAD_ARGUMENTS` (§7.4.39.2 beats
+ipv4-any	docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:92	5.3.3.1	- **[B. AEM descriptor model  \*(Milan v1.2 §5.3.3.1–5.3.3.11)\*](#b-aem-descriptor-model--milan-v12-533153311
+ipv4-any	docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:92	5.3.3.11	- **[B. AEM descriptor model  \*(Milan v1.2 §5.3.3.1–5.3.3.11)\*](#b-aem-descriptor-model--milan-v12-533153311
+ipv4-any	docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:94	5.4.3.2	- **[D. Milan Vendor Unique  -  MVU  \*(Milan v1.2 §5.4.3.2)\*](#d-milan-vendor-unique-----mvu--milan-v12-5432
+ipv4-any	docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:132	5.4.3.2	> Clause numbers for AEM (§5.3.3.x) and MVU (§5.4.3.2) are evidence-backed; other
+ipv4-any	docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:146	5.3.3.1	## B. AEM descriptor model  *(Milan v1.2 §5.3.3.1–5.3.3.11)*
+ipv4-any	docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:146	5.3.3.11	## B. AEM descriptor model  *(Milan v1.2 §5.3.3.1–5.3.3.11)*
+ipv4-any	docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:152	5.3.3.10	| IDENTIFY CONTROL (§5.3.3.10) | MANDATES | FR-MGT-01 | **❌ NOT IMPL** — `o_identify` is tied 0, so the indica
+ipv4-any	docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:179	7.4.39.2	| AECP validation & correct status | MANDATES | FR-CTRL-06 | **PP, IN PART — grade this one carefully.** What 
+ipv4-any	docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:180	7.4.76.2	| `GET_DYNAMIC_INFO` fast enumeration | MANDATES | FR-CTRL-05 | **IMPLEMENTED.** The protocol processor valida
+ipv4-any	docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:180	5.4.2.29	| `GET_DYNAMIC_INFO` fast enumeration | MANDATES | FR-CTRL-05 | **IMPLEMENTED.** The protocol processor valida
+ipv4-any	docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:182	5.4.3.2	## D. Milan Vendor Unique  -  MVU  *(Milan v1.2 §5.4.3.2)*
+mac-ish	docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:190	00-1B-C5-0A-C1-00	00-1B-C5-0A-C1-00 gets exactly the same treatment as a stranger's, so **the
+mac-ish	docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:196	00-1B-C5-0A-C1-00	| MVU (`00-1B-C5-0A-C1-00`) + `GET_MILAN_INFO` | MANDATES | FR-MVU-01 | **❌ NOT IMPL** — answered `NOT_IMPLEME
+ipv4-any	docs/history/v1/traceability/milan-v12.md:58	7.4.39.2	`BAD_ARGUMENTS`, because §7.4.39.2's opcode-specific rule beats §9.3.5.3.3.
+ipv4-any	docs/history/v1/traceability/milan-v12.md:107	5.3.8.2	- **§5.3.8.2's non-volatile bound state is unimplemented.** The persistence
+ipv4-any	docs/history/v1/traceability/milan-v12.md:119	5.3.7.6	- **§5.3.7.6's presentation-time offset is pinned at the Milan 2 ms default** on
+ipv4-any	docs/history/v1/traceability/milan-v12.md:156	5.3.8.2	- **[STATUS 2026-08-13 — the control plane this file profiles was replaced](#status-2026-08-13--the-control-pl
+ipv4-any	docs/history/v1/traceability/milan-v12.md:177	4.3.3.1	| M-DEV-10 | 4.3.3.1 / 4.3.3.2 | Talker declares its attribute + reserves bandwidth before streaming | protoco
+ipv4-any	docs/history/v1/traceability/milan-v12.md:177	4.3.3.2	| M-DEV-10 | 4.3.3.1 / 4.3.3.2 | Talker declares its attribute + reserves bandwidth before streaming | protoco
+ipv4-any	docs/history/v1/traceability/milan-v12.md:177	4.3.3.1	| M-DEV-10 | 4.3.3.1 / 4.3.3.2 | Talker declares its attribute + reserves bandwidth before streaming | protoco
+ipv4-any	docs/history/v1/traceability/milan-v12.md:177	4.3.3.2	| M-DEV-10 | 4.3.3.1 / 4.3.3.2 | Talker declares its attribute + reserves bandwidth before streaming | protoco
+ipv4-any	docs/history/v1/traceability/milan-v12.md:179	4.3.5.1	| M-DEV-12 | 4.3.5.1 | MAAP mandatory for talkers (claimed DMAC used by streams) | `KL_maap` + `eff_aaf_dmac` 
+ipv4-any	docs/history/v1/traceability/milan-v12.md:179	4.3.5.1	| M-DEV-12 | 4.3.5.1 | MAAP mandatory for talkers (claimed DMAC used by streams) | `KL_maap` + `eff_aaf_dmac` 
+ipv4-any	docs/history/v1/traceability/milan-v12.md:180	4.3.5.2	| M-DEV-13 | 4.3.5.2 / 4.4.2.3 / Annex B.1.1 | tu field set by talker on gPTP discontinuity / honored by liste
+ipv4-any	docs/history/v1/traceability/milan-v12.md:180	4.4.2.3	| M-DEV-13 | 4.3.5.2 / 4.4.2.3 / Annex B.1.1 | tu field set by talker on gPTP discontinuity / honored by liste
+ipv4-any	docs/history/v1/traceability/milan-v12.md:180	4.3.5.2	| M-DEV-13 | 4.3.5.2 / 4.4.2.3 / Annex B.1.1 | tu field set by talker on gPTP discontinuity / honored by liste
+ipv4-any	docs/history/v1/traceability/milan-v12.md:180	4.4.2.3	| M-DEV-13 | 4.3.5.2 / 4.4.2.3 / Annex B.1.1 | tu field set by talker on gPTP discontinuity / honored by liste
+ipv4-any	docs/history/v1/traceability/milan-v12.md:181	5.3.7.3	| M-DEV-13a | 5.3.7.3 | STREAMING_WAIT shall not be implemented — a bad clock is never a reason to stop a Stre
+ipv4-any	docs/history/v1/traceability/milan-v12.md:181	5.3.7.3	| M-DEV-13a | 5.3.7.3 | STREAMING_WAIT shall not be implemented — a bad clock is never a reason to stop a Stre
+ipv4-any	docs/history/v1/traceability/milan-v12.md:182	4.3.5.2	| M-DEV-13c | 4.3.5.2 / 4.4.2.1 | The selected gPTP owner must publish a truthful sync/asCapable/discontinuity
+ipv4-any	docs/history/v1/traceability/milan-v12.md:182	4.4.2.1	| M-DEV-13c | 4.3.5.2 / 4.4.2.1 | The selected gPTP owner must publish a truthful sync/asCapable/discontinuity
+ipv4-any	docs/history/v1/traceability/milan-v12.md:183	5.3.7.3	| M-DEV-13d | 5.3.7.3 + 5.3.7.2 | **The licence to stream is CONDITIONAL.** Verbatim: *"As long as a PAAD is d
+ipv4-any	docs/history/v1/traceability/milan-v12.md:183	5.3.7.2	| M-DEV-13d | 5.3.7.3 + 5.3.7.2 | **The licence to stream is CONDITIONAL.** Verbatim: *"As long as a PAAD is d
+ipv4-any	docs/history/v1/traceability/milan-v12.md:183	5.3.7.2	| M-DEV-13d | 5.3.7.3 + 5.3.7.2 | **The licence to stream is CONDITIONAL.** Verbatim: *"As long as a PAAD is d
+ipv4-any	docs/history/v1/traceability/milan-v12.md:183	5.5.2.7	| M-DEV-13d | 5.3.7.3 + 5.3.7.2 | **The licence to stream is CONDITIONAL.** Verbatim: *"As long as a PAAD is d
+ipv4-any	docs/history/v1/traceability/milan-v12.md:183	5.3.7.3	| M-DEV-13d | 5.3.7.3 + 5.3.7.2 | **The licence to stream is CONDITIONAL.** Verbatim: *"As long as a PAAD is d
+ipv4-any	docs/history/v1/traceability/milan-v12.md:183	5.5.2.7	| M-DEV-13d | 5.3.7.3 + 5.3.7.2 | **The licence to stream is CONDITIONAL.** Verbatim: *"As long as a PAAD is d
+mac-ish	docs/history/v1/traceability/milan-v12.md:183	02:00:00:00:00:02	| M-DEV-13d | 5.3.7.3 + 5.3.7.2 | **The licence to stream is CONDITIONAL.** Verbatim: *"As long as a PAAD is d
+ipv4-any	docs/history/v1/traceability/milan-v12.md:185	4.4.2.2	| M-DEV-14 | 4.4.2.2 | Listener filters incoming AVTPDUs (stream_id + DMAC binding) | avtp_stream_parser match
+ipv4-any	docs/history/v1/traceability/milan-v12.md:185	4.4.2.2	| M-DEV-14 | 4.4.2.2 | Listener filters incoming AVTPDUs (stream_id + DMAC binding) | avtp_stream_parser match
+ipv4-any	docs/history/v1/traceability/milan-v12.md:186	4.4.2.1	| M-DEV-15 | 4.4.2.1 | Listener supports the Milan presentation-time window | i2spb scheduler + presentation-o
+ipv4-any	docs/history/v1/traceability/milan-v12.md:186	4.4.2.1	| M-DEV-15 | 4.4.2.1 | Listener supports the Milan presentation-time window | i2spb scheduler + presentation-o
+ipv4-any	docs/history/v1/traceability/milan-v12.md:194	5.6.3.5	| M-ADP-2 | 5.6.3 (Tables 5.49–5.51) | Advertise SM: ADVERTISING on interface up, DOWN behavior, re-advertise 
+ipv4-any	docs/history/v1/traceability/milan-v12.md:201	5.5.2.2	| M-ACMP-1 | 5.5.2.2 (Tables 5.24/5.25) | Use only Milan's ACMPDU field subset; unused fields zero | protocol 
+ipv4-any	docs/history/v1/traceability/milan-v12.md:202	5.5.2.3	| M-ACMP-2 | 5.5.2.3 (Table 5.26) | Milan command timeouts (probe ladder timing) | protocol processor `KL_pp_a
+ipv4-any	docs/history/v1/traceability/milan-v12.md:204	5.5.3.1	| M-ACMP-4 | 5.5.3.1 (Table 5.31/5.35) | Wrong controller_entity_id on BIND/UNBIND → exact refusal field set; 
+ipv4-any	docs/history/v1/traceability/milan-v12.md:205	5.5.3.5	| M-ACMP-5 | 5.5.3.5 / Table 5.34+5.37 | GET_RX_STATE returns the per-state payload (bound, talker, count, fla
+ipv4-any	docs/history/v1/traceability/milan-v12.md:206	5.5.4.1	| M-ACMP-6 | 5.5.4.1 (Tables 5.40–5.43) | Talker PROBE_TX: SUCCESS + live stream params (stream_id = {MAC, uid
+ipv4-any	docs/history/v1/traceability/milan-v12.md:206	5.5.4.1	| M-ACMP-6 | 5.5.4.1 (Tables 5.40–5.43) | Talker PROBE_TX: SUCCESS + live stream params (stream_id = {MAC, uid
+ipv4-any	docs/history/v1/traceability/milan-v12.md:207	5.5.4.2	| M-ACMP-7 | 5.5.4.2 / 5.5.4.3 (Tables 5.44–5.47) | DISCONNECT_TX always SUCCESS + zeroed stream fields, all t
+ipv4-any	docs/history/v1/traceability/milan-v12.md:207	5.5.4.3	| M-ACMP-7 | 5.5.4.2 / 5.5.4.3 (Tables 5.44–5.47) | DISCONNECT_TX always SUCCESS + zeroed stream fields, all t
+ipv4-any	docs/history/v1/traceability/milan-v12.md:207	5.5.4.2	| M-ACMP-7 | 5.5.4.2 / 5.5.4.3 (Tables 5.44–5.47) | DISCONNECT_TX always SUCCESS + zeroed stream fields, all t
+ipv4-any	docs/history/v1/traceability/milan-v12.md:208	5.5.4.4	| M-ACMP-8 | 5.5.4.4 (Table 5.48) | GET_TX_CONNECTION → NOT_SUPPORTED | protocol processor `KL_acmp_talker` | 
+ipv4-any	docs/history/v1/traceability/milan-v12.md:208	5.5.4.4	| M-ACMP-8 | 5.5.4.4 (Table 5.48) | GET_TX_CONNECTION → NOT_SUPPORTED | protocol processor `KL_acmp_talker` | 
+ipv4-any	docs/history/v1/traceability/milan-v12.md:209	5.5.1.4	| M-ACMP-9 | 5.5.1.4 / 5.5.2.6 / **5.3.8.2-3** | Auto Connect / saved-state fast-connect: listener restores it
+ipv4-any	docs/history/v1/traceability/milan-v12.md:209	5.5.2.6	| M-ACMP-9 | 5.5.1.4 / 5.5.2.6 / **5.3.8.2-3** | Auto Connect / saved-state fast-connect: listener restores it
+ipv4-any	docs/history/v1/traceability/milan-v12.md:209	5.3.8.2	| M-ACMP-9 | 5.5.1.4 / 5.5.2.6 / **5.3.8.2-3** | Auto Connect / saved-state fast-connect: listener restores it
+ipv4-any	docs/history/v1/traceability/milan-v12.md:209	5.3.8.2	| M-ACMP-9 | 5.5.1.4 / 5.5.2.6 / **5.3.8.2-3** | Auto Connect / saved-state fast-connect: listener restores it
+ipv4-any	docs/history/v1/traceability/milan-v12.md:209	5.3.8.3	| M-ACMP-9 | 5.5.1.4 / 5.5.2.6 / **5.3.8.2-3** | Auto Connect / saved-state fast-connect: listener restores it
+ipv4-any	docs/history/v1/traceability/milan-v12.md:209	5.3.8.2	| M-ACMP-9 | 5.5.1.4 / 5.5.2.6 / **5.3.8.2-3** | Auto Connect / saved-state fast-connect: listener restores it
+ipv4-any	docs/history/v1/traceability/milan-v12.md:210	5.5.1.2	| M-ACMP-10 | 5.5.1.2 (binding for sink 1 / CRF) | Fast-connect sid/dmac fields honored per sink | protocol pr
+ipv4-any	docs/history/v1/traceability/milan-v12.md:210	5.5.1.2	| M-ACMP-10 | 5.5.1.2 (binding for sink 1 / CRF) | Fast-connect sid/dmac fields honored per sink | protocol pr
+ipv4-any	docs/history/v1/traceability/milan-v12.md:219	5.4.2.26	| M-AECP-4 | 5.4.2.26 / 5.4.2.27 / 5.4.2.28 | Audio maps both ways: scope gates, fixed GET paging, all-or-noth
+ipv4-any	docs/history/v1/traceability/milan-v12.md:219	5.4.2.27	| M-AECP-4 | 5.4.2.26 / 5.4.2.27 / 5.4.2.28 | Audio maps both ways: scope gates, fixed GET paging, all-or-noth
+ipv4-any	docs/history/v1/traceability/milan-v12.md:219	5.4.2.28	| M-AECP-4 | 5.4.2.26 / 5.4.2.27 / 5.4.2.28 | Audio maps both ways: scope gates, fixed GET paging, all-or-noth
+ipv4-any	docs/history/v1/traceability/milan-v12.md:220	5.4.2.29	| M-AECP-5 | 5.4.2.29 | GET_DYNAMIC_INFO per Milan (mandatory subset of 1722.1 7.4.76) | — none (was: KL_aecp_
+ipv4-any	docs/history/v1/traceability/milan-v12.md:220	5.4.2.29	| M-AECP-5 | 5.4.2.29 | GET_DYNAMIC_INFO per Milan (mandatory subset of 1722.1 7.4.76) | — none (was: KL_aecp_
+ipv4-any	docs/history/v1/traceability/milan-v12.md:221	5.4.3.2	| M-AECP-6 | 5.4.3 (MVU format) | Milan Vendor Unique protocol_id 00-1B-C5-0A-C1-00, status codes, timeouts | 
+mac-ish	docs/history/v1/traceability/milan-v12.md:221	00-1B-C5-0A-C1-00	| M-AECP-6 | 5.4.3 (MVU format) | Milan Vendor Unique protocol_id 00-1B-C5-0A-C1-00, status codes, timeouts | 
+mac-ish	docs/history/v1/traceability/milan-v12.md:221	00-1B-C5-0A-C1-00	| M-AECP-6 | 5.4.3 (MVU format) | Milan Vendor Unique protocol_id 00-1B-C5-0A-C1-00, status codes, timeouts | 
+ipv4-any	docs/history/v1/traceability/milan-v12.md:222	5.4.4.1	| M-AECP-7 | 5.4.4.1 | GET_MILAN_INFO (version, features_flags, `qualification_version`) | — none (was: MVU pa
+ipv4-any	docs/history/v1/traceability/milan-v12.md:223	5.4.4.2	| M-AECP-8 | 5.4.4.2 / 5.4.4.3 | SET/GET_SYSTEM_UNIQUE_ID | — none (was: MVU path (SYSTEM_UNIQUE_ID in aecp_pk
+ipv4-any	docs/history/v1/traceability/milan-v12.md:223	5.4.4.3	| M-AECP-8 | 5.4.4.2 / 5.4.4.3 | SET/GET_SYSTEM_UNIQUE_ID | — none (was: MVU path (SYSTEM_UNIQUE_ID in aecp_pk
+ipv4-any	docs/history/v1/traceability/milan-v12.md:223	5.4.4.2	| M-AECP-8 | 5.4.4.2 / 5.4.4.3 | SET/GET_SYSTEM_UNIQUE_ID | — none (was: MVU path (SYSTEM_UNIQUE_ID in aecp_pk
+ipv4-any	docs/history/v1/traceability/milan-v12.md:224	5.4.4.4	| M-AECP-9 | 5.4.4.4 / 5.4.4.5 | SET/GET_MEDIA_CLOCK_REFERENCE_INFO (Table 5.21 flags) | — none (was: KL_aecp_
+ipv4-any	docs/history/v1/traceability/milan-v12.md:224	5.4.4.5	| M-AECP-9 | 5.4.4.4 / 5.4.4.5 | SET/GET_MEDIA_CLOCK_REFERENCE_INFO (Table 5.21 flags) | — none (was: KL_aecp_
+ipv4-any	docs/history/v1/traceability/milan-v12.md:225	5.4.5.2	| M-AECP-10 | 5.4.5.2 (Table 5.22) | Unsolicited notifications for every listed state change, plus command-spe
+ipv4-any	docs/history/v1/traceability/milan-v12.md:226	5.4.5.3	| M-AECP-11 | 5.4.5.3 | Detection of departing controllers (deregister on ADP departure / timeout) | `KL_aecp_
+ipv4-any	docs/history/v1/traceability/milan-v12.md:226	5.4.5.3	| M-AECP-11 | 5.4.5.3 | Detection of departing controllers (deregister on ADP departure / timeout) | `KL_aecp_
+ipv4-any	docs/history/v1/traceability/milan-v12.md:227	5.4.5.4	| M-AECP-12 | 5.4.5.4 | Identification notification (IDENTIFY control) | the processor serves the control; the
+ipv4-any	docs/history/v1/traceability/milan-v12.md:227	7.4.39.2	| M-AECP-12 | 5.4.5.4 | Identification notification (IDENTIFY control) | the processor serves the control; the
+ipv4-any	docs/history/v1/traceability/milan-v12.md:227	5.4.5.4	| M-AECP-12 | 5.4.5.4 | Identification notification (IDENTIFY control) | the processor serves the control; the
+ipv4-any	docs/reference/REGISTER_MAP_CLASSES.md:102	5.3.8.2	| `0x7B8–0x7C4` | Journal ingest | **needed → inert** | **STRUCTURAL ZERO** | Milan 5.3.8.2/.3 boot replay, CR
+ipv4-private	docs/reference/REGISTER_MAP_CLASSES.md:105	10.3.10.2	| `0x7DC–0x7E4` | retired AS_PATH publication addresses | **needed** (ABI) | inert LO/HI; live fabric status /
+ipv4-any	docs/testing/TESTING.md:772	4.4.2.1	| [`tb/verilator/capture_coherence`](../../tb/verilator/capture_coherence) | **#617, every Talker AAF column c
+ipv4-any	docs/testing/TESTING.md:1309	5.3.7.7	| Milan 5.3.7.7/5.3.8.10, Tables 5.4/5.6 counters | Every index; valid masks/invariants; no unexplained resets
+ipv4-any	docs/testing/TESTING.md:1309	5.3.8.10	| Milan 5.3.7.7/5.3.8.10, Tables 5.4/5.6 counters | Every index; valid masks/invariants; no unexplained resets
+ipv4-any	docs/testing/TESTING.md:1310	4.4.4.6	| `SEQ_NUM_MISMATCH`, `STREAM_INTERRUPTED`, `LATE_TIMESTAMP`, `EARLY_TIMESTAMP`; Milan Table 5.6; IEEE 1722-20
+ipv4-any	docs/testing/TESTING.md:1312	4.4.4.3	| Wire `mr`, media-clock events, MEDIA_RESET; IEEE 1722-2016 4.4.4.3, Milan Tables 5.4/5.6, Annex B.1.2 | Each
+ipv4-any	docs/testing/TESTING.md:1465	4.4.4.7	Authority: IEEE 1722-2016 4.4.4.7; Milan Annex B.1.1.
+ipv4-any	docs/testing/TESTING.md:1849	5.5.1.4	Milan v1.2 5.5.1.4 expects automatic recovery from "a power cycle or a simple reset".
+ipv4-any	docs/testing/TESTING.md:1874	6.2.2.5	Authority: IEEE 1722.1-2021 6.2.2.5 and 6.2.4/6.2.5; Milan 5.6.2/5.6.3.
+ipv4-any	docs/testing/TESTING.md:1875	5.5.1.4	Automatic restoration follows Milan 5.5.1.4/5.5.2.6.
+ipv4-any	docs/testing/TESTING.md:1876	5.5.2.4	Controller reconnect follows Milan 5.5.2.4 and #75's project bound.
+ipv4-private	scripts/act_ci.py:6726	172.18.0.1	gateway="172.18.0.1",
+ipv4-any	scripts/act_ci.py:6726	172.18.0.1	gateway="172.18.0.1",
+ipv4-private	scripts/act_ci.py:6868	172.18.0.1	active = replace(planned, network_id="a" * 64, gateway="172.18.0.1",
+ipv4-any	scripts/act_ci.py:6868	172.18.0.1	active = replace(planned, network_id="a" * 64, gateway="172.18.0.1",
+ipv4-private	scripts/act_ci.py:6982	172.18.0.1	gateway="172.18.0.1",
+ipv4-any	scripts/act_ci.py:6982	172.18.0.1	gateway="172.18.0.1",
+ipv4-private	scripts/act_ci.py:7549	172.30.0.1	gateway="172.30.0.1",
+ipv4-any	scripts/act_ci.py:7549	172.30.0.1	gateway="172.30.0.1",
+ipv4-private	scripts/act_ci.py:9124	172.18.0.1	gateway="172.18.0.1",
+ipv4-any	scripts/act_ci.py:9124	172.18.0.1	gateway="172.18.0.1",
+ipv4-any	scripts/act_ci.py:9268	127.0.0.1	and f"/dev/tcp/127.0.0.1/{plants.loopback_port}" in text
+ipv4-any	scripts/act_ci.py:13403	127.0.0.1	"https://127.0.0.1:9/attacker/verilog-axis",
+ipv4-any	scripts/act_ci.py:13460	127.0.0.1	"https://127.0.0.1:9/attacker/lwSRP.git"), gitlinks),
+ipv4-any	scripts/act_ci.py:13506	127.0.0.1	"https://127.0.0.1:9/attacker/tsn-c-stack.git"), gitlinks),
+ipv4-any	scripts/act_ci.py:13754	192.0.2.1	"-4": '[{"dst":"default","gateway":"192.0.2.1","dev":"eth0","flags":[]}]\n',
+ipv4-private	scripts/act_ci.py:14124	<ip>	"<ip>/24",
+ipv4-any	scripts/act_ci.py:14124	<ip>	"<ip>/24",
+ipv4-any	scripts/act_ci.py:14186	127.0.0.1	"tcp://127.0.0.1:2375",
+ipv4-private	scripts/act_ci.py:14415	<ip>	"--bridge", "none", "--default-address-pool", "base=<ip>/24,size=24",
+ipv4-any	scripts/act_ci.py:14415	<ip>	"--bridge", "none", "--default-address-pool", "base=<ip>/24,size=24",
+ipv4-any	scripts/act_ci.py:14474	192.0.2.1	("a default route naming no interface", '[{"dst":"default","gateway":"192.0.2.1"}]'),
+ipv4-any	scripts/act_ci.py:14477	192.0.2.1	("malformed route output", "default via 192.0.2.1 dev eth0\n"),
+ipv4-any	scripts/act_ci.py:15368	192.0.2.1	planned, network_id="a" * 64, gateway="192.0.2.1",
+ipv4-private	scripts/act_ci.py:15432	172.18.0.1	planned, network_id="a" * 64, gateway="172.18.0.1",
+ipv4-any	scripts/act_ci.py:15432	172.18.0.1	planned, network_id="a" * 64, gateway="172.18.0.1",
+ipv4-any	scripts/act_ci.py:16725	127.0.0.1	return f"http://planted:{self.token}@127.0.0.1:{self.proxy_port}"
+ipv4-any	scripts/act_ci.py:16755	127.0.0.1	super().__init__(("127.0.0.1", 0), PlantedProxyHandler)
+ipv4-any	scripts/act_ci.py:16789	127.0.0.1	marker = socketserver.TCPServer(("127.0.0.1", 0), LoopbackMarkerHandler)
+ipv4-any	scripts/act_ci.py:16889	127.0.0.1	f"if (exec 3<>/dev/tcp/127.0.0.1/{plants.loopback_port}) 2>/dev/null",
+ipv4-any	scripts/check_baremetal_only.py:1137	192.0.2.2	"ssh -p 2222 root@192.0.2.2 reboot\n"), True, "[R]")
+ipv4-any	tb/tools/avtp_wire_truth.py:50	4.4.4.6	IEEE 1722-2016 4.4.4.6 - sequence_num "shall be incremented by one (1), with
+ipv4-any	tb/tools/avtp_wire_truth.py:71	5.3.7.3	Milan v1.2 5.3.7.3 - "As long as a PAAD is declaring a Talker Advertise
+ipv4-any	tb/tools/avtp_wire_truth.py:211	5.3.7.3	"present AND silent (Milan 5.3.7.3)")
+ipv4-any	tb/tools/avtp_wire_truth_selftest.py:106	4.4.4.6	"""4.4.4.6: 255 -> 0 is a WRAP, a skipped number is a gap - and the CRF
+ipv4-any	tb/tools/avtp_wire_truth_selftest.py:208	5.3.7.3	"""Milan 5.3.7.3 in both directions: a stream declared silent must be
+ipv4-any	tb/tools/avtp_wire_truth_selftest.py:222	5.3.7.3	# Milan 5.3.7.3 says it streams, so absence != silence
+ipv4-any	tb/tools/avtp_wire_truth_selftest.py:348	6.2.2.15	"""6.2.2.15: the index resets to 0 after an ENTITY_DEPARTING, so the
+ipv4-any	tb/tools/avtp_wire_truth_selftest.py:439	5.3.7.3	"""MSRP/MVRP: the byte layout from the clause, the Milan 5.3.7.3
+ipv4-any	tb/tools/avtp_wire_truth_selftest.py:443	35.2.2.8	"""802.1Q-2018 35.2.2.8: StreamID(8) + DataFrameParameters(8) +
+ipv4-any	tb/tools/avtp_wire_truth_selftest.py:486	5.3.7.3	"""Milan v1.2 5.3.7.3 + 5.3.7.2, from the wire.
+ipv4-any	tb/tools/avtp_wire_truth_selftest.py:486	5.3.7.2	"""Milan v1.2 5.3.7.3 + 5.3.7.2, from the wire.
+mac-ish	tb/tools/avtp_wire_truth_selftest.py:490	01:80:C2:00:00:0E	from an inline tap, because MSRP goes to 01:80:C2:00:00:0E and a
+mac-ish	tb/tools/avtp_wire_truth_wire.py:83	01:80:C2:00:00:0E	#: 01:80:C2:00:00:0E - which a bridge does NOT forward.  So the SRP exchange is
+ipv4-any	tb/tools/avtp_wire_truth_wire.py:86	5.3.7.3	#: half of the Milan v1.2 5.3.7.3 streaming licence on the wire.
+ipv4-private	tb/tools/avtp_wire_truth_wire.py:102	10.7.6.2	#: 802.1Q-2018 10.7.6.2 ThreePackedEvents - the MRP AttributeEvent.
+ipv4-any	tb/tools/avtp_wire_truth_wire.py:102	10.7.6.2	#: 802.1Q-2018 10.7.6.2 ThreePackedEvents - the MRP AttributeEvent.
+ipv4-any	tb/tools/avtp_wire_truth_wire.py:258	4.4.3.2	#: IEEE 1722-2016 4.4.3.2: "The 1-octet subtype field" - the WHOLE
+ipv4-private	tb/tools/avtp_wire_truth_wire.py:286	10.8.1.3	802.1Q-2018 10.8.1.3 / 35.2.2: a VectorAttribute carries a FirstValue and
+ipv4-any	tb/tools/avtp_wire_truth_wire.py:286	10.8.1.3	802.1Q-2018 10.8.1.3 / 35.2.2: a VectorAttribute carries a FirstValue and
+ipv4-private	tb/tools/avtp_wire_truth_wire.py:309	10.7.6.2	"""802.1Q-2018 10.7.6.2: three events packed as ((a*6)+b)*6+c."""
+ipv4-any	tb/tools/avtp_wire_truth_wire.py:309	10.7.6.2	"""802.1Q-2018 10.7.6.2: three events packed as ((a*6)+b)*6+c."""
+ipv4-any	tb/tools/avtp_wire_truth_wire.py:322	35.2.2.8	"""802.1Q-2018 35.2.2.8: successive values of a Talker/Listener attribute
+ipv4-any	tb/tools/avtp_wire_truth_wire.py:566	9.2.1.1	"""The three header fields every AVTP control PDU shares (1722.1 9.2.1.1)
+ipv4-any	tb/tools/avtp_wire_truth_wire.py:676	5.3.7.3	#: stream_ids whose talker is bound but has no audio source; Milan 5.3.7.3
+ipv4-any	tb/tools/check_tu_on_wire.sh:11	5.3.7.3	# clock is not trustworthy: Milan v1.2 5.3.7.3 forbids stopping a Stream Output
+ipv4-any	tb/tools/check_tu_on_wire.sh:15	4.3.5.2	# 4.3.5.2 upgrades IEEE 1722 4.4.4.7 from *should* to *shall*.
+ipv4-any	tb/tools/check_tu_on_wire.sh:15	4.4.4.7	# 4.3.5.2 upgrades IEEE 1722 4.4.4.7 from *should* to *shall*.
+mac-ish	tb/tools/check_tu_on_wire.sh:55	02:4b:4c:4b:4c:01	MAC=${2:?talker source MAC, e.g. 02:4b:4c:4b:4c:01}
+ipv4-any	tb/tools/torture_campaign.py:52	5.3.8.10	Milan v1.2 5.3.8.10 + Table 5.6 - the TEN Stream Input diagnostic counters,
+ipv4-any	tb/tools/torture_campaign.py:62	5.3.7.7	Milan v1.2 5.3.7.7 + Table 5.4 - the FIVE Stream Output counters, and the
+ipv4-any	tb/tools/torture_campaign.py:82	5.4.2.25	Milan v1.2 5.4.2.25 - GET_COUNTERS is mandatory per descriptor, so every
+ipv4-any	tb/tools/torture_campaign.py:89	5.3.7.3	Milan v1.2 5.3.7.3 - a bound talker STREAMS; STREAMING_WAIT "shall not be
+ipv4-any	tb/tools/torture_campaign.py:112	9.2.1.2	1722.1-2021 9.2.1.1.6 (control_data_length) and 9.2.1.2 (a command with a
+ipv4-any	tb/tools/torture_campaign.py:114	5.3.7.3	Milan v1.2 5.3.7.3 again, for the LICENCE the whole streaming-verdict set
+ipv4-any	tb/tools/torture_campaign.py:227	7.4.42.2	Layout, IEEE 1722.1-2021 7.4.42.2: descriptor_type(2) descriptor_index(2)
+ipv4-any	tb/tools/torture_campaign.py:317	5.3.8.10	"vacuous; Milan 5.3.8.10 zeroes the block on "
+ipv4-any	tb/tools/torture_campaign.py:468	5.3.8.10	"reset (Milan 5.3.8.10 not-bound -> bound) or "
+ipv4-any	tb/tools/torture_campaign.py:588	5.3.8.10	"reset (Milan 5.3.8.10) or a 32-bit "
+ipv4-any	tb/tools/torture_campaign.py:627	5.3.8.10	(Milan 5.3.8.10 zeroes it on not-bound -> bound) or a 32-bit counter wrapped,
+ipv4-any	tb/tools/torture_campaign.py:645	5.3.8.10	"(Milan 5.3.8.10 not-bound -> bound) or a 32-bit "
+ipv4-any	tb/tools/torture_campaign.py:671	5.3.7.3	Milan v1.2 5.3.7.3 licenses a talker only "As long as a PAAD is declaring a
+ipv4-any	tb/tools/torture_campaign.py:713	5.3.7.3	f"Milan v1.2 5.3.7.3 makes the Listener Ready half of the "
+ipv4-any	tb/tools/torture_campaign.py:722	5.3.7.3	"5.3.7.3's licence - a Talker Advertise AND a Listener Ready or "
+ipv4-any	tb/tools/torture_campaign.py:904	5.3.7.3	"5.3.7.3's licence is not complete and every "
+ipv4-any	tb/tools/torture_campaign.py:930	5.3.7.3	f"{len(flowing)} neighbour(s) flowed.  Milan v1.2 5.3.7.3 "
+ipv4-any	tb/tools/torture_campaign.py:936	8.6.8.2	(": 802.1Q-2018 8.6.8.2/34 credit-based shaping reserves the "
+ipv4-any	tb/tools/torture_campaign.py:965	5.3.8.10	SAME shared window the bound pairs were measured in.  Milan v1.2 5.3.8.10
+ipv4-any	tb/tools/torture_campaign.py:997	5.3.8.10	"neighbours streamed: Milan v1.2 5.3.8.10 keeps the "
+ipv4-any	tb/tools/torture_campaign.py:1102	5.3.7.3	"v1.2 5.3.7.3 ties the talker's streaming to the listener's "
+ipv4-any	tb/tools/torture_campaign.py:1147	5.3.7.3	"frames moved with the stream gate SHUT: Milan v1.2 5.3.7.3 "
+ipv4-any	tb/tools/torture_campaign.py:1248	8.2.2.5	"IEEE 1722.1-2021 8.2.2.5 / Milan v1.2 5.5.3: the response carries the "
+ipv4-any	tb/tools/torture_campaign.py:1259	5.4.2.25	"IEEE 1722.1-2021 Table 7-152/7-153 + Milan v1.2 5.4.2.25: the "
+ipv4-any	tb/tools/torture_campaign.py:1264	5.3.8.10	"Milan v1.2 5.3.8.10 + Table 5.6: every Stream Input keeps the ten "
+ipv4-any	tb/tools/torture_campaign.py:1268	5.3.7.7	"Milan v1.2 5.3.7.7 + Table 5.4: every Stream Output keeps the five "
+ipv4-any	tb/tools/torture_campaign.py:1287	5.3.7.3	"Milan v1.2 5.3.7.3 + Table 5.6 FRAMES_RX: a bound listener fed by a "
+ipv4-any	tb/tools/torture_campaign.py:1292	5.3.7.3	"Milan v1.2 5.3.7.3: 'As long as a PAAD is declaring a Talker Advertise "
+ipv4-any	tb/tools/torture_campaign.py:1304	4.4.4.6	"Milan v1.2 Table 5.6 SEQ_NUM_MISMATCH + IEEE 1722-2016 4.4.4.6")
+ipv4-any	tb/tools/torture_campaign.py:1308	5.5.1.2	"5.5.1.2 format check and then discards every frame is the 2026-07-27 "
+ipv4-any	tb/tools/torture_campaign.py:1312	4.4.4.7	"Milan v1.2 Table 5.6 TIMESTAMP_UNCERTAIN + IEEE 1722-2016 4.4.4.7: the "
+ipv4-any	tb/tools/torture_campaign.py:1328	5.3.8.10	"Milan v1.2 5.3.8.10: 'The PAAD-AE shall reset all of these counters to "
+ipv4-any	tb/tools/torture_campaign.py:1340	5.3.8.10	"input never transits UNBOUND - so the 5.3.8.10 reset trigger ('changes "
+ipv4-any	tb/tools/torture_campaign.py:1348	5.5.1.2	"is readable back by GET_STREAM_FORMAT; Milan v1.2 5.5.1.2 then makes that "
+ipv4-any	tb/tools/torture_campaign.py:1357	5.3.7.3	"Milan v1.2 5.3.7.3: 'As long as a PAAD is declaring a Talker Advertise "
+ipv4-any	tb/tools/torture_campaign.py:1383	5.3.7.3	"Milan v1.2 5.3.7.3: the licence to stream is a CONJUNCTION - 'As long as a "
+ipv4-any	tb/tools/torture_campaign.py:1393	5.3.7.3	"Milan v1.2 5.3.7.3 + IEEE 1722.1-2021 7.4.36 STOP_STREAMING: after the "
+ipv4-any	tb/tools/torture_campaign.py:1403	5.3.7.3	"Milan v1.2 5.3.7.3 ties the talker's streaming to the listener's "
+ipv4-any	tb/tools/torture_campaign.py:1413	5.3.7.3	"Milan v1.2 5.3.7.3: with no Listener Ready there is no licence, so an "
+ipv4-any	tb/tools/torture_campaign.py:1468	5.3.7.3	#: depend on the Milan 5.3.7.3 licence (LWSRP_STATUS bit 8), which the connect
+ipv4-any	tb/tools/torture_campaign.py:1497	5.3.7.3	"Milan v1.2 5.3.7.3 applied PER Stream Output: each concurrently bound "
+ipv4-any	tb/tools/torture_campaign.py:1507	5.3.8.10	"Milan v1.2 5.3.8.10: 'For each Stream Input of the currently set "
+ipv4-any	tb/tools/torture_campaign.py:1515	5.3.7.3	"Milan v1.2 5.3.7.3: the streaming licence is per Stream Output - a "
+ipv4-any	tb/tools/torture_campaign.py:1526	8.6.8.2	"802.1Q-2018 8.6.8.2 (the credit-based shaper algorithm) + clause 34 "
+ipv4-any	tb/tools/torture_campaign.py:1661	5.3.7.5	"""Milan v1.2 5.3.7.5 / IEEE 1722-2016 4.4.4.4: the plug-and-play
+ipv4-any	tb/tools/torture_campaign.py:1661	4.4.4.4	"""Milan v1.2 5.3.7.5 / IEEE 1722-2016 4.4.4.4: the plug-and-play
+ipv4-any	tb/tools/torture_campaign.py:1870	5.5.1.2	clause="Milan v1.2 5.5.1.2 - a Controller SHALL make the "
+ipv4-any	tb/tools/torture_campaign.py:1884	5.5.3.5	clause="Milan v1.2 5.5.3.5 BIND_RX + 5.3.8.10 counter reset on "
+ipv4-any	tb/tools/torture_campaign.py:1884	5.3.8.10	clause="Milan v1.2 5.5.3.5 BIND_RX + 5.3.8.10 counter reset on "
+ipv4-any	tb/tools/torture_campaign.py:1895	5.5.3.5	clause="Milan v1.2 5.5.3.5 UNBIND_RX; 5.3.8.10 notes the counters are "
+ipv4-any	tb/tools/torture_campaign.py:1895	5.3.8.10	clause="Milan v1.2 5.5.3.5 UNBIND_RX; 5.3.8.10 notes the counters are "
+ipv4-any	tb/tools/torture_campaign.py:1898	5.3.7.3	note="the unbind removes the Listener Ready, so Milan v1.2 5.3.7.3's "
+ipv4-any	tb/tools/torture_campaign.py:1908	5.3.7.3	"""The step that OWNS the Milan 5.3.7.3 licence question.
+ipv4-any	tb/tools/torture_campaign.py:1925	5.3.7.3	clause="Milan v1.2 5.3.7.3 - the licence is the Talker Advertise plus "
+ipv4-any	tb/tools/torture_campaign.py:2070	5.3.7.3	remaining Listener Ready (Milan v1.2 5.3.7.3), so unbinding one of its
+ipv4-any	tb/tools/torture_campaign.py:2086	8.6.8.2	802.1Q-2018 8.6.8.2 puts an admitted class A stream in a reserved,
+ipv4-any	tb/tools/torture_campaign.py:2102	8.6.8.2	clause="802.1Q-2018 8.6.8.2/34: admitted SR class A streams "
+ipv4-any	tb/tools/torture_campaign.py:2118	5.3.7.3	clause="Milan v1.2 5.3.7.3 + Table 5.4/5.6: load OFF, the same "
+ipv4-any	tb/tools/torture_campaign.py:2156	5.5.3.5	clause="Milan v1.2 5.5.3.5 BIND_RX, once per pair, with the "
+ipv4-any	tb/tools/torture_campaign.py:2157	5.5.1.2	"5.5.1.2 listener-adapts format rule applied per pair",
+ipv4-any	tb/tools/torture_campaign.py:2163	5.3.7.3	clause="Milan v1.2 5.3.7.3 per Stream Output + Table 5.4/5.6 "
+ipv4-any	tb/tools/torture_campaign.py:2164	5.3.8.10	"interval terms + 5.3.8.10 per-input counters",
+ipv4-any	tb/tools/torture_campaign.py:2179	5.5.3.5	clause="Milan v1.2 5.5.3.5 UNBIND_RX + 5.3.7.3: only the "
+ipv4-any	tb/tools/torture_campaign.py:2179	5.3.7.3	clause="Milan v1.2 5.5.3.5 UNBIND_RX + 5.3.7.3: only the "
+ipv4-any	tb/tools/torture_campaign.py:2188	5.5.3.5	clause="Milan v1.2 5.5.3.5 UNBIND_RX + 5.3.7.3 + IEEE "
+ipv4-any	tb/tools/torture_campaign.py:2188	5.3.7.3	clause="Milan v1.2 5.5.3.5 UNBIND_RX + 5.3.7.3 + IEEE "
+ipv4-any	tb/tools/torture_campaign.py:2294	5.3.8.10	"different talker: steps 3-12 re-probe), so the 5.3.8.10 "
+ipv4-any	tb/tools/torture_campaign.py:2323	5.3.7.3	"interrupt the first (Milan v1.2 5.3.7.3)"))
+ipv4-any	tb/tools/torture_campaign.py:2337	5.3.8.10	clause="Milan v1.2 5.5.3.5.43 + 5.3.8.10: after any number of implicit "
+mac-ish	tb/tools/torture_campaign.py:2363	01:80:C2:00:00:0E	# THE SRP CAPTURE.  MSRP/MVRP go to 01:80:C2:00:00:0E, which a bridge does
+ipv4-any	tb/tools/torture_campaign.py:2364	5.3.7.3	# NOT forward, so the Listener Ready half of the Milan 5.3.7.3 licence is
+ipv4-any	tb/tools/torture_campaign.py:2377	5.3.7.2	"Milan v1.2 5.3.7.2: 'For each of the Stream "
+ipv4-any	tb/tools/torture_campaign.py:2384	5.3.7.3	"Milan v1.2 5.3.7.3: the licence's second half is a "
+mac-ish	tb/tools/torture_campaign.py:2386	01:80:C2:00:00:0E	"which arrives over MSRP on 01:80:C2:00:00:0E"),
+ipv4-any	tb/tools/torture_campaign.py:2388	5.3.7.4	"Milan v1.2 5.3.7.4: the Stream Destination MAC "
+ipv4-any	tb/tools/torture_campaign.py:2392	5.3.7.4	"Milan v1.2 5.3.7.4 + 802.1Q-2018 9.6: the Stream "
+ipv4-any	tb/tools/torture_campaign.py:2394	5.3.7.2	clause="802.1Q-2018 35.2.2 + Milan v1.2 5.3.7.2/5.3.7.3/5.3.7.4",
+ipv4-any	tb/tools/torture_campaign.py:2394	5.3.7.3	clause="802.1Q-2018 35.2.2 + Milan v1.2 5.3.7.2/5.3.7.3/5.3.7.4",
+ipv4-any	tb/tools/torture_campaign.py:2394	5.3.7.4	clause="802.1Q-2018 35.2.2 + Milan v1.2 5.3.7.2/5.3.7.3/5.3.7.4",
+ipv4-any	tb/tools/torture_campaign.py:2403	5.3.7.3	clause="Milan v1.2 5.3.7.3: a bound talker with no audio source still "
+ipv4-any	tb/tools/torture_campaign.py:2420	5.3.10.1	"IEEE 1722-2016 7.3.5 + Milan v1.2 5.3.10.1: a mapped channel that carries "
+ipv4-any	tb/tools/torture_campaign.py:2424	5.3.10.1	"Milan v1.2 5.3.10.1 channel mapping: a channel-preserving loop through a "
+ipv4-any	tb/tools/torture_campaign.py:2466	5.3.10.1	clause="IEEE 1722-2016 7.3.5 + Milan v1.2 5.3.10.1",
+mac-ish	tb/tools/torture_campaign.py:2512	ff:ff:ff:ff:ff:ff	"untagged broadcast flood at line rate", "ff:ff:ff:ff:ff:ff"),
+mac-ish	tb/tools/torture_campaign.py:2518	91:e0:f0:01:00:00	"91:e0:f0:01:00:00"),
+mac-ish	tb/tools/torture_campaign.py:2520	01:80:C2:00:00:00	"AVB Management group addresses 01:80:C2:00:00:00 / :0E / :21 "
+mac-ish	tb/tools/torture_campaign.py:2521	01:80:c2:00:00:0e	"(802.1Q-2018 Table 8-1 and 10-1)", "01:80:c2:00:00:0e"),
+mac-ish	tb/tools/torture_campaign.py:2523	91:e0:f0:00:fe:ff	"SR class B tagged traffic at line rate", "91:e0:f0:00:fe:ff")):
+ipv4-any	tb/tools/torture_campaign.py:2556	5.3.7.3	"Milan v1.2 5.3.7.3: once the Talker Advertise and "
+ipv4-any	tb/tools/torture_campaign.py:2571	5.3.7.3	"Milan v1.2 5.3.7.3 + 802.1AS-2020 10.2.4"),
+ipv4-any	tb/tools/torture_campaign.py:2599	9.2.1.2	"IEEE 1722.1-2021 9.2.1.2: a command whose payload is too short "
+ipv4-any	tb/tools/torture_campaign.py:2609	4.4.4.3	"IEEE 1722-2016 4.4.4.3: a Listener 'shall ignore' an AVTPDU "
+ipv4-any	tb/tools/torture_campaign.py:2615	4.4.4.10	"IEEE 1722-2016 4.4.4.10 + 7.3.5: the payload the field describes "
+ipv4-any	tb/tools/torture_campaign.py:2641	9.2.1.2	"IEEE 1722.1-2021 9.2.1.2: after any malformed "
+ipv4-any	tb/tools/torture_campaign.py:2657	5.3.7.5	"Milan v1.2 5.3.7.5 Table 5.3 (informative): on a "
+ipv4-any	tb/tools/torture_campaign.py:2664	35.2.2.8	"35.2.2.8 asks for 2 LeaveAllTime periods only "
+ipv4-any	tb/tools/torture_campaign.py:2669	5.3.7.4	"Milan v1.2 5.3.7.4: the Stream Destination MAC "
+ipv4-any	tb/tools/torture_campaign.py:2673	4.4.4.8	"IEEE 1722-2016 4.4.4.8 and IEEE 1722.1-2021 "
+ipv4-any	tb/tools/torture_campaign.py:2674	7.4.16.2	"7.4.16.2: the AVTP stream_id on the wire, the "
+ipv4-any	tb/tools/torture_campaign.py:2678	5.3.7.5	clause="Milan v1.2 5.3.7.5 Table 5.3 + IEEE 802.1Q-2018 35.2.2.8 + "
+ipv4-any	tb/tools/torture_campaign.py:2678	35.2.2.8	clause="Milan v1.2 5.3.7.5 Table 5.3 + IEEE 802.1Q-2018 35.2.2.8 + "
+ipv4-any	tb/tools/torture_campaign.py:2681	35.2.2.8	"destination MAC inside 2 LeaveAll periods (802.1Q 35.2.2.8); "
+ipv4-any	tb/tools/torture_campaign.py:2699	5.3.7.4	"802.1Q-2018 9.6 + Milan v1.2 5.3.7.4: the Stream "
+ipv4-any	tb/tools/torture_campaign.py:2703	5.3.7.4	clause="802.1Q-2018 35.1.2 / Milan v1.2 5.3.7.4",
+ipv4-any	tb/tools/torture_campaign.py:2730	5.3.7.3	"Milan v1.2 5.3.7.3: the talker keeps streaming, "
+ipv4-any	tb/tools/torture_campaign.py:2735	5.3.7.3	clause="Milan v1.2 5.3.7.3"))
+ipv4-any	tb/tools/torture_campaign.py:2868	6.2.2.13	"IEEE 1722.1-2021 6.2.2.13: the ADPDU carries gptp_grandmaster_id, so a "
+ipv4-private	tb/tools/torture_campaign.py:2884	10.2.4.1	"802.1AS-2020 10.2.4.1 asCapable: the healed links exchange Pdelay and "
+ipv4-any	tb/tools/torture_campaign.py:2884	10.2.4.1	"802.1AS-2020 10.2.4.1 asCapable: the healed links exchange Pdelay and "
+ipv4-any	tb/tools/torture_campaign.py:2890	4.4.4.7	"IEEE 1722-2016 4.4.4.7 tu: tu = 1 is the fail-safe and tu = 0 has to be "
+ipv4-any	tb/tools/torture_campaign.py:2905	5.3.10.1	"Milan v1.2 5.3.10.1 + IEEE 1722.1-2021 6.2.6: the persisted state is "
+ipv4-any	tb/tools/torture_campaign.py:2927	5.3.8.1	"Milan v1.2 5.3.8.1: 'The current format shall be saved in a "
+ipv4-any	tb/tools/torture_campaign.py:2928	5.3.7.1	"non-volatile memory and restored after a power cycle.'  5.3.7.1 says "
+ipv4-any	tb/tools/torture_campaign.py:2929	5.3.10.1	"the same for a Stream Output's format, 5.3.10.1 for the input channel "
+ipv4-any	tb/tools/torture_campaign.py:2930	5.3.8.2	"mappings, 5.3.8.2/5.3.8.3 for the bound state and binding parameters "
+ipv4-any	tb/tools/torture_campaign.py:2930	5.3.8.3	"mappings, 5.3.8.2/5.3.8.3 for the bound state and binding parameters "
+ipv4-any	tb/tools/torture_campaign.py:2931	5.3.7.6	"and 5.3.7.6 for the presentation time offset - the clause is a SHALL "
+ipv4-any	tb/tools/torture_campaign.py:2942	5.3.8.1	"Milan v1.2 5.3.8.1 first sentence: 'A Stream Input shall always be "
+ipv4-any	tb/tools/torture_campaign.py:2944	5.3.7.1	"formats list' (5.3.7.1 for a Stream Output) + IEEE 1722.1-2021 7.4.10 "
+ipv4-any	tb/tools/torture_campaign.py:2957	5.3.8.1	"per-stream CURRENT FORMAT is dynamic state under Milan 5.3.8.1), and "
+ipv4-any	tb/tools/torture_campaign.py:3027	5.3.10.1	clause="Milan v1.2 5.3.10.1 / 5.3.8.1 (what must survive the cycle "
+ipv4-any	tb/tools/torture_campaign.py:3027	5.3.8.1	clause="Milan v1.2 5.3.10.1 / 5.3.8.1 (what must survive the cycle "
+ipv4-any	tb/tools/torture_campaign.py:3050	5.3.10.1	clause="Milan v1.2 5.3.10.1 / 5.3.8.1 / 5.3.7.6",
+ipv4-any	tb/tools/torture_campaign.py:3050	5.3.8.1	clause="Milan v1.2 5.3.10.1 / 5.3.8.1 / 5.3.7.6",
+ipv4-any	tb/tools/torture_campaign.py:3050	5.3.7.6	clause="Milan v1.2 5.3.10.1 / 5.3.8.1 / 5.3.7.6",
+ipv4-any	tb/tools/torture_campaign.py:3054	5.3.8.1	"the flash rounds keep re-earning.  Milan 5.3.8.1 is a SHALL, "
+ipv4-any	tb/tools/torture_campaign.py:3151	5.3.5.1	"sampling_rate": "Milan v1.2 5.3.5.1: every AUDIO_UNIT",
+ipv4-any	tb/tools/torture_campaign.py:3152	5.3.7.1	"stream_format": "Milan v1.2 5.3.7.1 / 5.3.8.1: every STREAM_OUTPUT and STREAM_INPUT",
+ipv4-any	tb/tools/torture_campaign.py:3152	5.3.8.1	"stream_format": "Milan v1.2 5.3.7.1 / 5.3.8.1: every STREAM_OUTPUT and STREAM_INPUT",
+ipv4-any	tb/tools/torture_campaign.py:3153	5.3.7.6	"presentation_time_offset": "Milan v1.2 5.3.7.6: every STREAM_OUTPUT",
+ipv4-any	tb/tools/torture_campaign.py:3154	5.3.9.1	"channel_mappings": "Milan v1.2 5.3.9.1 / 5.3.10.1: both port directions",
+ipv4-any	tb/tools/torture_campaign.py:3154	5.3.10.1	"channel_mappings": "Milan v1.2 5.3.9.1 / 5.3.10.1: both port directions",
+ipv4-any	tb/tools/torture_campaign.py:3155	5.3.11.1	"clock_source": "Milan v1.2 5.3.11.1: every CLOCK_DOMAIN",
+ipv4-any	tb/tools/torture_campaign.py:3158	5.3.8.2	"stream_binding": "Milan v1.2 5.3.8.2 / 5.3.8.3 / 5.3.8.7: bound state, "
+ipv4-any	tb/tools/torture_campaign.py:3158	5.3.8.3	"stream_binding": "Milan v1.2 5.3.8.2 / 5.3.8.3 / 5.3.8.7: bound state, "
+ipv4-any	tb/tools/torture_campaign.py:3158	5.3.8.7	"stream_binding": "Milan v1.2 5.3.8.2 / 5.3.8.3 / 5.3.8.7: bound state, "
+ipv4-any	tb/tools/torture_campaign.py:3231	5.3.8.10	"; Milan v1.2 5.3.8.10 Table 5.6; IEEE 1722-2016 4.4.4.6: "
+ipv4-any	tb/tools/torture_campaign.py:3231	4.4.4.6	"; Milan v1.2 5.3.8.10 Table 5.6; IEEE 1722-2016 4.4.4.6: "
+ipv4-any	tb/tools/torture_campaign.py:3242	4.4.4.3	"; IEEE 1722-2016 4.4.4.3; Milan v1.2 Annex B.1.2, Tables 5.4/5.6: "
+ipv4-any	tb/tools/torture_campaign.py:3258	4.4.4.7	"; Milan v1.2 Annex B.1/B.1.1 / IEEE 1722-2016 4.4.4.7: "
+ipv4-any	tb/tools/torture_campaign.py:3293	5.5.1.4	"; Milan v1.2 5.5.1.4 (a power cycle or a simple reset): "
+ipv4-any	tb/tools/torture_campaign.py:3300	5.3.5.1	"; Milan v1.2 5.3.5.1, 5.3.7.1/5.3.7.6, "
+ipv4-any	tb/tools/torture_campaign.py:3300	5.3.7.1	"; Milan v1.2 5.3.5.1, 5.3.7.1/5.3.7.6, "
+ipv4-any	tb/tools/torture_campaign.py:3300	5.3.7.6	"; Milan v1.2 5.3.5.1, 5.3.7.1/5.3.7.6, "
+ipv4-any	tb/tools/torture_campaign.py:3301	5.3.8.1	"5.3.8.1/5.3.8.2/5.3.8.3/5.3.8.7, 5.3.9.1, 5.3.10.1, "
+ipv4-any	tb/tools/torture_campaign.py:3301	5.3.8.2	"5.3.8.1/5.3.8.2/5.3.8.3/5.3.8.7, 5.3.9.1, 5.3.10.1, "
+ipv4-any	tb/tools/torture_campaign.py:3301	5.3.8.3	"5.3.8.1/5.3.8.2/5.3.8.3/5.3.8.7, 5.3.9.1, 5.3.10.1, "
+ipv4-any	tb/tools/torture_campaign.py:3301	5.3.8.7	"5.3.8.1/5.3.8.2/5.3.8.3/5.3.8.7, 5.3.9.1, 5.3.10.1, "
+ipv4-any	tb/tools/torture_campaign.py:3301	5.3.9.1	"5.3.8.1/5.3.8.2/5.3.8.3/5.3.8.7, 5.3.9.1, 5.3.10.1, "
+ipv4-any	tb/tools/torture_campaign.py:3301	5.3.10.1	"5.3.8.1/5.3.8.2/5.3.8.3/5.3.8.7, 5.3.9.1, 5.3.10.1, "
+ipv4-any	tb/tools/torture_campaign.py:3302	5.3.11.1	"5.3.11.1, 5.3.13; issue #70's eight-item inventory: every "
+ipv4-any	tb/tools/torture_campaign.py:3312	6.2.2.5	"; IEEE 1722.1-2021 6.2.2.5, 6.2.4/6.2.5; Milan v1.2 5.6.2/5.6.3: "
+ipv4-any	tb/tools/torture_campaign.py:3321	5.5.1.4	"; Milan v1.2 5.5.1.4 / 5.5.2.6: from T0 to first valid AVTP "
+ipv4-any	tb/tools/torture_campaign.py:3321	5.5.2.6	"; Milan v1.2 5.5.1.4 / 5.5.2.6: from T0 to first valid AVTP "
+ipv4-any	tb/tools/torture_campaign.py:3327	5.5.2.4	"; Milan v1.2 5.5.2.4; issue #75: an additional per-cycle "
+ipv4-any	tb/tools/torture_campaign.py:3345	5.6.3.3	"; issue #787; IEEE 1722.1-2021 7.4.43; Milan v1.2 5.6.3.3: the "
+ipv4-private	tb/tools/torture_campaign.py:3352	10.2.4.7	"; issue #787; IEEE 802.1AS-2011 11.2.2, 10.2.4.7, 11.2.15: within "
+ipv4-any	tb/tools/torture_campaign.py:3352	10.2.4.7	"; issue #787; IEEE 802.1AS-2011 11.2.2, 10.2.4.7, 11.2.15: within "
+ipv4-any	tb/tools/torture_campaign.py:3427	5.3.8.10	"; Milan v1.2 5.3.8.10 Table 5.6: each event records its wall and gPTP "
+ipv4-any	tb/tools/torture_campaign.py:3555	5.6.3.3	7-126's), no ENTITY_DEPARTING after the response (Milan v1.2 5.6.3.3), or
+ipv4-private	tb/tools/torture_campaign.py:3583	10.2.4.7	delay, IEEE 802.1AS-2011 10.2.4.7, computed with its own Pdelay_Req
+ipv4-any	tb/tools/torture_campaign.py:3583	10.2.4.7	delay, IEEE 802.1AS-2011 10.2.4.7, computed with its own Pdelay_Req
+ipv4-any	tb/tools/torture_campaign.py:3646	5.3.8.10	Milan v1.2 5.3.8.10 Table 5.6. `reads` carry target, timestamp_s and
+ipv4-any	tb/tools/torture_campaign.py:5435	4.4.4.7	The caller records accepted IEEE 1722-2016 4.4.4.7 discontinuities on
+ipv4-any	tb/tools/torture_campaign.py:6637	5.3.7.3	# CORRECTLY silent bound talker gives (Milan v1.2 5.3.7.3 needs a
+ipv4-any	tb/tools/torture_campaign.py:7149	5.3.8.1	"""Milan 5.3.8.1 stays quoted in the assertion itself: a build with no
+ipv4-any	tb/tools/torture_campaign.py:7151	5.3.8.1	# Milan v1.2 5.3.8.1 is an unconditional SHALL, so the assertion
+ipv4-any	tb/tools/torture_campaign.py:7155	5.3.8.1	self.assertIn("5.3.8.1", c)
+ipv4-any	tb/tools/torture_campaign.py:7160	5.3.8.1	self.assertIn("5.3.8.1", A_STATE_SELF_CONSISTENT.clause)
+ipv4-any	tb/tools/torture_campaign.py:8017	4.4.4.3	for phrase in ("4.4.4.3", "B.1.2", "Tables 5.4/5.6", "GM change alone fails",
+ipv4-any	tb/tools/torture_campaign.py:10245	5.3.8.10	self.assertIn("5.3.8.10", d["why"])
+ipv4-any	tests/features/milan_streaming_licence.feature:4	5.3.7.3	@milan @clause:5.3.7.3 @clause:5.3.7.2 @matrix:M-DEV-13c @srp
+ipv4-any	tests/features/milan_streaming_licence.feature:4	5.3.7.2	@milan @clause:5.3.7.3 @clause:5.3.7.2 @matrix:M-DEV-13c @srp
+ipv4-any	tests/features/milan_streaming_licence.feature:5	5.3.7.3	Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL
+ipv4-any	tests/features/milan_streaming_licence.feature:6	5.3.7.3	Verbatim, Milan Specification Consolidated v1.2 (2023-11-30) Section 5.3.7.3:
+ipv4-any	tests/features/milan_streaming_licence.feature:15	5.3.7.2	second sentence only forbids implementing STREAMING_WAIT. Section 5.3.7.2 keeps
+ipv4-any	tests/features/milan_streaming_licence.feature:20	5.3.7.3	This repo read 5.3.7.3 as an unconditional "never stop streaming" until
+ipv4-any	tests/features/milan_streaming_licence.feature:51	5.3.7.3	And the escape hatch is recorded as a Milan 5.3.7.3 conformance defect
+ipv4-any	tests/features/milan_streaming_licence.feature:65	5.4.2.19	# OPTION, Milan 5.4.2.19/5.4.2.20 require NOT_SUPPORTED for START_/
+ipv4-any	tests/features/milan_streaming_licence.feature:65	5.4.2.20	# OPTION, Milan 5.4.2.19/5.4.2.20 require NOT_SUPPORTED for START_/
+ipv4-any	tests/features/milan_streaming_licence.feature:66	5.3.7.3	# STOP_STREAMING on a Stream Output, 5.3.7.3 "excludes the possibility
+ipv4-any	tests/features/milan_streaming_licence.feature:67	5.5.4.1	# for a Stream Output to be stopped", and 5.5.4.1 says a Talker "shall
+ipv4-any	tests/features/torture_campaign_plan.feature:47	5.3.7.3	Milan v1.2 5.3.7.3 licenses a talker only "As long as a PAAD is declaring a
+ipv4-any	tests/features/torture_campaign_plan.feature:92	5.3.8.10	@class:contract @clause:Milan-5.3.8.10 @clause:Milan-Table-5.4
+ipv4-any	tests/features/torture_campaign_plan.feature:103	5.3.7.3	@class:contract @clause:Milan-5.3.7.3 @honesty
+ipv4-any	tests/features/torture_campaign_plan.feature:105	5.3.7.3	# Milan v1.2 5.3.7.3 makes the Talker Advertise plus the Listener Ready the
+ipv4-any	tests/features/torture_campaign_plan.feature:118	5.3.7.3	@class:contract @clause:Milan-5.3.7.3 @honesty @multi-sided
+ipv4-any	tests/features/torture_campaign_plan.feature:130	5.3.7.3	@class:contract @clause:Milan-5.3.7.3 @honesty
+ipv4-any	tests/features/torture_campaign_plan.feature:240	5.3.7.5	@class:torture @clause:Milan-5.3.7.5
+ipv4-any	tests/features/torture_campaign_plan.feature:243	35.2.2.8	# conflict, and IEEE 802.1Q-2018 35.2.2.8 asks for the 2 LeaveAll wait
+ipv4-any	tests/features/torture_campaign_plan.feature:259	5.3.7.3	@class:torture @clause:Milan-5.3.7.3
+ipv4-any	tests/features/wire_truth_avtp.feature:28	4.4.3.2	IEEE 1722-2016 4.4.3.2 - "The 1-octet subtype field": the whole octet.
+ipv4-any	tests/features/wire_truth_avtp.feature:29	4.4.4.6	IEEE 1722-2016 4.4.4.6 / 10.4.6 - sequence_num increments by one with
+ipv4-any	tests/features/wire_truth_avtp.feature:37	5.3.7.3	Milan v1.2 5.3.7.3 - a bound talker streams, so an unfed one owes SILENT
+ipv4-any	tests/features/wire_truth_avtp.feature:64	4.4.3.2	# IEEE 1722-2016 4.4.3.2 calls it "The 1-octet subtype field". Masking off
+ipv4-any	tests/features/wire_truth_avtp.feature:123	4.4.4.6	@class:invariant @clause:1722-4.4.4.6
+ipv4-any	tests/features/wire_truth_avtp.feature:206	5.3.7.3	@class:invariant @clause:Milan-5.3.7.3
+ipv4-any	tests/features/wire_truth_avtp.feature:213	5.3.7.3	@class:invariant @clause:Milan-5.3.7.3 @negative-control
+mac-ish	tests/features/wire_truth_avtp.feature:300	01:80:C2:00:00:0E	# MSRP (0x22EA) and MVRP (0x88F5) go to 01:80:C2:00:00:0E, which a bridge does
+ipv4-any	tests/features/wire_truth_avtp.feature:303	5.3.7.3	# therefore the only place the Listener Ready half of the Milan v1.2 5.3.7.3
+ipv4-any	tests/features/wire_truth_avtp.feature:306	5.3.7.2	@class:srp @clause:8021Q-35.2.2 @clause:Milan-5.3.7.2
+ipv4-any	tests/features/wire_truth_avtp.feature:308	35.2.2.8	# 802.1Q-2018 35.2.2.8: StreamID(8 = 6-octet MAC + 2-octet unique_id) +
+ipv4-any	tests/features/wire_truth_avtp.feature:329	5.3.7.2	@class:srp @clause:Milan-5.3.7.2 @regression
+ipv4-any	tests/features/wire_truth_avtp.feature:331	5.3.7.2	# Milan v1.2 5.3.7.2: "For each of the Stream Outputs of its currently set
+ipv4-any	tests/features/wire_truth_avtp.feature:342	5.3.7.3	@class:srp @clause:Milan-5.3.7.3 @negative-control
+ipv4-any	tests/features/wire_truth_avtp.feature:344	5.3.7.3	# 5.3.7.3 licenses a talker only while it is "receiving a Listener Ready or
+ipv4-any	tests/features/wire_truth_avtp.feature:351	5.3.7.4	@class:srp @clause:Milan-5.3.7.4 @negative-control
+ipv4-any	tests/features/wire_truth_avtp.feature:353	5.3.7.4	# Milan v1.2 5.3.7.4 makes the Stream Destination MAC Address and the Stream
+ipv4-any	tests/features/wire_truth_avtp.feature:366	35.2.2.9	@class:srp @clause:8021Q-35.2.2.9
+ipv4-any	tests/steps/milan_streaming_licence_steps.py:130	4.3.5.1	"maap_addr_valid",       # ... and its claim, per Milan 4.3.5.1
+ipv4-any	tests/steps/milan_streaming_licence_steps.py:134	5.3.7.3	"lwsrp_stream_gate",     # ... and the Milan 5.3.7.3 licence
+ipv4-any	tests/steps/milan_streaming_licence_steps.py:150	5.3.7.3	"""With the hatch clear, admission still depends on the Milan 5.3.7.3
+ipv4-any	tests/steps/milan_streaming_licence_steps.py:157	5.3.7.3	@then("the escape hatch is recorded as a Milan 5.3.7.3 conformance defect")
+ipv4-any	tests/steps/milan_streaming_licence_steps.py:162	5.3.7.3	assert "AAF_CTRL[1]" in gaps and "5.3.7.3" in gaps, (
+ipv4-private	tests/steps/milan_streaming_licence_steps.py:243	10.8.1.4	# 802.1Q-2018 10.8.1.4: value k is the FirstValue incremented k times
+ipv4-any	tests/steps/milan_streaming_licence_steps.py:243	10.8.1.4	# 802.1Q-2018 10.8.1.4: value k is the FirstValue incremented k times
+ipv4-any	tests/steps/torture_plan_steps.py:194	5.3.8.10	# implicit rebind re-enters the bound state and so re-triggers the 5.3.8.10
+ipv4-any	tests/steps/torture_plan_steps.py:247	5.3.7.3	assert "5.3.7.3" in tp.A_STREAM_ON_BIND_ALONE.clause
+ipv4-any	tests/steps/torture_plan_steps.py:263	5.3.7.3	under 5.3.7.3, and grading it without the reading turns conformance into a violation."""
+ipv4-any	tests/steps/torture_plan_steps.py:268	5.3.7.3	f"v1.2 5.3.7.3 makes CORRECTLY silent - would be graded as a violation")
+ipv4-any	tests/steps/torture_plan_steps.py:269	5.3.7.3	assert "5.3.7.3" in tp.A_SRP_LICENCE.clause
+ipv4-any	tests/steps/torture_plan_steps.py:645	35.2.2.8	"""The MAAP entry cites IEEE 802.1Q-2018 35.2.2.8, whose 2 LeaveAll wait guards a StreamID declared again with
+ipv4-any	tests/steps/torture_plan_steps.py:649	35.2.2.8	assert "35.2.2.8" in txt and "LeaveAll" in txt, (
+ipv4-any	tests/steps/torture_plan_steps.py:650	35.2.2.8	"the MAAP conflict entry does not cite the IEEE 802.1Q-2018 35.2.2.8 "
+ipv4-any	tests/steps/wire_truth_steps.py:107	5.3.7.3	"""An all-zero AAF frame on a named stream: what Milan 5.3.7.3 obliges an
+ipv4-any	tests/steps/wire_truth_steps.py:225	5.3.7.3	"""Declares a stream bound but unfed, which Milan 5.3.7.3 obliges to keep
+ipv4-any	tests/steps/wire_truth_steps.py:329	4.4.3.2	"""4.4.3.2 calls subtype 'The 1-octet subtype field'. Masking its top bit
+ipv4-any	tests/steps/wire_truth_steps.py:430	5.3.7.3	"""Runs the Milan 5.3.7.3 zero-fill checks: an unfed bound stream owes
+ipv4-any	tests/steps/wire_truth_steps.py:652	35.2.2.8	802.1Q-2018 35.2.2.8, built from the clause and not from our SRP
+ipv4-any	tests/steps/wire_truth_steps.py:692	5.3.7.4	Milan 5.3.7.4 SRP parameter, so it has to match the tag on the wire."""
+ipv4-any	tests/steps/wire_truth_steps.py:699	5.3.7.4	"""The declared Stream VLAN ID, the other 5.3.7.4 SRP parameter the wire
+ipv4-any	tests/steps/wire_truth_steps.py:729	5.3.7.2	"""The entity's whole Stream Output set, which Milan 5.3.7.2 requires
+ipv4-any	tests/steps/wire_truth_steps.py:751	5.3.7.3	declaration is one that licenses nothing - 5.3.7.3 wants Ready or
+# total raw hits: 407
