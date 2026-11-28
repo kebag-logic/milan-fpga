@@ -1,0 +1,63 @@
+Hosted evidence at exact head a8551cdd3cf715c52cca164a57d6d7f022e62c00 (kebag-logic/tsn-c-stack), read-only inspection
+check runs: 4
+  140941226086 quality: completed/success started 2026-11-28T09:55:31Z completed 2026-11-28T10:02:33Z
+  140941225855 bare-metal: completed/success started 2026-11-28T09:55:31Z completed 2026-11-28T09:56:00Z
+  140941183157 bare-metal: completed/success started 2026-11-28T09:55:21Z completed 2026-11-28T09:56:31Z
+  140941182967 quality: completed/success started 2026-11-28T09:55:21Z completed 2026-11-28T10:01:03Z
+workflow runs: 2
+  46132722374 "Portable core quality" event pull_request attempt 1: completed/success head a8551cdd3cf715c52cca164a57d6d7f022e62c00
+  46132708242 "Portable core quality" event push attempt 1: completed/success head a8551cdd3cf715c52cca164a57d6d7f022e62c00
+jobs and steps of the pull_request run 46132722374 (every step executed; none skipped):
+  job bare-metal: completed/success head a8551cdd3cf715c52cca164a57d6d7f022e62c00 labels ['ubuntu-24.04']
+    step 1 Set up job: completed/success
+    step 2 Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262: completed/success
+    step 3 Install RV32 dependencies: completed/success
+    step 4 Validate the freestanding cores: completed/success
+    step 5 Keep RV32 evidence: completed/success
+    step 10 Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262: completed/success
+    step 11 Complete job: completed/success
+  job quality: completed/success head a8551cdd3cf715c52cca164a57d6d7f022e62c00 labels ['ubuntu-24.04']
+    step 1 Set up job: completed/success
+    step 2 Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262: completed/success
+    step 3 Install host dependencies: completed/success
+    step 4 Validate the portable cores: completed/success
+    step 5 Keep gate evidence: completed/success
+    step 10 Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262: completed/success
+    step 11 Complete job: completed/success
+artifacts of that run:
+  15258339669 quality-evidence 607412 bytes head a8551cdd3cf715c52cca164a57d6d7f022e62c00
+  15258009269 rv32-evidence 7440 bytes head a8551cdd3cf715c52cca164a57d6d7f022e62c00
+quality-evidence/gates.json: 28 gates, nonzero rc: []
+  gcc-configure.log: -- The C compiler identification is GNU 13.3.0
+  clang-sanitizers-configure.log: -- The C compiler identification is Clang 18.1.3
+--- quality-evidence/coverage.log sha256 87cf41c76bc41daf8f115bad2e72c56d74f538c8078c3e272c21389c225c2f33
+file                                                 lines    branches   after exclusions
+include/wire.h                                    14/14        2/2       lines 100.00 %  branches 100.00 %
+src/acmp.c                                       877/877     468/468     lines 100.00 %  branches 100.00 %
+src/adp.c                                        215/217      95/102     lines 100.00 %  branches 100.00 %
+src/maap.c                                       209/209     140/140     lines 100.00 %  branches 100.00 %
+--- quality-evidence/privacy.log sha256 e10bac487b0cd67880552b3ed44732a8aeb4d2f8207c76b6b389f58866edacf4
+privacy: exact owner squash metadata exception; content scanning remains enabled
+privacy: exact #29 and #41 merge one-line exceptions; identity and content checks remain enabled
+privacy: 67 commits, 522 historical blobs, 100 current files; pass
+--- quality-evidence/privacy-selftest.log sha256 28473abf8ebf1af0ee1ef43ecc4dd58de9a1fde1c1ea597847415a6305a4a76b
+privacy selftest: 17 commit controls pass
+--- quality-evidence/coverage-controls.log sha256 7137827cdebea07c6978264021e6a0263017f17a4f7f524054adf254acc0ea26
+coverage controls: branch drop, missing/extra file, moved arc and stale exclusion refused
+--- quality-evidence/mutation.log last line
+{"CAUGHT": 522, "ESCAPED": 0, "ERROR": 0}
+--- rv32-evidence/results.json
+  Debug: rc 0 unresolved_final [] smoke: ADP discovery and backpressure; ACMP restore and rollback; MAAP timers and range bounds; four generated entity round trips
+  Release: rc 0 unresolved_final [] smoke: ADP discovery and backpressure; ACMP restore and rollback; MAAP timers and range bounds; four generated entity round trips
+commit status contexts (legacy status API): 0 (none posted; check runs above are the hosted result)
+=== Hosted run on the base, main 5a07d9b7d87298f04b15aa28f0304ec88b0aef81 (push), run 45963640932
+  job bare-metal: completed/success head 5a07d9b7d87298f04b15aa28f0304ec88b0aef81
+  job quality: completed/failure head 5a07d9b7d87298f04b15aa28f0304ec88b0aef81
+    step 4 Validate the portable cores: completed/failure
+  base gates.json: 17 gates recorded; nonzero rc: [{'gate': 'privacy', 'rc': 1}]
+  base privacy.log:
+    privacy: exact owner squash metadata exception; content scanning remains enabled
+    privacy: exact #29 merge one-line exception; identity and content checks remain enabled
+    5a07d9b7d87298f04b15aa28f0304ec88b0aef81: commit message must be one line
+  RV32 Debug: base rc 0 head rc 0; ELF sha256 equal: True; core objects equal: True; generated objects equal: True
+  RV32 Release: base rc 0 head rc 0; ELF sha256 equal: True; core objects equal: True; generated objects equal: True

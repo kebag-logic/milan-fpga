@@ -1,0 +1,59 @@
+== A. head gate at head a8551cdd3cf715c52cca164a57d6d7f022e62c00
+ok   A1 self-test passes at head
+       rc 0: privacy selftest: 17 commit controls pass
+ok   A2 gate passes over the head history
+       rc 0: privacy: exact owner squash metadata exception; content scanning remains enabled
+       privacy: exact #29 and #41 merge one-line exceptions; identity and content checks remain enabled
+       privacy: 67 commits, 522 historical blobs, 100 current files; pass
+       commits reachable from head: 67
+== B. base gate at base 5a07d9b7d87298f04b15aa28f0304ec88b0aef81
+ok   B1 base self-test (before the change)
+       rc 0: privacy selftest: 14 commit controls pass
+ok   B2 base gate fails on its own merge commit, and on nothing else
+       rc 1: privacy: exact owner squash metadata exception; content scanning remains enabled
+       privacy: exact #29 merge one-line exception; identity and content checks remain enabled
+       5a07d9b7d87298f04b15aa28f0304ec88b0aef81: commit message must be one line
+== C. head gate file over the base history (main today)
+ok   C1 head gate passes on main's whole history
+       rc 0: privacy: exact owner squash metadata exception; content scanning remains enabled
+       privacy: exact #29 and #41 merge one-line exceptions; identity and content checks remain enabled
+       privacy: 65 commits, 516 historical blobs, 100 current files; pass
+== D. new commits through the real gate, on top of head
+ok   D1 holder pair, one-line message
+       rc 0: privacy: 68 commits, 522 historical blobs, 100 current files; pass
+ok   D2 holder pair, two paragraphs
+       rc 1: <new commit>: commit message must be one line
+ok   D3 GitHub pair, two paragraphs (a merge recorded like #41)
+       rc 1: <new commit>: commit message must be one line
+ok   D4 GitHub pair, one line
+       rc 0: privacy: 68 commits, 522 historical blobs, 100 current files; pass
+ok   D5 foreign identity, one line
+       rc 1: <new commit>: unexpected identity
+ok   D6 holder pair, subject and a trailer line
+       rc 1: <new commit>: commit message must be one line
+== E. planted defects in a copy of the head gate
+ok   E1 one-line rule removed -> self-test refuses
+       self-test rc 1: privacy selftest: fail web-flow-two-lines, holder-two-lines, two-line-merge-near-miss 5a07d9b7, two-line-merge-near-miss d7e6a2a1
+       gate over history rc 0: privacy: 67 commits, 522 historical blobs, 100 current files; pass
+ok   E2 exemption widened to every commit under the GitHub pair -> self-test refuses
+       self-test rc 1: privacy selftest: fail web-flow-two-lines, two-line-merge-near-miss 5a07d9b7, two-line-merge-near-miss d7e6a2a1
+       gate over history rc 0: privacy: 67 commits, 522 historical blobs, 100 current files; pass
+ok   E3 exemption widened to every message that starts with Merge -> self-test refuses
+       self-test rc 1: privacy selftest: fail two-line-merge-near-miss 5a07d9b7, two-line-merge-near-miss d7e6a2a1
+       gate over history rc 0: privacy: 67 commits, 522 historical blobs, 100 current files; pass
+ok   E4 exemption matched on a 39-digit prefix -> self-test refuses
+       self-test rc 1: privacy selftest: fail two-line-merge-near-miss 5a07d9b7, two-line-merge-near-miss d7e6a2a1
+       gate over history rc 0: privacy: 67 commits, 522 historical blobs, 100 current files; pass
+ok   E5 exempt merges skip the identity check too -> self-test refuses
+       self-test rc 1: privacy selftest: fail two-line-merge-foreign 5a07d9b7, two-line-merge-foreign d7e6a2a1
+       gate over history rc 0: privacy: 67 commits, 522 historical blobs, 100 current files; pass
+ok   E6 the #41 merge dropped from the exemptions (self-test has nothing to say; the gate over history must fail) -> gate over history refuses
+       self-test rc 0: privacy selftest: 14 commit controls pass
+       gate over history rc 1: 5a07d9b7d87298f04b15aa28f0304ec88b0aef81: commit message must be one line
+ok   E7 exemption allows two non-blank lines on every commit -> self-test refuses
+       self-test rc 1: privacy selftest: fail web-flow-two-lines, holder-two-lines, two-line-merge-near-miss 5a07d9b7, two-line-merge-near-miss d7e6a2a1
+       gate over history rc 0: privacy: 67 commits, 522 historical blobs, 100 current files; pass
+note E8 the self-test loop reads only the first exempt merge (the earlier next(iter()) shape)
+       self-test rc 0: privacy selftest: 14 commit controls pass
+       gate over history rc 0: privacy: 67 commits, 522 historical blobs, 100 current files; pass
+RESULT all expectations met

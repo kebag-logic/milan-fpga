@@ -1,0 +1,208 @@
+# src/adp.c: 1 gcda; measured lines 207, executed 205; raw arcs 104, taken 97
+reject_reentry         RUN  arcs=0 [] | static bool reject_reentry(void)
+reject_reentry         RUN  arcs=2 [T T] | if (port_active) {
+reject_reentry         RUN  arcs=0 [] | reentry_count++;
+reject_reentry         RUN  arcs=0 [] | return true;
+reject_reentry         RUN  arcs=0 [] | return false;
+adp_reentry_count      RUN  arcs=0 [] | uint32_t adp_reentry_count(void)
+adp_reentry_count      RUN  arcs=0 [] | (void)reject_reentry();
+adp_reentry_count      RUN  arcs=0 [] | return reentry_count;
+rng_next               RUN  arcs=0 [] | static uint32_t rng_next(struct adp *a)
+rng_next               RUN  arcs=0 [] | uint32_t x = a->rng;
+rng_next               RUN  arcs=0 [] | x ^= x << 13;
+rng_next               RUN  arcs=0 [] | x ^= x >> 17;
+rng_next               RUN  arcs=0 [] | x ^= x << 5;
+rng_next               RUN  arcs=0 [] | a->rng = x;
+rng_next               RUN  arcs=0 [] | return x;
+draw_ms                RUN  arcs=0 [] | static uint32_t draw_ms(struct adp *a, enum adp_draw kind)
+draw_ms                RUN  arcs=2 [T T] | uint32_t max_ms = kind == ADP_DRAW_STARTUP ? ADP_DELAY_STARTUP_MAX_MS : ADP_DELAY_MAX_MS;
+draw_ms                RUN  arcs=0 [] | uint32_t r16 = rng_next(a) >> 16;
+draw_ms                RUN  arcs=0 [] | uint32_t ms = (r16 * (max_ms + 1u)) >> 16;
+draw_ms                RUN  arcs=0 [] | a->draws++;
+draw_ms                RUN  arcs=0 [] | a->last_draw_ms = ms;
+draw_ms                RUN  arcs=0 [] | a->last_draw = kind;
+draw_ms                RUN  arcs=0 [] | return ms;
+timer_start            RUN  arcs=0 [] | static void timer_start(struct adp *a, enum adp_timer kind, uint32_t delay_ms)
+timer_start            RUN  arcs=0 [] | a->timer = kind;
+timer_start            RUN  arcs=0 [] | port_active = true;
+timer_start            RUN  arcs=0 [] | a->ports->timer_start(a->ports->ctx, a->interface, delay_ms);
+timer_start            RUN  arcs=0 [] | port_active = false;
+timer_start            RUN  arcs=0 [] | }
+timer_stop             RUN  arcs=0 [] | static void timer_stop(struct adp *a)
+timer_stop             RUN  arcs=0 [] | a->timer = ADP_TIMER_NONE;
+timer_stop             RUN  arcs=0 [] | port_active = true;
+timer_stop             RUN  arcs=0 [] | a->ports->timer_stop(a->ports->ctx, a->interface);
+timer_stop             RUN  arcs=0 [] | port_active = false;
+timer_stop             RUN  arcs=0 [] | }
+enter_delay            RUN  arcs=0 [] | static void enter_delay(struct adp *a, enum adp_draw kind)
+enter_delay            RUN  arcs=0 [] | timer_start(a, ADP_TIMER_DELAY, draw_ms(a, kind));
+enter_delay            RUN  arcs=0 [] | a->state = ADP_STATE_DELAY;
+enter_delay            RUN  arcs=0 [] | }
+adp_build              RUN  arcs=0 [] | void adp_build(const struct adp *a, uint8_t message_type, uint32_t available_index, uint8_t *frame)
+adp_build              RUN  arcs=2 [T T] | if (reject_reentry()) {
+adp_build              RUN  arcs=0 [] | return;
+adp_build              RUN  arcs=0 [] | const struct adp_entity *e = a->entity;
+adp_build              RUN  arcs=0 [] | uint64_t gm = 0;
+adp_build              RUN  arcs=0 [] | uint8_t domain = 0;
+adp_build              RUN  arcs=0 [] | port_active = true;
+adp_build              RUN  arcs=0 [] | a->ports->gptp(a->ports->ctx, a->interface, &gm, &domain);
+adp_build              RUN  arcs=0 [] | port_active = false;
+adp_build              RUN  arcs=2 [T T] | uint8_t valid_time = message_type == ADP_MSG_ENTITY_AVAILABLE ? ADP_VALID_TIME : 0u;
+adp_build              RUN  arcs=0 [] | uint8_t *pdu = frame + ADP_HEADER_BYTES;
+adp_build              RUN  arcs=0 [] | memset(frame, 0, ADP_FRAME_BYTES);
+adp_build              RUN  arcs=0 [] | wire_put_be(frame, ADP_MULTICAST_MAC, 6);
+adp_build              RUN  arcs=0 [] | wire_put_be(frame + 6, e->mac, 6);
+adp_build              RUN  arcs=0 [] | wire_put_be(frame + 12, ADP_ETHERTYPE, 2);
+adp_build              RUN  arcs=0 [] | pdu[0] = ADP_SUBTYPE;                                           // IEEE 1722.1-2021 6.2.2.1
+adp_build              RUN  arcs=0 [] | pdu[1] = message_type & 0x0Fu;                                  // IEEE 1722.1-2021 6.2.2.2-4
+adp_build              RUN  arcs=0 [] | wire_put_be(pdu + 2, ((uint32_t)valid_time << 11) | ADP_CONTROL_DATA_LENGTH, 2);   // IEEE 1722.1-2021 6.2.2.5-6
+adp_build              RUN  arcs=0 [] | wire_put_be(pdu + 4, e->entity_id, 8);                          // IEEE 1722.1-2021 6.2.2.7
+adp_build              RUN  arcs=0 [] | wire_put_be(pdu + 12, e->entity_model_id, 8);                   // IEEE 1722.1-2021 6.2.2.8
+adp_build              RUN  arcs=0 [] | wire_put_be(pdu + 20, e->entity_capabilities, 4);               // IEEE 1722.1-2021 6.2.2.9; Milan v1.2 5.6.2
+adp_build              RUN  arcs=0 [] | wire_put_be(pdu + 24, e->talker_stream_sources, 2);             // IEEE 1722.1-2021 6.2.2.10; Milan v1.2 5.6.2
+adp_build              RUN  arcs=0 [] | wire_put_be(pdu + 26, e->talker_capabilities, 2);               // IEEE 1722.1-2021 6.2.2.11
+adp_build              RUN  arcs=0 [] | wire_put_be(pdu + 28, e->listener_stream_sinks, 2);             // IEEE 1722.1-2021 6.2.2.12; Milan v1.2 5.6.2
+adp_build              RUN  arcs=0 [] | wire_put_be(pdu + 30, e->listener_capabilities, 2);             // IEEE 1722.1-2021 6.2.2.13
+adp_build              RUN  arcs=0 [] | wire_put_be(pdu + 32, 0u, 4);                                   // IEEE 1722.1-2021 6.2.2.14
+adp_build              RUN  arcs=0 [] | wire_put_be(pdu + 36, available_index, 4);                      // IEEE 1722.1-2021 6.2.2.15
+adp_build              RUN  arcs=0 [] | wire_put_be(pdu + 40, gm, 8);                                   // IEEE 1722.1-2021 6.2.2.16
+adp_build              RUN  arcs=0 [] | pdu[48] = domain;                                               // IEEE 1722.1-2021 6.2.2.17
+adp_build              RUN  arcs=0 [] | wire_put_be(pdu + 50, a->current_configuration_index, 2);      // IEEE 1722.1-2021 6.2.2.18
+adp_build              RUN  arcs=0 [] | wire_put_be(pdu + 52, e->identify_control_index, 2);           // IEEE 1722.1-2021 6.2.2.19
+adp_build              RUN  arcs=0 [] | wire_put_be(pdu + 54, a->interface, 2);                         // IEEE 1722.1-2021 6.2.2.20
+send                   RUN  arcs=0 [] | static bool send(struct adp *a, uint8_t message_type, uint32_t available_index)
+send                   RUN  arcs=0 [] | adp_build(a, message_type, available_index, frame);
+send                   RUN  arcs=0 [] | port_active = true;
+send                   RUN  arcs=0 [] | bool sent = a->ports->send(a->ports->ctx, a->interface, frame, ADP_FRAME_BYTES);
+send                   RUN  arcs=0 [] | port_active = false;
+send                   RUN  arcs=2 [T T] | if (sent) {
+send                   RUN  arcs=0 [] | return true;
+send                   RUN  arcs=0 [] | a->deferred_sends++;
+send                   RUN  arcs=0 [] | return false;
+depart                 RUN  arcs=0 [] | static void depart(struct adp *a)
+depart                 RUN  arcs=2 [T T] | if (!send(a, ADP_MSG_ENTITY_DEPARTING, a->departing_index)) {
+depart                 RUN  arcs=0 [] | return;
+depart                 RUN  arcs=0 [] | a->departing_owed--;
+depart                 RUN  arcs=0 [] | a->departing_index = 0;
+advertise              RUN  arcs=0 [] | static void advertise(struct adp *a)
+advertise              RUN  arcs=0 [] | a->available_owed = true;
+advertise              RUN  arcs=4 [T T T T] | if (a->departing_owed != 0u || !send(a, ADP_MSG_ENTITY_AVAILABLE, a->available_index)) {
+advertise              RUN  arcs=0 [] | return;
+advertise              RUN  arcs=0 [] | a->available_owed = false;
+advertise              RUN  arcs=0 [] | a->available_index++;                                           // IEEE 1722.1-2021 6.2.2.15
+advertise              RUN  arcs=0 [] | timer_start(a, ADP_TIMER_ADVERTISE, ADP_ADVERTISE_MS);
+advertise              RUN  arcs=0 [] | a->state = ADP_STATE_WAITING;
+adp_init               RUN  arcs=0 [] | void adp_init(struct adp *a, const struct adp_entity *entity, const struct adp_ports *ports,
+adp_init               RUN  arcs=2 [T T] | if (reject_reentry()) {
+adp_init               RUN  arcs=0 [] | return;
+adp_init               RUN  arcs=0 [] | memset(a, 0, sizeof *a);
+adp_init               RUN  arcs=0 [] | a->entity = entity;
+adp_init               RUN  arcs=0 [] | a->ports = ports;
+adp_init               RUN  arcs=0 [] | a->interface = (uint8_t)interface;
+adp_init               RUN  arcs=0 [] | a->state = ADP_STATE_DOWN;
+adp_init               RUN  arcs=0 [] | a->current_configuration_index = current_configuration_index;
+adp_init               RUN  arcs=0 [] | a->rng = (uint32_t)entity->entity_id ^ (uint32_t)(entity->entity_id >> 32) ^ 0x9E3779B9u;
+adp_init               RUN  arcs=2 [T T] | if (a->rng == 0u) {
+adp_init               RUN  arcs=0 [] | a->rng = 1u;
+adp_set_current_configuration RUN  arcs=0 [] | void adp_set_current_configuration(struct adp *a, uint16_t index)
+adp_set_current_configuration RUN  arcs=2 [T T] | if (reject_reentry()) {
+adp_set_current_configuration RUN  arcs=0 [] | return;
+adp_set_current_configuration RUN  arcs=0 [] | a->current_configuration_index = index;
+shutdown               RUN  arcs=0 [] | static void shutdown(struct adp *a)
+shutdown               RUN  arcs=2 [T T] | if (a->state == ADP_STATE_DOWN) {
+shutdown               RUN  arcs=0 [] | return;
+shutdown               RUN  arcs=0 [] | timer_stop(a);
+shutdown               RUN  arcs=0 [] | uint32_t index = a->available_index;
+shutdown               RUN  arcs=0 [] | a->available_index = 0;
+shutdown               RUN  arcs=0 [] | a->available_owed = false;
+shutdown               RUN  arcs=0 [] | a->state = ADP_STATE_DOWN;
+shutdown               RUN  arcs=2 [T T] | if (a->departing_owed == 0u) {
+shutdown               RUN  arcs=0 [] | a->departing_index = index;
+shutdown               RUN  arcs=0 [] | a->departing_owed = 1u;
+shutdown               RUN  arcs=0 [] | depart(a);
+shutdown               RUN  arcs=2 [T T] | } else if (a->departing_owed < ADP_DEPARTING_OWED_MAX) {
+shutdown               RUN  arcs=0 [] | a->departing_owed++;
+shutdown               RUN  arcs=0 [] | a->departing_coalesced++;
+adp_set_enable         RUN  arcs=0 [] | void adp_set_enable(struct adp *a, bool enable)
+adp_set_enable         RUN  arcs=2 [T T] | if (reject_reentry()) {
+adp_set_enable         RUN  arcs=0 [] | return;
+adp_set_enable         RUN  arcs=2 [T T] | if (enable == a->enabled) {
+adp_set_enable         RUN  arcs=0 [] | return;
+adp_set_enable         RUN  arcs=2 [T T] | if (!enable) {
+adp_set_enable         RUN  arcs=0 [] | shutdown(a);
+adp_set_enable         RUN  arcs=0 [] | a->enabled = false;
+adp_set_enable         RUN  arcs=0 [] | return;
+adp_set_enable         RUN  arcs=0 [] | a->enabled = true;
+adp_set_enable         RUN  arcs=0 [] | port_active = true;
+adp_set_enable         RUN  arcs=0 [] | a->rng ^= a->ports->seed(a->ports->ctx);
+adp_set_enable         RUN  arcs=0 [] | port_active = false;
+adp_set_enable         RUN  arcs=2 [T T] | if (a->rng == 0u) {
+adp_set_enable         RUN  arcs=0 [] | a->rng = 1u;
+adp_set_enable         RUN  arcs=0 [] | port_active = true;
+adp_set_enable         RUN  arcs=0 [] | a->link_up = a->ports->link_up(a->ports->ctx, a->interface);
+adp_set_enable         RUN  arcs=0 [] | port_active = false;
+adp_set_enable         RUN  arcs=2 [T T] | if (a->link_up) {
+adp_set_enable         RUN  arcs=0 [] | enter_delay(a, ADP_DRAW_STARTUP);                       // Milan v1.2 5.6.3.5.2
+adp_set_enable         RUN  arcs=0 [] | a->state = ADP_STATE_DOWN;                              // Milan v1.2 5.6.3.5.1
+adp_link_change        RUN  arcs=0 [] | void adp_link_change(struct adp *a, bool up)
+adp_link_change        RUN  arcs=2 [T T] | if (reject_reentry()) {
+adp_link_change        RUN  arcs=0 [] | return;
+adp_link_change        RUN  arcs=0 [] | bool was = a->link_up;
+adp_link_change        RUN  arcs=0 [] | a->link_up = up;
+adp_link_change        RUN  arcs=4 [T T T T] | if (!a->enabled || up == was) {
+adp_link_change        RUN  arcs=0 [] | return;
+adp_link_change        RUN  arcs=2 [T T] | if (up) {
+adp_link_change        RUN  arcs=2 [T u] | if (a->state == ADP_STATE_DOWN) {
+adp_link_change        RUN  arcs=0 [] | enter_delay(a, ADP_DRAW_DELAY);                 // Milan v1.2 5.6.3.5.3
+adp_link_change        RUN  arcs=0 [] | return;
+adp_link_change        RUN  arcs=2 [T u] | if (a->state != ADP_STATE_DOWN) {
+adp_link_change        RUN  arcs=0 [] | timer_stop(a);                                          // Milan v1.2 5.6.3.5.6 / 5.6.3.5.10
+adp_link_change        RUN  arcs=0 [] | a->available_owed = false;
+adp_link_change        RUN  arcs=0 [] | a->state = ADP_STATE_DOWN;
+adp_gm_change          RUN  arcs=0 [] | void adp_gm_change(struct adp *a)
+adp_gm_change          RUN  arcs=2 [T T] | if (reject_reentry()) {
+adp_gm_change          RUN  arcs=0 [] | return;
+adp_gm_change          RUN  arcs=0 [] | a->gm_changed++;
+adp_gm_change          RUN  arcs=4 [T T T T] | if (a->enabled && a->state == ADP_STATE_WAITING) {
+adp_gm_change          RUN  arcs=0 [] | enter_delay(a, ADP_DRAW_DELAY);                         // Milan v1.2 5.6.3.5.7
+adp_timer_expired      RUN  arcs=0 [] | void adp_timer_expired(struct adp *a)
+adp_timer_expired      RUN  arcs=2 [T T] | if (reject_reentry()) {
+adp_timer_expired      RUN  arcs=0 [] | return;
+adp_timer_expired      RUN  arcs=0 [] | enum adp_timer kind = a->timer;
+adp_timer_expired      RUN  arcs=2 [T T] | if (kind == ADP_TIMER_NONE) {
+adp_timer_expired      RUN  arcs=0 [] | a->stray_expiries++;
+adp_timer_expired      RUN  arcs=0 [] | return;
+adp_timer_expired      RUN  arcs=0 [] | a->timer = ADP_TIMER_NONE;
+adp_timer_expired      RUN  arcs=4 [T T T u] | if (a->state == ADP_STATE_DELAY && kind == ADP_TIMER_DELAY) {
+adp_timer_expired      RUN  arcs=0 [] | advertise(a);                                           // Milan v1.2 5.6.3.5.9
+adp_timer_expired      RUN  arcs=4 [T u T u] | } else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {
+adp_timer_expired      RUN  arcs=0 [] | enter_delay(a, ADP_DRAW_DELAY);                         // Milan v1.2 5.6.3.5.5
+adp_timer_expired      ZERO arcs=0 [] | a->stray_expiries++;
+adp_rx                 RUN  arcs=0 [] | void adp_rx(struct adp *a, const uint8_t *frame, size_t len)
+adp_rx                 RUN  arcs=2 [T T] | if (reject_reentry()) {
+adp_rx                 RUN  arcs=0 [] | return;
+adp_rx                 RUN  arcs=4 [T T T T] | if (len < ADP_FRAME_BYTES || wire_be16(frame + 12) != ADP_ETHERTYPE ||
+adp_rx                 RUN  arcs=2 [T T] | frame[ADP_HEADER_BYTES] != ADP_SUBTYPE ||
+adp_rx                 RUN  arcs=2 [T T] | (frame[ADP_HEADER_BYTES + 1u] & 0x70u) != 0u ||
+adp_rx                 RUN  arcs=2 [T T] | (wire_be16(frame + ADP_HEADER_BYTES + 2u) & 0x07FFu) < ADP_CONTROL_DATA_LENGTH ||
+adp_rx                 RUN  arcs=2 [T T] | (frame[ADP_HEADER_BYTES + 1u] & 0x0Fu) != ADP_MSG_ENTITY_DISCOVER) {
+adp_rx                 RUN  arcs=0 [] | a->discarded++;
+adp_rx                 RUN  arcs=0 [] | return;
+adp_rx                 RUN  arcs=0 [] | uint64_t target = wire_be64(frame + ADP_HEADER_BYTES + 4u);
+adp_rx                 RUN  arcs=4 [T T T T] | if (target != 0u && target != a->entity->entity_id) {
+adp_rx                 RUN  arcs=0 [] | a->discarded++;
+adp_rx                 RUN  arcs=0 [] | return;
+adp_rx                 RUN  arcs=4 [T T T T] | if (!a->enabled || a->state != ADP_STATE_WAITING) {             // Milan v1.2 Table 5.51
+adp_rx                 RUN  arcs=0 [] | return;
+adp_rx                 RUN  arcs=0 [] | timer_stop(a);                                                  // Milan v1.2 5.6.3.5.4
+adp_rx                 RUN  arcs=0 [] | enter_delay(a, ADP_DRAW_DELAY);
+adp_poll               RUN  arcs=0 [] | bool adp_poll(struct adp *a)
+adp_poll               RUN  arcs=2 [T T] | if (reject_reentry()) {
+adp_poll               RUN  arcs=0 [] | return false;
+adp_poll               RUN  arcs=2 [T T] | if (a->departing_owed != 0u) {
+adp_poll               RUN  arcs=0 [] | depart(a);
+adp_poll               RUN  arcs=2 [T T] | } else if (a->available_owed) {
+adp_poll               RUN  arcs=4 [T u T u] | if (a->enabled && a->state == ADP_STATE_DELAY) {
+adp_poll               RUN  arcs=0 [] | advertise(a);
+adp_poll               ZERO arcs=0 [] | a->available_owed = false;
+adp_poll               RUN  arcs=4 [T T T T] | return a->departing_owed != 0u || a->available_owed;

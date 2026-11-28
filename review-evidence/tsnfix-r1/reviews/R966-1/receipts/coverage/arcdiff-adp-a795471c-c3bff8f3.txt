@@ -1,0 +1,34 @@
+- adp_init               RUN  arcs=0 [] | a->rng = (uint32_t)entity->entity_id ^ (uint32_t)(entity->entity_id >> 32) ^ 0x9E3779B9u;
+- adp_init               RUN  arcs=0 [] | a->rng = 1u;
+- adp_init               RUN  arcs=2 [T T] | if (a->rng == 0u) {
+- adp_link_change        RUN  arcs=0 [] | enter_delay(a, ADP_DRAW_DELAY);                 // Milan v1.2 5.6.3.5.3
+- adp_set_enable         RUN  arcs=0 [] | a->rng = 1u;
+- adp_set_enable         RUN  arcs=0 [] | a->rng ^= a->ports->seed(a->ports->ctx);
+- adp_set_enable         RUN  arcs=0 [] | enter_delay(a, ADP_DRAW_STARTUP);                       // Milan v1.2 5.6.3.5.2
+- adp_set_enable         RUN  arcs=0 [] | port_active = false;
+- adp_set_enable         RUN  arcs=0 [] | port_active = true;
+- adp_set_enable         RUN  arcs=2 [T T] | if (a->rng == 0u) {
++ adp_link_change        RUN  arcs=0 [] | leave_down(a, ADP_DRAW_DELAY);                  // Milan v1.2 5.6.3.5.3
++ adp_set_enable         RUN  arcs=0 [] | leave_down(a, ADP_DRAW_STARTUP);                        // Milan v1.2 5.6.3.5.2
++ leave_down             RUN  arcs=0 [] | const struct adp_entity *e = a->entity;
++ leave_down             RUN  arcs=0 [] | enter_delay(a, kind);
++ leave_down             RUN  arcs=0 [] | port_active = false;
++ leave_down             RUN  arcs=0 [] | port_active = true;
++ leave_down             RUN  arcs=0 [] | static void leave_down(struct adp *a, enum adp_draw kind)
++ leave_down             RUN  arcs=0 [] | uint32_t id = (uint32_t)e->entity_id ^ (uint32_t)(e->entity_id >> 32);
++ leave_down             RUN  arcs=0 [] | uint32_t sample = a->ports->seed(a->ports->ctx);
++ leave_down             RUN  arcs=0 [] | uint32_t sum = (uint32_t)e->mac + sample;
++ leave_down             RUN  arcs=0 [] | uint32_t x = mix(mix(a->rng ^ sum) ^ id ^ ((uint32_t)a->interface << 24));
++ leave_down             RUN  arcs=0 [] | }
++ leave_down             RUN  arcs=2 [T T] | a->rng = x != 0u ? x : 1u;
++ mix                    RUN  arcs=0 [] | return x ^ (x >> 16);
++ mix                    RUN  arcs=0 [] | static uint32_t mix(uint32_t x)
++ mix                    RUN  arcs=0 [] | x += (x << 3) + (x << 11);
++ mix                    RUN  arcs=0 [] | x += x << 2;
++ mix                    RUN  arcs=0 [] | x = ~x + (x << 15);
++ mix                    RUN  arcs=0 [] | x ^= x >> 12;
++ mix                    RUN  arcs=0 [] | x ^= x >> 4;
+only before: 10 lines, 4 arcs, 2 lines with arcs
+only after:  20 lines, 2 arcs, 1 lines with arcs
+before: lines 207 arcs 104 untaken arcs 7 unexecuted lines 2
+after: lines 217 arcs 102 untaken arcs 7 unexecuted lines 2
