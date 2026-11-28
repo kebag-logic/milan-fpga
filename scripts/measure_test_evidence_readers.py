@@ -293,6 +293,12 @@ DUT_READER_DISPOSITIONS = {
         "snapshot, reset value, stage-1 claim) into a copy and requires the named lockstep check "
         "to fail; expected values come from the frozen e8454e27 block and the harness, never "
         "from the text it mutates",
+    "tb/verilator/ctrl_service_budget/egress_mii.py":
+        "queue-parameter reader (#1004's 100 Mb/s egress gate); it reads one figure, the control "
+        "lane gasket's GAP_CYCLES in milan_datapath.sv, as a parameter of the transmit-queue model "
+        "the census testbench also runs; the grade's waits are the census's own measured "
+        "departures, held to that testbench's C++ queue as an independent second implementation, "
+        "and its controls hold the model to hand values, never to RTL text",
     "tb/verilator/milan_dp/split_mutants.py":
         "mutation campaign; it plants one defect of the split placement's control path from its own "
         "table into an isolated copy and requires the check the arm names to fail in a completed run; "
