@@ -237,7 +237,7 @@ STATED_US = {
         'item.aecp.response': 50, 'item.aecp.probe': 50},
     'arty-4x4': {
         'record.srp': 300, 'record.aecp': 220, 'record.acmp': 210, 'record.adp': 110, 'record.maap': 125,
-        'event.ADP': 75, 'event.ACMP': 165, 'event.MAAP': 160, 'event.AECP': 75, 'event.TICK': 35, 'event.GM': 35,
+        'event.ADP': 75, 'event.ACMP': 165, 'event.MAAP': 160, 'event.AECP': 180, 'event.TICK': 35, 'event.GM': 35,
         'centisecond': 190, 'events_none': 35, 'item.retained': 300, 'item.aecp.notice': 160,
         'item.aecp.response': 45, 'item.aecp.probe': 45},
     '1x1/1if': {'record.srp': 285, 'record.aecp': 255, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
@@ -300,7 +300,7 @@ STATED_US_DONOR = {
         'item.aecp.response': 50, 'item.aecp.probe': 50},
     'arty-4x4': {
         'record.srp': 300, 'record.aecp': 220, 'record.acmp': 210, 'record.adp': 110, 'record.maap': 125,
-        'event.ADP': 75, 'event.ACMP': 165, 'event.MAAP': 160, 'event.AECP': 75, 'event.TICK': 35, 'event.GM': 35,
+        'event.ADP': 75, 'event.ACMP': 165, 'event.MAAP': 160, 'event.AECP': 180, 'event.TICK': 35, 'event.GM': 35,
         'centisecond': 190, 'events_none': 35, 'item.retained': 300, 'item.aecp.notice': 160,
         'item.aecp.response': 45, 'item.aecp.probe': 45},
     '1x1/1if': {'record.srp': 285, 'record.aecp': 255, 'record.acmp': 265, 'record.adp': 105, 'record.maap': 115,
