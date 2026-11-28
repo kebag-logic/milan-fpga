@@ -1,0 +1,46 @@
+{
+ "n": 2,
+ "mhz": 80,
+ "basis": "bound: every cost at the 4x4 measurement, the counts at 2x2",
+ "counts": {
+  "n_if": 1,
+  "sources": 3,
+  "sinks_per_if": 3,
+  "registrations": 16,
+  "counter_descriptors": 8,
+  "notices": 16
+ },
+ "load": 0.5727,
+ "share_ms": 1.897,
+ "qualifying": 0,
+ "best": {
+  "queued_ms": 125,
+  "pace_ms": 13,
+  "slice_us": 1200,
+  "rows_ms": {
+   "R4": 15.92,
+   "R5": 87.75,
+   "R6": 85.59,
+   "first": 15.52,
+   "last": 186.5,
+   "R4L": 264.73,
+   "ACMP": 36.79,
+   "ADP": 33.54,
+   "MAAP": 33.81,
+   "tx": 39.92,
+   "txL": 58.11
+  },
+  "owner": [
+   "OWNER txL: 58.11 ms exceeds 49 ms",
+   "OWNER last: 186.5 ms exceeds 140 ms",
+   "OWNER ACMP: 36.79 ms exceeds 30 ms"
+  ],
+  "qualifies": false
+ },
+ "least": {
+  "ACMP": 36.79,
+  "txL": 58.11,
+  "last": 186.5
+ },
+ "status": "NO ROW"
+}

@@ -1,0 +1,46 @@
+{
+ "n": 4,
+ "mhz": 80,
+ "basis": "measured (this lane, arty-4x4)",
+ "counts": {
+  "n_if": 1,
+  "sources": 5,
+  "sinks_per_if": 5,
+  "registrations": 16,
+  "counter_descriptors": 12,
+  "notices": 24
+ },
+ "load": 0.5781,
+ "share_ms": 1.897,
+ "qualifying": 0,
+ "best": {
+  "queued_ms": 125,
+  "pace_ms": 13,
+  "slice_us": 1200,
+  "rows_ms": {
+   "R4": 16.33,
+   "R5": 88.75,
+   "R6": 86.59,
+   "first": 15.52,
+   "last": 201.93,
+   "R4L": 264.73,
+   "ACMP": 37.39,
+   "ADP": 34.14,
+   "MAAP": 34.41,
+   "tx": 42.59,
+   "txL": 58.71
+  },
+  "owner": [
+   "OWNER txL: 58.71 ms exceeds 49 ms",
+   "OWNER last: 201.93 ms exceeds 140 ms",
+   "OWNER ACMP: 37.39 ms exceeds 30 ms"
+  ],
+  "qualifies": false
+ },
+ "least": {
+  "ACMP": 37.39,
+  "txL": 58.71,
+  "last": 201.93
+ },
+ "status": "NO ROW"
+}

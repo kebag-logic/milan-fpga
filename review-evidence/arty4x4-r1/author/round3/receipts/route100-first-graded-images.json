@@ -1,0 +1,589 @@
+{
+  "status": "PASS",
+  "firmware": {
+    "path": "$VALIDATION_STORAGE/arty4x4-a863/p100/ctrl_app-100.elf",
+    "bytes": 168120,
+    "sha256": "51334a4b67640290e0ec3327a4a583c3353825b69579ecfa73ed9276731a696d"
+  },
+  "candidates": [
+    {
+      "directive": "ExtraPostPlacementOpt",
+      "status": "PASS",
+      "findings": [],
+      "corners": [
+        {
+          "corner": "Slow",
+          "junction_c": 0,
+          "timing": {
+            "wns": 0.049,
+            "tns": 0.0,
+            "failing_endpoints": 0,
+            "total_endpoints": 138530,
+            "whs": 0.156,
+            "ths": 0.0,
+            "met": true,
+            "failing_hold_endpoints": 0,
+            "total_hold_endpoints": 138530
+          },
+          "report": {
+            "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt/gateware/digilent_arty_signoff_Slow_0C_timing.rpt",
+            "bytes": 1338375,
+            "sha256": "b6f1c96d14d28e35ff22df98a631c9b153a4e136e19c2e4cea8052ee6c686777"
+          }
+        },
+        {
+          "corner": "Slow",
+          "junction_c": 85,
+          "timing": {
+            "wns": 0.049,
+            "tns": 0.0,
+            "failing_endpoints": 0,
+            "total_endpoints": 138530,
+            "whs": 0.156,
+            "ths": 0.0,
+            "met": true,
+            "failing_hold_endpoints": 0,
+            "total_hold_endpoints": 138530
+          },
+          "report": {
+            "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt/gateware/digilent_arty_signoff_Slow_85C_timing.rpt",
+            "bytes": 1338378,
+            "sha256": "ed9b4c9559a863b717d31c73d340ef2eca490108653fea09606027778927bdb1"
+          }
+        },
+        {
+          "corner": "Fast",
+          "junction_c": 0,
+          "timing": {
+            "wns": 1.606,
+            "tns": 0.0,
+            "failing_endpoints": 0,
+            "total_endpoints": 138530,
+            "whs": 0.012,
+            "ths": 0.0,
+            "met": true,
+            "failing_hold_endpoints": 0,
+            "total_hold_endpoints": 138530
+          },
+          "report": {
+            "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt/gateware/digilent_arty_signoff_Fast_0C_timing.rpt",
+            "bytes": 1322128,
+            "sha256": "1f5b947b877489616027adcb363ca5980b2db078c53b3608d4b854bdd17429d7"
+          }
+        },
+        {
+          "corner": "Fast",
+          "junction_c": 85,
+          "timing": {
+            "wns": 1.606,
+            "tns": 0.0,
+            "failing_endpoints": 0,
+            "total_endpoints": 138530,
+            "whs": 0.012,
+            "ths": 0.0,
+            "met": true,
+            "failing_hold_endpoints": 0,
+            "total_hold_endpoints": 138530
+          },
+          "report": {
+            "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt/gateware/digilent_arty_signoff_Fast_85C_timing.rpt",
+            "bytes": 1322131,
+            "sha256": "844fe244c0eb3aff1a46a995f0db563e2b9b099960f347f10106780d9dd78b1d"
+          }
+        }
+      ],
+      "bitstream": {
+        "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt/gateware/digilent_arty.bit",
+        "bytes": 3271451,
+        "sha256": "ca06226a9604549eb51ec3f5a75a2c6556ef28f2e63e06f1b56d22d1fa75a547"
+      },
+      "layout": {
+        "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt/flashboot_layout.json",
+        "bytes": 1003,
+        "sha256": "0fb18389e33a0dbba72ab4ca33fe09c0d4fd8111125f5d278de2cce17b3ec725"
+      },
+      "manifest": {
+        "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt/image_manifest.json",
+        "bytes": 547,
+        "sha256": "7738e0ef6b4a811e4a5c3f12d8a1b31d46e6d1951a0a9120b80d76c9a42e2b32"
+      },
+      "aem": {
+        "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt/aem_desc.bin",
+        "bytes": 11944,
+        "sha256": "d97c32ab3f51a43573cdb5b97654f86679d301169926a8e8c222e243407107f1"
+      },
+      "aem_manifest": {
+        "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt/aem_desc.json",
+        "bytes": 266,
+        "sha256": "884ca8c13149dff0b3546050b19ae735026f8ae86f7959c6bc12937dc8142d19"
+      },
+      "utilization_report": {
+        "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt/gateware/digilent_arty_utilization_place.rpt",
+        "bytes": 12185,
+        "sha256": "0e604382d445f01f4de1888056e21ef258ef1f5001aceee6e724fd379414b464"
+      },
+      "utilization": {
+        "Slice LUTs": 41858.0,
+        "Slice Registers": 46808.0,
+        "Slice": 15387.0,
+        "Block RAM Tile": 86.0,
+        "RAMB36/FIFO": 70.0,
+        "RAMB18": 32.0
+      },
+      "identity": {
+        "returncode": 0,
+        "receipt": {
+          "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt-identity.log",
+          "bytes": 107,
+          "sha256": "24e56f2b7ae5d7fcc92f373824a4af70101fe0e85565ac1edcf0be173f4a74a0"
+        }
+      },
+      "offline_pair": {
+        "returncode": 0,
+        "receipt": {
+          "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt-offline-pair.log",
+          "bytes": 625,
+          "sha256": "0e1a717bd0fe55ec026baf7725057208f6aa1b71461d7634dd671f8a8d0ed257"
+        }
+      },
+      "worst_wns_ns": 0.049,
+      "worst_whs_ns": 0.012
+    },
+    {
+      "directive": "AltSpreadLogic_high",
+      "status": "FAIL",
+      "findings": [
+        "Floor missed: Slow 0 C: {'wns': 0.002, 'tns': 0.0, 'failing_endpoints': 0, 'total_endpoints': 138530, 'whs': 0.126, 'ths': 0.0, 'met': True, 'failing_hold_endpoints': 0, 'total_hold_endpoints': 138530}",
+        "Floor missed: Slow 85 C: {'wns': 0.002, 'tns': 0.0, 'failing_endpoints': 0, 'total_endpoints': 138530, 'whs': 0.126, 'ths': 0.0, 'met': True, 'failing_hold_endpoints': 0, 'total_hold_endpoints': 138530}"
+      ],
+      "corners": [
+        {
+          "corner": "Slow",
+          "junction_c": 0,
+          "timing": {
+            "wns": 0.002,
+            "tns": 0.0,
+            "failing_endpoints": 0,
+            "total_endpoints": 138530,
+            "whs": 0.126,
+            "ths": 0.0,
+            "met": true,
+            "failing_hold_endpoints": 0,
+            "total_hold_endpoints": 138530
+          },
+          "report": {
+            "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/AltSpreadLogic_high/gateware/digilent_arty_signoff_Slow_0C_timing.rpt",
+            "bytes": 1349418,
+            "sha256": "736756bf97fd5e356ed7cbd66164052f78e46ea4f9b29af17ca99d7d7812c403"
+          }
+        },
+        {
+          "corner": "Slow",
+          "junction_c": 85,
+          "timing": {
+            "wns": 0.002,
+            "tns": 0.0,
+            "failing_endpoints": 0,
+            "total_endpoints": 138530,
+            "whs": 0.126,
+            "ths": 0.0,
+            "met": true,
+            "failing_hold_endpoints": 0,
+            "total_hold_endpoints": 138530
+          },
+          "report": {
+            "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/AltSpreadLogic_high/gateware/digilent_arty_signoff_Slow_85C_timing.rpt",
+            "bytes": 1349421,
+            "sha256": "e6c25ffeeaa52533d021852737824500f2ef184fc8d50c7e0525f0fa13e89a0e"
+          }
+        },
+        {
+          "corner": "Fast",
+          "junction_c": 0,
+          "timing": {
+            "wns": 1.504,
+            "tns": 0.0,
+            "failing_endpoints": 0,
+            "total_endpoints": 138530,
+            "whs": 0.013,
+            "ths": 0.0,
+            "met": true,
+            "failing_hold_endpoints": 0,
+            "total_hold_endpoints": 138530
+          },
+          "report": {
+            "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/AltSpreadLogic_high/gateware/digilent_arty_signoff_Fast_0C_timing.rpt",
+            "bytes": 1314471,
+            "sha256": "918de6f78f045284da6f27618ee8097170bdac07d428efd463b79eeaba017be5"
+          }
+        },
+        {
+          "corner": "Fast",
+          "junction_c": 85,
+          "timing": {
+            "wns": 1.504,
+            "tns": 0.0,
+            "failing_endpoints": 0,
+            "total_endpoints": 138530,
+            "whs": 0.013,
+            "ths": 0.0,
+            "met": true,
+            "failing_hold_endpoints": 0,
+            "total_hold_endpoints": 138530
+          },
+          "report": {
+            "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/AltSpreadLogic_high/gateware/digilent_arty_signoff_Fast_85C_timing.rpt",
+            "bytes": 1314474,
+            "sha256": "78d0de23fa6bba8f14ea47e682d0aaf36bd87a3716ce87fa653e91b82c56a776"
+          }
+        }
+      ],
+      "bitstream": {
+        "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/AltSpreadLogic_high/gateware/digilent_arty.bit",
+        "bytes": 3490891,
+        "sha256": "7f65bd261e9e3841d5ed05d613ee811dd8f8f7ccdd4644c4e10fac4a2ae9b882"
+      },
+      "layout": {
+        "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/AltSpreadLogic_high/flashboot_layout.json",
+        "bytes": 1003,
+        "sha256": "f027fb76310c4b3991f6e2c3be15a047932f049ae9494ef3ca654d583e62b937"
+      },
+      "manifest": {
+        "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/AltSpreadLogic_high/image_manifest.json",
+        "bytes": 547,
+        "sha256": "1fe3f94bd8ccc41847d0329af70188f2bf8502a5c6ffc27bd38205b3cdc6fa5a"
+      },
+      "aem": {
+        "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/AltSpreadLogic_high/aem_desc.bin",
+        "bytes": 11944,
+        "sha256": "d97c32ab3f51a43573cdb5b97654f86679d301169926a8e8c222e243407107f1"
+      },
+      "aem_manifest": {
+        "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/AltSpreadLogic_high/aem_desc.json",
+        "bytes": 266,
+        "sha256": "884ca8c13149dff0b3546050b19ae735026f8ae86f7959c6bc12937dc8142d19"
+      },
+      "utilization_report": {
+        "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/AltSpreadLogic_high/gateware/digilent_arty_utilization_place.rpt",
+        "bytes": 12185,
+        "sha256": "e6691dae29e057b86d1bd3c3a3907065ed2047f5d566c1220862219b9f969f9f"
+      },
+      "utilization": {
+        "Slice LUTs": 41899.0,
+        "Slice Registers": 46808.0,
+        "Slice": 15113.0,
+        "Block RAM Tile": 86.0,
+        "RAMB36/FIFO": 70.0,
+        "RAMB18": 32.0
+      },
+      "identity": {
+        "returncode": 0,
+        "receipt": {
+          "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/AltSpreadLogic_high-identity.log",
+          "bytes": 107,
+          "sha256": "24e56f2b7ae5d7fcc92f373824a4af70101fe0e85565ac1edcf0be173f4a74a0"
+        }
+      },
+      "offline_pair": {
+        "returncode": 0,
+        "receipt": {
+          "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/AltSpreadLogic_high-offline-pair.log",
+          "bytes": 617,
+          "sha256": "38ecb39f60bcd891b7dfe63b2c21c711afe42191ed8654a34a055cb4c1e16056"
+        }
+      }
+    },
+    {
+      "directive": "ExtraTimingOpt",
+      "status": "FAIL",
+      "findings": [
+        "Floor missed: Slow 0 C: {'wns': 0.002, 'tns': 0.0, 'failing_endpoints': 0, 'total_endpoints': 138536, 'whs': 0.126, 'ths': 0.0, 'met': True, 'failing_hold_endpoints': 0, 'total_hold_endpoints': 138536}",
+        "Floor missed: Slow 85 C: {'wns': 0.002, 'tns': 0.0, 'failing_endpoints': 0, 'total_endpoints': 138536, 'whs': 0.126, 'ths': 0.0, 'met': True, 'failing_hold_endpoints': 0, 'total_hold_endpoints': 138536}"
+      ],
+      "corners": [
+        {
+          "corner": "Slow",
+          "junction_c": 0,
+          "timing": {
+            "wns": 0.002,
+            "tns": 0.0,
+            "failing_endpoints": 0,
+            "total_endpoints": 138536,
+            "whs": 0.126,
+            "ths": 0.0,
+            "met": true,
+            "failing_hold_endpoints": 0,
+            "total_hold_endpoints": 138536
+          },
+          "report": {
+            "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraTimingOpt/gateware/digilent_arty_signoff_Slow_0C_timing.rpt",
+            "bytes": 1358507,
+            "sha256": "3fbfe0141b2d9944fcd58d0a9dffca6f2156edd8fe7840fed9e2d46e83aa526c"
+          }
+        },
+        {
+          "corner": "Slow",
+          "junction_c": 85,
+          "timing": {
+            "wns": 0.002,
+            "tns": 0.0,
+            "failing_endpoints": 0,
+            "total_endpoints": 138536,
+            "whs": 0.126,
+            "ths": 0.0,
+            "met": true,
+            "failing_hold_endpoints": 0,
+            "total_hold_endpoints": 138536
+          },
+          "report": {
+            "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraTimingOpt/gateware/digilent_arty_signoff_Slow_85C_timing.rpt",
+            "bytes": 1358510,
+            "sha256": "22cd1f0b2d40561210c2ab1def1e589eb54471b2299c7e2844c301bf25c61a63"
+          }
+        },
+        {
+          "corner": "Fast",
+          "junction_c": 0,
+          "timing": {
+            "wns": 1.321,
+            "tns": 0.0,
+            "failing_endpoints": 0,
+            "total_endpoints": 138536,
+            "whs": 0.015,
+            "ths": 0.0,
+            "met": true,
+            "failing_hold_endpoints": 0,
+            "total_hold_endpoints": 138536
+          },
+          "report": {
+            "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraTimingOpt/gateware/digilent_arty_signoff_Fast_0C_timing.rpt",
+            "bytes": 1330473,
+            "sha256": "525433fae9c7353306a3c932e0aeb33db597f43cafa78ebf7ab34e396e0d01eb"
+          }
+        },
+        {
+          "corner": "Fast",
+          "junction_c": 85,
+          "timing": {
+            "wns": 1.321,
+            "tns": 0.0,
+            "failing_endpoints": 0,
+            "total_endpoints": 138536,
+            "whs": 0.015,
+            "ths": 0.0,
+            "met": true,
+            "failing_hold_endpoints": 0,
+            "total_hold_endpoints": 138536
+          },
+          "report": {
+            "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraTimingOpt/gateware/digilent_arty_signoff_Fast_85C_timing.rpt",
+            "bytes": 1330476,
+            "sha256": "04a58fedb9a4293adb1aaa44577f0db554619edbef9f9fe02e74477504940b65"
+          }
+        }
+      ],
+      "bitstream": {
+        "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraTimingOpt/gateware/digilent_arty.bit",
+        "bytes": 3489375,
+        "sha256": "76a3d617738717ed7cd4542d0b9e46d858de10b4fc40cec1ff4fe6e3f355f1d2"
+      },
+      "layout": {
+        "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraTimingOpt/flashboot_layout.json",
+        "bytes": 1003,
+        "sha256": "50ca0b46c26068e0dc278911cb12bab92c8cf5645fc4874312e2988478b4f359"
+      },
+      "manifest": {
+        "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraTimingOpt/image_manifest.json",
+        "bytes": 547,
+        "sha256": "078d0457f6714d074157da26e429f44a477fc2653af9a97ff1e2f8c84f1ace24"
+      },
+      "aem": {
+        "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraTimingOpt/aem_desc.bin",
+        "bytes": 11944,
+        "sha256": "d97c32ab3f51a43573cdb5b97654f86679d301169926a8e8c222e243407107f1"
+      },
+      "aem_manifest": {
+        "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraTimingOpt/aem_desc.json",
+        "bytes": 266,
+        "sha256": "884ca8c13149dff0b3546050b19ae735026f8ae86f7959c6bc12937dc8142d19"
+      },
+      "utilization_report": {
+        "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraTimingOpt/gateware/digilent_arty_utilization_place.rpt",
+        "bytes": 12185,
+        "sha256": "bf6766f3c0c178db2afb2a0c531046093bcdda2999861acbabdd0928346422cf"
+      },
+      "utilization": {
+        "Slice LUTs": 41894.0,
+        "Slice Registers": 46810.0,
+        "Slice": 15123.0,
+        "Block RAM Tile": 86.0,
+        "RAMB36/FIFO": 70.0,
+        "RAMB18": 32.0
+      },
+      "identity": {
+        "returncode": 0,
+        "receipt": {
+          "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraTimingOpt-identity.log",
+          "bytes": 107,
+          "sha256": "24e56f2b7ae5d7fcc92f373824a4af70101fe0e85565ac1edcf0be173f4a74a0"
+        }
+      },
+      "offline_pair": {
+        "returncode": 0,
+        "receipt": {
+          "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraTimingOpt-offline-pair.log",
+          "bytes": 597,
+          "sha256": "d6245850c8b15c7c951f3de8e67b2e2706c0dac528f8fa47e3ccf380b307f93f"
+        }
+      }
+    }
+  ],
+  "best": {
+    "directive": "ExtraPostPlacementOpt",
+    "status": "PASS",
+    "findings": [],
+    "corners": [
+      {
+        "corner": "Slow",
+        "junction_c": 0,
+        "timing": {
+          "wns": 0.049,
+          "tns": 0.0,
+          "failing_endpoints": 0,
+          "total_endpoints": 138530,
+          "whs": 0.156,
+          "ths": 0.0,
+          "met": true,
+          "failing_hold_endpoints": 0,
+          "total_hold_endpoints": 138530
+        },
+        "report": {
+          "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt/gateware/digilent_arty_signoff_Slow_0C_timing.rpt",
+          "bytes": 1338375,
+          "sha256": "b6f1c96d14d28e35ff22df98a631c9b153a4e136e19c2e4cea8052ee6c686777"
+        }
+      },
+      {
+        "corner": "Slow",
+        "junction_c": 85,
+        "timing": {
+          "wns": 0.049,
+          "tns": 0.0,
+          "failing_endpoints": 0,
+          "total_endpoints": 138530,
+          "whs": 0.156,
+          "ths": 0.0,
+          "met": true,
+          "failing_hold_endpoints": 0,
+          "total_hold_endpoints": 138530
+        },
+        "report": {
+          "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt/gateware/digilent_arty_signoff_Slow_85C_timing.rpt",
+          "bytes": 1338378,
+          "sha256": "ed9b4c9559a863b717d31c73d340ef2eca490108653fea09606027778927bdb1"
+        }
+      },
+      {
+        "corner": "Fast",
+        "junction_c": 0,
+        "timing": {
+          "wns": 1.606,
+          "tns": 0.0,
+          "failing_endpoints": 0,
+          "total_endpoints": 138530,
+          "whs": 0.012,
+          "ths": 0.0,
+          "met": true,
+          "failing_hold_endpoints": 0,
+          "total_hold_endpoints": 138530
+        },
+        "report": {
+          "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt/gateware/digilent_arty_signoff_Fast_0C_timing.rpt",
+          "bytes": 1322128,
+          "sha256": "1f5b947b877489616027adcb363ca5980b2db078c53b3608d4b854bdd17429d7"
+        }
+      },
+      {
+        "corner": "Fast",
+        "junction_c": 85,
+        "timing": {
+          "wns": 1.606,
+          "tns": 0.0,
+          "failing_endpoints": 0,
+          "total_endpoints": 138530,
+          "whs": 0.012,
+          "ths": 0.0,
+          "met": true,
+          "failing_hold_endpoints": 0,
+          "total_hold_endpoints": 138530
+        },
+        "report": {
+          "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt/gateware/digilent_arty_signoff_Fast_85C_timing.rpt",
+          "bytes": 1322131,
+          "sha256": "844fe244c0eb3aff1a46a995f0db563e2b9b099960f347f10106780d9dd78b1d"
+        }
+      }
+    ],
+    "bitstream": {
+      "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt/gateware/digilent_arty.bit",
+      "bytes": 3271451,
+      "sha256": "ca06226a9604549eb51ec3f5a75a2c6556ef28f2e63e06f1b56d22d1fa75a547"
+    },
+    "layout": {
+      "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt/flashboot_layout.json",
+      "bytes": 1003,
+      "sha256": "0fb18389e33a0dbba72ab4ca33fe09c0d4fd8111125f5d278de2cce17b3ec725"
+    },
+    "manifest": {
+      "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt/image_manifest.json",
+      "bytes": 547,
+      "sha256": "7738e0ef6b4a811e4a5c3f12d8a1b31d46e6d1951a0a9120b80d76c9a42e2b32"
+    },
+    "aem": {
+      "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt/aem_desc.bin",
+      "bytes": 11944,
+      "sha256": "d97c32ab3f51a43573cdb5b97654f86679d301169926a8e8c222e243407107f1"
+    },
+    "aem_manifest": {
+      "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt/aem_desc.json",
+      "bytes": 266,
+      "sha256": "884ca8c13149dff0b3546050b19ae735026f8ae86f7959c6bc12937dc8142d19"
+    },
+    "utilization_report": {
+      "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt/gateware/digilent_arty_utilization_place.rpt",
+      "bytes": 12185,
+      "sha256": "0e604382d445f01f4de1888056e21ef258ef1f5001aceee6e724fd379414b464"
+    },
+    "utilization": {
+      "Slice LUTs": 41858.0,
+      "Slice Registers": 46808.0,
+      "Slice": 15387.0,
+      "Block RAM Tile": 86.0,
+      "RAMB36/FIFO": 70.0,
+      "RAMB18": 32.0
+    },
+    "identity": {
+      "returncode": 0,
+      "receipt": {
+        "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt-identity.log",
+        "bytes": 107,
+        "sha256": "24e56f2b7ae5d7fcc92f373824a4af70101fe0e85565ac1edcf0be173f4a74a0"
+      }
+    },
+    "offline_pair": {
+      "returncode": 0,
+      "receipt": {
+        "path": "$VALIDATION_STORAGE/arty4x4-a863/route100/ExtraPostPlacementOpt-offline-pair.log",
+        "bytes": 625,
+        "sha256": "0e1a717bd0fe55ec026baf7725057208f6aa1b71461d7634dd671f8a8d0ed257"
+      }
+    },
+    "worst_wns_ns": 0.049,
+    "worst_whs_ns": 0.012
+  },
+  "floor": {
+    "wns_ns": 0.03,
+    "whs_ns": 0.0
+  },
+  "corner_note": "Slow/Fast are fixed speed models; endpoint temperatures are power metadata."
+}

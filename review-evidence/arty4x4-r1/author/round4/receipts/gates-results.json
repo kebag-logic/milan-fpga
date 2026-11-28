@@ -1,0 +1,161 @@
+[
+  {
+    "name": "firmware-0",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--self-test",
+      "--require-rv32",
+      "--shard",
+      "0/4",
+      "--jobs",
+      "2",
+      "--build-dir",
+      "$VALIDATION_STORAGE/arty4x4-a863/gates4/firmware/0"
+    ],
+    "returncode": 0,
+    "head": "12ab4b189f54439cd126f677b906a19835d7f32a"
+  },
+  {
+    "name": "firmware-1",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--self-test",
+      "--require-rv32",
+      "--shard",
+      "1/4",
+      "--jobs",
+      "2",
+      "--build-dir",
+      "$VALIDATION_STORAGE/arty4x4-a863/gates4/firmware/1"
+    ],
+    "returncode": 0,
+    "head": "12ab4b189f54439cd126f677b906a19835d7f32a"
+  },
+  {
+    "name": "firmware-2",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--self-test",
+      "--require-rv32",
+      "--shard",
+      "2/4",
+      "--jobs",
+      "2",
+      "--build-dir",
+      "$VALIDATION_STORAGE/arty4x4-a863/gates4/firmware/2"
+    ],
+    "returncode": 0,
+    "head": "12ab4b189f54439cd126f677b906a19835d7f32a"
+  },
+  {
+    "name": "boot-4x4",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "-c",
+      "import sys; sys.path.insert(0, \"tb/verilator/ctrl_split_boot\"); import run; run.JOBS=4; raise SystemExit(run.main())",
+      "--shape",
+      "endstation_arty_split_4x4",
+      "--interfaces",
+      "1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/arty4x4-a863/gates4/boot-4x4"
+    ],
+    "returncode": 0,
+    "head": "12ab4b189f54439cd126f677b906a19835d7f32a"
+  },
+  {
+    "name": "boot-native-controls-4x4",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_split_boot/run.py",
+      "--native-controls",
+      "--shape",
+      "endstation_arty_split_4x4",
+      "--interfaces",
+      "1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/arty4x4-a863/gates4/boot-controls-4x4"
+    ],
+    "returncode": 0,
+    "head": "12ab4b189f54439cd126f677b906a19835d7f32a"
+  },
+  {
+    "name": "region-4x4",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "-c",
+      "import sys; sys.path.insert(0, \"tb/verilator/ctrl_region_decode\"); import run; run.JOBS=4; raise SystemExit(run.main())",
+      "--shape",
+      "endstation_arty_split_4x4",
+      "--self-test",
+      "--build-dir",
+      "$VALIDATION_STORAGE/arty4x4-a863/gates4/region-4x4"
+    ],
+    "returncode": 0,
+    "head": "12ab4b189f54439cd126f677b906a19835d7f32a"
+  },
+  {
+    "name": "boot-1x1",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "-c",
+      "import sys; sys.path.insert(0, \"tb/verilator/ctrl_split_boot\"); import run; run.JOBS=4; raise SystemExit(run.main())",
+      "--shape",
+      "endstation_arty_split",
+      "--interfaces",
+      "1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/arty4x4-a863/gates4/boot-1x1"
+    ],
+    "returncode": 0,
+    "head": "12ab4b189f54439cd126f677b906a19835d7f32a"
+  },
+  {
+    "name": "ctrl-memory",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "sw/litex/test_ctrl_memory.py"
+    ],
+    "returncode": 0,
+    "head": "12ab4b189f54439cd126f677b906a19835d7f32a"
+  },
+  {
+    "name": "host-arms",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "$VALIDATION_STORAGE/arty4x4-a863/tools/host-tests.py"
+    ],
+    "returncode": 0,
+    "head": "12ab4b189f54439cd126f677b906a19835d7f32a"
+  },
+  {
+    "name": "firmware-3",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--self-test",
+      "--require-rv32",
+      "--shard",
+      "3/4",
+      "--jobs",
+      "2",
+      "--build-dir",
+      "$VALIDATION_STORAGE/arty4x4-a863/gates4/firmware/3"
+    ],
+    "returncode": 0,
+    "head": "12ab4b189f54439cd126f677b906a19835d7f32a"
+  }
+]

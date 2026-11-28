@@ -1,0 +1,1499 @@
+{
+  "status": "NO QUALIFIED MODEL",
+  "cpu_hz": 80000000,
+  "shape": [
+    1,
+    5,
+    5
+  ],
+  "load": 1.027449307017544,
+  "load_terms": {
+    "rec.aecp": 0.055,
+    "rec.acmp": 0.053,
+    "rec.adp": 0.014,
+    "rec.maap": 0.0075,
+    "srp": 0.663,
+    "item.reclaim": 0.020421052631578947,
+    "item.aecp": 0.04352,
+    "notices": 0.00462,
+    "item.acmp": 0.024375000000000004,
+    "item.acmp_declined": 0.016250000000000004,
+    "ticks": 0.029,
+    "item.walk": 0.009947368421052632,
+    "builds": 0.009473684210526315,
+    "item.mrpdu": 0.01894736842105263,
+    "steps": 0.035333333333333335,
+    "timers": 0.022956499999999998,
+    "gm": 0.000105
+  },
+  "retry_raw_cycles": [
+    11289.0,
+    2142.5,
+    17591.5
+  ],
+  "retry_us": [
+    150,
+    30,
+    235
+  ],
+  "costs": {
+    "base": 465,
+    "build": 1025,
+    "build_one": 900,
+    "centisecond": 245,
+    "event.AMAP_LIVE_WRITE": 20,
+    "event.AS_PATH_CHANGED": 35,
+    "event.AVB_INFO_CHANGED": 40,
+    "event.GM": 45,
+    "event.LINK": 250,
+    "event.TICK": 45,
+    "event.TIMER#0": 95,
+    "event.TIMER#1": 205,
+    "event.TIMER#2": 190,
+    "event.TIMER#3": 100,
+    "events_none": 45,
+    "item.acmp": 75,
+    "item.acmp_declined": 25,
+    "item.acmp_kept": 95,
+    "item.aecp": 175,
+    "item.aecp_long": 390,
+    "item.mrpdu": 900,
+    "item.rebuild": 240,
+    "item.reclaim": 20,
+    "item.record": 1100,
+    "item.retained": 1105,
+    "item.walk": 90,
+    "item.withdraw": 125,
+    "paced.44": 330,
+    "paced.45": 350,
+    "paced.6": 520,
+    "record.acmp": 265,
+    "record.adp": 140,
+    "record.aecp.long": 1145,
+    "record.aecp.other": 275,
+    "record.aecp.paced": 520,
+    "record.maap": 150,
+    "record.srp": 1105,
+    "share": 1995,
+    "step": 1060,
+    "tx.aecp.long": 390,
+    "tx.aecp.notice": 200,
+    "tx.aecp.response": 55,
+    "event.ADP": 95,
+    "event.ACMP": 205,
+    "event.MAAP": 190,
+    "event.AECP": 100,
+    "record.aecp": 275,
+    "item.aecp.long": 390,
+    "item.aecp.notice": 200,
+    "item.aecp.response": 55,
+    "item.aecp.probe": 55
+  },
+  "choices": [],
+  "candidates": [
+    {
+      "queued_ms": 125,
+      "pace_ms": 1,
+      "slice_us": 1150,
+      "least_margin": -3.072448979591837,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 21.18,
+        "R5": 247.86,
+        "R6": 239.32,
+        "first": 16.08,
+        "last": null,
+        "R4L": 85.56,
+        "ACMP": 48.54,
+        "ADP": 46.34,
+        "MAAP": 46.6,
+        "tx": 57.15,
+        "txL": 199.55
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 199.55 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 48.54 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 125,
+      "pace_ms": 2,
+      "slice_us": 1150,
+      "least_margin": -3.072448979591837,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 19.58,
+        "R5": 247.86,
+        "R6": 239.32,
+        "first": 16.08,
+        "last": null,
+        "R4L": 100.56,
+        "ACMP": 48.54,
+        "ADP": 46.1,
+        "MAAP": 46.36,
+        "tx": 57.15,
+        "txL": 199.55
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 199.55 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 48.54 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 125,
+      "pace_ms": 3,
+      "slice_us": 1150,
+      "least_margin": -3.072448979591837,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 18.6,
+        "R5": 247.86,
+        "R6": 239.32,
+        "first": 16.08,
+        "last": null,
+        "R4L": 115.56,
+        "ACMP": 46.33,
+        "ADP": 43.35,
+        "MAAP": 43.61,
+        "tx": 53.64,
+        "txL": 199.55
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 199.55 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 46.33 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 125,
+      "pace_ms": 4,
+      "slice_us": 1150,
+      "least_margin": -2.568571428571429,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 18.11,
+        "R5": 247.37,
+        "R6": 238.58,
+        "first": 16.08,
+        "last": null,
+        "R4L": 130.56,
+        "ACMP": 45.35,
+        "ADP": 42.37,
+        "MAAP": 42.63,
+        "tx": 52.42,
+        "txL": 174.86
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 174.86 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 45.35 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 125,
+      "pace_ms": 5,
+      "slice_us": 1150,
+      "least_margin": -1.723061224489796,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.86,
+        "R5": 237.8,
+        "R6": 234.93,
+        "first": 16.08,
+        "last": null,
+        "R4L": 145.56,
+        "ACMP": 44.59,
+        "ADP": 39.71,
+        "MAAP": 39.98,
+        "tx": 49.52,
+        "txL": 133.43
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 133.43 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 44.59 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 125,
+      "pace_ms": 6,
+      "slice_us": 1150,
+      "least_margin": -1.6204444444444446,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.86,
+        "R5": 235.84,
+        "R6": 228.75,
+        "first": 16.08,
+        "last": null,
+        "R4L": 160.56,
+        "ACMP": 44.1,
+        "ADP": 39.22,
+        "MAAP": 39.49,
+        "tx": 49.03,
+        "txL": 108.39
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 108.39 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 44.1 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 125,
+      "pace_ms": 7,
+      "slice_us": 1150,
+      "least_margin": -1.5492222222222223,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.62,
+        "R5": 229.43,
+        "R6": 227.28,
+        "first": 16.08,
+        "last": null,
+        "R4L": 175.56,
+        "ACMP": 43.85,
+        "ADP": 38.98,
+        "MAAP": 39.25,
+        "tx": 48.79,
+        "txL": 89.61
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 89.61 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.85 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 125,
+      "pace_ms": 8,
+      "slice_us": 1150,
+      "least_margin": -1.538333333333333,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.62,
+        "R5": 228.45,
+        "R6": 226.3,
+        "first": 16.08,
+        "last": null,
+        "R4L": 190.56,
+        "ACMP": 43.61,
+        "ADP": 38.73,
+        "MAAP": 39.0,
+        "tx": 48.54,
+        "txL": 86.75
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 86.75 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.61 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 125,
+      "pace_ms": 9,
+      "slice_us": 1150,
+      "least_margin": -1.5302222222222222,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.62,
+        "R5": 227.72,
+        "R6": 224.85,
+        "first": 15.84,
+        "last": null,
+        "R4L": 205.56,
+        "ACMP": 43.36,
+        "ADP": 38.73,
+        "MAAP": 39.0,
+        "tx": 48.3,
+        "txL": 79.81
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 79.81 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.36 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 125,
+      "pace_ms": 10,
+      "slice_us": 1150,
+      "least_margin": -1.5219999999999998,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.37,
+        "R5": 226.98,
+        "R6": 219.99,
+        "first": 15.84,
+        "last": null,
+        "R4L": 220.56,
+        "ACMP": 43.36,
+        "ADP": 38.49,
+        "MAAP": 38.76,
+        "tx": 48.05,
+        "txL": 77.82
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 77.82 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.36 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 125,
+      "pace_ms": 11,
+      "slice_us": 1150,
+      "least_margin": -1.5165555555555557,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.37,
+        "R5": 226.49,
+        "R6": 219.5,
+        "first": 15.84,
+        "last": null,
+        "R4L": 235.56,
+        "ACMP": 43.36,
+        "ADP": 38.49,
+        "MAAP": 38.76,
+        "tx": 48.05,
+        "txL": 75.83
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 75.83 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.36 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 125,
+      "pace_ms": 12,
+      "slice_us": 1150,
+      "least_margin": -1.511111111111111,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.37,
+        "R5": 226.0,
+        "R6": 219.01,
+        "first": 15.84,
+        "last": null,
+        "R4L": 250.56,
+        "ACMP": 43.12,
+        "ADP": 38.49,
+        "MAAP": 38.76,
+        "tx": 48.05,
+        "txL": 75.83
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 75.83 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.12 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 125,
+      "pace_ms": 13,
+      "slice_us": 1150,
+      "least_margin": -1.499111111111111,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.37,
+        "R5": 224.92,
+        "R6": 218.52,
+        "first": 15.84,
+        "last": null,
+        "R4L": 265.56,
+        "ACMP": 43.12,
+        "ADP": 38.49,
+        "MAAP": 38.76,
+        "tx": 47.81,
+        "txL": 73.3
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 73.3 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.12 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 130,
+      "pace_ms": 1,
+      "slice_us": 1150,
+      "least_margin": -3.072448979591837,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 21.18,
+        "R5": 247.86,
+        "R6": 239.32,
+        "first": 16.08,
+        "last": null,
+        "R4L": 85.56,
+        "ACMP": 48.54,
+        "ADP": 46.34,
+        "MAAP": 46.6,
+        "tx": 57.15,
+        "txL": 199.55
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 199.55 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 48.54 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 130,
+      "pace_ms": 2,
+      "slice_us": 1150,
+      "least_margin": -3.072448979591837,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 19.58,
+        "R5": 247.86,
+        "R6": 239.32,
+        "first": 16.08,
+        "last": null,
+        "R4L": 100.56,
+        "ACMP": 48.54,
+        "ADP": 46.1,
+        "MAAP": 46.36,
+        "tx": 57.15,
+        "txL": 199.55
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 199.55 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 48.54 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 130,
+      "pace_ms": 3,
+      "slice_us": 1150,
+      "least_margin": -3.072448979591837,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 18.6,
+        "R5": 247.86,
+        "R6": 239.32,
+        "first": 16.08,
+        "last": null,
+        "R4L": 115.56,
+        "ACMP": 46.33,
+        "ADP": 43.35,
+        "MAAP": 43.61,
+        "tx": 53.64,
+        "txL": 199.55
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 199.55 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 46.33 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 130,
+      "pace_ms": 4,
+      "slice_us": 1150,
+      "least_margin": -2.568571428571429,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 18.11,
+        "R5": 247.37,
+        "R6": 238.58,
+        "first": 16.08,
+        "last": null,
+        "R4L": 130.56,
+        "ACMP": 45.35,
+        "ADP": 42.37,
+        "MAAP": 42.63,
+        "tx": 52.42,
+        "txL": 174.86
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 174.86 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 45.35 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 130,
+      "pace_ms": 5,
+      "slice_us": 1150,
+      "least_margin": -1.723061224489796,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.86,
+        "R5": 237.8,
+        "R6": 234.93,
+        "first": 16.08,
+        "last": null,
+        "R4L": 145.56,
+        "ACMP": 44.59,
+        "ADP": 39.71,
+        "MAAP": 39.98,
+        "tx": 49.52,
+        "txL": 133.43
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 133.43 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 44.59 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 130,
+      "pace_ms": 6,
+      "slice_us": 1150,
+      "least_margin": -1.6204444444444446,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.86,
+        "R5": 235.84,
+        "R6": 228.75,
+        "first": 16.08,
+        "last": null,
+        "R4L": 160.56,
+        "ACMP": 44.1,
+        "ADP": 39.22,
+        "MAAP": 39.49,
+        "tx": 49.03,
+        "txL": 108.39
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 108.39 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 44.1 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 130,
+      "pace_ms": 7,
+      "slice_us": 1150,
+      "least_margin": -1.5492222222222223,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.62,
+        "R5": 229.43,
+        "R6": 227.28,
+        "first": 16.08,
+        "last": null,
+        "R4L": 175.56,
+        "ACMP": 43.85,
+        "ADP": 38.98,
+        "MAAP": 39.25,
+        "tx": 48.79,
+        "txL": 89.61
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 89.61 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.85 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 130,
+      "pace_ms": 8,
+      "slice_us": 1150,
+      "least_margin": -1.538333333333333,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.62,
+        "R5": 228.45,
+        "R6": 226.3,
+        "first": 16.08,
+        "last": null,
+        "R4L": 190.56,
+        "ACMP": 43.61,
+        "ADP": 38.73,
+        "MAAP": 39.0,
+        "tx": 48.54,
+        "txL": 86.75
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 86.75 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.61 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 130,
+      "pace_ms": 9,
+      "slice_us": 1150,
+      "least_margin": -1.5302222222222222,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.62,
+        "R5": 227.72,
+        "R6": 224.85,
+        "first": 15.84,
+        "last": null,
+        "R4L": 205.56,
+        "ACMP": 43.36,
+        "ADP": 38.73,
+        "MAAP": 39.0,
+        "tx": 48.3,
+        "txL": 79.81
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 79.81 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.36 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 130,
+      "pace_ms": 10,
+      "slice_us": 1150,
+      "least_margin": -1.5219999999999998,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.37,
+        "R5": 226.98,
+        "R6": 219.99,
+        "first": 15.84,
+        "last": null,
+        "R4L": 220.56,
+        "ACMP": 43.36,
+        "ADP": 38.49,
+        "MAAP": 38.76,
+        "tx": 48.05,
+        "txL": 77.82
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 77.82 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.36 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 130,
+      "pace_ms": 11,
+      "slice_us": 1150,
+      "least_margin": -1.5165555555555557,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.37,
+        "R5": 226.49,
+        "R6": 219.5,
+        "first": 15.84,
+        "last": null,
+        "R4L": 235.56,
+        "ACMP": 43.36,
+        "ADP": 38.49,
+        "MAAP": 38.76,
+        "tx": 48.05,
+        "txL": 75.83
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 75.83 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.36 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 130,
+      "pace_ms": 12,
+      "slice_us": 1150,
+      "least_margin": -1.511111111111111,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.37,
+        "R5": 226.0,
+        "R6": 219.01,
+        "first": 15.84,
+        "last": null,
+        "R4L": 250.56,
+        "ACMP": 43.12,
+        "ADP": 38.49,
+        "MAAP": 38.76,
+        "tx": 48.05,
+        "txL": 75.83
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 75.83 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.12 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 130,
+      "pace_ms": 13,
+      "slice_us": 1150,
+      "least_margin": -1.499111111111111,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.37,
+        "R5": 224.92,
+        "R6": 218.52,
+        "first": 15.84,
+        "last": null,
+        "R4L": 265.56,
+        "ACMP": 43.12,
+        "ADP": 38.49,
+        "MAAP": 38.76,
+        "tx": 47.81,
+        "txL": 73.3
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 73.3 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.12 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 135,
+      "pace_ms": 1,
+      "slice_us": 1150,
+      "least_margin": -3.072448979591837,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 21.18,
+        "R5": 247.86,
+        "R6": 239.32,
+        "first": 16.08,
+        "last": null,
+        "R4L": 85.56,
+        "ACMP": 48.54,
+        "ADP": 46.34,
+        "MAAP": 46.6,
+        "tx": 57.15,
+        "txL": 199.55
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 199.55 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 48.54 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 135,
+      "pace_ms": 2,
+      "slice_us": 1150,
+      "least_margin": -3.072448979591837,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 19.58,
+        "R5": 247.86,
+        "R6": 239.32,
+        "first": 16.08,
+        "last": null,
+        "R4L": 100.56,
+        "ACMP": 48.54,
+        "ADP": 46.1,
+        "MAAP": 46.36,
+        "tx": 57.15,
+        "txL": 199.55
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 199.55 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 48.54 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 135,
+      "pace_ms": 3,
+      "slice_us": 1150,
+      "least_margin": -3.072448979591837,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 18.6,
+        "R5": 247.86,
+        "R6": 239.32,
+        "first": 16.08,
+        "last": null,
+        "R4L": 115.56,
+        "ACMP": 46.33,
+        "ADP": 43.35,
+        "MAAP": 43.61,
+        "tx": 53.64,
+        "txL": 199.55
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 199.55 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 46.33 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 135,
+      "pace_ms": 4,
+      "slice_us": 1150,
+      "least_margin": -2.568571428571429,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 18.11,
+        "R5": 247.37,
+        "R6": 238.58,
+        "first": 16.08,
+        "last": null,
+        "R4L": 130.56,
+        "ACMP": 45.35,
+        "ADP": 42.37,
+        "MAAP": 42.63,
+        "tx": 52.42,
+        "txL": 174.86
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 174.86 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 45.35 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 135,
+      "pace_ms": 5,
+      "slice_us": 1150,
+      "least_margin": -1.723061224489796,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.86,
+        "R5": 237.8,
+        "R6": 234.93,
+        "first": 16.08,
+        "last": null,
+        "R4L": 145.56,
+        "ACMP": 44.59,
+        "ADP": 39.71,
+        "MAAP": 39.98,
+        "tx": 49.52,
+        "txL": 133.43
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 133.43 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 44.59 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 135,
+      "pace_ms": 6,
+      "slice_us": 1150,
+      "least_margin": -1.6204444444444446,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.86,
+        "R5": 235.84,
+        "R6": 228.75,
+        "first": 16.08,
+        "last": null,
+        "R4L": 160.56,
+        "ACMP": 44.1,
+        "ADP": 39.22,
+        "MAAP": 39.49,
+        "tx": 49.03,
+        "txL": 108.39
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 108.39 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 44.1 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 135,
+      "pace_ms": 7,
+      "slice_us": 1150,
+      "least_margin": -1.5492222222222223,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.62,
+        "R5": 229.43,
+        "R6": 227.28,
+        "first": 16.08,
+        "last": null,
+        "R4L": 175.56,
+        "ACMP": 43.85,
+        "ADP": 38.98,
+        "MAAP": 39.25,
+        "tx": 48.79,
+        "txL": 89.61
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 89.61 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.85 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 135,
+      "pace_ms": 8,
+      "slice_us": 1150,
+      "least_margin": -1.538333333333333,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.62,
+        "R5": 228.45,
+        "R6": 226.3,
+        "first": 16.08,
+        "last": null,
+        "R4L": 190.56,
+        "ACMP": 43.61,
+        "ADP": 38.73,
+        "MAAP": 39.0,
+        "tx": 48.54,
+        "txL": 86.75
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 86.75 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.61 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 135,
+      "pace_ms": 9,
+      "slice_us": 1150,
+      "least_margin": -1.5302222222222222,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.62,
+        "R5": 227.72,
+        "R6": 224.85,
+        "first": 15.84,
+        "last": null,
+        "R4L": 205.56,
+        "ACMP": 43.36,
+        "ADP": 38.73,
+        "MAAP": 39.0,
+        "tx": 48.3,
+        "txL": 79.81
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 79.81 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.36 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 135,
+      "pace_ms": 10,
+      "slice_us": 1150,
+      "least_margin": -1.5219999999999998,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.37,
+        "R5": 226.98,
+        "R6": 219.99,
+        "first": 15.84,
+        "last": null,
+        "R4L": 220.56,
+        "ACMP": 43.36,
+        "ADP": 38.49,
+        "MAAP": 38.76,
+        "tx": 48.05,
+        "txL": 77.82
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 77.82 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.36 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 135,
+      "pace_ms": 11,
+      "slice_us": 1150,
+      "least_margin": -1.5165555555555557,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.37,
+        "R5": 226.49,
+        "R6": 219.5,
+        "first": 15.84,
+        "last": null,
+        "R4L": 235.56,
+        "ACMP": 43.36,
+        "ADP": 38.49,
+        "MAAP": 38.76,
+        "tx": 48.05,
+        "txL": 75.83
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 75.83 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.36 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 135,
+      "pace_ms": 12,
+      "slice_us": 1150,
+      "least_margin": -1.511111111111111,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.37,
+        "R5": 226.0,
+        "R6": 219.01,
+        "first": 15.84,
+        "last": null,
+        "R4L": 250.56,
+        "ACMP": 43.12,
+        "ADP": 38.49,
+        "MAAP": 38.76,
+        "tx": 48.05,
+        "txL": 75.83
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 75.83 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.12 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 135,
+      "pace_ms": 13,
+      "slice_us": 1150,
+      "least_margin": -1.499111111111111,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.37,
+        "R5": 224.92,
+        "R6": 218.52,
+        "first": 15.84,
+        "last": null,
+        "R4L": 265.56,
+        "ACMP": 43.12,
+        "ADP": 38.49,
+        "MAAP": 38.76,
+        "tx": 47.81,
+        "txL": 73.3
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 73.3 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.12 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 140,
+      "pace_ms": 1,
+      "slice_us": 1150,
+      "least_margin": -3.072448979591837,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 21.18,
+        "R5": 247.86,
+        "R6": 239.32,
+        "first": 16.08,
+        "last": null,
+        "R4L": 85.56,
+        "ACMP": 48.54,
+        "ADP": 46.34,
+        "MAAP": 46.6,
+        "tx": 57.15,
+        "txL": 199.55
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 199.55 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 48.54 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 140,
+      "pace_ms": 2,
+      "slice_us": 1150,
+      "least_margin": -3.072448979591837,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 19.58,
+        "R5": 247.86,
+        "R6": 239.32,
+        "first": 16.08,
+        "last": null,
+        "R4L": 100.56,
+        "ACMP": 48.54,
+        "ADP": 46.1,
+        "MAAP": 46.36,
+        "tx": 57.15,
+        "txL": 199.55
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 199.55 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 48.54 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 140,
+      "pace_ms": 3,
+      "slice_us": 1150,
+      "least_margin": -3.072448979591837,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 18.6,
+        "R5": 247.86,
+        "R6": 239.32,
+        "first": 16.08,
+        "last": null,
+        "R4L": 115.56,
+        "ACMP": 46.33,
+        "ADP": 43.35,
+        "MAAP": 43.61,
+        "tx": 53.64,
+        "txL": 199.55
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 199.55 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 46.33 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 140,
+      "pace_ms": 4,
+      "slice_us": 1150,
+      "least_margin": -2.568571428571429,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 18.11,
+        "R5": 247.37,
+        "R6": 238.58,
+        "first": 16.08,
+        "last": null,
+        "R4L": 130.56,
+        "ACMP": 45.35,
+        "ADP": 42.37,
+        "MAAP": 42.63,
+        "tx": 52.42,
+        "txL": 174.86
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 174.86 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 45.35 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 140,
+      "pace_ms": 5,
+      "slice_us": 1150,
+      "least_margin": -1.723061224489796,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.86,
+        "R5": 237.8,
+        "R6": 234.93,
+        "first": 16.08,
+        "last": null,
+        "R4L": 145.56,
+        "ACMP": 44.59,
+        "ADP": 39.71,
+        "MAAP": 39.98,
+        "tx": 49.52,
+        "txL": 133.43
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 133.43 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 44.59 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 140,
+      "pace_ms": 6,
+      "slice_us": 1150,
+      "least_margin": -1.6204444444444446,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.86,
+        "R5": 235.84,
+        "R6": 228.75,
+        "first": 16.08,
+        "last": null,
+        "R4L": 160.56,
+        "ACMP": 44.1,
+        "ADP": 39.22,
+        "MAAP": 39.49,
+        "tx": 49.03,
+        "txL": 108.39
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 108.39 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 44.1 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 140,
+      "pace_ms": 7,
+      "slice_us": 1150,
+      "least_margin": -1.5492222222222223,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.62,
+        "R5": 229.43,
+        "R6": 227.28,
+        "first": 16.08,
+        "last": null,
+        "R4L": 175.56,
+        "ACMP": 43.85,
+        "ADP": 38.98,
+        "MAAP": 39.25,
+        "tx": 48.79,
+        "txL": 89.61
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 89.61 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.85 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 140,
+      "pace_ms": 8,
+      "slice_us": 1150,
+      "least_margin": -1.538333333333333,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.62,
+        "R5": 228.45,
+        "R6": 226.3,
+        "first": 16.08,
+        "last": null,
+        "R4L": 190.56,
+        "ACMP": 43.61,
+        "ADP": 38.73,
+        "MAAP": 39.0,
+        "tx": 48.54,
+        "txL": 86.75
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 86.75 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.61 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 140,
+      "pace_ms": 9,
+      "slice_us": 1150,
+      "least_margin": -1.5302222222222222,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.62,
+        "R5": 227.72,
+        "R6": 224.85,
+        "first": 15.84,
+        "last": null,
+        "R4L": 205.56,
+        "ACMP": 43.36,
+        "ADP": 38.73,
+        "MAAP": 39.0,
+        "tx": 48.3,
+        "txL": 79.81
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 79.81 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.36 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 140,
+      "pace_ms": 10,
+      "slice_us": 1150,
+      "least_margin": -1.5219999999999998,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.37,
+        "R5": 226.98,
+        "R6": 219.99,
+        "first": 15.84,
+        "last": null,
+        "R4L": 220.56,
+        "ACMP": 43.36,
+        "ADP": 38.49,
+        "MAAP": 38.76,
+        "tx": 48.05,
+        "txL": 77.82
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 77.82 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.36 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 140,
+      "pace_ms": 11,
+      "slice_us": 1150,
+      "least_margin": -1.5165555555555557,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.37,
+        "R5": 226.49,
+        "R6": 219.5,
+        "first": 15.84,
+        "last": null,
+        "R4L": 235.56,
+        "ACMP": 43.36,
+        "ADP": 38.49,
+        "MAAP": 38.76,
+        "tx": 48.05,
+        "txL": 75.83
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 75.83 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.36 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 140,
+      "pace_ms": 12,
+      "slice_us": 1150,
+      "least_margin": -1.511111111111111,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.37,
+        "R5": 226.0,
+        "R6": 219.01,
+        "first": 15.84,
+        "last": null,
+        "R4L": 250.56,
+        "ACMP": 43.12,
+        "ADP": 38.49,
+        "MAAP": 38.76,
+        "tx": 48.05,
+        "txL": 75.83
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 75.83 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.12 ms exceeds 30 ms"
+      ]
+    },
+    {
+      "queued_ms": 140,
+      "pace_ms": 13,
+      "slice_us": 1150,
+      "least_margin": -1.499111111111111,
+      "pace_rule": null,
+      "queued_rule": null,
+      "rows_ms": {
+        "R4": 17.37,
+        "R5": 224.92,
+        "R6": 218.52,
+        "first": 15.84,
+        "last": null,
+        "R4L": 265.56,
+        "ACMP": 43.12,
+        "ADP": 38.49,
+        "MAAP": 38.76,
+        "tx": 47.81,
+        "txL": 73.3
+      },
+      "owner_findings": [
+        "OWNER load: 1.027449 exceeds 0.70",
+        "OWNER txL: 73.3 ms exceeds 49 ms",
+        "OWNER last: None ms exceeds 140 ms",
+        "OWNER ACMP: 43.12 ms exceeds 30 ms"
+      ]
+    }
+  ]
+}

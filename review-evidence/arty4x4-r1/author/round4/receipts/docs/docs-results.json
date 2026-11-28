@@ -1,0 +1,485 @@
+{
+  "head": "12ab4b189f54439cd126f677b906a19835d7f32a",
+  "rows": [
+    {
+      "n": 0,
+      "command": "python3 scripts/check_wire_accountability.py --self-test",
+      "returncode": 0
+    },
+    {
+      "n": 1,
+      "command": "python3 scripts/docs_check.py",
+      "returncode": 0
+    },
+    {
+      "n": 2,
+      "command": "python3 scripts/check_feature_status.py",
+      "returncode": 0
+    },
+    {
+      "n": 3,
+      "command": "python3 scripts/check_em_dash.py --base \"$base\"",
+      "returncode": 2
+    },
+    {
+      "n": 4,
+      "command": "python3 scripts/check_doc_style.py",
+      "returncode": 0
+    },
+    {
+      "n": 5,
+      "command": "python3 scripts/check_doc_style.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 6,
+      "command": "python3 scripts/check_gptp_docs.py",
+      "returncode": 0
+    },
+    {
+      "n": 7,
+      "command": "python3 scripts/check_gptp_docs.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 8,
+      "command": "python3 docs/DOC_MAP.gen.py --check",
+      "returncode": 0
+    },
+    {
+      "n": 9,
+      "command": "python3 docs/DOC_MAP.gen.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 10,
+      "command": "python3 docs/diagrams/timesync_chain.gen.py --check",
+      "returncode": 0
+    },
+    {
+      "n": 11,
+      "command": "python3 docs/diagrams/timesync_chain.gen.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 12,
+      "command": "python3 scripts/check_solution_docs.py",
+      "returncode": 0
+    },
+    {
+      "n": 13,
+      "command": "python3 scripts/check_solution_docs.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 14,
+      "command": "python3 docs/diagrams/submodule_boundaries.gen.py --check",
+      "returncode": 0
+    },
+    {
+      "n": 15,
+      "command": "python3 docs/diagrams/submodule_boundaries.gen.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 16,
+      "command": "python3 scripts/check_submodule_docs.py",
+      "returncode": 0
+    },
+    {
+      "n": 17,
+      "command": "python3 scripts/check_submodule_docs.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 18,
+      "command": "python3 scripts/gen_wavedrom.py --selftest",
+      "returncode": 1
+    },
+    {
+      "n": 19,
+      "command": "python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check",
+      "returncode": 1
+    },
+    {
+      "n": 20,
+      "command": "python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check",
+      "returncode": 1
+    },
+    {
+      "n": 21,
+      "command": "python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check",
+      "returncode": 1
+    },
+    {
+      "n": 22,
+      "command": "python3 scripts/check_diagram_pngs.py",
+      "returncode": 0
+    },
+    {
+      "n": 23,
+      "command": "python3 scripts/check_diagram_pngs.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 24,
+      "command": "python3 scripts/check_feature_status.py --self-test",
+      "returncode": 0
+    },
+    {
+      "n": 25,
+      "command": "python3 docs/traceability/gen_module_matrix.py --check",
+      "returncode": 0
+    },
+    {
+      "n": 26,
+      "command": "python3 scripts/measure_control_flow.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 27,
+      "command": "python3 scripts/measure_cohesion.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 28,
+      "command": "python3 scripts/check_baremetal_only.py --check",
+      "returncode": 0
+    },
+    {
+      "n": 29,
+      "command": "python3 scripts/check_baremetal_only.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 30,
+      "command": "python3 scripts/ci_rv32_sdk_selftest.py",
+      "returncode": 0
+    },
+    {
+      "n": 31,
+      "command": "python3 scripts/check_nvm_record_space.py",
+      "returncode": 0
+    },
+    {
+      "n": 32,
+      "command": "python3 scripts/check_nvm_record_space.py --self-test",
+      "returncode": 0
+    },
+    {
+      "n": 33,
+      "command": "python3 scripts/check_nvm_format_32x32.py",
+      "returncode": 0
+    },
+    {
+      "n": 34,
+      "command": "python3 scripts/check_nvm_format_32x32.py --self-test",
+      "returncode": 0
+    },
+    {
+      "n": 35,
+      "command": "python3 scripts/check_nvm_klj3.py",
+      "returncode": 0
+    },
+    {
+      "n": 36,
+      "command": "python3 scripts/check_nvm_klj3.py --self-test",
+      "returncode": 0
+    },
+    {
+      "n": 37,
+      "command": "python3 scripts/check_nvm_capture.py",
+      "returncode": 0
+    },
+    {
+      "n": 38,
+      "command": "python3 scripts/check_soc_sources.py",
+      "returncode": 0
+    },
+    {
+      "n": 39,
+      "command": "python3 scripts/check_soc_sources.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 40,
+      "command": "python3 sw/litex/iob_pack_selftest.py",
+      "returncode": 0
+    },
+    {
+      "n": 41,
+      "command": "python3 scripts/check_rtl_source_lists.py",
+      "returncode": 0
+    },
+    {
+      "n": 42,
+      "command": "python3 scripts/check_rtl_source_lists.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 43,
+      "command": "python3 scripts/measure_naming.py --check",
+      "returncode": 0
+    },
+    {
+      "n": 44,
+      "command": "python3 scripts/measure_naming.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 45,
+      "command": "python3 scripts/check_port_contracts.py",
+      "returncode": 0
+    },
+    {
+      "n": 46,
+      "command": "python3 scripts/check_port_contracts.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 47,
+      "command": "python3 scripts/measure_fail_fast.py --check",
+      "returncode": 0
+    },
+    {
+      "n": 48,
+      "command": "python3 scripts/measure_fail_fast.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 49,
+      "command": "python3 scripts/check_todo_ownership.py",
+      "returncode": 0
+    },
+    {
+      "n": 50,
+      "command": "python3 scripts/check_todo_ownership.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 51,
+      "command": "python3 scripts/measure_test_evidence.py --check",
+      "returncode": 0
+    },
+    {
+      "n": 52,
+      "command": "python3 scripts/measure_test_evidence.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 53,
+      "command": "python3 scripts/check_hygiene.py --check",
+      "returncode": 0
+    },
+    {
+      "n": 54,
+      "command": "python3 scripts/check_hygiene.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 55,
+      "command": "python3 scripts/check_sv_idiom.py",
+      "returncode": 0
+    },
+    {
+      "n": 56,
+      "command": "python3 scripts/check_sv_idiom.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 57,
+      "command": "python3 scripts/check_cpp_idiom.py",
+      "returncode": 0
+    },
+    {
+      "n": 58,
+      "command": "python3 scripts/check_cpp_idiom.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 59,
+      "command": "python3 scripts/check_py_idiom.py",
+      "returncode": 0
+    },
+    {
+      "n": 60,
+      "command": "python3 scripts/check_py_idiom.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 61,
+      "command": "python3 scripts/check_sh_idiom.py",
+      "returncode": 0
+    },
+    {
+      "n": 62,
+      "command": "python3 scripts/check_sh_idiom.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 63,
+      "command": "python3 scripts/check_doc_paths.py",
+      "returncode": 0
+    },
+    {
+      "n": 64,
+      "command": "python3 scripts/check_archive.py",
+      "returncode": 0
+    },
+    {
+      "n": 65,
+      "command": "python3 scripts/check_archive.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 66,
+      "command": "python3 scripts/gen_toc.py --selftest",
+      "returncode": 2
+    },
+    {
+      "n": 67,
+      "command": "python3 scripts/gen_toc.py --verify-anchors",
+      "returncode": 2
+    },
+    {
+      "n": 68,
+      "command": "python3 scripts/gen_toc.py --check",
+      "returncode": 2
+    },
+    {
+      "n": 69,
+      "command": "python3 scripts/docs_inventory.py --check",
+      "returncode": 0
+    },
+    {
+      "n": 70,
+      "command": "python3 scripts/docs_inventory.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 71,
+      "command": "python3 avdecc/gen_aem_store.py --self-test",
+      "returncode": 0
+    },
+    {
+      "n": 72,
+      "command": "python3 scripts/check_sweep_shape.py --self-test",
+      "returncode": 0
+    },
+    {
+      "n": 73,
+      "command": "python3 scripts/check_deploy_shape.py --self-test",
+      "returncode": 0
+    },
+    {
+      "n": 74,
+      "command": "python3 scripts/check_entity_shape.py --self-test",
+      "returncode": 0
+    },
+    {
+      "n": 75,
+      "command": "python3 scripts/gen_register_reference.py --check",
+      "returncode": 2
+    },
+    {
+      "n": 76,
+      "command": "python3 scripts/gen_register_reference.py --selftest",
+      "returncode": 1
+    },
+    {
+      "n": 77,
+      "command": "python3 docs/diagrams/memory_map.gen.py --check",
+      "returncode": 0
+    },
+    {
+      "n": 78,
+      "command": "python3 scripts/ci_gate_workflows.py --check",
+      "returncode": 0
+    },
+    {
+      "n": 79,
+      "command": "python3 scripts/ci_gate_workflows_selftest.py",
+      "returncode": 0
+    },
+    {
+      "n": 80,
+      "command": "python3 scripts/ci_case_receipts_selftest.py",
+      "returncode": 0
+    },
+    {
+      "n": 81,
+      "command": "python3 scripts/ci_make_cases_selftest.py",
+      "returncode": 0
+    },
+    {
+      "n": 82,
+      "command": "python3 scripts/ci_maap_cases_selftest.py",
+      "returncode": 0
+    },
+    {
+      "n": 83,
+      "command": "python3 scripts/ci_capture_cases_selftest.py",
+      "returncode": 0
+    },
+    {
+      "n": 84,
+      "command": "python3 scripts/ci_suite_pieces_selftest.py",
+      "returncode": 0
+    },
+    {
+      "n": 85,
+      "command": "python3 scripts/ci_suite_collect_selftest.py",
+      "returncode": 0
+    },
+    {
+      "n": 86,
+      "command": "python3 scripts/ci_fail_fast_selftest.py",
+      "returncode": 0
+    },
+    {
+      "n": 87,
+      "command": "python3 scripts/generate_ci_evidence_pins.py --check",
+      "returncode": 0
+    },
+    {
+      "n": 88,
+      "command": "python3 scripts/ci_workflow_plan_selftest.py",
+      "returncode": 0
+    },
+    {
+      "n": 89,
+      "command": "python3 scripts/ci_manifest_selftest.py",
+      "returncode": 0
+    },
+    {
+      "n": 90,
+      "command": "python3 scripts/mutant_stage.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 91,
+      "command": "python3 sw/builder/test_firmware_compiler.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 92,
+      "command": "python3 scripts/ci_events.py --check",
+      "returncode": 0
+    },
+    {
+      "n": 93,
+      "command": "python3 scripts/ci_events.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 94,
+      "command": "python3 scripts/act_ci.py --selftest",
+      "returncode": 0
+    },
+    {
+      "n": 95,
+      "command": "python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test",
+      "returncode": 0
+    }
+  ]
+}

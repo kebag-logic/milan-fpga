@@ -1,0 +1,290 @@
+{
+  "status": "PASS",
+  "kind": "complete measured Arty FPGA point",
+  "point": "arty-4x4",
+  "cpu_hz": 100000000,
+  "shape": [
+    1,
+    5,
+    5
+  ],
+  "groups": 159,
+  "findings": [],
+  "regrade_returncodes": {
+    "regrade-none": 0,
+    "regrade-answering-ports": 0,
+    "regrade-answering-every-port": 0,
+    "regrade-valid-destinations": 0,
+    "regrade-declaring-outputs": 0,
+    "regrade-answering-later": 0,
+    "regrade-talker-notices": 0,
+    "regrade-shutdown-entry": 0
+  },
+  "model": {
+    "status": "PASS",
+    "evidence": "stated-cost model only",
+    "point": "arty-4x4",
+    "cpu_hz": 100000000,
+    "shape": [
+      1,
+      5,
+      5
+    ],
+    "load": 0.46887144736842107,
+    "load_terms": {
+      "rec.aecp": 0.044,
+      "rec.acmp": 0.042,
+      "rec.adp": 0.011,
+      "rec.maap": 0.00625,
+      "srp": 0.18,
+      "item.reclaim": 0.015315789473684213,
+      "item.aecp": 0.03488,
+      "notices": 0.0038399999999999997,
+      "item.acmp": 0.019500000000000003,
+      "item.acmp_declined": 0.013000000000000003,
+      "ticks": 0.0225,
+      "item.walk": 0.0033157894736842108,
+      "builds": 0.00631578947368421,
+      "item.mrpdu": 0.01263157894736842,
+      "steps": 0.028333333333333332,
+      "timers": 0.0259075,
+      "gm": 8.166666666666668e-05
+    },
+    "rows_ms": {
+      "R4": 13.29,
+      "R5": 66.34,
+      "R6": 63.84,
+      "first": 14.690000000000001,
+      "last": 117.68,
+      "R4L": 143.33,
+      "ACMP": 28.52,
+      "ADP": 26.33,
+      "MAAP": 26.42,
+      "tx": 28.88,
+      "txL": 48.72
+    },
+    "slice_us": 1250,
+    "slice_margin": 0.005714285714285738,
+    "pace_ms": 5
+  },
+  "worst_pass": {
+    "group": "notice-burst-1",
+    "cycles": 173322,
+    "ms": 1.73322
+  },
+  "held_egress": {
+    "rows": {
+      "backlog.owed.if0": 62.64658,
+      "backlog.owed_behind0.if0": 62.82023,
+      "backlog.owed_behind1.if0": 62.98813,
+      "backlog.owed_behind2.if0": 63.15874,
+      "backlog.owed_behind3.if0": 63.32736,
+      "backlog-owed.service.acmp.last.if0": 61.81513,
+      "backlog-owed.service.aecp.last.if0": 61.56471
+    },
+    "would_be_ledger_ms": {
+      "backlog.owed.if0": 62.78,
+      "backlog.owed_behind0.if0": 62.97,
+      "backlog.owed_behind1.if0": 63.14,
+      "backlog.owed_behind2.if0": 63.32,
+      "backlog.owed_behind3.if0": 63.5,
+      "backlog-owed.service.acmp.last.if0": 61.91,
+      "backlog-owed.service.aecp.last.if0": 61.65
+    },
+    "note": "no ledger stated at arty-4x4; a ruling is needed"
+  },
+  "owed_969": [
+    "srp.kept_advertise.if0: a record of 73,176 CPU cycles, 770 us by the rule, over CTRL_LOOP_SRP_UNIT_US 300 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp.kept_recount.if0: a record of 45,475 CPU cycles, 480 us by the rule, over CTRL_LOOP_SRP_UNIT_US 300 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp.kept_failed.if0: a record of 75,174 CPU cycles, 790 us by the rule, over CTRL_LOOP_SRP_UNIT_US 300 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp.bound_advertise.if0: a record of 82,562 CPU cycles, 870 us by the rule, over CTRL_LOOP_SRP_UNIT_US 300 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-bound: a build-one pass at bus cycle 479927314: 100,680 CPU cycles over its stated 60,000 (CTRL_LOOP_BUILD_ONE_PASS_US, not restated), the bound path's registrations, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-bound: a build-one pass at bus cycle 498620913: 66,271 CPU cycles over its stated 60,000 (CTRL_LOOP_BUILD_ONE_PASS_US, not restated), the bound path's registrations, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-bound: a build-one pass at bus cycle 517646953: 68,327 CPU cycles over its stated 60,000 (CTRL_LOOP_BUILD_ONE_PASS_US, not restated), the bound path's registrations, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-kept: an SRP record's apply of 72,617 CPU cycles, over its stated 30,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-kept: an SRP record's apply of 44,916 CPU cycles, over its stated 30,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-kept: an SRP record's apply of 74,547 CPU cycles, over its stated 30,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-bound: a build-one pass of 100,680 CPU cycles, over its stated 60,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-bound: a build-one pass of 66,271 CPU cycles, over its stated 60,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-bound: a build-one pass of 68,327 CPU cycles, over its stated 60,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-bound: a pass's polls base of 34,667 CPU cycles, over its stated 23,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-bound: a walk item of 6,878 CPU cycles, over its stated 3,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-bound: an SRP record's apply of 82,071 CPU cycles, over its stated 30,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)"
+  ],
+  "commands": [
+    {
+      "name": "regrade-answering-ports",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-B",
+        "tb/verilator/ctrl_service_budget/run.py",
+        "--point",
+        "arty-4x4",
+        "--build-dir",
+        "$VALIDATION_STORAGE/arty4x4-a863/c4q/answering-ports",
+        "--variant",
+        "answering-ports",
+        "--regrade",
+        "--record-budget-findings",
+        "--groups",
+        "aecp-fanout,aecp,aecp-reboot,aecp-largest-notice"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/arty4x4-a863/c4q/regrade-answering-ports.log",
+      "sha256": "ce15d01415dffe2840780224244993ab008b4285448bb719c79e98ca18b18b73"
+    },
+    {
+      "name": "regrade-answering-every-port",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-B",
+        "tb/verilator/ctrl_service_budget/run.py",
+        "--point",
+        "arty-4x4",
+        "--build-dir",
+        "$VALIDATION_STORAGE/arty4x4-a863/c4q/answering-every-port",
+        "--variant",
+        "answering-every-port",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/arty4x4-a863/c4q/regrade-answering-every-port.log",
+      "sha256": "2453ebbd41921913643a45d7ebcda09905a1215ebca806d03862490004bea875"
+    },
+    {
+      "name": "regrade-answering-later",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-B",
+        "tb/verilator/ctrl_service_budget/run.py",
+        "--point",
+        "arty-4x4",
+        "--build-dir",
+        "$VALIDATION_STORAGE/arty4x4-a863/c4q/answering-later",
+        "--variant",
+        "answering-later",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/arty4x4-a863/c4q/regrade-answering-later.log",
+      "sha256": "86d69583987ab7cc8cc047d5d09570557b14f0117db26141d9ddcb2a08e1a528"
+    },
+    {
+      "name": "regrade-talker-notices",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-B",
+        "tb/verilator/ctrl_service_budget/run.py",
+        "--point",
+        "arty-4x4",
+        "--build-dir",
+        "$VALIDATION_STORAGE/arty4x4-a863/c4q/talker-notices",
+        "--variant",
+        "talker-notices",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/arty4x4-a863/c4q/regrade-talker-notices.log",
+      "sha256": "28c91823c90e5c3ddce5ea642b7285466505a5f7fe0d5ca84da4ead26cdf77b0"
+    },
+    {
+      "name": "regrade-shutdown-entry",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-B",
+        "tb/verilator/ctrl_service_budget/run.py",
+        "--point",
+        "arty-4x4",
+        "--build-dir",
+        "$VALIDATION_STORAGE/arty4x4-a863/c4q/shutdown-entry",
+        "--variant",
+        "shutdown-entry",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/arty4x4-a863/c4q/regrade-shutdown-entry.log",
+      "sha256": "0724748b76ffe7c6cb580980bb9a4780186ad30f5231fff86a070ee1e4da72b6"
+    },
+    {
+      "name": "regrade-valid-destinations",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-B",
+        "tb/verilator/ctrl_service_budget/run.py",
+        "--point",
+        "arty-4x4",
+        "--build-dir",
+        "$VALIDATION_STORAGE/arty4x4-a863/c4q/valid-destinations",
+        "--variant",
+        "valid-destinations",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/arty4x4-a863/c4q/regrade-valid-destinations.log",
+      "sha256": "ddc65a3988c5f255c57a13228a5d311dff22ccf5ce224f3e8505d97588b54e40"
+    },
+    {
+      "name": "regrade-declaring-outputs",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-B",
+        "tb/verilator/ctrl_service_budget/run.py",
+        "--point",
+        "arty-4x4",
+        "--build-dir",
+        "$VALIDATION_STORAGE/arty4x4-a863/c4q/declaring-outputs",
+        "--variant",
+        "declaring-outputs",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/arty4x4-a863/c4q/regrade-declaring-outputs.log",
+      "sha256": "5e9a8e1cb52f2925cc102616d0ee6300da4fd4971ccad2e2016c148bafc83e36"
+    },
+    {
+      "name": "regrade-none",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-B",
+        "tb/verilator/ctrl_service_budget/run.py",
+        "--point",
+        "arty-4x4",
+        "--build-dir",
+        "$VALIDATION_STORAGE/arty4x4-a863/c4q/none",
+        "--variant",
+        "none",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/arty4x4-a863/c4q/regrade-none.log",
+      "sha256": "26771bc4a4acb68622856edc0ee20bd244bd82ab78f732d58c002d99e58075f4"
+    },
+    {
+      "name": "record-classes",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-I",
+        "-B",
+        "tb/verilator/ctrl_service_budget/record_classes.py",
+        "$VALIDATION_STORAGE/arty4x4-a863/c4q/none/results",
+        "$VALIDATION_STORAGE/arty4x4-a863/c4q/answering-ports/results",
+        "$VALIDATION_STORAGE/arty4x4-a863/c4q/answering-every-port/results",
+        "$VALIDATION_STORAGE/arty4x4-a863/c4q/valid-destinations/results",
+        "$VALIDATION_STORAGE/arty4x4-a863/c4q/declaring-outputs/results",
+        "$VALIDATION_STORAGE/arty4x4-a863/c4q/answering-later/results",
+        "$VALIDATION_STORAGE/arty4x4-a863/c4q/talker-notices/results",
+        "$VALIDATION_STORAGE/arty4x4-a863/c4q/shutdown-entry/results"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/arty4x4-a863/c4q/record-classes.log",
+      "sha256": "d6626e373aee9e895b5adcb4348e6a88b43d8377e7f214bba368ae07117b7470"
+    }
+  ]
+}

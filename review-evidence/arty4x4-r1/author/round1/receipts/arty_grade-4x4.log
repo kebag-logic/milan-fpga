@@ -1,0 +1,55 @@
+{
+  "status": "FAIL",
+  "evidence": "stated-cost model only",
+  "point": "arty-4x4",
+  "cpu_hz": 80000000,
+  "shape": [
+    1,
+    5,
+    5
+  ],
+  "load": 0.5077096140350877,
+  "load_terms": {
+    "rec.aecp": 0.058,
+    "rec.acmp": 0.049,
+    "rec.adp": 0.012,
+    "rec.maap": 0.00625,
+    "srp": 0.18,
+    "item.reclaim": 0.020421052631578947,
+    "item.aecp": 0.04388,
+    "notices": 0.00432,
+    "item.acmp": 0.019500000000000003,
+    "item.acmp_declined": 0.013000000000000003,
+    "ticks": 0.021,
+    "item.walk": 0.0033157894736842108,
+    "builds": 0.006947368421052632,
+    "item.mrpdu": 0.013894736842105264,
+    "steps": 0.035333333333333335,
+    "timers": 0.020754,
+    "gm": 9.333333333333334e-05
+  },
+  "rows_ms": {
+    "R4": 15.13,
+    "R5": 73.01,
+    "R6": 68.37,
+    "first": 14.85,
+    "last": 133.97,
+    "R4L": 218.97,
+    "ACMP": 33.82,
+    "ADP": 28.55,
+    "MAAP": 28.66,
+    "tx": 36.13,
+    "txL": 53.25
+  },
+  "slice_us": 1250,
+  "slice_margin": -0.08673469387755102,
+  "pace_ms": 10
+}
+REFUSED OWNER txL: 53.25 ms exceeds 49 ms
+REFUSED OWNER ACMP: 33.82 ms exceeds 30 ms
+REFUSED arty-4x4 last: under the tiers (slice 1250 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 133.97 ms, over its bound 125 ms; the largest term srp 28.20 ms
+REFUSED arty-4x4 ACMP: under the tiers (slice 1250 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 33.82 ms, over its bound 30 ms; the largest term aecp 6.38 ms
+REFUSED arty-4x4 txL: under the tiers (slice 1250 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 53.25 ms, over its bound 49 ms; the largest term aecp 12.43 ms
+REFUSED arty-4x4: CTRL_LOOP_TX_MS states 35 ms, under the built design's tx row 36.13 ms
+REFUSED no pace up to 13 ms holds txL within its bound and R4L within 238 ms
+REFUSED arty-4x4: ctrl_loop.h states AECP_QUEUED_MS 125 ms, not the 135 ms its row 133.97 ms rules

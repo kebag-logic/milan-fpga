@@ -1,0 +1,6 @@
+0 python3 scripts/gen_wavedrom.py --selftest
+0 python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check
+0 python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check
+0 python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check
+0 python3 scripts/gen_hdl_reference.py --selftest
+0 python3 scripts/gen_hdl_reference.py --output $VALIDATION_STORAGE/arty4x4-a863/gates4/hdl-reference

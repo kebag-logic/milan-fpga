@@ -1,0 +1,176 @@
+[
+  {
+    "name": "regrade-answering-ports",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-4x4",
+      "--build-dir",
+      "$VALIDATION_STORAGE/arty4x4-a863/c4q/answering-ports",
+      "--variant",
+      "answering-ports",
+      "--regrade",
+      "--record-budget-findings",
+      "--groups",
+      "aecp-fanout,aecp,aecp-reboot,aecp-largest-notice"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/arty4x4-a863/c4q/regrade-answering-ports.log",
+    "sha256": "ce15d01415dffe2840780224244993ab008b4285448bb719c79e98ca18b18b73"
+  },
+  {
+    "name": "regrade-answering-every-port",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-4x4",
+      "--build-dir",
+      "$VALIDATION_STORAGE/arty4x4-a863/c4q/answering-every-port",
+      "--variant",
+      "answering-every-port",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/arty4x4-a863/c4q/regrade-answering-every-port.log",
+    "sha256": "2453ebbd41921913643a45d7ebcda09905a1215ebca806d03862490004bea875"
+  },
+  {
+    "name": "regrade-answering-later",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-4x4",
+      "--build-dir",
+      "$VALIDATION_STORAGE/arty4x4-a863/c4q/answering-later",
+      "--variant",
+      "answering-later",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/arty4x4-a863/c4q/regrade-answering-later.log",
+    "sha256": "86d69583987ab7cc8cc047d5d09570557b14f0117db26141d9ddcb2a08e1a528"
+  },
+  {
+    "name": "regrade-talker-notices",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-4x4",
+      "--build-dir",
+      "$VALIDATION_STORAGE/arty4x4-a863/c4q/talker-notices",
+      "--variant",
+      "talker-notices",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/arty4x4-a863/c4q/regrade-talker-notices.log",
+    "sha256": "28c91823c90e5c3ddce5ea642b7285466505a5f7fe0d5ca84da4ead26cdf77b0"
+  },
+  {
+    "name": "regrade-shutdown-entry",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-4x4",
+      "--build-dir",
+      "$VALIDATION_STORAGE/arty4x4-a863/c4q/shutdown-entry",
+      "--variant",
+      "shutdown-entry",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/arty4x4-a863/c4q/regrade-shutdown-entry.log",
+    "sha256": "0724748b76ffe7c6cb580980bb9a4780186ad30f5231fff86a070ee1e4da72b6"
+  },
+  {
+    "name": "regrade-valid-destinations",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-4x4",
+      "--build-dir",
+      "$VALIDATION_STORAGE/arty4x4-a863/c4q/valid-destinations",
+      "--variant",
+      "valid-destinations",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/arty4x4-a863/c4q/regrade-valid-destinations.log",
+    "sha256": "ddc65a3988c5f255c57a13228a5d311dff22ccf5ce224f3e8505d97588b54e40"
+  },
+  {
+    "name": "regrade-declaring-outputs",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-4x4",
+      "--build-dir",
+      "$VALIDATION_STORAGE/arty4x4-a863/c4q/declaring-outputs",
+      "--variant",
+      "declaring-outputs",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/arty4x4-a863/c4q/regrade-declaring-outputs.log",
+    "sha256": "5e9a8e1cb52f2925cc102616d0ee6300da4fd4971ccad2e2016c148bafc83e36"
+  },
+  {
+    "name": "regrade-none",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-4x4",
+      "--build-dir",
+      "$VALIDATION_STORAGE/arty4x4-a863/c4q/none",
+      "--variant",
+      "none",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/arty4x4-a863/c4q/regrade-none.log",
+    "sha256": "26771bc4a4acb68622856edc0ee20bd244bd82ab78f732d58c002d99e58075f4"
+  },
+  {
+    "name": "record-classes",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-I",
+      "-B",
+      "tb/verilator/ctrl_service_budget/record_classes.py",
+      "$VALIDATION_STORAGE/arty4x4-a863/c4q/none/results",
+      "$VALIDATION_STORAGE/arty4x4-a863/c4q/answering-ports/results",
+      "$VALIDATION_STORAGE/arty4x4-a863/c4q/answering-every-port/results",
+      "$VALIDATION_STORAGE/arty4x4-a863/c4q/valid-destinations/results",
+      "$VALIDATION_STORAGE/arty4x4-a863/c4q/declaring-outputs/results",
+      "$VALIDATION_STORAGE/arty4x4-a863/c4q/answering-later/results",
+      "$VALIDATION_STORAGE/arty4x4-a863/c4q/talker-notices/results",
+      "$VALIDATION_STORAGE/arty4x4-a863/c4q/shutdown-entry/results"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/arty4x4-a863/c4q/record-classes.log",
+    "sha256": "d6626e373aee9e895b5adcb4348e6a88b43d8377e7f214bba368ae07117b7470"
+  }
+]

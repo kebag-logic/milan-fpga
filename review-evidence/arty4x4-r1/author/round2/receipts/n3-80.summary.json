@@ -1,0 +1,46 @@
+{
+ "n": 3,
+ "mhz": 80,
+ "basis": "interpolated 0.667",
+ "counts": {
+  "n_if": 1,
+  "sources": 4,
+  "sinks_per_if": 4,
+  "registrations": 16,
+  "counter_descriptors": 10,
+  "notices": 20
+ },
+ "load": 0.5534,
+ "share_ms": 1.862,
+ "qualifying": 0,
+ "best": {
+  "queued_ms": 125,
+  "pace_ms": 13,
+  "slice_us": 1150,
+  "rows_ms": {
+   "R4": 15.69,
+   "R5": 84.31,
+   "R6": 79.92,
+   "first": 15.25,
+   "last": 172.72,
+   "R4L": 264.43,
+   "ACMP": 36.02,
+   "ADP": 33.69,
+   "MAAP": 33.96,
+   "tx": 38.24,
+   "txL": 56.87
+  },
+  "owner": [
+   "OWNER txL: 56.87 ms exceeds 49 ms",
+   "OWNER last: 172.72 ms exceeds 140 ms",
+   "OWNER ACMP: 36.02 ms exceeds 30 ms"
+  ],
+  "qualifies": false
+ },
+ "least": {
+  "ACMP": 36.02,
+  "txL": 56.87,
+  "last": 172.72
+ },
+ "status": "NO ROW"
+}
