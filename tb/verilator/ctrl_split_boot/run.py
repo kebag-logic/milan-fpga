@@ -33,8 +33,8 @@ Then it runs the model, saves its exit status beside its log (sim.status), and g
     testbench's clause 22 PHY answers: link down published as the poll
     arms, before its first frame, for a CPU reset alone, which keeps the
     word (its reset is link down, #972); the boot's probe one address a
-    frame, a miss published link down, then the PHY's 1000BASE-T full
-    duplex; a poll every CTRL_PLAT_PHY_POLL_US, within the release's
+    frame, a miss published link down, then the PHY's selected full-duplex
+    mode (100BASE-TX at MII, 1000BASE-T otherwise); a poll every CTRL_PLAT_PHY_POLL_US, within the release's
     250 ms publication bound; a loss latched between two polls published
     down then up by the next poll; a sustained loss published down; the
     link's return published up by the first poll after it, within that
@@ -275,6 +275,8 @@ def verilate(out: Path, spec: dict) -> Path:
         f'constexpr std::uint64_t cpu_hz = {spec["cpu_hz"]}ULL;',
         f'constexpr std::uint32_t csr_size = {spec["csr_size"]}u;',
         f'constexpr std::uint64_t sim_limit_ps = {SIM_LIMIT_MS}ULL * 1000000000ULL;',
+        f'constexpr bool mii_100_only = {str(spec.get("mii_100_only", False)).lower()};',
+        'constexpr unsigned phy_up_word = mii_100_only ? 11u : 13u;',
         f'constexpr std::uint64_t phy_step_limit_ms = {PHY_STEP_LIMIT_MS}ULL;',
         'constexpr const char* ready_line = "Milan split control firmware: ready\\r\\n";',
         'constexpr const char* stop_prefix = "Milan split: ";', '']))
@@ -363,7 +365,7 @@ def native(log: str, status: int | None) -> tuple[list[str], str]:
     return findings, f'NATIVE exit status {"not saved" if status is None else status}; {tally}'
 
 
-def phy_constants() -> tuple[float, float]:
+def phy_constants(mii: bool = False) -> tuple[float, float]:
     """CTRL_PLAT_PHY_POLL_US, by its derivation from the writer's heartbeat (scripts/nvm_shape.py, the generated
     MILAN_NVM_HEARTBEAT_MS), and CTRL_PLAT_PHY_STEP_US as ctrl_plat_phy.h states it, each in us."""
     sys.path.insert(0, str(ROOT / 'scripts'))
@@ -371,7 +373,8 @@ def phy_constants() -> tuple[float, float]:
     header = (ROOT / 'sw/firmware/ctrl/plat/ctrl_plat_phy.h').read_text()
     if '#define CTRL_PLAT_PHY_POLL_US (MILAN_NVM_HEARTBEAT_MS * 1000u / 2u)' not in header:
         raise RuntimeError('ctrl_plat_phy.h derives CTRL_PLAT_PHY_POLL_US otherwise than this grade reads it')
-    step = re.search(r'^#define CTRL_PLAT_PHY_STEP_US (\d+)u$', header, re.M)
+    name = 'CTRL_PLAT_PHY_MII_STEP_US' if mii else 'CTRL_PLAT_PHY_STEP_US'
+    step = re.search(rf'^#define {name} (\d+)u$', header, re.M)
     if step is None:
         raise RuntimeError('ctrl_plat_phy.h states no CTRL_PLAT_PHY_STEP_US')
     return WRITER_TIMING_MS['MILAN_NVM_HEARTBEAT_MS'] * 1000 / 2, float(step[1])
@@ -388,40 +391,45 @@ def polls(publications: list[tuple[int, int]], gap: int) -> list[list[tuple[int,
 
 
 def advertisement(frames: list[tuple], writes: list[tuple], pubs: list[tuple[int, int]], events: dict,
-                  report: list[str]) -> list[str]:
+                  report: list[str], mii: bool = False) -> list[str]:
     """#840's advertisement (ctrl_plat_phy.h THE ADVERTISEMENT): the boot's three writes, then two after each of the
     script's losses (a publication from link up to down), each group read back; its findings, its report line
     appended."""
+    boot = [(4, 0x101), (0, 0x1200)] if mii else ADVERTISED_BOOT
+    loss = [(4, 0x101)] if mii else ADVERTISED_LOSS
+    readback = [4] if mii else [4, 9]
     findings = []
     losses = [c for (c, w), (_, before) in zip(pubs[1:], pubs) if (before & 1) and not (w & 1)]
     groups, k = [], 0
     for n, start in enumerate([0] + losses):
-        group = [w for w in writes[k:] if w[0] > start and w[1] == PHY_ADDRESS][:3 if n == 0 else 2]
+        group = [w for w in writes[k:] if w[0] > start and w[1] == PHY_ADDRESS][:len(boot) if n == 0 else len(loss)]
         groups.append(group)
         k += len(group)
     values = [[(r, v) for _, _, r, v in g] for g in groups]
     report.append(f'PHY advertisement: {len(writes)} writes; the boot\'s {[(r, hex(v)) for r, v in values[0]]}, '
                   f'after each of {len(losses)} losses {[[(r, hex(v)) for r, v in g] for g in values[1:]]}')
-    if values[0] != ADVERTISED_BOOT:
-        findings.append(f'PHY: the boot\'s advertisement wrote {values[0]}, not register 9, 4, then 0 as '
-                        f'{ADVERTISED_BOOT} (#840)')
-    if len(losses) < 2 or any(g != ADVERTISED_LOSS for g in values[1:]):
+    if values[0] != boot:
+        findings.append(f'PHY: the boot\'s advertisement wrote {values[0]}, not the selected sequence '
+                        f'{boot} (#840)')
+    if len(losses) < 2 or any(g != loss for g in values[1:]):
         findings.append(f'PHY: after the {len(losses)} losses the advertisement was written {values[1:]}, not '
-                        f'{ADVERTISED_LOSS} after each, with no restart')
+                        f'{loss} after each, with no restart')
     if len(writes) != k:
-        findings.append(f'PHY: {len(writes)} writes, not the boot\'s three and two after each loss')
+        findings.append(f'PHY: {len(writes)} writes, not {len(boot)} at boot and {len(loss)} after each loss')
     # each group read back: the two frames after its last write read registers 4 and 9
     for n, group in enumerate(groups):
-        back = [f[3] for f in frames if group and f[1] > group[-1][0]][:2]
-        if group and back != [4, 9]:
-            findings.append(f'PHY: the advertisement\'s group {n} read back registers {back}, not 4 and 9')
+        back = [f[3] for f in frames if group and f[1] > group[-1][0]][:len(readback)]
+        if group and back != readback:
+            findings.append(f'PHY: the advertisement\'s group {n} read back registers {back}, not {readback}')
     return findings
 
 
 def grade_phy(log: str, spec: dict, ready_at: int) -> tuple[list[str], list[str]]:
     """The published link word after ready (#919): its findings and report lines."""
     findings, report = [], []
-    poll_us, step_us = phy_constants()
+    mii = spec.get("mii_100_only", False)
+    full = 11 if mii else GIG_FULL
+    poll_us, step_us = phy_constants(mii)
     per_us = spec['sys_hz'] / 1e6
     frames = [tuple(int(x) for x in f) for f in lines(log, 'PHYF')]
     pubs = [(int(c), int(w)) for c, w in lines(log, 'PHYP')]
@@ -457,9 +465,9 @@ def grade_phy(log: str, spec: dict, ready_at: int) -> tuple[list[str], list[str]
         findings.append(f'PHY: a frame of {span_us:.2f} us is over its stated cost, {step_us:.0f} us')
     groups = polls(pubs, int(poll_us * per_us / 2))
     words = [[w for _, w in g] for g in groups]
-    if found is not None and words[:1] != [[0] * PHY_ADDRESS + [GIG_FULL]]:
+    if found is not None and words[:1] != [[0] * PHY_ADDRESS + [full]]:
         findings.append(f'PHY: the boot\'s poll published {words[:1]}, not link down a miss, then the PHY\'s '
-                        f'1000BASE-T full duplex ({GIG_FULL})')
+                        f'selected full-duplex mode ({full})')
     # a poll starts with its first frame: one that follows the frame before it by more than half a period; the
     # firmware reads the clock it is paced on just before that frame's first pin
     starts = [f[0] for k, f in enumerate(frames) if k == 0 or f[0] - frames[k - 1][1] > poll_us * per_us / 2]
@@ -476,17 +484,17 @@ def grade_phy(log: str, spec: dict, ready_at: int) -> tuple[list[str], list[str]
         """The words of each poll after the script's event."""
         at = events.get(event)
         return [] if at is None else [[w for _, w in g] for g in groups if g[0][0] > at]
-    wants = (('latched', [0, GIG_FULL], 'a loss latched between two polls is not published down, then up, by the '
+    wants = (('latched', [0, full], 'a loss latched between two polls is not published down, then up, by the '
                                         'next poll'),
              ('down', [0, 0], 'a loss is not published down by the next poll'),
-             ('back', [GIG_FULL], 'the link\'s return is not published up by the first poll after it'))
+             ('back', [full], 'the link\'s return is not published up by the first poll after it'))
     for event, want, words_of in wants:
         got = after(event)[:1]
         report.append(f'PHY after {event}: the next poll published {got[0] if got else "nothing"}')
         if got != [want]:
             findings.append(f'PHY: {words_of}: {got}')
     if 'back' in events:
-        rise = next((c for c, w in pubs if c > events['back'] and w == GIG_FULL), None)
+        rise = next((c for c, w in pubs if c > events['back'] and w == full), None)
         # the first poll after the return publishes it (checked above); and within the release's publication bound
         if rise is not None:
             report.append(f'PHY the link\'s return published up {(rise - events["back"]) / per_us / 1000:.3f} ms '
@@ -494,7 +502,7 @@ def grade_phy(log: str, spec: dict, ready_at: int) -> tuple[list[str], list[str]
             if (rise - events['back']) / per_us / 1000 > PUBLICATION_MS:
                 findings.append(f'PHY: the link\'s return published up {(rise - events["back"]) / per_us / 1000:.3f}'
                                 f' ms after it, past the publication bound')
-    findings += advertisement(frames, [tuple(int(x) for x in w) for w in lines(log, 'PHYW')], pubs, events, report)
+    findings += advertisement(frames, [tuple(int(x) for x in w) for w in lines(log, 'PHYW')], pubs, events, report, mii)
     timing = lines(log, 'PHYT')
     if timing:
         high, low, period = (int(x) / spec['sys_hz'] * 1e9 for x in timing[0])
@@ -601,25 +609,28 @@ def point(out: Path, shape: str, n_if: int, regrade: bool, plant: str | None = N
                  saved_status(out))
 
 
-def phy_rows(sys_hz: int) -> list[str]:
+def phy_rows(sys_hz: int, mii: bool = False) -> list[str]:
     """A valid run's PHY lines (#919), as sim_main.cpp prints them: the arm's link down before any frame (#972), then
     the boot's poll probing one miss, two steady
     polls, the latched loss's, the loss's two and the return's, each poll's frames 0.2 ms apart; the advertisement
     (#840) after the first BMSR of the boot's poll and of each poll that publishes a loss, its writes' PHYW lines."""
     period = int(phy_constants()[0] * sys_hz / 1e6)
     a = PHY_ADDRESS
-    steady = [(a, 1), (a, 0), (a, 15), (a, 9), (a, 10)]
+    full = 11 if mii else GIG_FULL
+    steady = [(a, 1), (a, 0), (a, 4), (a, 5)] if mii else [(a, 1), (a, 0), (a, 15), (a, 9), (a, 10)]
     second = [(a, 1)] + steady
     read = [(a, 15), (a, 4), (a, 9), (a, 0)]
-    boot = read + [(a, r, v) for r, v in ADVERTISED_BOOT] + [(a, 4), (a, 9)]
-    loss = read + [(a, r, v) for r, v in ADVERTISED_LOSS] + [(a, 4), (a, 9)]
+    boot = ([(a, 4), (a, 0), (a, 4, 0x101), (a, 0, 0x1200), (a, 4)] if mii else
+            read + [(a, r, v) for r, v in ADVERTISED_BOOT] + [(a, 4), (a, 9)])
+    loss = ([(a, 4), (a, 0), (a, 4, 0x101), (a, 4)] if mii else
+            read + [(a, r, v) for r, v in ADVERTISED_LOSS] + [(a, 4), (a, 9)])
     probe = [(n, 2) for n in range(a + 1)]
     #: each poll: its frames, and the frame after which each word is published
-    plan = [(probe + [(a, 1)] + boot + steady, {0: 0, len(probe) + len(boot) + len(steady): GIG_FULL}),
-            (steady, {len(steady) - 1: GIG_FULL}), (steady, {len(steady) - 1: GIG_FULL}),
-            ([(a, 1)] + loss + steady, {0: 0, len(loss) + len(steady): GIG_FULL}),
+    plan = [(probe + [(a, 1)] + boot + steady, {0: 0, len(probe) + len(boot) + len(steady): full}),
+            (steady, {len(steady) - 1: full}), (steady, {len(steady) - 1: full}),
+            ([(a, 1)] + loss + steady, {0: 0, len(loss) + len(steady): full}),
             ([(a, 1)] + loss + [(a, 1)], {0: 0, len(loss) + 1: 0}),
-            (second[:2], {1: 0}), (second, {len(second) - 1: GIG_FULL})]
+            (second[:2], {1: 0}), (second, {len(second) - 1: full})]
     events = {2: 'latched', 3: 'down', 5: 'back'}
     rows = ['PHYP 500000 0']
     for k, (frames, words) in enumerate(plan):
@@ -641,14 +652,18 @@ def stand_in(out: Path, shape: str, n_if: int, control: Control) -> tuple[Path, 
     prints a valid boot's observations as sim_main.cpp prints them (configure_fabric()'s writes and MAAP's
     one-owner report, the ready line, the three commands answered as the grader passes them, and the PHY's polls),
     then ends its log and exits as the control says."""
-    spec = {'sys_hz': 100_000_000, 'cpu_hz': 100_000_000, 'shape': shape, 'interfaces': n_if}
+    sys.path.insert(0, str(ROOT / 'sw/builder'))
+    from endstation_builder import load_config
+    clocks = load_config(ROOT / 'configs' / f'{shape}.yaml')['constraints']
+    spec = {'sys_hz': clocks['sys_clk_hz'], 'cpu_hz': clocks['sys_clk_hz'], 'shape': shape, 'interfaces': n_if,
+            'mii_100_only': clocks['phy'] == 'mii-100'}
     rows = [f'CSRW {k + 1} {o:03x} {v:08x}' for k, (o, v) in enumerate(expected_writes(shape, out / 'oracle'))]
     rows.append('READY 10000')
     for k, (command, answer) in enumerate(ANSWERS):
         start = 20000 + 100000 * k
         rows += [f'IN {start} {command}', *(f'UART {start + 100 * (j + 1)} {b:02x}'
                                              for j, b in enumerate(answer.encode()))]
-    rows += phy_rows(spec['sys_hz']) + ['PHYT 50 60 120']
+    rows += phy_rows(spec['sys_hz'], spec['mii_100_only']) + ['PHYT 50 60 120']
     log = '\n'.join(rows) + '\n' + control.ending
     transcript = BANNER + ''.join(answer for _, answer in ANSWERS)
     (out / 'soc/gateware').mkdir(parents=True, exist_ok=True)

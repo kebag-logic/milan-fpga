@@ -560,7 +560,7 @@ The #443 render CSR checks stay in `obj_aclk`.
 Their focused `notify`, `gsi-mutants`, `unb-mutants` and `render-csr-controls` targets remain available.
 The #658 `dynmap` leg runs in the pool; its focused `dynmap` and `dynmap-mutants` targets remain available.
 So do #637's `maprec8` and `maprec4` legs, with focused targets of the same names.
-The `gptp` and `gptp-lat` prerequisites run before the ordinary pool.
+The `gptp`, `gptp-lat` and `gptp-latw` prerequisites run before the ordinary pool.
 The render-law mutation controls run after it succeeds.
 The `gmstep` leg and its default controls left `run` for wall clock (#621).
 They run in the `milan_dp_gm_steps` suite, through this suite's `gmstep` recipe.

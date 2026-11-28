@@ -153,6 +153,9 @@ module KL_gptp_txret #(
     //! into the same single subtraction. Zero reproduces the uncorrected
     //! reconstruction bit for bit.
     parameter int unsigned EGRESS_LAT_NS_P = 0,
+    //! Issue #829: take that correction from lat_egress_ns_i at runtime, with
+    //! EGRESS_LAT_NS_P as its reset value.
+    parameter bit LAT_WRITABLE_P = 1'b0,
     //! fabric cycles between two recovery requests while a demand is
     //! unmet. It is a REQUEST CADENCE and never a completion authority:
     //! nothing is resolved or unsealed because this expired. It exists so
@@ -164,6 +167,10 @@ module KL_gptp_txret #(
 ) (
     input  wire clk_i,                 //! plane clock (axis_clk)
     input  wire rst_n,                 //! synchronous active-low reset
+
+    //! the runtime egress correction, nanoseconds, in this clock's domain;
+    //! unread unless LAT_WRITABLE_P
+    input  wire [15:0] lat_egress_ns_i,
 
     //! the live PHC, in this clock's domain
     input  wire [63:0] phc_ns_i,
@@ -295,6 +302,22 @@ module KL_gptp_txret #(
   //! readable as the derived sum of register stages it is.
   localparam longint signed TXTS_NET_NS_C =
       longint'(TXTS_CORR_NS_P) - longint'(EGRESS_LAT_NS_P);
+  //! ...and what that subtraction reads. Under LAT_WRITABLE_P the net is one
+  //! register fed by the corrections' one flop, so the 64-bit subtractor keeps
+  //! a registered operand and a write reaches it whole on one edge (issue
+  //! #829). Eighteen signed bits hold the digital term less sixteen bits.
+  logic [63:0] txts_net_ns_w;
+  generate if (LAT_WRITABLE_P) begin : g_net_writable
+    logic signed [17:0] net_r;
+    always_ff @(posedge clk_i) begin
+      if (!rst_n) net_r <= 18'(TXTS_NET_NS_C);
+      else        net_r <= 18'(longint'(TXTS_CORR_NS_P) -
+                               longint'(lat_egress_ns_i));
+    end
+    assign txts_net_ns_w = 64'(longint'(net_r));
+  end else begin : g_net_constant
+    assign txts_net_ns_w = 64'(TXTS_NET_NS_C);
+  end endgenerate
 
   localparam int unsigned PTR_W_C = $clog2(TXTS_CAP_N_P);
   localparam int unsigned OCC_W_C = $clog2(TXTS_CAP_N_P + 1) + 1;
@@ -613,7 +636,7 @@ module KL_gptp_txret #(
                       (cap_delta_r == TXTS_DELTA_W_P'(TXTS_DELTA_EXP_P));
   //! modular by construction: the PHC wraps and a launch a few hundred
   //! nanoseconds before a wrap must reconstruct to the value before it
-  assign res_ns_w = res_ok_w ? (cap_phc_r - 64'(TXTS_NET_NS_C)) : 64'd0;
+  assign res_ns_w = res_ok_w ? (cap_phc_r - txts_net_ns_w) : 64'd0;
 
   assign push_res_w = resolve_w | pre_resolve_w;
 

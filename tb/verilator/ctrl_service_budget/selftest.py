@@ -40,6 +40,7 @@ from unittest.mock import patch
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import build  # noqa: E402
+from selftest_trace import acmp_response, aem_response, received, synthetic, tx_record, tx_sequence
 import grade  # noqa: E402
 import run  # noqa: E402
 import scenario  # noqa: E402
@@ -102,58 +103,10 @@ def headline(result: dict) -> dict:
                 idle_min=passes['idle_min'], idle_max=passes['idle_max'])
 
 
-def synthetic(lines: list[str]) -> str:
-    """A minimal log in the testbench's line format, completed."""
-    return '\n'.join([*lines, 'SUMMARY passes=1', 'RESULT: PASS']) + '\n'
-
-
 def one(log: str, probe: scenario.Probe) -> dict:
     """A synthetic log's single probe, graded."""
     group = scenario.Group('synthetic', probes=[probe])
     return grade.grade(log, group, SYS_HZ, CPU_HZ)['probes'][0]
-
-
-def tx_record(ch: int, interface: int, frame: bytes, at: int, cycle: int) -> list[str]:
-    """The ring writes of one TX record at word index at, then its TX_HEAD commit."""
-    base, words = grade.TX_RING[ch]
-    data = [len(frame) | interface << 16 | 2 << 28, 0]
-    padded = frame + bytes(-len(frame) % 4)
-    data += [int.from_bytes(padded[k:k + 4], 'little') for k in range(0, len(padded), 4)]
-    writes = ' '.join(f'{cycle - len(data) - 1 + n}:{base + (at + n) % words:x}:{v:x}' for n, v in enumerate(data))
-    head = at + len(data)
-    return [f'PASS 1 {cycle - 100} {(cycle - 100) // 2} 50 instr=10 load_mbx=3 store_mbx={len(data) + 1} '
-            f'W {writes} {cycle}:{scenario.ch_word(ch, "TX_HEAD"):x}:{head:x}', f'TXC {cycle} {ch} {head}']
-
-
-def tx_sequence(ch: int, records: list[tuple[int, bytes, int]]) -> list[str]:
-    """Consecutive TX records of one channel: (interface, frame, commit cycle) each."""
-    lines, at = [], 0
-    for interface, frame, cycle in records:
-        lines += tx_record(ch, interface, frame, at, cycle)
-        at += 2 + (len(frame) + 3) // 4
-    return lines
-
-
-def acmp_response(sequence: int, message: str = 'GET_RX_STATE_RESPONSE', status: int = 0) -> bytes:
-    """An ACMP response frame with that sequence_id."""
-    return scenario.f.acmp(scenario.f.ACMP[message], 0x020000000001,
-                           scenario.f.Acmp(sequence=sequence, status=status))
-
-
-def aem_response(controller: int, sequence: int, command: int = 0x0010, unsolicited: bool = False,
-                 descriptor: tuple[int, int] = (0, 0)) -> bytes:
-    """An AEM_RESPONSE (9.2.1.2) to controller; unsolicited sets the u bit (7.5.2)."""
-    payload = scenario.f.be(descriptor[0], 2) + scenario.f.be(descriptor[1], 2) + bytes(4)
-    frame = bytearray(scenario.f.aem_command(scenario.f.Aem(1, controller, 2, 3, sequence), command, payload))
-    frame[15] = 1
-    if unsolicited:
-        frame[36] |= 0x80
-    return bytes(frame)
-
-
-def received(ch: int, tag: str, at: int = 1100) -> list[str]:
-    """A 70-byte frame tagged tag whose receive commit lands 4 cycles after its last byte."""
-    return [f'RXS {at} 0 70 {tag}', f'RXE {at + 69}', f'RXC {at + 73} {ch}']
 
 
 def differences(got: dict, pinned: dict) -> str:
@@ -611,6 +564,19 @@ def fanout_checks() -> list[Check]:
     return out
 
 
+def fixed_map_checks() -> list[Check]:
+    """A fixed output port has no dynamic map; an input map must still supply its edit."""
+    with tempfile.TemporaryDirectory() as tmp:
+        elf = Path(tmp) / 'firmware.elf'
+        (elf.with_name('aecp_entity_gen.h')).write_text(
+            '{14,0,0,0,(rows)+0,0,1,aecp_map_defaults+0,1}\n'
+            'aecp_map_defaults[] = {{0,0,0,0}};\n')
+        build = dict(elf=str(elf))
+        actual = (scenario.map_edit(build, 14), scenario.map_edit(build, 15))
+        expected = (bytes.fromhex('000e0000000100000000000000000000'), None)
+    return [('a fixed output map is absent without dropping the input edit', actual == expected, str(actual))]
+
+
 def run_checks() -> list[Check]:
     """The run's exit status, the regrade's refusal of an absent log or script, and a trap's refusal."""
     out = []
@@ -738,8 +704,9 @@ def build_checks() -> list[Check]:
     others = {(shape, n): build.ledgered_point(shape, n) for shape, _ in run.POINTS.values() for n in (1, 2)
               if (shape, n) not in run.POINTS.values()}
     out = [('the ledgered points are named at the 8x8 points only (#584: with one interface too), as planned',
-            named == {'1x1': None, '8x8': '8x8-two-interfaces', '8x8-1if': '8x8-one-interface'} and not any(
-                others.values()) and {named['8x8'], named['8x8-1if']} <= set(ctrl_memory.LEDGERED), f'{named}{others}')]
+            named == {'1x1': None, '8x8': '8x8-two-interfaces',
+                      '8x8-1if': '8x8-one-interface', 'arty-1x1': None} and not any(others.values()) and
+            {named['8x8'], named['8x8-1if']} <= set(ctrl_memory.LEDGERED), f'{named}{others}')]
     with tempfile.TemporaryDirectory() as tmp:
         failed = []
         for name, apply in [*[(v, build.variant_fixture) for v in build.VARIANTS],
@@ -925,7 +892,8 @@ def cache_build_checks() -> list[Check]:
 def checks() -> list[Check]:
     """Every named check and whether it holds."""
     return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *maximum_checks(),
-            *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
+            *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *fixed_map_checks(),
+            *run_checks(), *reuse_checks(),
             *build_checks(), *cache_checks(), *cache_build_checks(), *share_checks(synthetic, SYS_HZ, CPU_HZ),
             *stated_checks(synthetic, SYS_HZ, CPU_HZ), *round_checks(synthetic, SYS_HZ, CPU_HZ), *ceiling_checks(),
             *polls_checks(synthetic, SYS_HZ, CPU_HZ, tx_record), *answer_checks(sys.modules[__name__]),

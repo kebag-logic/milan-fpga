@@ -320,8 +320,27 @@ class TxtsHarness {
   void load_phc_inside_a_frame(bool first_symbol, const std::string &arm);
   void prove_recovery_over_the_production_mac();
   void prove_full_run_laws();
+#ifdef GPTP_TXTS_LATW
+  //! One graded exchange under the corrections then in force.
+  struct LatGrade {
+    bool ok = false;
+    int64_t ingress = 0;     //! PHC at the request's first accepted beat, less t2
+    int64_t net = 0;         //! PHC at the response's record, less the wire's t3
+    int64_t pad_err = 0;     //! the wire's t3, less the PHC at the pads' launch
+  };
+  LatGrade lat_exchange(uint64_t write_after_ns = 0, uint16_t ing = 0,
+                        uint16_t egr = 0);
+  void set_lat(uint16_t ing, uint16_t egr);
+  void prove_a_written_pair_moves_both_stamps();
+  void prove_a_write_spoils_at_most_its_own_exchange();
+#endif
 
   // ---- the oracles --------------------------------------------------------
+#ifdef GPTP_TXTS_LATW
+  struct RecPhc { uint16_t seq; uint8_t type; uint64_t phc; };
+  std::vector<RecPhc> rec_phc_;
+  uint64_t rx_first_phc_ = 0;
+#endif
   int64_t phc_at(uint64_t when) const;
   size_t gptp_pads() const;
   int64_t error_of(size_t gptp_index) const;
@@ -373,6 +392,13 @@ void TxtsHarness::step() {
   if (eth_posedge) on_eth_edge();
   if (dp_posedge) {
     phc_samples_.emplace_back(now_, dut->phc_ns_o);
+#ifdef GPTP_TXTS_LATW
+    if (dut->rec_v_o && !dut->rec_kind_o) {
+      rec_phc_.push_back({static_cast<uint16_t>(dut->rec_seq_o),
+                          static_cast<uint8_t>(dut->rec_type_o),
+                          dut->phc_ns_o});
+    }
+#endif
     if (dut->eng_txts_v_o) {
       results_.push_back({dut->eng_txts_ns_o,
                           static_cast<uint16_t>(dut->eng_txts_seq_o),
@@ -397,6 +423,12 @@ void TxtsHarness::run_ns(uint64_t span) {
 //! At the rising edge, before the design evaluates it: the handshakes that
 //! are completing right now, and the observations that belong to them.
 void TxtsHarness::on_dp_edge() {
+#ifdef GPTP_TXTS_LATW
+  //! the value the plane's arrival stamp reads on this very edge
+  if (dut->rx_tvalid_i && dut->rx_tready_i && rx_pos_ == 0) {
+    rx_first_phc_ = dut->phc_ns_o;
+  }
+#endif
   if (dut->rx_tvalid_i && dut->rx_tready_i) { rx_pos_ += 8; dbg_rx_beats_++; }
   if (dut->bg_tvalid_i && dut->bg_tready_o) bg_pos_ += 8;
   if (dut->gtx_tvalid_o && dut->gtx_tready_o) dbg_lane_beats_++;
@@ -647,6 +679,81 @@ void TxtsHarness::reset_all() {
   dut->eth_rst_n = 1;
   run_ns(2000);
 }
+
+#ifdef GPTP_TXTS_LATW
+//! A nanosecond stamp from a frame body, 802.1AS's 48-bit seconds and 32-bit
+//! nanoseconds at `at`, as the single scale the PHC counts in.
+static uint64_t body_ts_ns(const std::vector<uint8_t> &b, size_t at) {
+  uint64_t sec = 0;
+  for (size_t i = 0; i < 6; i++) sec = (sec << 8) | b[at + i];
+  uint64_t ns = 0;
+  for (size_t i = 6; i < 10; i++) ns = (ns << 8) | b[at + i];
+  return sec * 1000000000ull + ns;
+}
+
+//! Drive the two corrections as the CSR block's flops do: both change on one
+//! plane edge, while the plane's clock is low.
+void TxtsHarness::set_lat(uint16_t ing, uint16_t egr) {
+  while (dut->dp_clk_i) step();
+  dut->lat_ingress_ns_i = ing;
+  dut->lat_egress_ns_i = egr;
+}
+
+//! One peer request and its two answers, graded on what the wire carries:
+//! t2 from the Pdelay_Resp and t3 from the Follow_Up. `write_after_ns`, when
+//! not zero, moves the corrections that long after the request is offered.
+TxtsHarness::LatGrade TxtsHarness::lat_exchange(uint64_t write_after_ns,
+                                                uint16_t ing, uint16_t egr) {
+  LatGrade g;
+  const size_t pads_before = pads_.size();
+  const size_t recs_before = rec_phc_.size();
+  const uint16_t seq = peer_seq_++;
+  Frame req = ptp_frame(0x2, seq, 0x0000, 20, kPeerCid);
+  req.u64v(0);
+  req.u64v(0);
+  req.u32(0);
+  send_peer(req.b);
+  const uint64_t offered = now_;
+  const uint64_t until = now_ + kExchangeNs;
+  const PadFrame *resp = nullptr;
+  const PadFrame *fup = nullptr;
+  bool written = write_after_ns == 0;
+  while (now_ < until && !(resp && fup)) {
+    if (!written && now_ >= offered + write_after_ns) {
+      set_lat(ing, egr);
+      written = true;
+    }
+    step();
+    resp = nullptr;
+    fup = nullptr;
+    for (size_t i = pads_before; i < pads_.size(); i++) {
+      if (!pads_[i].gptp || pads_[i].seq != seq) continue;
+      if (pads_[i].type == 0x3) resp = &pads_[i];
+      if (pads_[i].type == 0xA) fup = &pads_[i];
+    }
+  }
+  run_ns(4000);
+  sys_next_ += 1;
+  if (!written) set_lat(ing, egr);
+  if (!resp || !fup || resp->body.size() < 58 || fup->body.size() < 58) return g;
+  uint64_t rec_phc = 0;
+  bool have_rec = false;
+  for (size_t i = recs_before; i < rec_phc_.size(); i++) {
+    if (rec_phc_[i].seq == seq && rec_phc_[i].type == 0x3) {
+      rec_phc = rec_phc_[i].phc;
+      have_rec = true;
+    }
+  }
+  if (!have_rec) return g;
+  const uint64_t t2 = body_ts_ns(resp->body, 48);
+  const uint64_t t3 = body_ts_ns(fup->body, 48);
+  g.ingress = static_cast<int64_t>(rx_first_phc_) - static_cast<int64_t>(t2);
+  g.net = static_cast<int64_t>(rec_phc) - static_cast<int64_t>(t3);
+  g.pad_err = static_cast<int64_t>(t3) - phc_at(resp->ref_ns);
+  g.ok = true;
+  return g;
+}
+#endif
 
 bool TxtsHarness::wait_unsealed(uint64_t span) {
   const uint64_t until = now_ + span;
@@ -1077,7 +1184,95 @@ void TxtsHarness::prove_full_run_laws() {
             dut->dbg_rec_ovr_o, 0);
 }
 
+#ifdef GPTP_TXTS_LATW
+//! A written pair moves the published stamps by exactly that pair, in each
+//! direction on its own (issue #829). The ingress stamp and the wire's t3
+//! against the PHC at the response's record are exact, with no phase term; the
+//! pads grade the same t3 against the launch they saw, inside the bound.
+void TxtsHarness::prove_a_written_pair_moves_both_stamps() {
+  set_lat(0, 0);
+  LatGrade base;
+  for (int n = 0; n < 8; n++) base = lat_exchange();
+  check.that("runtime: an exchange at the zero pair completes", base.ok);
+  check.dec("runtime: at the zero pair t2 is the PHC at the first beat",
+            base.ingress, 0);
+  check.that("runtime: at the zero pair t3 is on the pads' launch",
+             std::abs(base.pad_err) <= kBoundNs);
+  std::printf("  zero pair: ingress gap %lld ns, net %lld ns, pad error %+lld ns\n",
+              static_cast<long long>(base.ingress),
+              static_cast<long long>(base.net),
+              static_cast<long long>(base.pad_err));
+  //! Unequal and unrelated to any figure in the RTL, so a swap or a shared
+  //! value goes red. The sum of the last two is what the MII port measured.
+  static constexpr uint16_t kPairs[][2] = {
+      {777, 333}, {1409, 100}, {1, 65535}, {65535, 1}, {0, 0}};
+  for (const auto &pair : kPairs) {
+    set_lat(pair[0], pair[1]);
+    LatGrade g;
+    for (int n = 0; n < 3; n++) {
+      g = lat_exchange();
+      check.that("runtime: an exchange under a written pair completes", g.ok);
+      check.dec("runtime: a written ingress moves t2 by exactly it",
+                g.ingress - base.ingress, pair[0]);
+      check.dec("runtime: a written egress moves t3 by exactly it",
+                base.net - g.net, pair[1]);
+      check.that("runtime: t3 less the egress is still on the pads' launch",
+                 std::abs(g.pad_err - pair[1]) <= kBoundNs);
+    }
+    std::printf("  pair %u/%u: t2 moved %lld ns, t3 moved %lld ns\n", pair[0],
+                pair[1], static_cast<long long>(g.ingress - base.ingress),
+                static_cast<long long>(base.net - g.net));
+  }
+}
+
+//! A write lands on one edge and a stamp reads one value, so an exchange a write
+//! falls inside carries the old pair or the new one in each stamp, and the next
+//! exchange carries the new pair whole (issue #829). The sweep puts the write
+//! at every distance through the exchange, on either side of each stamp.
+void TxtsHarness::prove_a_write_spoils_at_most_its_own_exchange() {
+  set_lat(0, 0);
+  LatGrade base;
+  for (int n = 0; n < 2; n++) base = lat_exchange();
+  static constexpr uint16_t kOldI = 1409;
+  static constexpr uint16_t kOldE = 100;
+  static constexpr uint16_t kNewI = 777;
+  static constexpr uint16_t kNewE = 333;
+  int straddled = 0;
+  for (uint64_t at = 20; at < 12000 * kEthCycPerOctet; at += 170) {
+    set_lat(kOldI, kOldE);
+    lat_exchange();
+    const LatGrade during = lat_exchange(at, kNewI, kNewE);
+    check.that("runtime: an exchange a write falls inside completes", during.ok);
+    const int64_t ing = during.ingress - base.ingress;
+    const int64_t egr = base.net - during.net;
+    check.that("runtime: t2 carries one whole correction, old or new",
+               ing == kOldI || ing == kNewI);
+    check.that("runtime: t3 carries one whole correction, old or new",
+               egr == kOldE || egr == kNewE);
+    if (ing != kNewI || egr != kNewE) straddled++;
+    const LatGrade next = lat_exchange();
+    check.that("runtime: the next exchange completes", next.ok);
+    check.dec("runtime: the next exchange's t2 carries the new pair whole",
+              next.ingress - base.ingress, kNewI);
+    check.dec("runtime: the next exchange's t3 carries the new pair whole",
+              base.net - next.net, kNewE);
+  }
+  std::printf("  %d of the writes landed inside the stamps' interval\n", straddled);
+  check.that("runtime: the sweep really did land a write between the stamps",
+             straddled > 0);
+  set_lat(0, 0);
+}
+#endif
+
 int TxtsHarness::run() {
+#ifdef GPTP_TXTS_LATW
+  dut->lat_ingress_ns_i = 0;
+  dut->lat_egress_ns_i = 0;
+  prove_bring_up();
+  prove_a_written_pair_moves_both_stamps();
+  prove_a_write_spoils_at_most_its_own_exchange();
+  return check.report();
+#endif
   prove_bring_up();
   prove_launch_reference();
   prove_queue_invariance();

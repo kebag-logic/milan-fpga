@@ -273,8 +273,8 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             log.step_passes.append((int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2])))
             log.stepped.append((int(rest[0]), int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2]),
                                 'aged=1' in rest[5:]))
-        elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH', 'FLASHDATA'):
-            continue
+        elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH', 'FLASHDATA', 'EGRESSQ', 'EGRESS'):
+            continue  # EGRESSQ and EGRESS, the 100 Mb/s queue and its departures, are egress_mii.py's
         elif kind == 'FAIL:':
             log.errors.append(line)
         else:

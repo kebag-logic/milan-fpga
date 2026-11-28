@@ -970,4 +970,8 @@ MUTANTS: dict[str, Patches] = {
     "clock: the CPU's domain is not checked": _refusals_kept(lambda refusal: 'domain' not in refusal),
     "clock: the CPU's clock is not checked against the bus clock": _refusals_kept(lambda refusal: 'domain' in refusal),
     'clock: a reused build is not checked': _reuse_unchecked(),
+    'clock: Arty stimulus keeps the 100 MHz cycle counts': lambda: [patch.object(
+        scenario, 'clocked_step', lambda step, sys_hz: step)],
+    'clock: the group factory omits its build clock': lambda: [patch.object(
+        run, 'all_groups', run.all_groups.__wrapped__)],
 }

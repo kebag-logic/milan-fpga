@@ -101,6 +101,19 @@ The CPU does not necessarily run at the system-bus rate.
 Here, CPU execution is 50 MHz.
 The system bus runs at 100 MHz.
 
+The split CPU runs on the system bus clock.
+Arty uses exactly 80 MHz (#878).
+
+Its VCO runs at 800 MHz.
+The exact-divider contract keeps `margin=0`.
+
+| Output | Divider | Frequency |
+|---|---:|---:|
+| sys and split CPU | 10 | 80 MHz |
+| eth_ref | 32 | 25 MHz |
+| milan datapath | 16 | 50 MHz |
+| idelay | 4 | 200 MHz |
+
 Other interface clocks are not extra `_CRG` domains:
 
 - JTAG TCK clocks programming/debug access, not the Milan datapath.
@@ -365,14 +378,17 @@ TX reference plane.
 
 Peer delay alone cannot identify an external inline-device fault.
 
-The retained latency CSRs do not repair this path.
-In VERSION `0x0002_0060`, `0x540`/`0x544` are readable, inert scratch:
+These latency CSRs do not change the timestamp reference plane.
+In VERSION `0x0002_0060` and a split image's `0x0003_0060`, `0x540`/`0x544` are readable shadow words:
 
 - `PTP_INGRESS_LAT` and `PTP_EGRESS_LAT` are plain RW shadow words.
 - A read returns the last written value.
-- No timestamp path consumes them at this VERSION.
-- The live correction is the plane's, at `0x7F0` (#358).
-- They stay inert so nothing corrects twice.
+- Without `gptp.latency_writable`, they reset to zero and remain inert scratch.
+- With that key, their low halves set the corrections (#829).
+- Writable builds reset readback and correction to the configured pair.
+- The correction flops, plane and CSR block share `axis_clk`: no crossing.
+- `GPTP_LAT` at `0x7F0` publishes the pair the plane applies (#358).
+- The plane remains the only consumer, so nothing corrects twice.
 - Source: `is_plain_rw` and `shadow_mem` in [`milan_csr`](../../hdl/common/csr/milan_csr.sv).
 
 See the [register map](../reference/REGISTER_MAP.md) and
