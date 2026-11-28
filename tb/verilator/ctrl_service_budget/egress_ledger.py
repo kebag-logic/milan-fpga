@@ -10,8 +10,8 @@ backpressure to the service budget. A new or larger miss fails the leg (#894's h
 - a ledger row with no measured instance fails, and so does any instance not measured, or never released or answered;
 - a budget miss of any other row is new, and fails.
 
-The ledgers are derived at 8x8/1if (#894), at Arty's own 80 MHz point and at the Arty 4x4's own 100 MHz point (#878),
-by #894's ledger ruling, items 2 and 3: each row's figure is the scenario's egress hold
+The ledgers are derived at 8x8/1if (#894), at Arty's own 80 MHz point (#878) and at the Arty 4x4's own 100 MHz
+point (#1027), by #894's ledger ruling, items 2 and 3: each row's figure is the scenario's egress hold
 (HOLD_MS, read from scenario.py's backlog-owed group) plus the
 service behind it at its measurement (MEASURED at each point's own clock) plus 5 %, rounded up to 0.01 ms (figure).
 Sections 13 and 15 state those figures, and the self-test holds each table and the derivation to the rule.
@@ -98,9 +98,9 @@ ARTY = {'backlog.owed.if0': 62.79239, 'backlog.owed_behind0.if0': 62.92862,
         'backlog.owed_behind3.if0': 63.33355, 'backlog-owed.service.acmp.last.if0': 62.10374,
         'backlog-owed.service.aecp.last.if0': 61.88720}
 MEASURED['arty-1x1'] = ARTY
-#: #878's Arty 4x4 (1,5,5) point, CPU and system clock exactly 100 MHz: its own backlog-owed measurements, on the
-#: link-rate census of the image it qualifies, its own ledger point as #1020's ruling (comment 7234489667, item 3)
-#: makes the USB-network Arty's.
+#: #1027's Arty 4x4 (1,5,5) point, CPU and system clock exactly 100 MHz: its own backlog-owed measurements, on the
+#: link-rate census of the image it qualifies, its own ledger point by #1027's decision 2, as PR #1020's ledger ruling
+#: (item 3) makes the USB-network Arty's.
 ARTY_4X4 = {'backlog.owed.if0': 62.64658, 'backlog.owed_behind0.if0': 62.82023,
             'backlog.owed_behind1.if0': 62.98813, 'backlog.owed_behind2.if0': 63.15874,
             'backlog.owed_behind3.if0': 63.32736, 'backlog-owed.service.acmp.last.if0': 61.81513,
@@ -108,6 +108,18 @@ ARTY_4X4 = {'backlog.owed.if0': 62.64658, 'backlog.owed_behind0.if0': 62.82023,
 MEASURED['arty-4x4'] = ARTY_4X4
 #: Each point's bus clock in kHz: the cycles per ms one cycle over a figure is planted at.
 CLOCK_KHZ = {'8x8-1if': 100_000, 'arty-1x1': 80_000, 'arty-4x4': 100_000}
+#: The configuration each point's census builds (run.POINTS), whose sys_clk_hz the planted cycle is held to.
+CONFIG = {'8x8-1if': 'endstation_ax7101_8x8', 'arty-1x1': 'endstation_arty_current',
+          'arty-4x4': 'endstation_arty_split_4x4'}
+
+
+def config_khz(point: str) -> int:
+    """A point's bus clock in kHz, read from its census's configuration."""
+    text = (ROOT / 'configs' / f'{CONFIG[point]}.yaml').read_text()
+    found = re.findall(r'^\s*sys_clk_hz:\s*(\d+)', text, re.M)
+    if len(found) != 1:
+        raise ValueError(f'{CONFIG[point]}: states sys_clk_hz {len(found)} times, not once')
+    return int(found[0]) // 1000
 
 
 def figure(measured_ms: float, hold: int = HOLD_MS) -> float:
@@ -401,7 +413,9 @@ def controls(base: Path, run: Callable[[list[str]], tuple[int, str]],
            ('each figure is the hold plus the service behind it plus 5 %, rounded up to 0.01 ms', ledger == rule,
             str(rule)),
            ("the hold is scenario.py's backlog-owed hold, and a planted hold of another length is read as it",
-            HOLD_MS == hold_ms() == 60 and hold_ms(planted_hold) == 59, str(HOLD_MS))]
+            HOLD_MS == hold_ms() == 60 and hold_ms(planted_hold) == 59, str(HOLD_MS)),
+           ("one cycle over a figure is planted at the point's own bus cycle, its configuration's sys_clk_hz",
+            CLOCK_KHZ[point] == config_khz(point), f'{CLOCK_KHZ[point]} kHz')]
     if point == '8x8-1if':
         out.insert(2, ("section 13's five measurements are the five images'",
                        doc_measurements(DOC.read_text()) == (MERGED, COMPOSED, LISTENED, TRAIN, PINNED), point))
@@ -472,6 +486,8 @@ MUTANTS = {
         m.MEASURED['arty-4x4'], {'backlog.owed_behind3.if0': 63.33355}),
     'Arty 4x4 figure a hundredth under the rule': lambda m: patch.dict(m.LEDGER['arty-4x4'], {
         'backlog.owed_behind3.if0': round(m.LEDGER['arty-4x4']['backlog.owed_behind3.if0'] - 0.01, 2)}),
+    'Arty 4x4 one cycle planted at the 80 MHz cycle': lambda m: patch.dict(m.CLOCK_KHZ, {'arty-4x4': 80_000}),
+    'Arty 1x1 one cycle planted at the 100 MHz cycle': lambda m: patch.dict(m.CLOCK_KHZ, {'arty-1x1': 100_000}),
     'a ledger row waived by its name whatever its size': lambda m: patch.object(
         m, 'over', lambda p, figure: False),
     "a grade's figure read at its log's microsecond": lambda m: patch.object(
