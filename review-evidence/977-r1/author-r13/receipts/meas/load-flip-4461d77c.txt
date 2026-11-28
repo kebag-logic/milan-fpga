@@ -1,0 +1,86 @@
+# load_grade.py --check and --selftest, load_deliveries.py, flip_grade.py --check at 1x1/1if and 8x8/1if and --selftest, and the floor, ceiling and adapter probes, at 4461d77c
+
+$ python3 -I load_grade.py --check
+| Point | Load at the pin | Load at the donor's measured costs (the pin carries tsn-c-stack#32) | Ceiling | Compute for 0.70 (with tsn-c-stack#32) | A pass's own cost, us | Terms by share (with tsn-c-stack#32) |
+|---|---:|---:|---:|---:|---:|---|
+| 1x1/1if | 0.533 | 0.529 | 0.70, both columns | 1.00x | 265 | srp 0.171, rec.acmp 0.053, rec.aecp 0.051, ticks 0.049, item.aecp 0.037, steps 0.033, item.reclaim 0.026, timers 0.019, item.acmp 0.017, item.mrpdu 0.015, item.acmp_declined 0.012, rec.adp 0.011, deliveries 0.009, registrations 0.008, builds 0.008, rec.maap 0.006, item.walk 0.004, notices 0.002, gm 0.000 |
+| 8x8/2if | 0.799 | 0.757 | the flip check, 0.70 at the pin (flip_grade.py) | 1.08x | 390 | srp 0.219, item.aecp 0.063, rec.acmp 0.061, timers 0.061, ticks 0.059, rec.aecp 0.053, item.mrpdu 0.051, item.reclaim 0.042, steps 0.034, item.acmp 0.027, builds 0.026, item.acmp_declined 0.015, item.walk 0.013, rec.adp 0.013, notices 0.011, rec.maap 0.008, gm 0.001 |
+| 8x8/1if | 0.782 | 0.742 | the flip check, 0.79 at the pin (flip_grade.py) | 1.06x | 395 | srp 0.225, rec.acmp 0.061, ticks 0.059, item.aecp 0.059, rec.aecp 0.053, item.reclaim 0.041, steps 0.034, timers 0.032, item.mrpdu 0.031, item.acmp 0.027, item.acmp_declined 0.020, registrations 0.019, item.walk 0.017, deliveries 0.016, builds 0.016, rec.adp 0.013, rec.maap 0.009, notices 0.008, gm 0.001 |
+| 32x32/2if | 2.175 | 1.684 | reported: the more-compute image, #872 | 2.41x | 590 | srp 0.519, item.mrpdu 0.315, builds 0.158, item.reclaim 0.109, ticks 0.101, timers 0.088, rec.acmp 0.085, item.aecp 0.078, item.acmp 0.048, rec.aecp 0.043, notices 0.037, steps 0.034, item.walk 0.031, rec.adp 0.027, rec.maap 0.010, gm 0.000, item.acmp_declined 0.000 |
+HELD 1x1/1if at the pin: the load 0.533, its ceiling 0.70
+HELD 1x1/1if with tsn-c-stack#32: the load 0.529, its ceiling 0.70
+RESULT: PASS
+rc=0
+
+$ python3 -I load_grade.py --selftest
+load gate: 32 of 32 planted controls refused
+rc=0
+
+$ python3 -I load_deliveries.py
+every deliveries control refused
+rc=0
+
+$ python3 -I flip_grade.py --check --point 1x1/1if
+Model: under the tiers (slice CTRL_LOOP_SLICE_US, tier 1 aecp-first, tier 2 srp-first, AECP queue)
+
+| Point | Row | W, ms | Bound, ms | Residual, ms | Passes | Largest terms, ms |
+|---|---|---:|---:|---:|---:|---|
+| 1x1/1if | R4 | 13.51 | 20 | -6.49 | 5 | aecp 4.080, timers 1.485, passes 1.325 |
+| 1x1/1if | R5 | 74.68 | 90 | -15.32 | 39 | others 11.240, passes 10.335, srp 9.120 |
+| 1x1/1if | R6 | 72.80 | 90 | -17.20 | 37 | others 11.240, passes 9.805, srp 9.120 |
+| 1x1/1if | first | 14.83 | 20 | -5.17 | 2 | spacing 8.000, others 1.000, steps 0.975 |
+| 1x1/1if | last | 133.91 | 135 | -1.09 | 68 | srp 26.790, passes 18.020, others 15.190 |
+| 1x1/1if | R4L | 203.59 | 238 | -34.41 | 3 | pace 195.000, timers 1.105, others 1.000 |
+| 1x1/1if | ACMP | 29.51 | 30 | -0.49 | 17 | aecp 5.355, passes 4.505, own 4.480 |
+| 1x1/1if | ADP | 27.90 | 30 | -2.10 | 13 | others 6.915, aecp 5.355, passes 3.445 |
+| 1x1/1if | MAAP | 27.99 | 30 | -2.01 | 13 | others 6.930, aecp 5.355, passes 3.445 |
+| 1x1/1if | tx | 33.89 | 49 | -15.11 | 17 | others 8.350, aecp 5.610, passes 4.505 |
+| 1x1/1if | txL | 48.08 | 49 | -0.92 | 23 | aecp 10.695, others 9.410, item.aecp 7.245 |
+
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | A record's pass alone, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 950 | 1010 | 735 | 285 | 85 | 34 | 925 | 135 | 35 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 375 | 165 | 25 | 1840 | 130 | 80 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 1300 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 1300 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+RESULT: PASS
+rc=0
+
+$ python3 -I flip_grade.py --check --point 8x8/1if
+| Point | Load at the pin | Flip ceiling | Compute for the ceiling | Terms by share (at the pin) |
+|---|---:|---:|---:|---|
+| 8x8/1if | 0.782 | 0.79 | 1.00x | srp 0.225, rec.acmp 0.088, item.aecp 0.059, ticks 0.057, rec.aecp 0.053, item.reclaim 0.041, timers 0.037, steps 0.034, item.mrpdu 0.031, item.acmp 0.027, rec.adp 0.024, item.acmp_declined 0.020, registrations 0.019, item.walk 0.017, deliveries 0.016, builds 0.016, rec.maap 0.009, notices 0.008, gm 0.001 |
+
+
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | A record's pass alone, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 950 | 1010 | 735 | 285 | 85 | 34 | 925 | 135 | 35 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 375 | 165 | 25 | 1840 | 130 | 80 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 1300 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 1300 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+REPORTED 8x8/1if: its rows by every source are reported, not held, owed to #872; its measured rows are the CPU budget harness's on its built image (run.py --point 8x8-1if)
+HELD 8x8/1if: THE TRANSMIT's figure CTRL_LOOP_TX_MS 80 ms against its tx row by every source 79.49 ms (tx_held; the hold-off counts the figure)
+RESULT: PASS
+rc=0
+
+$ python3 -I flip_grade.py --selftest
+flip check: 628 of 628 planted controls refused
+rc=0
+
+$ probes (python3 -I, stdin)
+8x8/1if: load at the pin 0.78214, without the deliveries 0.76614, the term 0.01600 at DELIVERY_US 160 us (floor 160 us from 15,104 cycles)
+  beside, before 50 ms: 11,573 cycles, 125 us, load 0.77864
+  beside, before 500 ms: 13,642 cycles, 145 us, load 0.78064
+  DELIVERY_US 8x8/1if at 155 us: ["8x8/1if: DELIVERY_US 155 us under its measurement's 160 us by the rule"]
+1x1/1if: load at the pin 0.53254, without the deliveries 0.52365, the term 0.00889 at DELIVERY_US 200 us (floor 200 us from 18,778 cycles)
+  beside, before 50 ms: 18,076 cycles, 190 us, load 0.53210
+  beside, before 500 ms: 18,765 cycles, 200 us, load 0.53254
+  DELIVERY_US 1x1/1if at 195 us: ["1x1/1if: DELIVERY_US 195 us under its measurement's 200 us by the rule"]
+8x8/1if ceiling 0.79 | 0.790 over: False | 0.791 over: True
+head: flip_checks failed [] | ceiling_checks failed []
+FLIP 8x8/1if at 0.77 (the revert): controls escape ['the flip ceilings not 0.70 at 8x8/2if and 0.79 at 8x8/1if', '8x8/1if: 0.790 refused or 0.791 passed']
+FLIP 8x8/2if at 0.71: flip_checks failed ['the flip check refuses the flip ceilings not 0.70 at 8x8/2if and 0.79 at 8x8/1if']
+FLIP 8x8/2if at 0.71: ceiling_checks failed ['the load gate refuses a held point not held', 'the flip check refuses the flip ceilings not 0.70 at 8x8/2if and 0.79 at 8x8/1if']
+rc=0

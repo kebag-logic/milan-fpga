@@ -1,0 +1,180 @@
+#!/usr/bin/env python3
+"""deliv13.py POINT SINKS LOG... | deliv13.py --selftest: the deferred deliveries a registering record leaves (#977,
+the manager's decision of 2026-11-27 on deferred deliveries).
+
+Each registering record is found by its own tagged receive commit: the RXC on the SRP channel whose frame carries the
+record's name (the harness tags each probe's frame with it, scenario.tagged). A record mark with no tagged commit is
+a transmit-only alias only when its group JSON puts its start on another record's commit (srp.register_tx.*, whose
+input is the triple's last record); it is excluded and counted. Any other mark with no tagged commit, more than one,
+one on another channel, or one that differs from the harness's own start (the group JSON's start_sys) is refused:
+the run exits 1 and names it.
+
+Each record's window is the delivery bound's own, its pass and the 2 x SINKS deliveries after it: the first 2 x SINKS
++ 1 polls sections starting at or after its commit. The accepted baseline is the median polls base of the ordinary
+passes in the 50 ms after the window; beside it, the medians of the 50 ms and of the 500 ms before the record. A
+record's deferred work is the window's excess over a baseline, summed, and its share a sink that over SINKS. Prints
+each record and the dearest share by the rule (5 x ceil(c / 100 x 1.05 / 5) us) at each baseline, over every record
+(the _advertise probes included: each is a tagged registering record).
+
+--selftest runs the controls on synthetic input: a queued triple of three records committed at 10000, 20000 and
+30000 must yield three distinct commits, and the excess placed only in the last record's window must be observed;
+a transmit alias is excluded; a missing, doubled or wrong-channel commit and a start the harness disagrees with are
+each refused."""
+import json
+import math
+import sys
+from pathlib import Path
+
+MS = 100_000   # bus cycles a millisecond
+LABELS = ('after', 'before 50 ms', 'before 500 ms')
+
+
+def rule(cycles: float) -> int:
+    """The statement by the rule: 5 % over the measurement, rounded up to 5 us (100 cycles a microsecond)."""
+    return 5 * math.ceil(cycles / 100 * 1.05 / 5)
+
+
+def median(values: list[int]) -> int | None:
+    """The upper middle value, as the earlier extraction took it; None for no values."""
+    return sorted(values)[len(values) // 2] if values else None
+
+
+class Refused(Exception):
+    """A record the extraction cannot associate with exactly one commit of its own."""
+
+
+def records(marks: list[str], rxc: list[tuple[int, int, str]], starts: dict[str, int], srp: int):
+    """Each registering record's own commit, from marks (record names in order), rxc (cycle, channel, tag) and the
+    group's starts (probe name: start_sys). Returns (records as (name, commit), excluded aliases); raises Refused."""
+    out, aliases = [], []
+    for name in dict.fromkeys(marks):
+        own = [(c, k) for c, k, tag in rxc if tag == name]
+        if not own:
+            start = starts.get(name)
+            if start is not None and any(c == start and k == srp and tag != name for c, k, tag in rxc):
+                aliases.append(name)
+                continue
+            raise Refused(f'{name}: no tagged receive commit, and its start is no other record\'s')
+        if len(own) > 1:
+            raise Refused(f'{name}: {len(own)} tagged receive commits, ambiguous')
+        commit, channel = own[0]
+        if channel != srp:
+            raise Refused(f'{name}: its tagged commit is on channel {channel}, not SRP\'s {srp}')
+        if name in starts and starts[name] != commit:
+            raise Refused(f'{name}: its tagged commit {commit} is not the harness\'s start {starts[name]}')
+        out.append((name, commit))
+    return out, aliases
+
+
+def measure(bases: list[tuple[int, int]], record: int, sinks: int) -> dict | None:
+    """The record's window and its excess a sink over each baseline, from bases (section start, polls base) in
+    order; None where the log ends before the window and the section after it."""
+    after = [(s, b) for s, b in bases if s >= record]
+    span = 2 * sinks + 1
+    if len(after) <= span:
+        return None
+    window, w_end = after[:span], after[span][0]
+    ordinary = [b for s, b in after[span:] if s < w_end + 50 * MS]
+    base = {'after': median(ordinary),
+            'before 50 ms': median([b for s, b in bases if record - 50 * MS < s < record]),
+            'before 500 ms': median([b for s, b in bases if record - 500 * MS < s < record])}
+    share = {k: sum(max(0, b - v) for _, b in window) / sinks for k, v in base.items() if v is not None}
+    return {'window': len(window), 'n_after': len(ordinary), 'base': base, 'share': share}
+
+
+def parse_log(path: Path):
+    """A group log's record marks, tagged commits, the group JSON's starts and its polls sections' bases."""
+    sys.path.insert(0, 'tb/verilator/ctrl_service_budget')
+    import grade
+    import poll_grade
+    import scenario
+    text = path.read_text(errors='replace')
+    log = grade.parse(text, 100_000_000, 100_000_000)
+    marks = [line.split()[2] for line in text.splitlines() if line.startswith('MARK ') and ' srp.register' in line]
+    rxc = [(c, k, tag) for c, k, _, tag, _ in log.rxc]
+    starts = {d['probe']: d['start_sys'] for d in json.loads(path.with_suffix('.json').read_text())['probes']
+              if d.get('start_sys') is not None}
+    traced, commits, longs = poll_grade.spans(log), poll_grade.committed(log), poll_grade.long_notices(log)
+    bases = []
+    for start, end, start_sys in poll_grade.sections(traced):
+        items = poll_grade.instances(log, traced, commits, start, end, longs)
+        bases.append((start_sys, end - start - sum(c for _, c in items)))
+    return marks, rxc, starts, bases, scenario.CH['srp']
+
+
+def run(point: str, sinks: int, paths: list[str]) -> int:
+    """Measure every record of every log; 1 if any record is refused or unmeasured."""
+    best = {k: (0.0, '') for k in LABELS}
+    failed = n_records = n_aliases = 0
+    for path in map(Path, paths):
+        where = '/'.join(path.parts[-3:-1])
+        marks, rxc, starts, bases, srp = parse_log(path)
+        try:
+            found, aliases = records(marks, rxc, starts, srp)
+        except Refused as why:
+            print(f'REFUSED {where}: {why}')
+            failed = 1
+            continue
+        n_aliases += len(aliases)
+        for name in aliases:
+            print(f'{where} {name}: transmit-only alias of commit {starts[name]}, excluded')
+        for name, commit in found:
+            m = measure(bases, commit, sinks)
+            if m is None:
+                print(f'REFUSED {where} {name}: the log ends before its window and the section after it')
+                failed = 1
+                continue
+            n_records += 1
+            parts = [f'{k} {m["base"][k]:,}: {m["share"][k]:,.0f} a sink' for k in LABELS if k in m['share']]
+            print(f'{where} {name} commit {commit}: window {m["window"]} passes, {m["n_after"]} ordinary passes in '
+                  f'the 50 ms after it; ' + '; '.join(parts))
+            for k, share in m['share'].items():
+                if share > best[k][0]:
+                    best[k] = (share, f'{where} {name}')
+    print(f'RECORDS {point}: {n_records} measured, each at its own tagged commit; {n_aliases} transmit-only aliases '
+          f'excluded')
+    for k, (share, where) in best.items():
+        print(f'DEAREST {point} over the {k} base: {share:,.0f} cycles a sink, {rule(share)} us by the '
+              f'rule; {where}')
+    return failed
+
+
+def selftest() -> int:
+    """The extraction's controls on synthetic input (the module's docstring); 1 if any escapes."""
+    srp, checks = 4, []
+    names = [f'srp.register_burst.t0.r{r}.if0' for r in range(3)] + ['srp.register_tx.t0.if0']
+    rxc = [(10_000, srp, names[0]), (20_000, srp, names[1]), (30_000, srp, names[2])]
+    starts = {names[0]: 10_000, names[1]: 20_000, names[2]: 30_000, names[3]: 30_000}
+    found, aliases = records(names, rxc, starts, srp)
+    checks.append(('a queued triple yields three distinct commits',
+                   [c for _, c in found] == [10_000, 20_000, 30_000]))
+    checks.append(('the transmit alias is excluded', aliases == [names[3]]))
+    # polls sections every 4,000 cycles at base 100; two sinks, so each window is five sections: the first record's
+    # 12,000 to 28,000, the last's 32,000 to 48,000. The only heavy sections, 600 each, are the last record's.
+    bases = [(s, 600 if 32_000 <= s <= 48_000 else 100) for s in range(0, 10 * MS, 4_000)]
+    shares = [measure(bases, c, 2)['share']['after'] for _, c in found]
+    checks.append((f'the later window\'s excess is observed (shares {shares})', shares[0] == 0 and shares[2] > 0))
+    for label, bad_rxc, bad_starts in (
+            ('a record with no tagged commit is refused', rxc[:2], starts),
+            ('a record with two tagged commits is refused', rxc + [(31_000, srp, names[2])], starts),
+            ('a record committed on another channel is refused', rxc[:2] + [(30_000, 1, names[2])], starts),
+            ('a commit the harness puts elsewhere is refused', rxc, dict(starts, **{names[1]: 21_000}))):
+        try:
+            records(names, bad_rxc, bad_starts, srp)
+            checks.append((label, False))
+        except Refused as why:
+            checks.append((f'{label} ({why})', True))
+    old = [next(c for c, _, _ in rxc if c >= mark) for mark in (9_000, 9_000, 9_000)]
+    checks.append(('the earlier first-commit-after-the-mark rule takes 10000 three times (the defect)',
+                   old == [10_000] * 3))
+    for label, ok in checks:
+        print(f'[{"ok" if ok else "ESCAPED"}] {label}')
+    escaped = sum(not ok for _, ok in checks)
+    print(f'deliv13 selftest: {len(checks) - escaped} of {len(checks)} controls hold')
+    return 1 if escaped else 0
+
+
+if __name__ == '__main__':
+    if sys.argv[1:] == ['--selftest']:
+        sys.exit(selftest())
+    sys.exit(run(sys.argv[1], int(sys.argv[2]), sys.argv[3:]))
