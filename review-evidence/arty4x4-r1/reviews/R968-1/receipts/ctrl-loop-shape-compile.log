@@ -1,0 +1,7 @@
+head 12ab4b189f54439cd126f677b906a19835d7f32a; host cc: cc (GCC) 16.2.1 20260810
+shape (1,5,5): cc -fsyntax-only ctrl_loop.c rc=0 
+shape (1,1,2): cc -fsyntax-only ctrl_loop.c rc=0 
+shape (1,2,2): cc -fsyntax-only ctrl_loop.c rc=0 
+shape (1,4,4): cc -fsyntax-only ctrl_loop.c rc=1 sw/firmware/ctrl/loop/ctrl_loop.h:429:2: error: #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+shape (1,5,5) with CTRL_LOOP_TX_MS 49 (scratch copy of ctrl_loop.[ch]): rc=0 
+shape (1,5,5) with CTRL_LOOP_TX_MS 50 (scratch copy of ctrl_loop.[ch]): rc=1 $PACKET/scratch/inc50/ctrl_loop.c:203:1: error: static assertion failed: "an MRPDU a timer owes must keep the MRP timer budget"

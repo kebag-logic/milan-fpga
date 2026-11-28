@@ -1,0 +1,68 @@
+head 12ab4b189f54439cd126f677b906a19835d7f32a
+command: python3 -B sw/builder/test_builder.py --gates test_baremetal_clock_contract,test_rom_clock_contract,test_tap_clock_docs,test_clock_crossing_constraints,test_control_placement_key,test_placement_recipe,test_bad_configs_rejected,test_datapath_params_match_the_instance,test_gptp_clock_accuracy_per_board,test_station_mac_ul_bit_warns,test_gptp_latency_corrections_are_declared_and_carried,test_gptp_latency_writable_key
+[constraints] actual CRG clock sources and optional DDR/audio domains PASS
+[constraints] generated namespace, optional domain, both ports, hook order and template refusal PASS
+CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+CONSTRAINTS: quasi_static cells=0 setup=4 hold=3
+CONSTRAINTS: eth=eth bounded=sys milan async=audio budget_ns=8.000
+CONSTRAINTS: MultiReg eth=1 part=2 other=1
+scoped exception and wrong-name controls PASS
+CONSTRAINTS: servo reset synchronizer from=milan to=ps cut=sv/psrst_sync_r_reg[0]/D
+CONSTRAINTS: servo reset synchronizer from=milan to=ps cut=sv/psrst_sync_r_reg[0]/D
+servo reset synchronizer cut and refusal controls PASS
+[constraints] /tmp/constraint-log-cl9smoh3/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] quarantined /tmp/constraint-log-cl9smoh3/digilent_arty.bit as /tmp/constraint-log-cl9smoh3/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-cl9smoh3/alinx_ax7101.bit as /tmp/constraint-log-cl9smoh3/alinx_ax7101.bit.rejected
+[constraints] quarantined /tmp/constraint-log-cl9smoh3/digilent_arty.bit as /tmp/constraint-log-cl9smoh3/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-cl9smoh3/alinx_ax7101.bit as /tmp/constraint-log-cl9smoh3/alinx_ax7101.bit.rejected
+[constraints] quarantined /tmp/constraint-log-cl9smoh3/digilent_arty.bit as /tmp/constraint-log-cl9smoh3/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-cl9smoh3/alinx_ax7101.bit as /tmp/constraint-log-cl9smoh3/alinx_ax7101.bit.rejected
+[constraints] quarantined /tmp/constraint-log-cl9smoh3/digilent_arty.bit as /tmp/constraint-log-cl9smoh3/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-cl9smoh3/alinx_ax7101.bit as /tmp/constraint-log-cl9smoh3/alinx_ax7101.bit.rejected
+[constraints] quarantined /tmp/constraint-log-cl9smoh3/digilent_arty.bit as /tmp/constraint-log-cl9smoh3/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-cl9smoh3/alinx_ax7101.bit as /tmp/constraint-log-cl9smoh3/alinx_ax7101.bit.rejected
+[constraints] quarantined /tmp/constraint-log-cl9smoh3/digilent_arty.bit as /tmp/constraint-log-cl9smoh3/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-cl9smoh3/alinx_ax7101.bit as /tmp/constraint-log-cl9smoh3/alinx_ax7101.bit.rejected
+[constraints] quarantined /tmp/constraint-log-cl9smoh3/digilent_arty.bit as /tmp/constraint-log-cl9smoh3/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-cl9smoh3/alinx_ax7101.bit as /tmp/constraint-log-cl9smoh3/alinx_ax7101.bit.rejected
+[constraints] quarantined /tmp/constraint-log-cl9smoh3/digilent_arty.bit as /tmp/constraint-log-cl9smoh3/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-cl9smoh3/alinx_ax7101.bit as /tmp/constraint-log-cl9smoh3/alinx_ax7101.bit.rejected
+[constraints] quarantined /tmp/constraint-log-cl9smoh3/digilent_arty.bit as /tmp/constraint-log-cl9smoh3/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-cl9smoh3/alinx_ax7101.bit as /tmp/constraint-log-cl9smoh3/alinx_ax7101.bit.rejected
+[constraints] quarantined /tmp/constraint-log-cl9smoh3/digilent_arty.bit as /tmp/constraint-log-cl9smoh3/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-cl9smoh3/alinx_ax7101.bit as /tmp/constraint-log-cl9smoh3/alinx_ax7101.bit.rejected
+[constraints] /tmp/constraint-log-cl9smoh3/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] implementation-log diagnostics, missing log and common build wiring PASS
+[constraints] shipping ax7101_1x1_tdm8 e1 split: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+[constraints] shipping ax7101_1x1_tdm8 e2 split: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+[constraints] shipping ax7101_8x8 e1 split: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+[constraints] shipping ax7101_8x8 e2 split: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+[constraints] shipping ax7101_1x1_tdm8 e1 all-fabric: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+[constraints] shipping ax7101_1x1_tdm8 e2 all-fabric: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+test_baremetal_clock_contract:
+[clock contract] 7 configured positives; 70 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+test_rom_clock_contract:
+[clock contract] 7 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+test_tap_clock_docs:
+[clock contract] 7 tap conversions and presence declarations match configurations
+test_clock_crossing_constraints:
+test_control_placement_key:
+  [gate 23n] 7 configs, 4 shipping the split, each split variant differing from its all-fabric one in CTRL_SPLIT_P = 1 and --ctrl-mailbox --ctrl-firmware <its split image> alone; 3 bad keys refused by name; a split key naming the fabric firmware refused; the flip reverted at 8x8 refused
+test_placement_recipe:
+  [gate 23o] 7 configs: each placement recipe loads to the config stating it, writes the stated argv and changes no tracked file; the two placements' 9 shape artifacts byte for byte equal but for the firmware_version in 2; --write-rtl, --write-fragment and an unknown placement refused by name; 2 planted recipes and 3 planted artifacts refused
+test_bad_configs_rejected:
+  [gate 5] 7/7 invalid configs rejected with ConfigError
+test_datapath_params_match_the_instance:
+  [gate 23m] 11 real milan_soc.py elaborations in 8 s: for every config the integer parameters Instance("milan_datapath") receives are exactly eb.datapath_params(), the shapes the publication census elaborates; every other keyword is a ROM image path
+test_gptp_clock_accuracy_per_board:
+  [gate 26c] clockAccuracy per board (#843): the AX7101 build's image carries --clock-accuracy 0x22 and the Arty's 0xFE, each byte-equal to the generator's image for gptp_ucode_args() and different under the other value; values outside IEEE 1588-2008 Table 6 refused; milan_dp's gptp and gptp-lat legs run those two configs and grade the Announce octet on the wire
+test_station_mac_ul_bit_warns:
+  7 configs: decided identity, no zero octet, one U/L-bit warning each
+  U/L bit alone decides the warning: 2 universal variants silent, 2 local warn
+  CLI: warning on stderr, exit 0, outputs written
+test_gptp_latency_corrections_are_declared_and_carried:
+test_gptp_latency_writable_key:
+
+SUBSET: 12 of 115 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+ALL GATES PASS
+rc=0

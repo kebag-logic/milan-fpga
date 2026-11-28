@@ -1,0 +1,13 @@
+head 12ab4b189f54439cd126f677b906a19835d7f32a
+rc=2 | arty_grade --point bogus (expect usage, rc 2) | usage: python3 -I arty_grade.py [--point arty-1x1|arty-4x4] [--selftest]
+rc=2 | arty_grade --point (no value; expect rc 2) | usage: python3 -I arty_grade.py [--point arty-1x1|arty-4x4] [--selftest]
+rc=2 | arty_grade --point arty-4x4 extra (expect rc 2) | usage: python3 -I arty_grade.py [--point arty-1x1|arty-4x4] [--selftest]
+rc=2 | egress_ledger --point arty-4x4 with no path (expect refusal) | egress_ledger.py: error: --point and at least one PATH, or --selftest
+rc=2 | egress_ledger --point arty-5x5 (expect refusal) | egress_ledger.py: error: argument --point: invalid choice: 'arty-5x5' (choose from '8x8-1if', 'arty-1x1', 'arty-4x4')
+rc=1 | egress_ledger --point arty-4x4 on a missing path (expect nonzero) | - backlog-owed.service.aecp.last.if0: no measured instance of the ledger row
+rc=1 | egress_fixed SYS_HZ=0 (no -I) | ZeroDivisionError: division by zero
+rc=1 | egress_fixed SYS_HZ=abc (no -I) | ValueError: invalid literal for int() with base 10: 'abc'
+rc=3 | record_classes.point_name 4x4 at two interfaces (expect ValueError) | ValueError: Arty record classes require exactly one interface
+rc=0 | record_classes.point_name 4x4 at one interface | arty-4x4
+rc=0 | egress_mii.sr_frames per Arty shape | {'endstation_arty_current': (90,), 'endstation_arty_split': (90,), 'endstation_arty_split_4x4': (90, 90, 90, 90, 46)}
+rc=0 | egress_mii queue line at the 4x4 point | EGRESSQ sys_ps=10000 dp_ps=20000 octet_ps=80000 lane=17 cross=3 gap=513 sf=512/8 frame=8/4/12/60 sr=5/125000000 gptp=7/125000000000 sr_bytes (90, 90, 90, 90, 46) min_fram

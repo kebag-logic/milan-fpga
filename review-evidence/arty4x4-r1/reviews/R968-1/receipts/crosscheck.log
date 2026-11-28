@@ -1,0 +1,51 @@
+OK   ARTY_4X4 is the qualification receipt's seven held-egress rows: {'backlog.owed.if0': 62.64658, 'backlog.owed_behind0.if0': 62.82023, 'backlog.owed_behind1.if0': 62.98813, 'backlog.owed_behind2.if0': 63.15874, 'backlog.owed_behind3.if0': 63.32736, 'backlog-owed.service.acmp.last.if0': 61.81513, 'backlog-owed.service.aecp.last.if0': 61.56471}
+OK   LEDGER[arty-4x4] is the rule applied to them: {'backlog.owed.if0': 62.78, 'backlog.owed_behind0.if0': 62.97, 'backlog.owed_behind1.if0': 63.14, 'backlog.owed_behind2.if0': 63.32, 'backlog.owed_behind3.if0': 63.5, 'backlog-owed.service.acmp.last.if0': 61.91, 'backlog-owed.service.aecp.last.if0': 61.65}
+OK   the ledger spans 61.65 to 63.50 ms
+OK   section 15's 4x4 table states the same measurements and figures
+OK   qualification receipt: PASS, 159 groups, no finding, eight variant regrades rc 0
+OK   receipt model: load 0.4689, ACMP 28.52, txL 48.72, last 117.68 ms
+OK   each is within its owner bound (0.70, 30, 49, 140 ms)
+OK   longest whole pass 173,322 cycles at 100 MHz = 1.733 ms, under THE SHARE 2 ms
+OK   section 15 states | Long-window load | 0.4689 | 0.70 |
+OK   section 15 states | ACMP | 28.52 ms | 30 ms |
+OK   section 15 states | txL | 48.72 ms | 49 ms |
+OK   section 15 states | Last queued notice | 117.68 ms | 140 ms |
+OK   section 15 states | Longest whole pass | 173322 cycles, 1.733 ms | 2 ms |
+OK   section 15 states | 100 Mb/s egress, wait with gPTP x 1.05 + fixed path | 527.04 us | 1000 us |
+OK   census-4 receipt: 159 cases, native status 0, no refusal, share or late finding
+OK   census-4 receipt: the only budget misses are backlog-owed's seven ledger rows
+OK   census-4 receipt: each row's bus cycles at 100 MHz are the ledger's measurement, e.g. 6,264,658 = 62.64658 ms
+OK   census-4 receipt: lines over their statements only in ['srp-bound', 'srp-kept'] (#969, #1022)
+OK   census-4 receipt: the worst pass is 173,322 cycles
+OK   merged receipt: every rule_us is cycles/100 x 1.05 rounded up to 5 us
+OK   load_grade.STATED_US[arty-4x4] equals the receipt for 16 terms 
+OK   STATED_US_DONOR[arty-4x4] is the same table
+OK   poll_grade.STATED_US[(1,5,5)] equals the receipt for 11 terms 
+OK   rows_tiers.DATAPATH_US[arty-4x4] equals the receipt: {'AVB_INFO_CHANGED': 30, 'AS_PATH_CHANGED': 25, 'AMAP_LIVE_WRITE': 15}
+OK   LONG_RECORD_US is 890 us
+OK   event.LINK is 200 us
+OK   edit_rows.PACED[arty-4x4] equals the receipt: {'a one-row edit': 255, 'an accepted SET_CONFIGURATION': 410}
+OK   ctrl_loop.h (1,5,5) equals the receipt for 5 statements 
+OK   the pass by the rule is 1,820 us, under 2,000
+OK   SRP_REDECLARE_CS reads CTRL_LOOP_TX_MS as (TX + 9) / 10: 3 cs at 28 and at 29 ms
+OK   CTRL_LOOP_TX_MS 29 <= CTRL_LOOP_TX_BOUND_MS 49
+OK   the 4x4 SR load is four 90-octet frames and the 46-octet CRF: (90, 90, 90, 90, 46)
+OK   one gPTP burst is 54.88 us on the wire
+OK   (446.76 + 54.88) x 1.05 + 0.32 = 527.042 us
+OK   with the measured 300 ns it would read 527.02 us
+OK   the five SR frames of one interval take 43.20 us of 125 us on the wire
+OK   2 x 253.671 = 507.342 ms, up to 50 ms: 550; floor(530 / 253.671) + 2 = 4 saves
+OK   per-stream figures: 7,360 / 16,576 / 28,864 / 53,440 kb/s and the CRF 5,632 kb/s
+OK   egress 35,072 and worst ingress 71,936 kb/s are inside 75,000; four 8-channel 96 kHz inputs are not
+OK   size receipt: .text 114844, .rodata 17630, .bss 61104; ROM 32.5 + SRAM 17 = 49.5 of 56 RAMB36
+OK   section 15 states | `.text` | 114844 bytes |
+OK   section 15 states | ROM allocation (banks 128 and 2 KiB) | 32.5 RAMB36 |
+OK   section 15 states | Total allocation | 49.5 RAMB36 |
+OK   ExtraPostPlacementOpt: four corners, worst WNS +0.049 ns, worst WHS +0.012 ns, 0 failing endpoint(s): the #818 floor is met (PASS)
+OK   AltSpreadLogic_high: four corners, worst WNS +0.002 ns, worst WHS +0.013 ns, 0 failing endpoint(s): the #818 floor is missed (FAIL)
+OK   ExtraTimingOpt: four corners, worst WNS +0.002 ns, worst WHS +0.015 ns, 0 failing endpoint(s): the #818 floor is missed (FAIL)
+OK   the routed image's ELF is the size receipt's (1b8066e4cd65f446...)
+OK   NOTE round1: 81 receipts indexed, 33 of them not in the published packet, all compressed: True
+OK   NOTE round3: 106 receipts indexed, 50 of them not in the published packet, all compressed: True
+OK   NOTE round4: 64 receipts indexed, 40 of them not in the published packet, all compressed: True
+crosscheck: 50 of 50 hold

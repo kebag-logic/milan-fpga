@@ -1,0 +1,10 @@
+head 12ab4b189f54439cd126f677b906a19835d7f32a; service self-test, the suite's 323 mutants split [n::8] over eight concurrent processes (python3 -B -c '<selftest.main with MUTANTS[n::8]>' n)
+partition 0 rc=0 | PARTITION 0 OF 8 41 | MUTANT caught 41 | MUTANT not caught 0 | FAIL lines 0 | self-test: 0 failures
+partition 1 rc=0 | PARTITION 1 OF 8 41 | MUTANT caught 41 | MUTANT not caught 0 | FAIL lines 0 | self-test: 0 failures
+partition 2 rc=0 | PARTITION 2 OF 8 41 | MUTANT caught 41 | MUTANT not caught 0 | FAIL lines 0 | self-test: 0 failures
+partition 3 rc=0 | PARTITION 3 OF 8 40 | MUTANT caught 40 | MUTANT not caught 0 | FAIL lines 0 | self-test: 0 failures
+partition 4 rc=0 | PARTITION 4 OF 8 40 | MUTANT caught 40 | MUTANT not caught 0 | FAIL lines 0 | self-test: 0 failures
+partition 5 rc=0 | PARTITION 5 OF 8 40 | MUTANT caught 40 | MUTANT not caught 0 | FAIL lines 0 | self-test: 0 failures
+partition 6 rc=0 | PARTITION 6 OF 8 40 | MUTANT caught 40 | MUTANT not caught 0 | FAIL lines 0 | self-test: 0 failures
+partition 7 rc=0 | PARTITION 7 OF 8 40 | MUTANT caught 40 | MUTANT not caught 0 | FAIL lines 0 | self-test: 0 failures
+total: MUTANT caught 323 of 323

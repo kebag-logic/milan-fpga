@@ -1,0 +1,65 @@
+M1-no-crf: ESCAPED - the CRF output's frame is not counted in the 100 Mb/s queue's stream load (tb/verilator/ctrl_service_budget/egress_mii.py)
+    rc=0 egress_mii --selftest: egress_mii selftest: 17 of 17 passed
+    rc=0 egress_ledger --selftest: RESULT: PASS: 24 mutants, 0 failure(s)
+    rc=0 record_classes --selftest: Arty record checks: 9 of 9 passed
+    rc=0 shape_costs --selftest: the table of shapes: 25 of 25 planted controls refused
+    rc=0 load_grade --selftest: load gate: 28 of 28 planted controls refused
+    rc=0 arty_grade --selftest: PASS the two Arty points are different shapes: no point takes the other's costs
+    rc=0 tb/verilator/ctrl_service_budget/arty_grade.py --point arty-: }
+M2-clock-80: CAUGHT - the 4x4 configuration runs sys at 80 MHz (configs/endstation_arty_split_4x4.yaml)
+    rc=1 tb/verilator/ctrl_service_budget/arty_grade.py --point arty-: REFUSED endstation_arty_split_4x4: CPU (sys domain) clock is not exactly 100000000 Hz
+    rc=0 arty_grade --selftest: PASS the two Arty points are different shapes: no point takes the other's costs
+    rc=0 record_classes --selftest: Arty record checks: 9 of 9 passed
+M3-pace-10: CAUGHT - the (1,5,5) row paces AECP at the 1x1's 10 ms (sw/firmware/ctrl/loop/ctrl_loop.h)
+    rc=1 tb/verilator/ctrl_service_budget/arty_grade.py --point arty-: REFUSED aecp_mbx.h states AECP_PACE_MS 10 ms, not the model's 5 ms
+    rc=0 shape_costs --selftest: the table of shapes: 25 of 25 planted controls refused
+    rc=0 rows_tiers --selftest: rows_tiers: 1033 of 1033 planted controls refused
+M4-slice-1000: CAUGHT - the (1,5,5) row takes a 1000 us slice (sw/firmware/ctrl/loop/ctrl_loop.h)
+    rc=1 tb/verilator/ctrl_service_budget/arty_grade.py --point arty-: REFUSED arty-4x4 last: under the tiers (slice 1000 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 127.79 ms, over its bound 125 ms; the largest term srp 27.30 ms
+    rc=0 shape_costs --selftest: the table of shapes: 25 of 25 planted controls refused
+M5-tx-28: CAUGHT - the (1,5,5) row states the instant-egress census's 28 ms transmit bound (sw/firmware/ctrl/loop/ctrl_loop.h)
+    rc=1 tb/verilator/ctrl_service_budget/arty_grade.py --point arty-: REFUSED arty-4x4: CTRL_LOOP_TX_MS states 28 ms, under the built design's tx row 28.88 ms
+    rc=0 shape_costs --selftest: the table of shapes: 25 of 25 planted controls refused
+M6-timer-75: ESCAPED - arty-4x4's AECP timer event is stated at the instant-egress 75 us, not the link-rate 180 us (tb/verilator/ctrl_service_budget/load_grade.py)
+    rc=0 tb/verilator/ctrl_service_budget/arty_grade.py --point arty-: }
+    rc=0 load_grade --selftest: load gate: 28 of 28 planted controls refused
+    rc=0 rows_tiers --selftest: rows_tiers: 1033 of 1033 planted controls refused
+    rc=0 shape_costs --selftest: the table of shapes: 25 of 25 planted controls refused
+M7-flight-500: CAUGHT - the 4x4 in-flight bind bound is 500 ms (tb/verilator/ctrl_service_budget/bind_save.py)
+    rc=1 service self-test check list: ["bind: the targets are the scope ruling's (#1009, items 3 and 4; the Arty points by PR #1004's rule)"]
+M8-point-name: ESCAPED - a 4x4 build's records are graded at the 1x1's stated costs (tb/verilator/ctrl_service_budget/record_classes.py)
+    rc=0 record_classes --selftest: Arty record checks: 9 of 9 passed
+    rc=0 tb/verilator/ctrl_service_budget/arty_grade.py --point arty-: }
+M9-record-acmp: ESCAPED - the (1,5,5) ACMP record is the 1x1's (tb/verilator/ctrl_service_budget/poll_grade.py)
+    rc=0 tb/verilator/ctrl_service_budget/arty_grade.py --point arty-: }
+    rc=0 record_classes --selftest: Arty record checks: 9 of 9 passed
+    rc=0 rows_tiers --selftest: rows_tiers: 1033 of 1033 planted controls refused
+    rc=0 load_grade --selftest: load gate: 28 of 28 planted controls refused
+M10-arty-clock: ESCAPED - a 4x4 leg is held to 80 MHz (tb/verilator/ctrl_service_budget/record_classes.py)
+    rc=0 record_classes --selftest: Arty record checks: 9 of 9 passed
+    rc=0 tb/verilator/ctrl_service_budget/arty_grade.py --point arty-: }
+M11-doc-acmp: ESCAPED - section 15's 4x4 ACMP row is not the model's (docs/design/SPLIT_CONTROL_MEMORY.md)
+    rc=0 tb/verilator/ctrl_service_budget/arty_grade.py --point arty-: }
+    rc=0 arty_grade --selftest: PASS the two Arty points are different shapes: no point takes the other's costs
+    rc=0 rows_tiers --selftest: rows_tiers: 1033 of 1033 planted controls refused
+    rc=0 load_grade --selftest: load gate: 28 of 28 planted controls refused
+    rc=0 shape_costs --selftest: the table of shapes: 25 of 25 planted controls refused
+    rc=0 egress_ledger --selftest: RESULT: PASS: 24 mutants, 0 failure(s)
+M12-doc-ledger: CAUGHT - section 15's 4x4 ledger figure is a tenth over the rule (docs/design/SPLIT_CONTROL_MEMORY.md)
+    rc=1 egress_ledger --selftest: FAIL [in process, arty-4x4] the ledger is section 15's table, row for row and figure for figure: {'backlog.owed.if0': 62.78, 'backlog.owed_behind0.if0': 62.97, 'backlog.owed_behind1.if0': 63.14, 'backlog.owed_behind2.if0': 63.32, 'backlog.owed_behind3.if0': 63
+M13-ledger-measured: CAUGHT - ARTY_4X4's largest measurement is raised 0.1 ms (tb/verilator/ctrl_service_budget/egress_ledger.py)
+    rc=1 egress_ledger --selftest: FAIL [in process, arty-4x4] the ledger is section 15's table, row for row and figure for figure: {'backlog.owed.if0': 62.78, 'backlog.owed_behind0.if0': 62.97, 'backlog.owed_behind1.if0': 63.14, 'backlog.owed_behind2.if0': 63.32, 'backlog.owed_behind3.if0': 63
+M14-static-assert: ESCAPED - the transmit-bound assertion does not cover the (1,5,5) shape (sw/firmware/ctrl/loop/ctrl_loop.c)
+    rc=0 tb/verilator/ctrl_service_budget/arty_grade.py --point arty-: }
+    rc=0 shape_costs --selftest: the table of shapes: 25 of 25 planted controls refused
+    rc=0 rows_tiers --selftest: rows_tiers: 1033 of 1033 planted controls refused
+M15-edit-paced: CAUGHT - arty-4x4's paced edit costs are understated (tb/verilator/ctrl_service_budget/edit_rows.py)
+    rc=1 tb/verilator/ctrl_service_budget/arty_grade.py --point arty-: REFUSED Arty slice 1250 us is not the rule's 950 us
+    rc=0 record_classes --selftest: Arty record checks: 9 of 9 passed
+    rc=0 rows_tiers --selftest: rows_tiers: 1033 of 1033 planted controls refused
+    rc=0 load_grade --selftest: load gate: 28 of 28 planted controls refused
+M16-long-record: CAUGHT - arty-4x4's largest AECP record is understated (tb/verilator/ctrl_service_budget/rows_tiers.py)
+    rc=1 tb/verilator/ctrl_service_budget/arty_grade.py --point arty-: REFUSED aecp_mbx.h states AECP_PACE_MS 5 ms, not the model's 1 ms
+    rc=0 rows_tiers --selftest: rows_tiers: 1033 of 1033 planted controls refused
+    rc=0 record_classes --selftest: Arty record checks: 9 of 9 passed
+clone after probes: clean

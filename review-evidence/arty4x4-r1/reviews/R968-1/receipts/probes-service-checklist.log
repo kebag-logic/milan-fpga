@@ -1,0 +1,11 @@
+head 12ab4b189f54439cd126f677b906a19835d7f32a
+The four mutants that escaped the standalone self-tests, each planted in its own disposable copy of the head tree (no .git),
+against the service self-test's whole check list (selftest.main with the suite's own mutant pass emptied):
+copy base rc=0 PASS=1073 FAIL=0 :: self-test: 0 failures
+copy M1 rc=0 PASS=1073 FAIL=0 :: self-test: 0 failures
+copy M8 rc=0 PASS=1073 FAIL=0 :: self-test: 0 failures
+copy M9 rc=0 PASS=1073 FAIL=0 :: self-test: 0 failures
+copy M10 rc=0 PASS=1073 FAIL=0 :: self-test: 0 failures
+M1 = egress_mii.sr_frames drops the CRF output's frame; M8 = record_classes.point_name maps endstation_arty_split_4x4 to arty-1x1;
+M9 = poll_grade.record_us takes arty-1x1's record.acmp at (1,5,5); M10 = record_classes.ARTY_CLOCKS holds arty-4x4 to 80 MHz.
+Result: every mutant ESCAPED (0 FAIL of 1073 checks, as the unmutated base copy).

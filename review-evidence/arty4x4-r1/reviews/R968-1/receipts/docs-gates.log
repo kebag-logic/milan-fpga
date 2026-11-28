@@ -1,0 +1,13 @@
+head 12ab4b189f54439cd126f677b906a19835d7f32a; em-dash base c0b625d1792e61b8e99944daea65b842e6b9dcde
+check_baremetal rc=0 :: baremetal-only: OK (0 findings across 1983 tracked first-party file(s))
+check_cpp_idiom rc=0 ::   build without warnings: 0 <= 0
+check_doc_paths rc=0 :: doc path gate: OK (1782 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+check_doc_style rc=0 :: documentation style: OK (25 current documents)
+check_gptp_docs rc=0 :: gPTP documentation: OK (8 current pages)
+check_py_idiom rc=0 ::   over-long line: 0 <= 0
+docs_check rc=0 :: docs_check: 0 finding(s) across 226 md files + 1985 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+docs_inventory rc=0 :: documentation inventory: OK (541 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+em_dash rc=0 :: check_em_dash: 0 finding(s) over 98 added line(s) in 6 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [c0b625d1..HEAD]
+gen_toc_anchors rc=0 :: anchor check: 764 existing cross-page fragment links reproduced
+gen_toc_check rc=0 :: TOC gate: OK (161 page(s) carry an annotated contents list, 20 below the 3-section threshold)
+git diff --check c0b625d1792e61b8e99944daea65b842e6b9dcde..HEAD: 0 line(s)
