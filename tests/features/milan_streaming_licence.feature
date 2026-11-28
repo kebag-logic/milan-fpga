@@ -20,7 +20,7 @@ Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL
   This repo read 5.3.7.3 as an unconditional "never stop streaming" until
   2026-07-28 (traceability row M-DEV-13a said exactly that), and on that reading
   both boards shipped with the AAF admission gate BYPASSED: measured on the
-  ProfiShark inline tap, 18,488 SR-class-A-tagged AAF frames in 6 s from a talker
+  inline capture tap, 18,488 SR-class-A-tagged AAF frames in 6 s from a talker
   whose LWSRP_STATUS reported no Listener registration and a shut stream gate.
 
   These scenarios pin the clause against the RTL that implements it, so a future

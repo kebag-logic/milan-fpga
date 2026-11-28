@@ -120,7 +120,7 @@ is verified*, and which requirements are **not** Milan-driven.
 | `avdecc_l2` | ADP watch / GET_COUNTERS / ACMP connect script | `srcs/the-private-test-repo/controller/avdecc_l2.py` |
 | `tap_acmp` / `tap_sniff` | ACMP + frame taps | `srcs/the-private-test-repo/controller/` |
 | `thdn` | audio THD+N quality check | external bench analyzer |
-| `soak` | peer-host-pair stream + clock-recovery soak (between the two bench hosts) | `srcs/the-private-test-repo/scripts/pw1-pw0-clockrec-soak.sh` |
+| `soak` | peer-host-pair stream + clock-recovery soak (between the two bench hosts) | `srcs/the-private-test-repo/scripts/` (the bench-host-pair clock-recovery soak script) |
 | `latency.md` / `gptp-phc-clock.md` | measurement methodology | `srcs/the-private-test-repo/docs/` |
 | `tsn-gen` | byte-exact AECP PDU specs + BDD features. **There is an AECP responder again**: `aecp_read_descriptor` is a real byte-exact test once a descriptor image is in DRAM (against a stock build it measures `BAD_ARGUMENTS`, i.e. the image gap), and every other AECP yaml measures the `NOT_IMPLEMENTED` echo's header discipline — the conformance floor, never command coverage. The repo-side AECP/ACMP/ADP/legacy fuzz campaigns are deleted; only the **AAF** campaign survives | `software-defined-tsn-stack/.../1722_1/aecp/*.yaml`, `.../tests/aecp_behave/features/*.feature`, `protocols/milan/aecp_read_descriptor.yaml` |
 | `vtb:<n>` | Verilator self-checking harness. `ls tb/verilator/` is authoritative; `pp_shadow` is the protocol processor's lane, and the `aecp` / `acmp` / `acmp_lstn` / `adp` / `lwsrp*` / `persist` / `aempatch` suites are deleted with their RTL | `tb/verilator/<n>` (`cbs`, `shaper_core`, `cls`, `ptp`, `ptp_sync`, `csr`, `pp_shadow`, `milan_dp`) |

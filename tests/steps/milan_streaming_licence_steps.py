@@ -6,7 +6,7 @@
 # These steps RESOLVE THE RTL'S OWN TEXT rather than restating a table: the
 # clause is checked against the expression that implements it, so a change to
 # the expression is what breaks the test. The wire scenarios decode a byte-exact
-# MSRPDU captured from the certified bench bridge (ProfiShark inline tap on the
+# MSRPDU captured from the certified bench bridge (inline capture tap on the
 # ALINX <-> bridge link, 2026-07-28) - FCS stripped, nothing else touched.
 
 from __future__ import annotations

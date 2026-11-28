@@ -586,9 +586,9 @@ are not required. Bench roles as of 2026-09-06:
 | Host | Role |
 |---|---|
 | build box | Vivado, the repositories, the AX7101 JTAG cable and its serial console |
-| `pw1` | ATDECC controller (la_avdecc) and audio endpoint host on the AVB LAN |
-| Ubuntu server | the two ProfiShark taps, which are the wire capture points |
-| `pw0` | retired; it holds no bench role |
+| controller bench host | ATDECC controller (la_avdecc) and audio endpoint host on the AVB LAN |
+| Ubuntu server | the two inline capture taps, which are the wire capture points |
+| a second bench host | retired; it holds no bench role |
 
 ## 5. Gates before a build is "good"
 

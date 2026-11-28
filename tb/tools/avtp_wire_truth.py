@@ -4,7 +4,7 @@
 """avtp_wire_truth.py - decode AVTP off a capture and check the invariants that
 declarations cannot see.
 
-    # CLI over a ProfiShark inline tap (28-byte record header, FCS present)
+    # CLI over an inline capture tap (28-byte record header, FCS present)
     ./avtp_wire_truth.py capture.pcap --tap --expect-aaf-format 0205022001006000
     # every check as one JSON line per verdict, for a morning diff
     ./avtp_wire_truth.py capture.pcap --jsonl > verdicts.jsonl
@@ -182,7 +182,7 @@ def main() -> int:
     ap.add_argument("--self-test", action="store_true",
                     help="run the byte-vector unit tests and exit")
     ap.add_argument("--tap", action="store_true",
-                    help="the capture came from a ProfiShark inline tap: a "
+                    help="the capture came from an inline capture tap: a "
                          "28-octet record header before every frame AND the FCS "
                          "present. Every ether offset is +28, so a BPF filter "
                          "reads the EtherType at ether[40:2]")

@@ -1134,7 +1134,7 @@ def _arms_target_runtime(arm):
             "ssh root@board cat x\n"), True, "[R]")
     arm("runtime-remote-root-shell-with-options-caught",
         lambda r: (r / "page.md").write_text(
-            "ssh -p 2222 root@10.0.0.2 reboot\n"), True, "[R]")
+            "ssh -p 2222 root@192.0.2.2 reboot\n"), True, "[R]")
     arm("runtime-remote-shell-near-miss-clean",
         lambda r: (r / "page.md").write_text(
             "ssh build-host make lint\n"), False)
