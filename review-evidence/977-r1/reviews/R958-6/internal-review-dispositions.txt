@@ -1,0 +1,33 @@
+## 3. Findings of this round
+
+No BLOCKER, MAJOR or MINOR finding is open.
+
+### Residue (wording only: no figure, test, code path or verdict changes; for the residue checklist)
+
+- **R957-4-R1 RESIDUE (Docs)**: four new source-comment instances of an issue-comment ID, which the owner's comment rule forbids. The sites are listed below, each with its exact fix. The decision stays linked, by URL, from `SPLIT_CONTROL_MEMORY.md:2561` and `FR_NFR.md:427`, where links are allowed.
+  - `tb/verilator/ctrl_service_budget/load_grade.py:13`
+    - Reads: "(#977, comment 7229657853, the manager's decision)"
+    - Fix: "(#977, the manager's decision on the deferred deliveries, linked from SPLIT_CONTROL_MEMORY.md section 13)"
+  - `load_grade.py:374`
+    - Reads: "(#977, comment 7229657853, the manager's decision)"
+    - Fix: "(#977, the manager's decision on the deferred deliveries)"
+  - `load_deliveries.py:3`
+    - Reads: "#977, comment 7229657853, the manager's decision"
+    - Fix: "#977, the manager's decision on the deferred deliveries"
+  - `flip_grade.py:66`
+    - Reads: "a load term since #977, comment 7229657853, owner decision pending"
+    - Fix: "a load term since the manager's decision on #977's deferred deliveries; owner decision pending"
+- **R957-4-R2 RESIDUE (Docs)**: the live PR body, line 61 ("The deliveries term (`71503e5a`)").
+  - It reads "internal review F1, option (a)". That is the round-2 internal finding, but the label is the same one line 20 uses for the round-3 internal F1, so a cold reader cannot tell them apart. The label scrub produced it; the packet's PR-BODY.md said R957-2-F1.
+  - Exact fix: "the round-2 internal review's F1, option (a)". PR text may name rounds.
+- **R957-4-R3 RESIDUE (Docs)**: `load_grade.py:380-381`.
+  - "... plus 5 %, rounded up to 5 us (DELIVERY_MEASURED, the gate's floor: a cost stated under it is refused)" attaches `DELIVERY_MEASURED` to the ruled figure. The table holds the unruled cycles; the floor is `rule_us` of them (`:701`).
+  - Exact fix: "... plus 5 %, rounded up to 5 us; DELIVERY_MEASURED holds the cycles, and their figure by the rule is the gate's floor: a cost stated under it is refused".
+- **R957-3-R4 / external round-3 R2**: retained from section 2. Publish the round-10 and round-11 index notes.
+
+### Suggestions (optional; they do not affect coverage)
+
+- **R957-4-S1 (Tests)**: the load gate's own unnamed-escape branch (`load_grade.py:963-964`) has no planted mutant. My probe shows it fires ("the load gate names every escape it returns: probe: unnamed"), but only the flip-side branch is guarded permanently (`selftest_mutants.py:540`). A sibling mutant would hold it, for example `'load: an escape the load gate does not name'`, patching `load_grade.controls` to append an unnamed name.
+- **R957-4-S2 (Tests)**: the mutant `"flip: 8x8/2if's ceiling at 0.71"` (`selftest_mutants.py:539`) is killed through "the load gate refuses a held point not held" (harness log line 2218).
+  - That check fails at `3181a3ec` too (`receipts/probe-prefix-3181a3ec.txt`), so this mutant alone would not have caught the adapter defect. The unnamed-escape mutant at `:540` does discriminate.
+  - Optionally, run the 0.71 plant against `flip_grade.flip_checks()` alone, or require the ceilings control's name in what fails.

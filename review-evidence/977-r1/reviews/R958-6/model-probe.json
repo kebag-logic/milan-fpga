@@ -1,0 +1,78 @@
+{
+  "ceilings": {
+    "8x8/2if": 0.7,
+    "8x8/1if": 0.79
+  },
+  "edges": {
+    "0.790_over": false,
+    "0.791_over": true
+  },
+  "points": {
+    "8x8/1if": {
+      "load_at_pin": 0.7821365,
+      "rounded_5dp": "0.78214",
+      "without_deliveries": 0.7661365,
+      "terms": {
+        "rec.aecp": 0.053,
+        "rec.acmp": 0.088,
+        "rec.adp": 0.024,
+        "rec.maap": 0.00925,
+        "srp": 0.225,
+        "item.reclaim": 0.040842105263157895,
+        "item.aecp": 0.05916,
+        "notices": 0.008400000000000001,
+        "item.acmp": 0.027200000000000002,
+        "item.acmp_declined": 0.0204,
+        "ticks": 0.0565,
+        "item.walk": 0.016578947368421054,
+        "builds": 0.015526315789473685,
+        "item.mrpdu": 0.03105263157894737,
+        "steps": 0.034333333333333334,
+        "timers": 0.037146500000000006,
+        "gm": 0.0007466666666666667,
+        "registrations": 0.019,
+        "deliveries": 0.016
+      },
+      "lower_floor_refused": [
+        "8x8/1if: DELIVERY_US 155 us under its measurement's 160 us by the rule"
+      ]
+    },
+    "1x1/1if": {
+      "load_at_pin": 0.5325402076023392,
+      "rounded_5dp": "0.53254",
+      "without_deliveries": 0.5236513187134504,
+      "terms": {
+        "rec.aecp": 0.051,
+        "rec.acmp": 0.056,
+        "rec.adp": 0.0105,
+        "rec.maap": 0.00575,
+        "srp": 0.171,
+        "item.reclaim": 0.025526315789473685,
+        "item.aecp": 0.036840000000000005,
+        "notices": 0.00204,
+        "item.acmp": 0.017050000000000003,
+        "item.acmp_declined": 0.012400000000000001,
+        "ticks": 0.0485,
+        "item.walk": 0.003868421052631579,
+        "builds": 0.007736842105263157,
+        "item.mrpdu": 0.015473684210526315,
+        "steps": 0.0325,
+        "timers": 0.0191505,
+        "gm": 9.333333333333334e-05,
+        "registrations": 0.008222222222222221,
+        "deliveries": 0.008888888888888889
+      },
+      "lower_floor_refused": [
+        "1x1/1if: DELIVERY_US 195 us under its measurement's 200 us by the rule"
+      ]
+    }
+  },
+  "former_077_refusal": [
+    "8x8/1if: the load 0.782 at the pin is over the flip ceiling 0.77"
+  ],
+  "normal_failed_adapters": [],
+  "lowered_ceiling_escapes": [
+    "the flip ceilings not 0.70 at 8x8/2if and 0.79 at 8x8/1if",
+    "8x8/1if: 0.790 refused or 0.791 passed"
+  ]
+}
