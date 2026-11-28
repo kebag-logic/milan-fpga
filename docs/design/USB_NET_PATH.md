@@ -189,11 +189,37 @@ Its largest commit-to-last-octet wait is 558.835 us.
 With the inherited 54.88 us gPTP burst, the complete expression is
 `(558.835 + 54.88) * 1.05 + 0.32 + 0.26 = 644.98075 us`.
 This fits the 1000 us wire allowance.
-However, the held-egress ledger still blocks qualification.
-The last AECP delivery in `none/backlog-owed` measures 62.03635 ms,
-exceeding its unchanged 61.99 ms allowance by 46.35 us.
-The other six held-egress rows remain within their allowances.
-No ledger entry or owner bound is relaxed by the wire result.
+
+**Held-egress ledger.** The USB-network Arty has its own point,
+`arty-usbnet-1x1`, under the
+[held-egress ruling](https://github.com/kebag-logic/milan-fpga/pull/1020#issuecomment-7234489667).
+Each row takes the larger Arty or injected measurement.
+The [existing points](SPLIT_CONTROL_MEMORY.md#15-arty-split-at-80-mhz)
+remain unchanged, including the 8x8/1if ledger.
+The rule from #894 applies separately to this point:
+`60 ms + 1.05 * (larger measurement - 60 ms)`,
+rounded upward to 0.01 ms.
+These seven rows remain recorded misses of their service budgets.
+Any larger ledger miss or new budget miss fails qualification.
+
+| USB-network Arty held-egress row | Arty measured, ms | Injected measured, ms | Ledger, ms |
+|---|---:|---:|---:|
+| `backlog.owed.if0` | 62.79239 | 62.71981 | 62.94 |
+| `backlog.owed_behind0.if0` | 62.92862 | 62.86221 | 63.08 |
+| `backlog.owed_behind1.if0` | 63.06490 | 63.00366 | 63.22 |
+| `backlog.owed_behind2.if0` | 63.19966 | 63.14499 | 63.36 |
+| `backlog.owed_behind3.if0` | 63.33355 | 63.28611 | 63.51 |
+| `backlog-owed.service.acmp.last.if0` | 62.10374 | 61.99278 | 62.21 |
+| `backlog-owed.service.aecp.last.if0` | 61.88720 | 62.03635 | 62.14 |
+
+Only the last AECP figure differs from the original Arty's.
+Injection changes the hold-release phase, rather than service cost.
+The retained 62.03635 ms result still fails `arty-1x1`'s 61.99 ms figure.
+It passes this separate point's derived 62.14 ms figure.
+The ledger self-test reads both documents and checks every row.
+It rejects one 80 MHz cycle over 62.14 ms.
+Regrading the retained 159 traces preserves all eight images.
+Firmware, queue behavior, scheduling costs and owner bounds remain unchanged.
 
 **Rate limit.** A token bucket in octets on the wire, refilled at 10 Mb/s (a
 tenth of the Arty's link) with a 3200-octet burst. Each frame costs at least 60
