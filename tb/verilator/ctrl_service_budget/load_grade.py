@@ -10,7 +10,7 @@ each source's arrival rate, from a contract rate (sw/mailbox/mailbox.yaml, read 
 one exception is the work a registering record defers into the polls' base of the passes after it, its binding changes
 and loss completions, which the delivery bound makes one a delivery (#977, ctrl_app_srp.c deliver): a source, the
 record, at the registration rate, so a term of its own (deliveries), stated against the ordinary passes after the
-delivery window, which carry none of that work (#977, comment 7229657853, the manager's decision).
+delivery window, which carry none of that work (#977, the manager's decision of 2026-11-27 on deferred deliveries).
 At or above 1.0 no ordering of the work bounds a row; CEILING leaves room for the rows: 0.70 (#665, option D) at
 1x1/1if, which this gate holds for merge, at the pin and with tsn-c-stack#32 (COLUMNS), each named in what it finds.
 8x8/2if is held to the same 0.70 by the flip check, flip_grade.py, read at the pin, a check apart from the merge gates
@@ -371,18 +371,19 @@ TX_PER_JOIN = 3
 #: over two values, 17,578 cycles, 185 us (#977's ruling of 2026-11-27 on the delivery bound, item 4: the cost
 #: restated by the rule).
 REGISTRATION_US = {'1x1/1if': 185, '8x8/1if': 190}
-#: The deliveries term (#977, comment 7229657853, the manager's decision): the work a registering record defers into
-#: the polls' base of the passes after it, its binding changes and loss completions, one a delivery under the delivery
-#: bound, at a sink's share of it. Its window is the delivery bound's own, the record's pass and the 2 x n_sinks
-#: deliveries after it; its baseline is the median polls base of the ordinary passes in the 50 ms after the window,
-#: which carry none of the deferred work (a pre-record median also counts the base work of what came before the
-#: record). The window's base over that baseline, summed and divided by the sinks, the dearest record over every
-#: registering group of both arms (e59cf6ea's images; the head's byte-identical), plus 5 %, rounded up to 5 us
-#: (DELIVERY_MEASURED, the gate's floor: a cost stated under it is refused). At 8x8/1if the answering-ports arm's swap,
-#: 135,935 cycles over its after-median 12,089, 15,104 a sink, 160 us; at 1x1/1if the answering-ports arm's JoinIn of
-#: both kinds with a change owed, 18,778 a sink, 200 us. Beside it, reported and not graded, the same over the median
-#: of the 50 ms and of the 500 ms before the record (DELIVERY_BESIDE): 11,573 and 13,642 cycles at 8x8/1if, 125 and
-#: 145 us; 18,076 and 18,765 at 1x1/1if, 190 and 200 us.
+#: The deliveries term (#977, the manager's decision of 2026-11-27 on deferred deliveries): the work a registering
+#: record defers into the polls' base of the passes after it, its binding changes and loss completions, one a delivery
+#: under the delivery bound, at a sink's share of it. Its window is the delivery bound's own, the record's pass and the
+#: 2 x n_sinks deliveries after it; its baseline is the median polls base of the ordinary passes in the 50 ms after the
+#: window, which carry none of the deferred work (a pre-record median also counts the base work of what came before
+#: the record). The window's base over that baseline, summed and divided by the sinks, the dearest record over every
+#: registering group of both arms (e59cf6ea's images; the head's byte-identical), each record from its own tagged
+#: receive commit on SRP's channel (44 at each point; a transmit probe, whose input is another record's, is none), plus
+#: 5 %, rounded up to 5 us (DELIVERY_MEASURED, the gate's floor: a cost stated under it is refused). At 8x8/1if the
+#: answering-ports arm's swap, 135,935 cycles over its after-median 12,089, 15,104 a sink, 160 us; at 1x1/1if the
+#: answering-ports arm's JoinIn of both kinds with a change owed, 18,778 a sink, 200 us. Beside it, reported and not
+#: graded, the same over the median of the 50 ms and of the 500 ms before the record (DELIVERY_BESIDE): 11,573 and
+#: 13,642 cycles at 8x8/1if, 125 and 145 us; 18,076 and 18,765 at 1x1/1if, 190 and 200 us.
 DELIVERY_US = {'1x1/1if': 200, '8x8/1if': 160}
 DELIVERY_MEASURED = {'1x1/1if': 18_778, '8x8/1if': 15_104}
 DELIVERY_BESIDE = {'1x1/1if': {'before 50 ms': 18_076, 'before 500 ms': 18_765},
