@@ -1,0 +1,1286 @@
+[
+  {
+    "name": "control-none",
+    "verdict": "SURVIVED",
+    "failed": [],
+    "rc": {
+      "pbaem_tests": 0,
+      "entity_tests": 0
+    },
+    "messages": [],
+    "note": "unmodified source: both binaries must pass"
+  },
+  {
+    "name": "name-copy-32",
+    "verdict": "KILLED",
+    "failed": [
+      "PbaemIdentity.FullWidthStringsAndModel"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "all 64 octets of an unterminated entity_name"
+    ],
+    "note": "ENTITY entity_name truncated to 32 octets"
+  },
+  {
+    "name": "firmware-copy-32",
+    "verdict": "KILLED",
+    "failed": [
+      "PbaemIdentity.FullWidthStringsAndModel"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "all 64 octets of an unterminated firmware_version"
+    ],
+    "note": "ENTITY firmware_version truncated to 32 octets"
+  },
+  {
+    "name": "group-copy-32",
+    "verdict": "KILLED",
+    "failed": [
+      "PbaemIdentity.FullWidthStringsAndModel"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "all 64 octets of an unterminated group_name"
+    ],
+    "note": "ENTITY group_name truncated to 32 octets"
+  },
+  {
+    "name": "serial-copy-32",
+    "verdict": "KILLED",
+    "failed": [
+      "PbaemIdentity.FullWidthStringsAndModel"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "all 64 octets of an unterminated serial_number"
+    ],
+    "note": "ENTITY serial_number truncated to 32 octets"
+  },
+  {
+    "name": "model-id-constant",
+    "verdict": "KILLED",
+    "failed": [
+      "PbaemIdentity.FullWidthStringsAndModel"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "entity_model_id is the caller's own value"
+    ],
+    "note": "ENTITY entity_model_id ignores the caller identity"
+  },
+  {
+    "name": "aaf-ignore-samples-per-frame",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit ",
+      "twelve samples per frame are refused"
+    ],
+    "note": "AAF input accepts any samples_per_frame (for example 12 at 48 kHz)"
+  },
+  {
+    "name": "aaf-ignore-format-field",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit ",
+      "an AAF format code other than INT_32BIT is refused"
+    ],
+    "note": "AAF input accepts any AAF format code (float, 24-bit, 16-bit, AES3)"
+  },
+  {
+    "name": "aaf-ignore-bit-depth",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals",
+      "Pbaem.StreamFormats"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "24-bit depth is refused",
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input accepts any bit_depth (expected killed by the 24-bit assertion)"
+  },
+  {
+    "name": "aaf-ignore-up-to-bit",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals",
+      "Pbaem.StreamFormats"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit ",
+      "the family entry is not a stream format"
+    ],
+    "note": "AAF input accepts the up-to family entry (expected killed)"
+  },
+  {
+    "name": "aaf-ignore-reserved-low",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a nonzero reserved low bit is refused",
+      "a one-bit change outside the channel count is refused, bit ",
+      "reserved bit 11 is refused"
+    ],
+    "note": "AAF input accepts nonzero reserved low bits"
+  },
+  {
+    "name": "aaf-ignore-subtype",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit ",
+      "a subtype other than AAF is refused",
+      "the high bit of the subtype octet is refused"
+    ],
+    "note": "AAF input accepts any version and subtype octet"
+  },
+  {
+    "name": "aaf-stream-bound-off-by-one-supported",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AbsentInputRefusesEverything"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a refused absent input leaves the model whole",
+      "setting a format on the absent input is refused",
+      "the absent sixth input refuses every AAF format"
+    ],
+    "note": "stream 5 reaches the AAF check: an AAF format is then supported on an absent input"
+  },
+  {
+    "name": "set-format-wrong-stream",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.StreamFormats"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "STREAM_INPUT current_format follows the change"
+    ],
+    "note": "accepted format stored on stream 0 (expected killed)"
+  },
+  {
+    "name": "init-keeps-old-state",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.InitResetsHeldState",
+      "EntityYaml.AemImageRoundTrip"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 1
+    },
+    "messages": [
+      "init clears an earlier available_index",
+      "init selects the internal clock source again",
+      "init turns identify off again"
+    ],
+    "note": "pbaem_init leaves available_index, clock_source and identify of a reused model"
+  },
+  {
+    "name": "init-clock-default",
+    "verdict": "SURVIVED",
+    "failed": [],
+    "rc": {
+      "pbaem_tests": 0,
+      "entity_tests": 0
+    },
+    "messages": [],
+    "note": "equivalent control (expected SURVIVED: no behaviour change)"
+  },
+  {
+    "name": "descriptor-not-zeroed",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.ClockSourcesAndControl",
+      "Pbaem.ConfigurationAndAudioUnit",
+      "Pbaem.DescriptorBounds",
+      "Pbaem.EntityFromIdentity",
+      "EntityYaml.AemImageRoundTrip"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 1
+    },
+    "messages": [
+      "an exact destination receives the same descriptor",
+      "each cluster has its USB name",
+      "each source has its name",
+      "four stream ports each way from zero",
+      "identify range, default and current value",
+      "one channel of multibit linear audio",
+      "one configuration, index zero current",
+      "stream channel j goes to cluster offset j",
+      "the gPTP dataset of the end station"
+    ],
+    "note": "descriptor padding left as stack bytes (expected killed)"
+  },
+  {
+    "name": "output-format-bound",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.StreamFormats"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "there is no sixth input",
+      "there is no sixth output"
+    ],
+    "note": "stream 5 reads past the channel table (expected killed)"
+  },
+  {
+    "name": "crf-output-not-sync",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.StreamFormats",
+      "EntityYaml.AemImageRoundTrip"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 1
+    },
+    "messages": [
+      "only the CRF output is a clock sync source"
+    ],
+    "note": "CRF output loses CLOCK_SYNC_SOURCE (expected killed)"
+  },
+  {
+    "name": "strings-model-name",
+    "verdict": "KILLED",
+    "failed": [
+      "EntityYaml.AemImageRoundTrip"
+    ],
+    "rc": {
+      "pbaem_tests": 0,
+      "entity_tests": 1
+    },
+    "messages": [],
+    "note": "STRINGS string 0 changed by one letter (expected killed by the golden only)"
+  },
+  {
+    "name": "locale-count",
+    "verdict": "KILLED",
+    "failed": [
+      "EntityYaml.AemImageRoundTrip"
+    ],
+    "rc": {
+      "pbaem_tests": 0,
+      "entity_tests": 1
+    },
+    "messages": [],
+    "note": "LOCALE number_of_strings 2 (expected killed by the golden only)"
+  },
+  {
+    "name": "aaf-ignore-reserved-high",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit ",
+      "reserved bit 53 of the rate octet is refused",
+      "reserved bit 54 of the rate octet is refused",
+      "reserved bit 55 of the rate octet is refused"
+    ],
+    "note": "AAF input accepts nonzero reserved bits 53 to 55, beside the up-to bit"
+  },
+  {
+    "name": "aaf-ignore-reserved-low-bits-1-to-11",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit ",
+      "reserved bit 11 is refused"
+    ],
+    "note": "AAF input accepts reserved low bits 1 to 11 (sub-field probe: only bit 0 is asserted)"
+  },
+  {
+    "name": "aaf-ignore-version-bit",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit ",
+      "the high bit of the subtype octet is refused"
+    ],
+    "note": "AAF input accepts the vendor/version bit (expected killed)"
+  },
+  {
+    "name": "aaf-ignore-rate",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals",
+      "Pbaem.StreamFormats"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "44.1 kHz is refused",
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input accepts any nominal sample rate (expected killed)"
+  },
+  {
+    "name": "set-format-unchecked",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.StreamFormats"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a refused format changes nothing",
+      "an unsupported format is refused"
+    ],
+    "note": "pbaem_set_input_format stores any format on a present input (expected killed)"
+  },
+  {
+    "name": "init-skips-formats",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.InitResetsHeldState",
+      "EntityYaml.AemImageRoundTrip"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 1
+    },
+    "messages": [
+      "init restores the model's input formats"
+    ],
+    "note": "pbaem_init leaves the input formats zero (expected killed)"
+  },
+  {
+    "name": "locale-en-EN",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.ClockSourcesAndControl",
+      "EntityYaml.AemImageRoundTrip"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 1
+    },
+    "messages": [
+      "one English locale for the United States (7.2.11)"
+    ],
+    "note": "LOCALE identifier back to the round-1 value (expected killed by the unit test and the golden)"
+  },
+  {
+    "name": "aaf-ignore-bit-00",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a nonzero reserved low bit is refused",
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 0 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-01",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 1 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-02",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 2 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-03",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 3 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-04",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 4 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-05",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 5 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-06",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 6 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-07",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 7 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-08",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 8 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-09",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 9 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-10",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 10 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-11",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit ",
+      "reserved bit 11 is refused"
+    ],
+    "note": "AAF input ignores bit 11 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-12",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 12 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-13",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 13 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-14",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 14 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-15",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 15 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-16",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 16 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-17",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 17 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-18",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 18 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-19",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 19 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-20",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 20 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-21",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 21 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-32",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 32 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-33",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 33 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-34",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 34 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-35",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 35 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-36",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 36 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-37",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 37 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-38",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 38 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-39",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 39 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-40",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 40 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-41",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 41 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-42",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 42 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-43",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 43 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-44",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 44 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-45",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 45 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-46",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 46 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-47",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 47 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-48",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 48 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-49",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 49 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-50",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 50 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-51",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 51 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-52",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals",
+      "Pbaem.StreamFormats"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit ",
+      "the family entry is not a stream format"
+    ],
+    "note": "AAF input ignores bit 52 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-53",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit ",
+      "reserved bit 53 of the rate octet is refused"
+    ],
+    "note": "AAF input ignores bit 53 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-54",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit ",
+      "reserved bit 54 of the rate octet is refused"
+    ],
+    "note": "AAF input ignores bit 54 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-55",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit ",
+      "reserved bit 55 of the rate octet is refused"
+    ],
+    "note": "AAF input ignores bit 55 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-56",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit ",
+      "a subtype other than AAF is refused"
+    ],
+    "note": "AAF input ignores bit 56 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-57",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 57 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-58",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 58 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-59",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 59 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-60",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 60 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-61",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 61 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-62",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit "
+    ],
+    "note": "AAF input ignores bit 62 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-bit-63",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit ",
+      "the high bit of the subtype octet is refused"
+    ],
+    "note": "AAF input ignores bit 63 of the format word alone"
+  },
+  {
+    "name": "aaf-ignore-reserved-53-to-55",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.AafFieldRefusals"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "messages": [
+      "a one-bit change outside the channel count is refused, bit ",
+      "reserved bit 53 of the rate octet is refused",
+      "reserved bit 54 of the rate octet is refused",
+      "reserved bit 55 of the rate octet is refused"
+    ],
+    "note": "the round-2 finding's probe under a second name, kept so both rounds' tables can be read side by side"
+  }
+]

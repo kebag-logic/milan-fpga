@@ -1,0 +1,21 @@
+milan-fpga 58f7673b8c57a80230e716bc1774ff9cc2f71ddc gitlinks (type commit) in its root tree:
+external efeb541ae5fe1e078332d8462dca2fc2d9cb8db5
+gptp-processor 1616fc8f062fbf58c35ad31674b5b233207bbdb8
+protocol-processor 801ef2283ec793e35a2590fc6593c90313a64041
+descriptor generator files in milan-fpga 58f7673b itself:
+avdecc/gen_aem_store.py
+avdecc/gen_aemi_image.py
+sw/builder/endstation_builder.py
+files under protocol-processor 801ef228 hdl/aecp/desc (type size path):
+blob 16409 hdl/aecp/desc/example_milan_8.json
+blob 28947 hdl/aecp/desc/gen_desc_image.py
+blob 25953 hdl/aecp/desc/milan_min.json
+blob 762 hdl/aecp/desc/model_ids.json
+blob 16943 hdl/aecp/desc/model_lint.py
+blob 49358 hdl/aecp/desc/model_rules.py
+avdecc/gen_aemi_image.py at 58f7673b, the lines that reach into the submodule:
+_DESC = _REPO / "protocol-processor" / "hdl" / "aecp" / "desc"
+sys.path.insert(0, str(_DESC))
+    import gen_desc_image as image     # noqa: E402
+    print("gen_aemi_image: the protocol-processor submodule is not checked "
+          "out (no %s).\n  git submodule update --init protocol-processor"

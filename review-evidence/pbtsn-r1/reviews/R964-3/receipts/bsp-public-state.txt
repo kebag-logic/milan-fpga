@@ -1,0 +1,18 @@
+kebag-logic/ti-sitara-am65x-bsp public branches, read 2026-11-28T11:02Z; per branch: tip, tree truncated?, paths matching /endstation/i, and yaml files stating schema kebag-logic/milan-endstation-config are checked below
+main 7791ccc923a98c70d86637df26a0a0ee7677bf16 entries 187 truncated False endstation paths: []
+pb2-aecp-1 a5cd7c1e48019f89583e8df930299d457e016fe3 entries 357 truncated False endstation paths: ['milan-linux/config/endstation_pb2_bridge.yaml']
+pb2-ethcap-phy-irq 8e567b5b7365877f0beae8d68b610c65a48b4e4b entries 330 truncated False endstation paths: []
+pb2-tsn b6d8594c1aaff38b5e9d6b13213d90ef5e4024d4 entries 330 truncated False endstation paths: []
+pb2aecp-review-evidence ed7686fd3072b57bb77bc7584ec15806702f0380 entries 280 truncated False endstation paths: []
+
+yaml/yml/json paths under any directory named config or milan-linux, per branch (to catch an end-station configuration under another file name):
+main 0 []
+pb2-aecp-1 1 ['milan-linux/config/endstation_pb2_bridge.yaml']
+pb2-ethcap-phy-irq 0 []
+pb2-tsn 0 []
+pb2aecp-review-evidence 0 []
+
+pb2-aecp-1 milan-linux/config/endstation_pb2_bridge.yaml stream/source shape:
+top keys ['audio_interface', 'board', 'clocking', 'control', 'entity', 'gptp', 'platform', 'schema', 'schema_version', 'streams']
+streams {'listeners': [{'name': 'Stream In 0', 'channels': 8}], 'talkers': [{'name': 'Stream Out 0', 'channels': 8}]}
+entity {'name': 'PocketBeagle 2 bridge'}

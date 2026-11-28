@@ -1,0 +1,20 @@
+== model at exact head ebaac61 (src/pbaem.c blob 67de6e639caeec4a9c510634027b2f0087a010db) versus the public generator (milan-fpga 58f7673b + protocol-processor 801ef228 only; gptp-processor absent) on scripts/reviewer_endstation_pb2_4x4.yaml
+model descriptors 84, image descriptors 84, identical by own type/index 84
+key sets equal: True
+model: label columns differing from the descriptor's own type/index: 0 []
+image: label columns differing from the descriptor's own type/index: 0 []
+model bytes 8105 crc32 0xd891cd2f (model emission order)
+image bytes 8105 crc32 0xd891cd2f (same order)
+rc=0
+== generator run with both gitlinks present: rc 0, 84 descriptors, byte-identical output to the protocol-processor-only run: yes
+== generator run with protocol-processor absent (gptp-processor present): rc 2
+gen_aemi_image: the protocol-processor submodule is not checked out (no protocol-processor/hdl/aecp/desc).
+  git submodule update --init protocol-processor
+== source blobs unchanged since the round-2 head 40c3111:
+src/pbaem.c 40c3111:67de6e639caeec4a9c510634027b2f0087a010db ebaac61:67de6e639caeec4a9c510634027b2f0087a010db
+include/pbaem.h 40c3111:c1895e59d16c825ee4368d5f9be5341fbf0cf886 ebaac61:c1895e59d16c825ee4368d5f9be5341fbf0cf886
+examples/entity_roundtrip.c 40c3111:258ae26c4f78e5e46c54269acdd0fd5e9b34f087 ebaac61:258ae26c4f78e5e46c54269acdd0fd5e9b34f087
+configs/pocketbeagle.yaml 40c3111:1569ae93ea40c1f6aae67f223d764ab665cacc8a ebaac61:1569ae93ea40c1f6aae67f223d764ab665cacc8a
+examples/entities/pocketbeagle/entity_config.c 40c3111:75e7daef2503346ba473178008812160983e0bc6 ebaac61:75e7daef2503346ba473178008812160983e0bc6
+examples/entities/pocketbeagle/entity_config.h 40c3111:4f32f6a8317dbdedd6a9bddcae7e366737b34821 ebaac61:4f32f6a8317dbdedd6a9bddcae7e366737b34821
+ENTITY entity_model_id in the model dump: 0x001bc5c52e47a158

@@ -1,0 +1,83 @@
+SURVIVED   control-none                             
+KILLED     name-copy-32                             PbaemIdentity.FullWidthStringsAndModel | all 64 octets of an unterminated entity_name
+KILLED     firmware-copy-32                         PbaemIdentity.FullWidthStringsAndModel | all 64 octets of an unterminated firmware_version
+KILLED     group-copy-32                            PbaemIdentity.FullWidthStringsAndModel | all 64 octets of an unterminated group_name
+KILLED     serial-copy-32                           PbaemIdentity.FullWidthStringsAndModel | all 64 octets of an unterminated serial_number
+KILLED     model-id-constant                        PbaemIdentity.FullWidthStringsAndModel | entity_model_id is the caller's own value
+KILLED     aaf-ignore-samples-per-frame             Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit  ; twelve samples per frame are refused
+KILLED     aaf-ignore-format-field                  Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit  ; an AAF format code other than INT_32BIT is refused
+KILLED     aaf-ignore-bit-depth                     Pbaem.AafFieldRefusals,Pbaem.StreamFormats | 24-bit depth is refused ; a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-up-to-bit                     Pbaem.AafFieldRefusals,Pbaem.StreamFormats | a one-bit change outside the channel count is refused, bit  ; the family entry is not a stream format
+KILLED     aaf-ignore-reserved-low                  Pbaem.AafFieldRefusals | a nonzero reserved low bit is refused ; a one-bit change outside the channel count is refused, bit  ; reserved bit 11 is refused
+KILLED     aaf-ignore-subtype                       Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit  ; a subtype other than AAF is refused ; the high bit of the subtype octet is refused
+KILLED     aaf-stream-bound-off-by-one-supported    Pbaem.AbsentInputRefusesEverything | a refused absent input leaves the model whole ; setting a format on the absent input is refused ; the absent sixth input refuses every AAF format
+KILLED     set-format-wrong-stream                  Pbaem.StreamFormats | STREAM_INPUT current_format follows the change
+KILLED     init-keeps-old-state                     Pbaem.InitResetsHeldState,EntityYaml.AemImageRoundTrip | init clears an earlier available_index ; init selects the internal clock source again ; init turns identify off again
+SURVIVED   init-clock-default                       
+KILLED     descriptor-not-zeroed                    Pbaem.ClockSourcesAndControl,Pbaem.ConfigurationAndAudioUnit,Pbaem.DescriptorBounds,Pbaem.EntityFromIdentity,EntityYaml.AemImageRoundTrip | an exact destination receives the same descriptor ; each cluster has its USB name ; each source has its name ; four stream ports each way from zero ; identify range, default and current value ; one channel of multibit linear audio ; one configuration, index zero current ; stream channel j goes to cluster offset j ; the gPTP dataset of the end station
+KILLED     output-format-bound                      Pbaem.StreamFormats | there is no sixth input ; there is no sixth output
+KILLED     crf-output-not-sync                      Pbaem.StreamFormats,EntityYaml.AemImageRoundTrip | only the CRF output is a clock sync source
+KILLED     strings-model-name                       EntityYaml.AemImageRoundTrip
+KILLED     locale-count                             EntityYaml.AemImageRoundTrip
+KILLED     aaf-ignore-reserved-high                 Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit  ; reserved bit 53 of the rate octet is refused ; reserved bit 54 of the rate octet is refused ; reserved bit 55 of the rate octet is refused
+KILLED     aaf-ignore-reserved-low-bits-1-to-11     Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit  ; reserved bit 11 is refused
+KILLED     aaf-ignore-version-bit                   Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit  ; the high bit of the subtype octet is refused
+KILLED     aaf-ignore-rate                          Pbaem.AafFieldRefusals,Pbaem.StreamFormats | 44.1 kHz is refused ; a one-bit change outside the channel count is refused, bit 
+KILLED     set-format-unchecked                     Pbaem.StreamFormats | a refused format changes nothing ; an unsupported format is refused
+KILLED     init-skips-formats                       Pbaem.InitResetsHeldState,EntityYaml.AemImageRoundTrip | init restores the model's input formats
+KILLED     locale-en-EN                             Pbaem.ClockSourcesAndControl,EntityYaml.AemImageRoundTrip | one English locale for the United States (7.2.11)
+KILLED     aaf-ignore-bit-00                        Pbaem.AafFieldRefusals | a nonzero reserved low bit is refused ; a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-01                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-02                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-03                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-04                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-05                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-06                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-07                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-08                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-09                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-10                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-11                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit  ; reserved bit 11 is refused
+KILLED     aaf-ignore-bit-12                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-13                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-14                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-15                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-16                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-17                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-18                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-19                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-20                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-21                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-32                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-33                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-34                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-35                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-36                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-37                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-38                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-39                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-40                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-41                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-42                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-43                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-44                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-45                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-46                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-47                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-48                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-49                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-50                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-51                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-52                        Pbaem.AafFieldRefusals,Pbaem.StreamFormats | a one-bit change outside the channel count is refused, bit  ; the family entry is not a stream format
+KILLED     aaf-ignore-bit-53                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit  ; reserved bit 53 of the rate octet is refused
+KILLED     aaf-ignore-bit-54                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit  ; reserved bit 54 of the rate octet is refused
+KILLED     aaf-ignore-bit-55                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit  ; reserved bit 55 of the rate octet is refused
+KILLED     aaf-ignore-bit-56                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit  ; a subtype other than AAF is refused
+KILLED     aaf-ignore-bit-57                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-58                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-59                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-60                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-61                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-62                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit 
+KILLED     aaf-ignore-bit-63                        Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit  ; the high bit of the subtype octet is refused
+KILLED     aaf-ignore-reserved-53-to-55             Pbaem.AafFieldRefusals | a one-bit change outside the channel count is refused, bit  ; reserved bit 53 of the rate octet is refused ; reserved bit 54 of the rate octet is refused ; reserved bit 55 of the rate octet is refused

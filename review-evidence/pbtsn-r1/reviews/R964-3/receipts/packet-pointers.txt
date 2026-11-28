@@ -1,0 +1,31 @@
+evidence branch pbtsn-review-evidence, commit 6aff8627 'Add the round-3 packet': files changed
+modified review-evidence/pbtsn-r1/MANIFEST.json
+added review-evidence/pbtsn-r1/author-r3/REVIEW-READY.md
+added review-evidence/pbtsn-r1/author-r3/receipts-round3/graphs.txt
+added review-evidence/pbtsn-r1/author-r3/receipts-round3/tsn-coverage.log
+added review-evidence/pbtsn-r1/author-r3/receipts-round3/tsn-mutation-results.json
+added review-evidence/pbtsn-r1/author-r3/receipts-round3/tsn-mutation-summary.txt
+added review-evidence/pbtsn-r1/author-r3/receipts-round3/tsn-privacy.log
+added review-evidence/pbtsn-r1/author-r3/receipts-round3/tsn-rv32-results.json
+added review-evidence/pbtsn-r1/author-r3/receipts-round3/tsn-validate-gates.json
+added review-evidence/pbtsn-r1/author-r3/receipts-round3/tsn-validate.log
+added review-evidence/pbtsn-r1/author-r3/round3/HANDOFF-r3.md
+
+author-r2/round2/HANDOFF-r2.md at 6aff8627, lines naming receipts:
+author-r2/REVIEW-READY.md at 6aff8627, lines naming receipts:
+author/receipts/INDEX.md at 6aff8627 (blob 3b0067cb, the same blob as at 2a261083), lines naming a round:
+31:- `tsn-rv32-results-entity.json`: `baremetal.py` Debug and Release, five entity round trips.
+(end)
+author-r3 lines naming receipts:
+author-r3/REVIEW-READY.md:10:| both, RES-1 | The packet names a receipts directory that is published as `receipts-round2/` | `round2/HANDOFF-r2.md`: "Receipts are in `../receipts-round2/`". This file is rewritten and names no round directory; receipts are listed in `receipts/INDEX.md`. | packet |
+author-r3/REVIEW-READY.md:35:Receipts: the round 3 section of `receipts/INDEX.md`.
+author-r3/round3/HANDOFF-r3.md:17:- RES-1 (both reviews): `round2/HANDOFF-r2.md` now says "Receipts are in `../receipts-round2/`". REVIEW-READY.md is rewritten for this round. It no longer names a round-2 directory, and it points to `receipts/INDEX.md` for receipts.
+author-r3/round3/HANDOFF-r3.md:29:- Receipts: see the round 3 section of `../receipts/INDEX.md`.
+
+Published round-2 files at 6aff8627 (unchanged by that commit), lines naming receipts:
+-- review-evidence/pbtsn-r1/author-r2/REVIEW-READY.md (blob 4a739e88cc0e757c59b0b123a5f23bff55565fea)
+40:Receipts: `receipts/round2/`.
+-- review-evidence/pbtsn-r1/author-r2/round2/HANDOFF-r2.md (blob 8506e63a8222fe356c786da20408a5ddb6dd5938)
+21:- Receipts are in `../receipts/round2/`.
+Paths under review-evidence/pbtsn-r1 at 6aff8627 whose name is INDEX.md:
+  3b0067cbb1e81b38d3367cd4167ef42b432b8eb1 review-evidence/pbtsn-r1/author/receipts/INDEX.md
