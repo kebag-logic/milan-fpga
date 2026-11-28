@@ -21,7 +21,11 @@
 
 namespace {
 
-constexpr std::uint64_t kSysPs = 12500;
+// The sys period, ps: the Arty 1x1's 80 MHz unless the build names another (the 4x4 runs sys at 100 MHz).
+#ifndef EGRESS_FIXED_SYS_PS
+#define EGRESS_FIXED_SYS_PS 12500
+#endif
+constexpr std::uint64_t kSysPs = EGRESS_FIXED_SYS_PS;
 constexpr std::uint64_t kDpPs = 20000;
 constexpr std::uint64_t kEthPs = 40000;
 constexpr std::uint64_t kOctetPs = 80000;
