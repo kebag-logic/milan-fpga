@@ -1,0 +1,18 @@
+adopted-vid-ignored KILLED: [FAIL] datapath: the adopted Domain (VID 5) and every source's stream on it, for the talker's frames and ACMP's answers: 1 5 ['stream_id:0200000000010000 dest_mac:91e0f00
+avb-mapping-fixed KILLED: [FAIL] GET_AVB_INFO after the adoption: the SR class A mapping on the adopted VID 5: (7, (6, 3, 2), 1)
+avb-srp-flag-dropped KILLED: [FAIL] GET_AVB_INFO with SRP attached: SRP_ENABLED and one SR class A mapping, priority 3 VID 2 (IEEE 1722.1-2021 Table 7-150): (3, (6, 3, 2), 1)
+clock-changes-uncounted KILLED: [FAIL] datapath: six clock source changes counted: 0 -> 0
+clock-unsampled KILLED: [FAIL] SET_CLOCK_SOURCE to CRF, each AAF input, then INTERNAL: each SUCCESS and in the datapath block: [(0, '0'), (0, '0'), (0, '0'), (0, '0'), (0, '0'), (0, '0')]
+declared-unpublished KILLED: [FAIL] datapath: every probed source declared, none licensed without a Listener Ready: ['stream_id:0200000000010000 dest_mac:91e0f0002830 vlan:2 dest_mac_valid:1 licensed
+dest-valid-without-declaration KILLED: [FAIL] GET_STREAM_INFO STREAM_OUTPUT 0 undeclared: STREAM_DEST_MAC_VALID clear, not REGISTERING (Milan v1.2 4.3.3.1, Table 5.8): ('0xd2000000', '0x91e0f0002830', '0x0')
+formats-unpublished KILLED: [FAIL] datapath: sink 2's format is the one set, for the listener's channel count: 0205022001006000
+maps-begin-always KILLED: [FAIL] REMOVE_AUDIO_MAPPINGS STREAM_PORT_INPUT 0 (an existing mapping): NOT_SUPPORTED (no channel router): 0
+maps-finish-uncounted KILLED: [FAIL] datapath: the edited map published, map_seq moved: count:8 0.0>0.0 0.1>1.0 0.2>2.0 0.3>3.0 0.4>4.0 0.5>5.0 0.6>6.0 0.7>7.0 seq 1
+maps-unpublished-at-boot KILLED: [FAIL] datapath: STREAM_PORT_INPUT 0's map is the model's, 8 channels to its clusters
+maps-wrong-channel KILLED: [FAIL] ADD_AUDIO_MAPPINGS of stream channel 3 to cluster offset 2: SUCCESS, and published as such: 0 count:3 0.0>0.0 0.1>1.0 0.2>2.0
+set-format-ignored KILLED: [FAIL] datapath: sink 2's format is the one set, for the listener's channel count: 0205022001006000
+slope-unpublished KILLED: [FAIL] datapath: the idle slope of the five declared talkers, Milan v1.2 4.3.3.2 (2 x 16576 + 2 x 10432 + 5632 kb/s): 0
+verdict-any-rate KILLED: [FAIL] SET_STREAM_FORMAT STREAM_INPUT 0 to 44.1 kHz: refused (the model runs 48 kHz): 0
+verdict-crf-any KILLED: [FAIL] SET_STREAM_FORMAT STREAM_INPUT 4 (CRF) to another CRF format: refused (Milan v1.2 7.3.2, the one CRF format): 0
+verdict-default-only KILLED: [FAIL] SET_STREAM_FORMAT STREAM_INPUT 2 (4 channels mapped) to the 8-channel base format: SUCCESS, its mapped channels all in it (Milan v1.2 5.4.2.7): 7
+verdict-no-family-cap KILLED: [FAIL] SET_STREAM_FORMAT STREAM_INPUT 0 to 9 channels, past the family's 8: refused: 0

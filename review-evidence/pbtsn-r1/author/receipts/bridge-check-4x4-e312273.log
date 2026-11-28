@@ -1,0 +1,442 @@
+tools/gen-config.sh --check $VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455
+config/: every generated file is current for endstation_pb2_bridge.yaml
+cc -std=gnu11 -O2 -Wall -Wextra -Werror -Isrc -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl/mbx -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl/host -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl/port -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl/loop -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl/adp -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl/maap -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl/acmp -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl/app -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl/aecp -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl/srp -I$LANES/pb-tsn/include -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/third_party/lwSRP/src/include -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/third_party/lwSRP/src -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl_nvm -Iconfig -DLWSRP_MILAN=1 -include config/srp_entity_gen.h -DCTRL_HOST_PLATFORM  -o $VALIDATION_STORAGE/pbtsn-a866/b-wt/test_media tests/test_media.c src/aaf.c src/crf.c src/servo.c src/media.c src/shmblk.c -lm -lrt
+cc -std=gnu11 -O2 -Wall -Wextra -Werror -Isrc -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl/mbx -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl/host -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl/port -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl/loop -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl/adp -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl/maap -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl/acmp -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl/app -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl/aecp -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl/srp -I$LANES/pb-tsn/include -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/third_party/lwSRP/src/include -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/third_party/lwSRP/src -I$VALIDATION_STORAGE/pbtsn-a866/milan-fpga-455/sw/firmware/ctrl_nvm -Iconfig -DLWSRP_MILAN=1 -include config/srp_entity_gen.h -DCTRL_HOST_PLATFORM  -o $VALIDATION_STORAGE/pbtsn-a866/b-wt/test_gptp tests/test_gptp.c src/gptp_time.c src/gptp_shm.c -lrt
+cc -std=gnu11 -O2 -Wall -Wextra -Werror -shared -fPIC -o $VALIDATION_STORAGE/pbtsn-a866/b-wt/rxfail.so tests/rxfail.c -ldl
+$VALIDATION_STORAGE/pbtsn-a866/b-wt/test_media
+servo, host +0 ppm: pitch +1.56 ppm (integral -0.04), level 23.994, worst |error| after 20 s 0.073, peak 29.2, locked
+servo, host +100 ppm: pitch -98.44 ppm (integral -100.04), level 23.994, worst |error| after 20 s 0.079, peak 32.4, locked
+servo, host -100 ppm: pitch +101.56 ppm (integral +99.96), level 23.994, worst |error| after 20 s 0.067, peak 26.8, locked
+servo, host +300 ppm: pitch -298.44 ppm (integral -300.04), level 23.994, worst |error| after 20 s 0.092, peak 40.0, locked
+test_media: PASS (0 failures)
+$VALIDATION_STORAGE/pbtsn-a866/b-wt/test_gptp
+[PASS] model: within 250 ns of a PHC 36.9 ppm fast, between measurements: worst 122 ns (limit 250), rate +36.896 ppm (PHC +36.900)
+[PASS] model: a 1 ms PHC step is detected: steps 0 -> 1, residual 999976 ns
+[PASS] model: back after the step: worst 144 ns (limit 500) two measurements later
+[PASS] status block: reads back what was written: SLAVE, the bench grandmaster, 203 ns
+[PASS] status block: no grandmaster reads as our own identity: 
+[PASS] status block: an odd seq reads as nothing: 
+[PASS] status block: another layout reads as nothing: 
+test_gptp: PASS (0 failures)
+tests/run-netns.sh $VALIDATION_STORAGE/pbtsn-a866/b-wt/milan-ctrld $VALIDATION_STORAGE/pbtsn-a866/b-wt/milan-dp config/entity.conf
+[PASS] ADP: ENTITY_AVAILABLE carrying flexptpd's grandmaster: after 1.12 s
+[PASS] ADP: destination 91:e0:f0:01:00:00, 82-byte frame
+[PASS] ADP: entity_id is the MAC's EUI-64: 020000fffe000001
+[PASS] ADP: control_data_length 56, valid_time 10
+[PASS] ADP: fields as entity.conf
+[PASS] ADP: gPTP domain 0
+[PASS] datapath: entity_id and grandmaster published: 3cc0c6fffe0a0001
+[PASS] MAAP: ANNOUNCE after its PROBEs: 4 PROBEs
+[PASS] MAAP: PROBE spacing within 500 to 600 ms (+/-20 ms host jitter): [520, 532, 511] ms
+[PASS] MAAP: range inside the pool, one address per talker source: 91e0f0002830 x 5
+[PASS] MAAP: sent to 91:e0:f0:00:ff:00
+[PASS] datapath: MAAP range and source 0's address: stream_id:0200000000010000 dest_mac:91e0f0002830 vlan:2 dest_mac_valid:1 licensed:0 declared:0
+[PASS] MAAP: DEFEND against a conflicting PROBE: after 0 ms
+[PASS] ACMP talker: PROBE_TX_RESPONSE: after 0 ms
+[PASS] ACMP talker: SUCCESS with the stream, MAAP address and VLAN 2: status 0 stream 0200000000010000 dmac 91e0f0002830 vlan 2
+[PASS] ACMP talker: response within 200 ms (Milan Table 5.26)
+[PASS] ACMP talker: TALKER_UNKNOWN_ID for source 9
+[PASS] ACMP listener: BIND_RX_RESPONSE SUCCESS
+[PASS] ACMP listener: PROBE_TX_COMMAND to the bound talker
+[PASS] datapath: sink 0 listening to the talker's stream: stream_id:0200000000020000 dest_mac:91e0f000ab00 vlan:2 listening:1 bound:1 binds:1 format:0205022002006000
+[PASS] ACMP listener: UNBIND_RX_RESPONSE SUCCESS
+[PASS] datapath: sink 0 stopped
+[PASS] ADP: AVAILABLE after a global DISCOVER (<= 4 s + 0.5 s): after 1.13 s
+[PASS] ADP: AVAILABLE with the new grandmaster (<= poll + 4 s + 1 s): after 3.38 s
+[PASS] ADP: ENTITY_DEPARTING on SIGTERM: after 0 ms
+[PASS] milan-ctrld exits 0: rc 0
+peer: PASS (0 failed)
+tests/run-netns-aecp.sh $VALIDATION_STORAGE/pbtsn-a866/b-wt/milan-ctrld $VALIDATION_STORAGE/pbtsn-a866/b-wt/milan-dp config/entity.conf
+[PASS] identity: the DUT's MAC is not the generated image's placeholder: 021a2b3c4d5e vs 020000000001
+[PASS] journal: the KLJ2 file moved aside, unchanged, and a KLJ3 journal of 640 KiB in its place: 0xa0000
+[PASS] journal: the store read the KLJ2 header as legacy and booted blank (nvm_store.c, nvm_legacy_check): saved state at boot (/tmp/tmp.BJP0yWdpEG/journal-aecp.bin): slot none seq 0 (A 0, B 0) | bindings blank, rest blank | phase 1 dirty 0 pending 0 | commits 0 ok, 0 failed, 0 skipped | unread 0x0 read faults 0 legacy 0x1
+[PASS] ADP: ENTITY_AVAILABLE (AECP open before ADP, Milan v1.2 5.6.1)
+[PASS] ADP: entity_id is this board's, eth0's MAC expanded (the one ENTITY must carry, Table 7-2): 021a2bfffe3c4d5e
+[PASS] ADP: entity_model_id 0x001bc5c52e47a158, 5 sources, 5 sinks, AEM_SUPPORTED
+[PASS] READ_DESCRIPTOR ENTITY: SUCCESS: 0
+[PASS] ENTITY: entity_id is this board's, eth0's MAC expanded (Table 7-2, the same as ADP's): 021a2bfffe3c4d5e
+[PASS] ENTITY: entity_model_id pinned 0x001bc5c52e47a158: 001bc5c52e47a158
+[PASS] ENTITY: AEM_SUPPORTED in entity_capabilities: 0000c588
+[PASS] ENTITY: 5 talker sources, 5 listener sinks: 5/5
+[PASS] ENTITY: entity_name 'PocketBeagle 2 bridge': 'PocketBeagle 2 bridge'
+[PASS] ENTITY: one Configuration, current 0 (IEEE 1722.1-2021 7.2.1): 1/0
+[PASS] READ_DESCRIPTOR CONFIGURATION 0: SUCCESS
+[PASS] READ_DESCRIPTOR of every descriptor CONFIGURATION 0 lists (21): 21 read, 0 failed; [(2, 1), (5, 5), (6, 5), (9, 1), (36, 1), (10, 6), (26, 1), (12, 1)]
+[PASS] READ_DESCRIPTOR of AUDIO_UNIT 0's stream ports and their clusters and maps (8 ports, 48 clusters, 4 maps): 60 read, 0 failed
+[PASS] CONFIGURATION: 5 STREAM_INPUTs, 5 STREAM_OUTPUTs, 1 AVB_INTERFACE, 6 CLOCK_SOURCEs, 1 CLOCK_DOMAIN: {2: 1, 5: 5, 6: 5, 9: 1, 36: 1, 10: 6, 26: 1, 12: 1}
+[PASS] READ_DESCRIPTOR STREAM_INPUT 5: NO_SUCH_DESCRIPTOR
+[PASS] READ_DESCRIPTOR STREAM_OUTPUT 5: NO_SUCH_DESCRIPTOR
+[PASS] AVB_INTERFACE: mac_address is eth0's: 021a2b3c4d5e
+[PASS] AVB_INTERFACE: clock_identity is eth0's EUI-64
+[PASS] AVB_INTERFACE: flexptpd's dataset (priority1/2 248, class 248, accuracy 0xFE, variance 0xFFFF, port 1)
+[PASS] STREAM_INPUT 0: AAF 48 kHz, 8 channels, 32-bit: 0x0205022002006000
+[PASS] STREAM_INPUT 1: AAF 48 kHz, 8 channels, 32-bit: 0x0205022002006000
+[PASS] STREAM_INPUT 2: AAF 48 kHz, 4 channels, 32-bit: 0x0205022001006000
+[PASS] STREAM_INPUT 3: AAF 48 kHz, 4 channels, 32-bit: 0x0205022001006000
+[PASS] STREAM_INPUT 4: CRF, current_format 0x041060010000bb80: 0x041060010000bb80
+[PASS] STREAM_OUTPUT 0: AAF 48 kHz, 8 channels, 32-bit: 0x0205022002006000
+[PASS] STREAM_OUTPUT 0: the same format as STREAM_INPUT 0
+[PASS] STREAM_OUTPUT 1: AAF 48 kHz, 8 channels, 32-bit: 0x0205022002006000
+[PASS] STREAM_OUTPUT 1: the same format as STREAM_INPUT 1
+[PASS] STREAM_OUTPUT 2: AAF 48 kHz, 4 channels, 32-bit: 0x0205022001006000
+[PASS] STREAM_OUTPUT 2: the same format as STREAM_INPUT 2
+[PASS] STREAM_OUTPUT 3: AAF 48 kHz, 4 channels, 32-bit: 0x0205022001006000
+[PASS] STREAM_OUTPUT 3: the same format as STREAM_INPUT 3
+[PASS] STREAM_OUTPUT 4: CRF, current_format 0x041060010000bb80: 0x041060010000bb80
+[PASS] CLOCK_SOURCE 1: the CRF input, located on STREAM_INPUT 4 (Milan v1.2 5.3.3.6): 00020002000000000000000000050004
+[PASS] CLOCK_SOURCE 2: located on AAF STREAM_INPUT 0 (Milan v1.2 5.3.3.6): 00020002000000000000000000050000
+[PASS] CLOCK_SOURCE 3: located on AAF STREAM_INPUT 1 (Milan v1.2 5.3.3.6): 00020002000000000000000000050001
+[PASS] CLOCK_SOURCE 4: located on AAF STREAM_INPUT 2 (Milan v1.2 5.3.3.6): 00020002000000000000000000050002
+[PASS] CLOCK_SOURCE 5: located on AAF STREAM_INPUT 3 (Milan v1.2 5.3.3.6): 00020002000000000000000000050003
+[PASS] CLOCK_DOMAIN 0: present
+[PASS] CLOCK_DOMAIN 0: lists CLOCK_SOURCEs 0 to 5: 0000004c0006000000010002000300040005
+[PASS] STREAM_PORT_INPUT 0: 8 mono clusters from AUDIO_CLUSTER 0, no AUDIO_MAP (dynamic, Milan v1.2 5.3.3.9): 000e000000000001000000000008000000000000
+[PASS] STREAM_PORT_INPUT 1: 8 mono clusters from AUDIO_CLUSTER 8, no AUDIO_MAP (dynamic, Milan v1.2 5.3.3.9): 000e000100000001000000000008000800000000
+[PASS] STREAM_PORT_INPUT 2: 4 mono clusters from AUDIO_CLUSTER 16, no AUDIO_MAP (dynamic, Milan v1.2 5.3.3.9): 000e000200000001000000000004001000000000
+[PASS] STREAM_PORT_INPUT 3: 4 mono clusters from AUDIO_CLUSTER 20, no AUDIO_MAP (dynamic, Milan v1.2 5.3.3.9): 000e000300000001000000000004001400000000
+[PASS] STREAM_PORT_OUTPUT 0: 8 mono clusters from AUDIO_CLUSTER 24, one AUDIO_MAP: 000f000000000000000000000008001800010000
+[PASS] AUDIO_MAP of STREAM_PORT_OUTPUT 0: STREAM_OUTPUT 0 channel j to cluster offset j: [(0, 0, 0, 0), (0, 1, 1, 0), (0, 2, 2, 0), (0, 3, 3, 0), (0, 4, 4, 0), (0, 5, 5, 0), (0, 6, 6, 0), (0, 7, 7, 0)]
+[PASS] STREAM_PORT_OUTPUT 1: 8 mono clusters from AUDIO_CLUSTER 32, one AUDIO_MAP: 000f000100000000000000000008002000010001
+[PASS] AUDIO_MAP of STREAM_PORT_OUTPUT 1: STREAM_OUTPUT 1 channel j to cluster offset j: [(1, 0, 0, 0), (1, 1, 1, 0), (1, 2, 2, 0), (1, 3, 3, 0), (1, 4, 4, 0), (1, 5, 5, 0), (1, 6, 6, 0), (1, 7, 7, 0)]
+[PASS] STREAM_PORT_OUTPUT 2: 4 mono clusters from AUDIO_CLUSTER 40, one AUDIO_MAP: 000f000200000000000000000004002800010002
+[PASS] AUDIO_MAP of STREAM_PORT_OUTPUT 2: STREAM_OUTPUT 2 channel j to cluster offset j: [(2, 0, 0, 0), (2, 1, 1, 0), (2, 2, 2, 0), (2, 3, 3, 0)]
+[PASS] STREAM_PORT_OUTPUT 3: 4 mono clusters from AUDIO_CLUSTER 44, one AUDIO_MAP: 000f000300000000000000000004002c00010003
+[PASS] AUDIO_MAP of STREAM_PORT_OUTPUT 3: STREAM_OUTPUT 3 channel j to cluster offset j: [(3, 0, 0, 0), (3, 1, 1, 0), (3, 2, 2, 0), (3, 3, 3, 0)]
+[PASS] AUDIO_CLUSTER 0 to 47: one channel each: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+[PASS] MVU GET_MILAN_INFO: SUCCESS, protocol_version 1: 0000000000010000000000000000
+[PASS] MVU SET_SYSTEM_UNIQUE_ID: SUCCESS
+[PASS] MVU GET_SYSTEM_UNIQUE_ID: the one set
+[PASS] ACQUIRE_ENTITY: NOT_SUPPORTED (Milan v1.2 5.4.2.1): 11
+[PASS] LOCK_ENTITY: SUCCESS, within 240 ms (IEEE 1722.1-2021 9.3.2.6): 0 in 0 ms
+[PASS] ENTITY_AVAILABLE: locked by this controller: 0000000200000000000000000200c0ffee000001
+[PASS] SET_NAME from another controller while locked: ENTITY_LOCKED: 3
+[PASS] LOCK_ENTITY with UNLOCK: SUCCESS
+[PASS] ENTITY_AVAILABLE: unlocked
+[PASS] GET_CONFIGURATION: 0
+[PASS] SET_CONFIGURATION 0: SUCCESS: 0
+[PASS] GET_STREAM_FORMAT 0x5/0: the current format
+[PASS] GET_STREAM_FORMAT 0x5/1: the current format
+[PASS] GET_STREAM_FORMAT 0x5/2: the current format
+[PASS] GET_STREAM_FORMAT 0x5/3: the current format
+[PASS] GET_STREAM_FORMAT 0x5/4: the current format
+[PASS] GET_STREAM_FORMAT 0x6/0: the current format
+[PASS] GET_STREAM_FORMAT 0x6/1: the current format
+[PASS] GET_STREAM_FORMAT 0x6/2: the current format
+[PASS] GET_STREAM_FORMAT 0x6/3: the current format
+[PASS] GET_STREAM_FORMAT 0x6/4: the current format
+[PASS] SET_STREAM_FORMAT STREAM_INPUT 0 to its format: SUCCESS: 0
+[PASS] SET_STREAM_FORMAT STREAM_INPUT 0 to 2 channels: refused, its mapped channels 2 to 7 not in it: 7
+[PASS] GET_STREAM_INFO STREAM_OUTPUT 0: SUCCESS: 0
+[PASS] GET_STREAM_INFO STREAM_OUTPUT 0: stream_id eth0's MAC then 0, VLAN 2, a MAAP address: d20000000205022002006000021a2b3c4d5e00000000000091e0f000d0040000000000000000000000020000
+[PASS] SET_NAME ENTITY: SUCCESS: 0
+[PASS] GET_NAME ENTITY: the name set
+[PASS] GET_SAMPLING_RATE AUDIO_UNIT 0: 48000
+[PASS] SET_SAMPLING_RATE AUDIO_UNIT 0 48000: SUCCESS
+[PASS] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: INTERNAL (0)
+[PASS] SET_CLOCK_SOURCE CLOCK_DOMAIN 0 to CRF (1): SUCCESS, the model's: 0
+[PASS] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: CRF (1)
+[PASS] SET_CLOCK_SOURCE CLOCK_DOMAIN 0 back to INTERNAL: SUCCESS
+[PASS] GET_CONTROL IDENTIFY: SUCCESS, off: 001a000000
+[PASS] SET_CONTROL IDENTIFY on: SUCCESS: 0
+[PASS] START_STREAMING STREAM_INPUT 0 unbound: SUCCESS (Milan v1.2 5.4.2.19/20): 0
+[PASS] STOP_STREAMING STREAM_INPUT 0 unbound: SUCCESS (Milan v1.2 5.4.2.19/20): 0
+[PASS] GET_AVB_INFO: SUCCESS: 0
+[PASS] GET_AVB_INFO: flexptpd's grandmaster, 200 ns link delay, AS_CAPABLE|GPTP_ENABLED, class A PCP 3 VLAN 2: 000900003cc0c6fffe0a0001000000c80003000106030002
+[PASS] GET_AS_PATH: the grandmaster, then this board: 000000023cc0c6fffe0a0001021a2bfffe3c4d5e
+[PASS] GET_COUNTERS 0x9/0: SUCCESS, counters_valid 0x23: 0x23
+[PASS] GET_COUNTERS 0x24/0: SUCCESS, counters_valid 0x3: 0x3
+[PASS] GET_COUNTERS 0x5/0: SUCCESS, counters_valid 0xf3f: 0xf3f
+[PASS] GET_COUNTERS 0x6/0: SUCCESS, counters_valid 0x1f: 0x1f
+[PASS] GET_COUNTERS 0x5/4: SUCCESS, counters_valid 0xf3f: 0xf3f
+[PASS] GET_COUNTERS STREAM_INPUT 0, the AAF listener's Milan counters, quadlet by quadlet: [3, 2, 8, 2, 7, 9, 0, 0, 5, 3, 4, 11]
+[PASS] GET_COUNTERS STREAM_INPUT 4, the CRF receive path's Milan counters, quadlet by quadlet: [1, 1, 1, 4, 2, 6, 0, 0, 3, 5, 7, 20]
+[PASS] GET_COUNTERS STREAM_OUTPUT 0, the talker's Milan counters, quadlet by quadlet: [2, 1, 0, 0, 42, 0, 0, 0, 0, 0, 0, 0]
+[PASS] GET_COUNTERS STREAM_INPUT 4 while no receive path counts it: none valid, all zero: 0 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[PASS] GET_COUNTERS AVB_INTERFACE: LINK_UP 1, GPTP_GM_CHANGED 1: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
+[PASS] GET_AUDIO_MAP STREAM_PORT_INPUT 0: SUCCESS: 0
+[PASS] GET_AUDIO_MAP STREAM_PORT_INPUT 0: the identity of stream channels 0-7: [(0, 0, 0, 0), (0, 1, 1, 0), (0, 2, 2, 0), (0, 3, 3, 0), (0, 4, 4, 0), (0, 5, 5, 0), (0, 6, 6, 0), (0, 7, 7, 0)]
+[PASS] REMOVE_AUDIO_MAPPINGS STREAM_PORT_INPUT 0 (an existing mapping): NOT_SUPPORTED (no channel router): 11
+[PASS] ADD_AUDIO_MAPPINGS STREAM_PORT_INPUT 0 onto a mapped cluster channel: BAD_ARGUMENTS (IEEE 1722.1-2021 7.4.45): 7
+[PASS] GET_AUDIO_MAP STREAM_PORT_INPUT 0 after the refused edits: still the identity
+[PASS] GET_AUDIO_MAP STREAM_PORT_OUTPUT 0 (it has an AUDIO_MAP): NOT_SUPPORTED (Milan v1.2 5.4.2.26): 11
+[PASS] GET_DYNAMIC_INFO of GET_CONFIGURATION: SUCCESS: 0
+[PASS] REBOOT: NOT_IMPLEMENTED (no reset port on this platform): 1
+[PASS] datapath: every input's format is the model's before any change: ['0205022002006000', '0205022002006000', '0205022001006000', '0205022001006000', '041060010000bb80']
+[PASS] SET_STREAM_FORMAT STREAM_INPUT 2 (4 channels mapped) to the 8-channel base format: SUCCESS, its mapped channels all in it (Milan v1.2 5.4.2.7): 0
+[PASS] GET_STREAM_FORMAT STREAM_INPUT 2: the 8-channel format set: 000500020205022002006000
+[PASS] datapath: sink 2's format is the one set, for the listener's channel count: 0205022002006000
+[PASS] SET_STREAM_FORMAT STREAM_INPUT 2 back to 4 channels: SUCCESS: 0
+[PASS] datapath: sink 2's format back to the model's: 0205022001006000
+[PASS] SET_STREAM_FORMAT STREAM_INPUT 0 to 2 channels, channels 2 to 7 mapped: BAD_ARGUMENTS (Milan v1.2 5.4.2.7): 7
+[PASS] SET_STREAM_FORMAT STREAM_INPUT 0 to 9 channels, past the family's 8: refused: 7
+[PASS] SET_STREAM_FORMAT STREAM_INPUT 0 to 44.1 kHz: refused (the model runs 48 kHz): 7
+[PASS] SET_STREAM_FORMAT STREAM_INPUT 4 (CRF) to an AAF format: refused: 7
+[PASS] SET_STREAM_FORMAT STREAM_INPUT 4 (CRF) to another CRF format: refused (Milan v1.2 7.3.2, the one CRF format): 7
+[PASS] datapath: refused formats change no input
+[PASS] SET_CLOCK_SOURCE to CRF, each AAF input, then INTERNAL: each SUCCESS and in the datapath block: [(0, '1'), (0, '2'), (0, '3'), (0, '4'), (0, '5'), (0, '0')]
+[PASS] datapath: six clock source changes counted: 2 -> 8
+[PASS] SET_CLOCK_SOURCE 6 (no such source): refused, the datapath's unchanged: 7
+[PASS] REGISTER_UNSOLICITED_NOTIFICATION: SUCCESS
+[PASS] an unsolicited SET_NAME notification to the registered controller: after 0 ms
+[PASS] DEREGISTER_UNSOLICITED_NOTIFICATION: SUCCESS: 0 after 0 ms
+[PASS] ACMP BIND_RX STREAM_INPUT 0: SUCCESS: 0
+[PASS] ACMP STREAM_INPUT 0: PROBE_TX_COMMAND to talker unique id 0
+[PASS] datapath: sink 0 listening to stream 0200000000020000: stream_id:0200000000020000 dest_mac:91e0f000ab00 vlan:2 listening:1 bound:1 binds:1 format:0205022002006000
+[PASS] GET_STREAM_INFO STREAM_INPUT 0: bound to the stream (CONNECTED, STREAM_ID_VALID): f600000602050220020060000200000000020000
+[PASS] ACMP BIND_RX STREAM_INPUT 4: SUCCESS: 0
+[PASS] ACMP STREAM_INPUT 4: PROBE_TX_COMMAND to talker unique id 1
+[PASS] datapath: sink 4 listening to stream 0200000000020001: stream_id:0200000000020001 dest_mac:91e0f000ab01 vlan:2 listening:1 bound:1 binds:1 format:041060010000bb80
+[PASS] GET_STREAM_INFO STREAM_INPUT 4: bound to the stream (CONNECTED, STREAM_ID_VALID): f6000006041060010000bb800200000000020001
+[PASS] datapath: each sink bound once (bound:1 binds:1): ['stream_id:0200000000020000 dest_mac:91e0f000ab00 vlan:2 listening:1 bound:1 binds:1 format:0205022002006000', 'stream_id:0200000000020001 dest_mac:91e0f000ab01 vlan:2 listening:1 bound:1 binds:1 format:041060010000bb80']
+[PASS] GET_COUNTERS STREAM_INPUT 0 just bound, its counters not yet zeroed by milan-mediad: valid 0xf3f, all zero: 3903 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[PASS] GET_COUNTERS STREAM_INPUT 4 just bound, its counters not yet zeroed by milan-mediad: valid 0xf3f, all zero: 3903 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[PASS] GET_COUNTERS STREAM_INPUT 0 and 4 once milan-mediad counts for the binding: its counters: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1] [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2]
+[PASS] ACMP UNBIND_RX STREAM_INPUT 0: SUCCESS
+[PASS] ACMP UNBIND_RX STREAM_INPUT 4: SUCCESS
+[PASS] gPTP live: CLOCK_DOMAIN locked once (LOCKED = UNLOCKED + 1): 1/0
+[PASS] flexptpd stopped, its block left (6.5 s): one UNLOCKED, no LOCKED: 1/0 -> 1/1
+[PASS] flexptpd stopped: GET_AVB_INFO no longer AS_CAPABLE (gPTP still enabled): flags 0x2
+[PASS] flexptpd updating again: one LOCKED: 1/1 -> 2/1
+[PASS] flexptpd updating again: AS_CAPABLE|GPTP_ENABLED: flags 0x3
+[PASS] flexptpd live for 2.5 s more: no transition: (2, 1)
+[PASS] status block seq left odd (4.5 s): one UNLOCKED, no LOCKED: 2/1 -> 2/2
+[PASS] seq even and updating again: one LOCKED: 2/2 -> 3/2
+[PASS] a new, updating block under the name (4.5 s): the old one expires, the new one locks, once each: 3/2 -> 4/3
+[PASS] a new block that never updates (6.5 s): one UNLOCKED, no LOCKED from reading it: 4/3 -> 4/4
+[PASS] that block updating: one LOCKED: 4/4 -> 5/4
+[PASS] ADP: ENTITY_DEPARTING on SIGTERM
+[PASS] milan-ctrld exits 0: rc 0
+aecp: PASS (0 failed)
+tests/run-netns-srp.sh $VALIDATION_STORAGE/pbtsn-a866/b-wt/milan-ctrld $VALIDATION_STORAGE/pbtsn-a866/b-wt/milan-dp config/entity.conf
+[PASS] datapath: SRP attached (srp=1): 1
+[PASS] MAAP: a range of five addresses: 1/5
+[PASS] no source licensed before any Listener Ready: ['stream_id:0200000000010000 dest_mac:91e0f0002830 vlan:2 dest_mac_valid:1 licensed:0 declared:0', 'stream_id:0200000000010001 dest_mac:91e0f0002831 vlan:2 dest_mac_valid:1 licensed:0 declared:0', 'stream_id:0200000000010002 dest_mac:91e0f0002832 vlan:2 dest_mac_valid:1 licensed:0 declared:0', 'stream_id:0200000000010003 dest_mac:91e0f0002833 vlan:2 dest_mac_valid:1 licensed:0 declared:0', 'stream_id:0200000000010004 dest_mac:91e0f0002834 vlan:2 dest_mac_valid:1 licensed:0 declared:0']
+[PASS] MSRP: no Talker declared while no PROBE_TX_COMMAND or Listener asks for one (Milan v1.2 4.3.3.1): []
+[PASS] MSRP: a PROBE_TX_COMMAND to each STREAM_OUTPUT declares its Talker Advertise (Milan v1.2 4.3.3.1, 5.3.7.4): [0, 1, 2, 3, 4]
+[PASS] MSRP Talker 0: destination MAAP base + 0, VID 2: ('0x91e0f0002830', 2)
+[PASS] MSRP Talker 0: TSpec MaxFrameSize 217, MaxIntervalFrames 1, priority 3 rank 1 (Milan v1.2 Table 4.4): (217, 1, '0x70')
+[PASS] MSRP Talker 1: destination MAAP base + 1, VID 2: ('0x91e0f0002831', 2)
+[PASS] MSRP Talker 1: TSpec MaxFrameSize 217, MaxIntervalFrames 1, priority 3 rank 1 (Milan v1.2 Table 4.4): (217, 1, '0x70')
+[PASS] MSRP Talker 2: destination MAAP base + 2, VID 2: ('0x91e0f0002832', 2)
+[PASS] MSRP Talker 2: TSpec MaxFrameSize 121, MaxIntervalFrames 1, priority 3 rank 1 (Milan v1.2 Table 4.4): (121, 1, '0x70')
+[PASS] MSRP Talker 3: destination MAAP base + 3, VID 2: ('0x91e0f0002833', 2)
+[PASS] MSRP Talker 3: TSpec MaxFrameSize 121, MaxIntervalFrames 1, priority 3 rank 1 (Milan v1.2 Table 4.4): (121, 1, '0x70')
+[PASS] MSRP Talker 4: destination MAAP base + 4, VID 2: ('0x91e0f0002834', 2)
+[PASS] MSRP Talker 4: TSpec MaxFrameSize 29, MaxIntervalFrames 1, priority 3 rank 1 (Milan v1.2 Table 4.4): (29, 1, '0x70')
+[PASS] datapath: every probed source declared, none licensed without a Listener Ready: ['stream_id:0200000000010000 dest_mac:91e0f0002830 vlan:2 dest_mac_valid:1 licensed:0 declared:1', 'stream_id:0200000000010001 dest_mac:91e0f0002831 vlan:2 dest_mac_valid:1 licensed:0 declared:1', 'stream_id:0200000000010002 dest_mac:91e0f0002832 vlan:2 dest_mac_valid:1 licensed:0 declared:1', 'stream_id:0200000000010003 dest_mac:91e0f0002833 vlan:2 dest_mac_valid:1 licensed:0 declared:1', 'stream_id:0200000000010004 dest_mac:91e0f0002834 vlan:2 dest_mac_valid:1 licensed:0 declared:1']
+[PASS] datapath: the idle slope of the five declared talkers, Milan v1.2 4.3.3.2 (2 x 16576 + 2 x 10432 + 5632 kb/s): 59648000
+[PASS] MSRP: the SR class A Domain declared (class 6, priority 3, VID 2; 802.1Q-2018 35.2.2.8.7): {'attr': 4, 'event': 3, 'decl': None, 'leave_all': 0, 'class_id': 6, 'priority': 3, 'vid': 2}
+[PASS] a Listener Ready for STREAM_OUTPUT 0 licenses source 0 alone: 10000 after 0.05 s
+[PASS] the Listener's Leave withdraws source 0's licence: stream_id:0200000000010000 dest_mac:91e0f0002830 vlan:2 dest_mac_valid:1 licensed:0 declared:1
+[PASS] ACMP: BIND_RX on STREAM_INPUT 0 probes the peer's talker
+[PASS] MSRP: a Listener Ready declared for the bound STREAM_INPUT's stream (Milan v1.2 4.3.3.2): {'attr': 3, 'event': 0, 'decl': 2, 'leave_all': 0, 'stream_id': 144115188075986944}
+[PASS] MVRP: VID 2 joined for the bound STREAM_INPUT (802.1Q-2018 11.2): {'attr': 1, 'vid': 2, 'event': 3}
+[PASS] datapath: sink 0 listening to the peer's stream: stream_id:0200000000020000 dest_mac:91e0f000ab00 vlan:2 listening:1 bound:1 binds:1 format:0205022002006000
+[PASS] MSRP: the unbound STREAM_INPUT's Listener leaves: {'attr': 3, 'event': 5, 'decl': 2, 'leave_all': 0, 'stream_id': 144115188075986944}
+[PASS] MSRP: the bridge's Domain on VID 5 adopted and declared (802.1Q-2018 35.2.4.3): {'attr': 4, 'event': 0, 'decl': None, 'leave_all': 0, 'class_id': 6, 'priority': 3, 'vid': 5}
+[PASS] MSRP: Talker 0 declared on the adopted VID 5: {'attr': 1, 'event': 0, 'decl': None, 'leave_all': 0, 'stream_id': 144115188075921408, 'da': 160395285243952, 'vid': 5, 'max_frame': 217, 'interval': 1, 'prio_rank': 112}
+[PASS] datapath: the adopted Domain (VID 5) and every source's stream on it, for the talker's frames and ACMP's answers: 1 5 ['stream_id:0200000000010000 dest_mac:91e0f0002830 vlan:5 dest_mac_valid:1 licensed:0 declared:1', 'stream_id:0200000000010001 dest_mac:91e0f0002831 vlan:5 dest_mac_valid:1 licensed:0 declared:1', 'stream_id:0200000000010002 dest_mac:91e0f0002832 vlan:5 dest_mac_valid:1 licensed:0 declared:1', 'stream_id:0200000000010003 dest_mac:91e0f0002833 vlan:5 dest_mac_valid:1 licensed:0 declared:1', 'stream_id:0200000000010004 dest_mac:91e0f0002834 vlan:5 dest_mac_valid:1 licensed:0 declared:1']
+srp: PASS
+tests/run-netns-counters.sh $VALIDATION_STORAGE/pbtsn-a866/b-wt config/entity.conf
+[PASS] ADP: ENTITY_AVAILABLE
+[PASS] GET_COUNTERS STREAM_INPUT 0 and 1 before any binding: counted (valid 0xf3f), all zero: [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+[PASS] ACMP BIND_RX STREAM_INPUT 0: SUCCESS: 0
+[PASS] ACMP STREAM_INPUT 0: PROBE_TX_COMMAND to talker unique id 0
+[PASS] datapath: sink 0 listening to stream 0200000000020000: stream_id:0200000000020000 dest_mac:91e0f000ab00 vlan:2 listening:1 bound:1 binds:1 format:0205022002006000
+[PASS] GET_STREAM_INFO STREAM_INPUT 0: bound to the stream (CONNECTED, STREAM_ID_VALID): f600000602050220020060000200000000020000
+[PASS] ACMP BIND_RX STREAM_INPUT 1: SUCCESS: 0
+[PASS] ACMP STREAM_INPUT 1: PROBE_TX_COMMAND to talker unique id 1
+[PASS] datapath: sink 1 listening to stream 0200000000020001: stream_id:0200000000020001 dest_mac:91e0f000ab01 vlan:2 listening:1 bound:1 binds:1 format:0205022002006000
+[PASS] GET_STREAM_INFO STREAM_INPUT 1: bound to the stream (CONNECTED, STREAM_ID_VALID): f600000602050220020060000200000000020001
+[PASS] clean, 3 s: STREAM_INPUT 1 (CRF) locked once on its grid: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5]
+[PASS] clean, 3 s: STREAM_INPUT 0 and 1 FRAMES_RX counts intervals of 500 ms, not PDUs: [5] [5]
+[PASS] clean, 1.5 s: both inputs read
+[PASS] clean, 1.5 s: STREAM_INPUT 0 MEDIA_LOCKED +0..9, MEDIA_UNLOCKED +0..9: {'FRAMES_RX': 3}
+[PASS] clean, 1.5 s: STREAM_INPUT 0 MEDIA_LOCKED = MEDIA_UNLOCKED (+1): 1/0
+[PASS] clean, 1.5 s: STREAM_INPUT 1 nothing but FRAMES_RX: {'FRAMES_RX': 3}
+[PASS] clean, 1.5 s: STREAM_INPUT 1 MEDIA_LOCKED = MEDIA_UNLOCKED (+1): 1/0
+[PASS] one PDU lost: both inputs read
+[PASS] one PDU lost: STREAM_INPUT 0 MEDIA_LOCKED +0..9, MEDIA_UNLOCKED +0..9, SEQ_NUM_MISMATCH +1: {'SEQ_NUM_MISMATCH': 1, 'FRAMES_RX': 3}
+[PASS] one PDU lost: STREAM_INPUT 0 MEDIA_LOCKED = MEDIA_UNLOCKED (+1): 1/0
+[PASS] one PDU lost: STREAM_INPUT 1 SEQ_NUM_MISMATCH +1: {'SEQ_NUM_MISMATCH': 1, 'FRAMES_RX': 3}
+[PASS] one PDU lost: STREAM_INPUT 1 MEDIA_LOCKED = MEDIA_UNLOCKED (+1): 1/0
+[PASS] tu on five PDUs: both inputs read
+[PASS] tu on five PDUs: STREAM_INPUT 0 MEDIA_LOCKED +0..9, MEDIA_UNLOCKED +0..9, TIMESTAMP_UNCERTAIN +1..2: {'TIMESTAMP_UNCERTAIN': 1, 'FRAMES_RX': 4}
+[PASS] tu on five PDUs: STREAM_INPUT 0 MEDIA_LOCKED = MEDIA_UNLOCKED (+1): 1/0
+[PASS] tu on five PDUs: STREAM_INPUT 1 TIMESTAMP_UNCERTAIN +1..2: {'TIMESTAMP_UNCERTAIN': 1, 'FRAMES_RX': 4}
+[PASS] tu on five PDUs: STREAM_INPUT 1 MEDIA_LOCKED = MEDIA_UNLOCKED (+1): 1/0
+[PASS] mr toggled: both inputs read
+[PASS] mr toggled: STREAM_INPUT 0 MEDIA_LOCKED +0..9, MEDIA_UNLOCKED +0..9, STREAM_INTERRUPTED +0..1, MEDIA_RESET +1: {'MEDIA_LOCKED': 1, 'MEDIA_UNLOCKED': 1, 'MEDIA_RESET': 1, 'FRAMES_RX': 3}
+[PASS] mr toggled: STREAM_INPUT 0 MEDIA_LOCKED = MEDIA_UNLOCKED (+1): 2/1
+[PASS] mr toggled: STREAM_INPUT 1 MEDIA_RESET +1, MEDIA_LOCKED +1, MEDIA_UNLOCKED +1: {'MEDIA_LOCKED': 1, 'MEDIA_UNLOCKED': 1, 'MEDIA_RESET': 1, 'FRAMES_RX': 3}
+[PASS] mr toggled: STREAM_INPUT 1 MEDIA_LOCKED = MEDIA_UNLOCKED (+1): 2/1
+[PASS] three PDUs of another format: both inputs read
+[PASS] three PDUs of another format: STREAM_INPUT 0 MEDIA_LOCKED +0..9, MEDIA_UNLOCKED +0..9, STREAM_INTERRUPTED +0..1, UNSUPPORTED_FORMAT +1..2: {'STREAM_INTERRUPTED': 1, 'UNSUPPORTED_FORMAT': 1, 'FRAMES_RX': 3}
+[PASS] three PDUs of another format: STREAM_INPUT 0 MEDIA_LOCKED = MEDIA_UNLOCKED (+1): 2/1
+[PASS] three PDUs of another format: STREAM_INPUT 1 UNSUPPORTED_FORMAT +1..2: {'UNSUPPORTED_FORMAT': 1, 'FRAMES_RX': 3}
+[PASS] three PDUs of another format: STREAM_INPUT 1 MEDIA_LOCKED = MEDIA_UNLOCKED (+1): 2/1
+[PASS] 80 ms held, then the backlog: both inputs read
+[PASS] 80 ms held, then the backlog: STREAM_INPUT 0 MEDIA_LOCKED +0..9, MEDIA_UNLOCKED +0..9, STREAM_INTERRUPTED +0..1, LATE_TIMESTAMP +1..2: {'LATE_TIMESTAMP': 1, 'FRAMES_RX': 3}
+[PASS] 80 ms held, then the backlog: STREAM_INPUT 0 MEDIA_LOCKED = MEDIA_UNLOCKED (+1): 2/1
+[PASS] 80 ms held, then the backlog: STREAM_INPUT 1 LATE_TIMESTAMP +1..2: {'LATE_TIMESTAMP': 1, 'FRAMES_RX': 3}
+[PASS] 80 ms held, then the backlog: STREAM_INPUT 1 MEDIA_LOCKED = MEDIA_UNLOCKED (+1): 2/1
+[PASS] three PDUs stamped 300 ms ahead: both inputs read
+[PASS] three PDUs stamped 300 ms ahead: STREAM_INPUT 0 MEDIA_LOCKED +0..9, MEDIA_UNLOCKED +0..9, STREAM_INTERRUPTED +0..1, EARLY_TIMESTAMP +1..2: {'STREAM_INTERRUPTED': 1, 'EARLY_TIMESTAMP': 1, 'FRAMES_RX': 3}
+[PASS] three PDUs stamped 300 ms ahead: STREAM_INPUT 0 MEDIA_LOCKED = MEDIA_UNLOCKED (+1): 2/1
+[PASS] three PDUs stamped 300 ms ahead: STREAM_INPUT 1 EARLY_TIMESTAMP +1..2: {'EARLY_TIMESTAMP': 1, 'FRAMES_RX': 3}
+[PASS] three PDUs stamped 300 ms ahead: STREAM_INPUT 1 MEDIA_LOCKED = MEDIA_UNLOCKED (+1): 2/1
+[PASS] 300 ms with nothing sent: both inputs read
+[PASS] 300 ms with nothing sent: STREAM_INPUT 0 MEDIA_LOCKED +0..9, MEDIA_UNLOCKED +0..9, STREAM_INTERRUPTED +1: {'MEDIA_LOCKED': 1, 'MEDIA_UNLOCKED': 1, 'STREAM_INTERRUPTED': 1, 'FRAMES_RX': 4}
+[PASS] 300 ms with nothing sent: STREAM_INPUT 0 MEDIA_LOCKED = MEDIA_UNLOCKED (+1): 3/2
+[PASS] 300 ms with nothing sent: STREAM_INPUT 1 STREAM_INTERRUPTED +1, MEDIA_LOCKED +1, MEDIA_UNLOCKED +1: {'MEDIA_LOCKED': 1, 'MEDIA_UNLOCKED': 1, 'STREAM_INTERRUPTED': 1, 'FRAMES_RX': 4}
+[PASS] 300 ms with nothing sent: STREAM_INPUT 1 MEDIA_LOCKED = MEDIA_UNLOCKED (+1): 3/2
+[PASS] milan-dp: the CRF path's raw counts (PDUs, not intervals): 1 skip, 5 tu, 1 mr toggle, 3 other, late ones, 3 early, 1 interruption, no grid break: {'seq_mismatch': '1', 'timestamp_uncertain': '5', 'media_restarts': '1', 'unsupported_format': '3', 'late_timestamp': '16', 'early_timestamp': '3', 'stream_interrupted': '1', 'grid_breaks': '0'}
+[PASS] 1.5 s of PDUs all stamped 300 ms ahead: both inputs read
+[PASS] 1.5 s of PDUs all stamped 300 ms ahead: STREAM_INPUT 0 MEDIA_LOCKED +0..9, MEDIA_UNLOCKED +0..9, EARLY_TIMESTAMP +2..4, STREAM_INTERRUPTED +1: {'MEDIA_UNLOCKED': 1, 'STREAM_INTERRUPTED': 1, 'EARLY_TIMESTAMP': 3, 'FRAMES_RX': 3}
+[PASS] 1.5 s of PDUs all stamped 300 ms ahead: STREAM_INPUT 0 MEDIA_LOCKED = MEDIA_UNLOCKED (+1): 3/3
+[PASS] 1.5 s of PDUs all stamped 300 ms ahead: STREAM_INPUT 1 EARLY_TIMESTAMP +2..4, STREAM_INTERRUPTED +1, MEDIA_UNLOCKED +1: {'MEDIA_UNLOCKED': 1, 'STREAM_INTERRUPTED': 1, 'EARLY_TIMESTAMP': 3, 'FRAMES_RX': 3}
+[PASS] 1.5 s of PDUs all stamped 300 ms ahead: STREAM_INPUT 1 MEDIA_LOCKED = MEDIA_UNLOCKED (+1): 3/3
+[PASS] ACMP UNBIND_RX STREAM_INPUT 1: SUCCESS
+[PASS] UNBIND_RX STREAM_INPUT 1: its counters kept (not reset on bound to not bound): [4, 4, 2, 1, 1, 1, 0, 0, 1, 1, 5, 37]
+[PASS] ACMP BIND_RX STREAM_INPUT 1: SUCCESS: 0
+[PASS] ACMP STREAM_INPUT 1: PROBE_TX_COMMAND to talker unique id 1
+[PASS] datapath: sink 1 listening to stream 0200000000020001: stream_id:0200000000020001 dest_mac:91e0f000ab01 vlan:2 listening:1 bound:1 binds:2 format:0205022002006000
+[PASS] GET_STREAM_INFO STREAM_INPUT 1: bound to the stream (CONNECTED, STREAM_ID_VALID): f600000602050220020060000200000000020001
+[PASS] BIND_RX STREAM_INPUT 1 again: counted from zero, only FRAMES_RX (and the lock) since: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2]
+[PASS] datapath: sink 1 bound twice
+[PASS] talker: AAF PDUs sent, mr never toggled and tu never set: 4001 PDUs, (mr, tu) {(0, 0)}
+[PASS] GET_COUNTERS STREAM_OUTPUT 0: valid 0x1f; STREAM_START 1, STREAM_STOP 0, MEDIA_RESET 0, TIMESTAMP_UNCERTAIN 0, FRAMES_TX counting 500 ms intervals: 31 [1, 0, 0, 0, 39]
+[PASS] burst: before it, both inputs have counted for their binding (SEQ_NUM_MISMATCH, FRAMES_RX): [[4, 3, 4, 2, 1, 1, 0, 0, 1, 1, 5, 43], [1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 5]]
+[PASS] burst: UNBIND_RX STREAM_INPUT 0 (0x7100): SUCCESS
+[PASS] burst: BIND_RX STREAM_INPUT 0 (0x7101): SUCCESS
+[PASS] burst: UNBIND_RX STREAM_INPUT 0 (0x7102): SUCCESS
+[PASS] burst: BIND_RX STREAM_INPUT 0 (0x7103): SUCCESS
+[PASS] burst: UNBIND_RX STREAM_INPUT 1 (0x7110): SUCCESS
+[PASS] burst: BIND_RX STREAM_INPUT 1 (0x7111): SUCCESS
+[PASS] burst: GET_COUNTERS STREAM_INPUT 0 queued with them: valid 0xf3f; answered first, the old binding's: 0xf3f [4, 3, 4, 2, 1, 1, 0, 0, 1, 1, 5, 43]
+[PASS] burst: GET_COUNTERS STREAM_INPUT 0 at once after the last BIND_RX response, milan-mediad held: valid 0xf3f, all zero: 0xf3f [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[PASS] burst: GET_COUNTERS STREAM_INPUT 1 queued with them: valid 0xf3f; answered first, the old binding's: 0xf3f [1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 5]
+[PASS] burst: GET_COUNTERS STREAM_INPUT 1 at once after the last BIND_RX response, milan-mediad held: valid 0xf3f, all zero: 0xf3f [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[PASS] burst: each binding counted, two for STREAM_INPUT 0, one for STREAM_INPUT 1: [1, 2] -> [3, 3]
+[PASS] burst: GET_COUNTERS again, milan-mediad still held: both valid 0xf3f, all zero: [(3903, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), (3903, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])]
+[PASS] burst: milan-mediad running again, both count from zero for the new binding: no SEQ_NUM_MISMATCH, FRAMES_RX 1 to 3: [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2]]
+[PASS] burst: milan-mediad zeroed each input for its latest binding (its bind count is the datapath's): ns=49907844 crftx_active=0 crftx_stream_id=0000000000000000 crftx_dest_mac=000000000000 crftx_pdus=0 crftx_send_errors=0 crftx_starts=0 crftx_stops=0 milan_stream_output0=valid:01f binds:0 2 1 0 0 2 0 0 0 0 0 0 0 milan_stream_output1=valid:000 binds:0 0 0 0 0 0 0 0 0 0 0 0 0 milan_stream_input0=valid:f3f binds:3 0 0 0 0 0 0 0 0 0 0 0 2 milan_stream_input1=valid:f3f binds:3 1 0 0 0 0 0 0 0 0 0 0 2 
+[PASS] burst: both inputs listening again: ['stream_id:0200000000020000 dest_mac:91e0f000ab00 vlan:2 listening:1 bound:1 binds:3 format:0205022002006000', 'stream_id:0200000000020001 dest_mac:91e0f000ab01 vlan:2 listening:1 bound:1 binds:3 format:0205022002006000']
+[PASS] ACMP UNBIND_RX STREAM_INPUT 1: SUCCESS
+[PASS] rebind 1 of 5: unbound, STREAM_INPUT 1 kept its FRAMES_RX: [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5]
+[PASS] rebind 1 of 5: GET_COUNTERS STREAM_INPUT 1 at once after the BIND_RX response (10.1 ms): valid 0xf3f, all zero: 0xf3f [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[PASS] rebind 1 of 5: settled again: stream_id:0200000000020001 dest_mac:91e0f000ab01 vlan:2 listening:1 bound:1 binds:4 format:0205022002006000
+[PASS] ACMP UNBIND_RX STREAM_INPUT 1: SUCCESS
+[PASS] rebind 2 of 5: unbound, STREAM_INPUT 1 kept its FRAMES_RX: [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2]
+[PASS] rebind 2 of 5: GET_COUNTERS STREAM_INPUT 1 at once after the BIND_RX response (10.1 ms): valid 0xf3f, all zero: 0xf3f [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[PASS] rebind 2 of 5: settled again: stream_id:0200000000020001 dest_mac:91e0f000ab01 vlan:2 listening:1 bound:1 binds:5 format:0205022002006000
+[PASS] ACMP UNBIND_RX STREAM_INPUT 1: SUCCESS
+[PASS] rebind 3 of 5: unbound, STREAM_INPUT 1 kept its FRAMES_RX: [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2]
+[PASS] rebind 3 of 5: GET_COUNTERS STREAM_INPUT 1 at once after the BIND_RX response (10.1 ms): valid 0xf3f, all zero: 0xf3f [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[PASS] rebind 3 of 5: settled again: stream_id:0200000000020001 dest_mac:91e0f000ab01 vlan:2 listening:1 bound:1 binds:6 format:0205022002006000
+[PASS] ACMP UNBIND_RX STREAM_INPUT 1: SUCCESS
+[PASS] rebind 4 of 5: unbound, STREAM_INPUT 1 kept its FRAMES_RX: [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2]
+[PASS] rebind 4 of 5: GET_COUNTERS STREAM_INPUT 1 at once after the BIND_RX response (10.1 ms): valid 0xf3f, all zero: 0xf3f [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[PASS] rebind 4 of 5: settled again: stream_id:0200000000020001 dest_mac:91e0f000ab01 vlan:2 listening:1 bound:1 binds:7 format:0205022002006000
+[PASS] ACMP UNBIND_RX STREAM_INPUT 1: SUCCESS
+[PASS] rebind 5 of 5: unbound, STREAM_INPUT 1 kept its FRAMES_RX: [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2]
+[PASS] rebind 5 of 5: GET_COUNTERS STREAM_INPUT 1 at once after the BIND_RX response (10.2 ms): valid 0xf3f, all zero: 0xf3f [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[PASS] rebind 5 of 5: settled again: stream_id:0200000000020001 dest_mac:91e0f000ab01 vlan:2 listening:1 bound:1 binds:8 format:0205022002006000
+counters: PASS (0 failed)
+tests/run-netns-rxfail.sh $VALIDATION_STORAGE/pbtsn-a866/b-wt config/entity.conf
+[PASS] ADP: ENTITY_AVAILABLE
+[PASS] control, nothing fails: STREAM_INPUT 0 and 1 valid 0xf3f, nothing logged as failed: alive True valid {0: 3903, 1: 3903}
+[PASS] milan-listener interface fails: injected
+[PASS] milan-listener interface fails: STREAM_INPUT 0 none valid, STREAM_INPUT 1 0xf3f, milan-mediad running: alive True valid {0: 0, 1: 3903}
+[PASS] milan-listener interface fails: logged with its step: listener on veth0: interface: No such device; STREAM_INPUT 0 is not received, none of its counters valid
+[PASS] milan-listener interface fails: no descriptor opened
+[PASS] milan-listener socket fails: injected
+[PASS] milan-listener socket fails: STREAM_INPUT 0 none valid, STREAM_INPUT 1 0xf3f, milan-mediad running: alive True valid {0: 0, 1: 3903}
+[PASS] milan-listener socket fails: logged with its step: listener on veth0: socket: Too many open files; STREAM_INPUT 0 is not received, none of its counters valid
+[PASS] milan-listener socket fails: no descriptor opened
+[PASS] milan-listener filter fails: injected
+[PASS] milan-listener filter fails: STREAM_INPUT 0 none valid, STREAM_INPUT 1 0xf3f, milan-mediad running: alive True valid {0: 0, 1: 3903}
+[PASS] milan-listener filter fails: logged with its step: listener on veth0: filter: Cannot allocate memory; STREAM_INPUT 0 is not received, none of its counters valid
+[PASS] milan-listener filter fails: the descriptor it opened is closed
+[PASS] milan-listener bind fails: injected
+[PASS] milan-listener bind fails: STREAM_INPUT 0 none valid, STREAM_INPUT 1 0xf3f, milan-mediad running: alive True valid {0: 0, 1: 3903}
+[PASS] milan-listener bind fails: logged with its step: listener on veth0: bind: Cannot assign requested address; STREAM_INPUT 0 is not received, none of its counters valid
+[PASS] milan-listener bind fails: the descriptor it opened is closed
+[PASS] milan-listener timeout fails: injected
+[PASS] milan-listener timeout fails: STREAM_INPUT 0 none valid, STREAM_INPUT 1 0xf3f, milan-mediad running: alive True valid {0: 0, 1: 3903}
+[PASS] milan-listener timeout fails: logged with its step: listener on veth0: receive timeout: Invalid argument; STREAM_INPUT 0 is not received, none of its counters valid
+[PASS] milan-listener timeout fails: the descriptor it opened is closed
+[PASS] milan-crf-rx interface fails: injected
+[PASS] milan-crf-rx interface fails: STREAM_INPUT 1 none valid, STREAM_INPUT 0 0xf3f, milan-mediad running: alive True valid {0: 3903, 1: 0}
+[PASS] milan-crf-rx interface fails: logged with its step: CRF input on veth0: interface: No such device; STREAM_INPUT 1 is not received, none of its counters valid
+[PASS] milan-crf-rx interface fails: no descriptor opened
+[PASS] milan-crf-rx socket fails: injected
+[PASS] milan-crf-rx socket fails: STREAM_INPUT 1 none valid, STREAM_INPUT 0 0xf3f, milan-mediad running: alive True valid {0: 3903, 1: 0}
+[PASS] milan-crf-rx socket fails: logged with its step: CRF input on veth0: socket: Too many open files; STREAM_INPUT 1 is not received, none of its counters valid
+[PASS] milan-crf-rx socket fails: no descriptor opened
+[PASS] milan-crf-rx filter fails: injected
+[PASS] milan-crf-rx filter fails: STREAM_INPUT 1 none valid, STREAM_INPUT 0 0xf3f, milan-mediad running: alive True valid {0: 3903, 1: 0}
+[PASS] milan-crf-rx filter fails: logged with its step: CRF input on veth0: filter: Cannot allocate memory; STREAM_INPUT 1 is not received, none of its counters valid
+[PASS] milan-crf-rx filter fails: the descriptor it opened is closed
+[PASS] milan-crf-rx bind fails: injected
+[PASS] milan-crf-rx bind fails: STREAM_INPUT 1 none valid, STREAM_INPUT 0 0xf3f, milan-mediad running: alive True valid {0: 3903, 1: 0}
+[PASS] milan-crf-rx bind fails: logged with its step: CRF input on veth0: bind: Cannot assign requested address; STREAM_INPUT 1 is not received, none of its counters valid
+[PASS] milan-crf-rx bind fails: the descriptor it opened is closed
+[PASS] milan-crf-rx timeout fails: injected
+[PASS] milan-crf-rx timeout fails: STREAM_INPUT 1 none valid, STREAM_INPUT 0 0xf3f, milan-mediad running: alive True valid {0: 3903, 1: 0}
+[PASS] milan-crf-rx timeout fails: logged with its step: CRF input on veth0: receive timeout: Invalid argument; STREAM_INPUT 1 is not received, none of its counters valid
+[PASS] milan-crf-rx timeout fails: the descriptor it opened is closed
+[PASS] no such interface: STREAM_INPUT 0 and 1 none valid, milan-mediad running: alive True valid {0: 0, 1: 0}
+[PASS] no such interface: both failures logged
+rxfail: PASS (0 failed)
+tests/run-netns-talker.sh $VALIDATION_STORAGE/pbtsn-a866/b-wt
+[INFO] servo locked after 6 s, pitch 999919
+capture: 85003 frames in 10 s on veth1 -> /tmp/tmp.b5norhoiei/talker.pcap
+[PASS] every PDU sent: send errors 0
+[PASS] no underrun or overrun while recording: underruns 0 -> 0, overruns 0 -> 0
+[PASS] pitch cancels the host's +80 ppm: pitch 999901 (999920 +/- 50 expected)
+[PASS] level held at its target: average 48.992, target 48: 1021 us from USB packet to PDU
+--- aaf-analyze ---
+stream 0200000000010000  dst 91:e0:f0:00:28:30  vid 2 pcp 3 (80001)
+  frames 80001  duration 10.000008 s  rate 7999.993 fps (capture clock), 8000.000 fps (AVTP time)
+  sequence: gaps 0 (missing 0), duplicates 0  tv=0 frames 0
+  avtp step ns: min 125000 max 125000 mean 125000.000 stdev 0.000  out-of-tol 0
+  arrival ns: min 2794 max 453141 mean 125000.1 nominal 125000  |dev| p99 9900 p99.9 30000 overflow 0
+  format INT_32BIT nsr 48000 Hz channels 8 bit_depth 32 sdl 192 -> 6 samples/frame (80001 frames)
+other AVTP stream subtypes: 0x04: 5000
+RESULT: PASS
+--- ramp-check ---
+/tmp/tmp.b5norhoiei/talker.wav: 8 ch, 32-bit, 48000 Hz, shift 0
+  frames 480006: skipped 0 leading, 0 trailing silent; ramp from counter 305934, 480006 frames checked (10.000 s)
+  dropped 0  repeated 0  silent-inside 0  invalid 0  bit errors 0 (per channel [0, 0, 0, 0, 0, 0, 0, 0])
+RESULT: PASS
+--- slot to wire (latency-peer; informational: no SCHED_FIFO on the host) ---
+  latency us: min 10.854 p50 57.200 p99 66.800 p99.9 77.100 max 386.781  (percentiles to 100 ns)
+[PASS] VLAN 2 PCP 3: 80001 of 80001 frames
+talker: PASS
+tests/run-netns-listener.sh $VALIDATION_STORAGE/pbtsn-a866/b-wt
+[PASS] talker A streaming: after 2 s
+bind: BIND_RX_RESPONSE status 0
+[PASS] B settled on A's stream: stream_id:0200000000010000 dest_mac:91e0f0002830 vlan:2 listening:1 bound:1 binds:1 format:0205022002006000
+[INFO] B locked after 4 s, playback pitch 1000112
+[PASS] FRAMES_RX at 8000/s: 80105 PDUs in 10 s
+[PASS] no SEQ_NUM_MISMATCH, LATE_TIMESTAMP or STREAM_INTERRUPTED: seq 0 -> 0, late 0 -> 0, interrupted 0 -> 0
+[PASS] no jump and no underrun: jumps 0 -> 0, underruns 0 -> 0
+[PASS] presentation error within 125 us: 45323..50951 ns, average 50824 ns
+[PASS] playback pitch cancels the host's -50 ppm: pitch 1000083 (1000050 +/- 50 expected)
+--- ramp-check of the last 9 s B's host recorded ---
+/tmp/tmp.y7MoB7p1Dd/tail.wav: 8 ch, 32-bit, 48000 Hz, shift 0
+  frames 432000: skipped 0 leading, 0 trailing silent; ramp from counter 340553, 432000 frames checked (9.000 s)
+  dropped 0  repeated 0  silent-inside 0  invalid 0  bit errors 0 (per channel [0, 0, 0, 0, 0, 0, 0, 0])
+RESULT: PASS
+listener: PASS
+tests/run-netns-nvm.sh $VALIDATION_STORAGE/pbtsn-a866/b-wt
+[PASS] bound: stream_id:0200000000010000 dest_mac:91e0f0002830 vlan:2 listening:1 bound:1 binds:1 format:0205022002006000
+[PASS] A6.1 binding survives a power cut; fast connect without a controller: settled 1503 ms after the restart; saved state at boot (/tmp/tmp.L9wJJ8T5Sn/b.bin): slot A seq 1 (A 1, B 0) | bindings restored, rest restored | phase 1 dirty 0 pending 0 | commits 0 ok, 0 failed, 0 skipped | unread 0x0 read faults 0 legacy 0x0
+[PASS] A6.1 the restored binding is counted on from the killed process's bind count: binds 1 -> 2: stream_id:0200000000010000 dest_mac:91e0f0002830 vlan:2 listening:1 bound:1 binds:2 format:0205022002006000
+[PASS] A6.2 an unbind survives a power cut: stream_id:0000000000000000 dest_mac:000000000000 vlan:0 listening:0 bound:0 binds:2 format:0205022002006000
+[PASS] A6.2 restarted unbound: not bound, the bind count kept: binds 2 -> 2: stream_id:0000000000000000 dest_mac:000000000000 vlan:0 listening:0 bound:0 binds:2 format:0205022002006000
+[PASS] A6.3 20 power cuts: every boot judged an accepted slot, no read fault: 23 boots, last: saved state at boot (/tmp/tmp.L9wJJ8T5Sn/b.bin): slot B seq 2 (A 0, B 2) | bindings restored, rest restored | phase 1 dirty 0 pending 0 | commits 0 ok, 0 failed, 0 skipped | unread 0x0 read faults 0 legacy 0x0
+[PASS] after them, a bind still survives a power cut: stream_id:0200000000010000 dest_mac:91e0f0002830 vlan:2 listening:1 bound:1 binds:14 format:0205022002006000
+nvm: PASS
+check rc=0

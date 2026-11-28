@@ -1,0 +1,27 @@
+[PASS] datapath: SRP attached (srp=1): 1
+[PASS] MAAP: a range of five addresses: 1/5
+[PASS] no source licensed before any Listener Ready: ['stream_id:0200000000010000 dest_mac:91e0f0002830 vlan:2 dest_mac_valid:1 licensed:0 declared:0', 'stream_id:0200000000010001 dest_mac:91e0f0002831 vlan:2 dest_mac_valid:1 licensed:0 declared:0', 'stream_id:0200000000010002 dest_mac:91e0f0002832 vlan:2 dest_mac_valid:1 licensed:0 declared:0', 'stream_id:0200000000010003 dest_mac:91e0f0002833 vlan:2 dest_mac_valid:1 licensed:0 declared:0', 'stream_id:0200000000010004 dest_mac:91e0f0002834 vlan:2 dest_mac_valid:1 licensed:0 declared:0']
+[PASS] MSRP: no Talker declared while no PROBE_TX_COMMAND or Listener asks for one (Milan v1.2 4.3.3.1): []
+[PASS] MSRP: a PROBE_TX_COMMAND to each STREAM_OUTPUT declares its Talker Advertise (Milan v1.2 4.3.3.1, 5.3.7.4): [0, 1, 2, 3, 4]
+[PASS] MSRP Talker 0: destination MAAP base + 0, VID 2: ('0x91e0f0002830', 2)
+[PASS] MSRP Talker 0: TSpec MaxFrameSize 217, MaxIntervalFrames 1, priority 3 rank 1 (Milan v1.2 Table 4.4): (217, 1, '0x70')
+[PASS] MSRP Talker 1: destination MAAP base + 1, VID 2: ('0x91e0f0002831', 2)
+[PASS] MSRP Talker 1: TSpec MaxFrameSize 217, MaxIntervalFrames 1, priority 3 rank 1 (Milan v1.2 Table 4.4): (217, 1, '0x70')
+[PASS] MSRP Talker 2: destination MAAP base + 2, VID 2: ('0x91e0f0002832', 2)
+[PASS] MSRP Talker 2: TSpec MaxFrameSize 121, MaxIntervalFrames 1, priority 3 rank 1 (Milan v1.2 Table 4.4): (121, 1, '0x70')
+[PASS] MSRP Talker 3: destination MAAP base + 3, VID 2: ('0x91e0f0002833', 2)
+[PASS] MSRP Talker 3: TSpec MaxFrameSize 121, MaxIntervalFrames 1, priority 3 rank 1 (Milan v1.2 Table 4.4): (121, 1, '0x70')
+[PASS] MSRP Talker 4: destination MAAP base + 4, VID 2: ('0x91e0f0002834', 2)
+[PASS] MSRP Talker 4: TSpec MaxFrameSize 29, MaxIntervalFrames 1, priority 3 rank 1 (Milan v1.2 Table 4.4): (29, 1, '0x70')
+[PASS] datapath: every probed source declared, none licensed without a Listener Ready: ['stream_id:0200000000010000 dest_mac:91e0f0002830 vlan:2 dest_mac_valid:1 licensed:0 declared:1', 'stream_id:0200000000010001 dest_mac:91e0f0002831 vlan:2 dest_mac_valid:1 licensed:0 declared:1', 'stream_id:0200000000010002 dest_mac:91e0f0002832 vlan:2 dest_mac_valid:1 licensed:0 declared:1', 'stream_id:0200000000010003 dest_mac:91e0f0002833 vlan:2 dest_mac_valid:1 licensed:0 declared:1', 'stream_id:0200000000010004 dest_mac:91e0f0002834 vlan:2 dest_mac_valid:1 licensed:0 declared:1']
+[PASS] datapath: the idle slope of the five declared talkers, Milan v1.2 4.3.3.2 (2 x 16576 + 2 x 10432 + 5632 kb/s): 59648000
+[PASS] MSRP: the SR class A Domain declared (class 6, priority 3, VID 2; 802.1Q-2018 35.2.2.8.7): {'attr': 4, 'event': 3, 'decl': None, 'leave_all': 0, 'class_id': 6, 'priority': 3, 'vid': 2}
+[PASS] a Listener Ready for STREAM_OUTPUT 0 licenses source 0 alone: 10000 after 0.05 s
+[PASS] the Listener's Leave withdraws source 0's licence: stream_id:0200000000010000 dest_mac:91e0f0002830 vlan:2 dest_mac_valid:1 licensed:0 declared:1
+[PASS] ACMP: BIND_RX on STREAM_INPUT 0 probes the peer's talker
+[PASS] MSRP: a Listener Ready declared for the bound STREAM_INPUT's stream (Milan v1.2 4.3.3.2): {'attr': 3, 'event': 0, 'decl': 2, 'leave_all': 0, 'stream_id': 144115188075986944}
+[PASS] MVRP: VID 2 joined for the bound STREAM_INPUT (802.1Q-2018 11.2): {'attr': 1, 'vid': 2, 'event': 3}
+[PASS] datapath: sink 0 listening to the peer's stream: stream_id:0200000000020000 dest_mac:91e0f000ab00 vlan:2 listening:1 bound:1 binds:1
+[PASS] MSRP: the unbound STREAM_INPUT's Listener leaves: {'attr': 3, 'event': 5, 'decl': 2, 'leave_all': 0, 'stream_id': 144115188075986944}
+srp: PASS
+rc=0
