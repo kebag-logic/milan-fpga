@@ -44,7 +44,7 @@ ROOT = Path(__file__).resolve().parents[3]
 #: decision 2026-10-30): a changed value must fail. The Milan datapath clock stays the bare-metal
 #: build contract's.
 SHARE_MS = 2.0
-SHARE_CYCLES = {50_000_000: 100_000, 100_000_000: 200_000}
+SHARE_CYCLES = {50_000_000: 100_000, 80_000_000: 160_000, 100_000_000: 200_000}
 PRODUCT_CPU_HZ = 100_000_000
 MILAN_HZ = 50_000_000
 Check = tuple[str, bool, str]
@@ -56,6 +56,13 @@ def share_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
     got = (share.bound_ms(), share.share_ms(), {hz: share.share_cycles(hz) for hz in SHARE_CYCLES})
     out.append(("the per-pass share is T_svc's 20 ms, the tightest family bound, over ten passes: 2.0 ms, "
                 "200,000 CPU cycles at the product's 100 MHz", got == (20.0, SHARE_MS, SHARE_CYCLES), str(got)))
+    arty = grade.grade(synthetic([
+        'PASS 1 1000 936 160000 instr=10 store_mbx=1 W 1100:1:0',
+        'PASS 2 400000 399936 160001 instr=10 store_mbx=1 W 400100:1:0']),
+        scenario.Group('arty-share'), 80_000_000, 80_000_000)['passes']['share']
+    out.append(('Arty holds 160000 cycles and rejects 160001 at its exact 80 MHz clock',
+                arty['cycles'] == 160000 and arty['over'] == 1
+                and [p['cycles'] for p in arty['over_passes']] == [160001], str(arty)))
     limit = SHARE_CYCLES[cpu_hz]
     lines = [f'PASS {n} {s} {s // 2} {c} instr=10 store_mbx=1 W {s + 100}:1:0' for n, (s, c)
              in enumerate(((1000, limit), (400_000, limit + 1), (900_000, 50)), 1)]
@@ -157,9 +164,11 @@ def clock_checks(built: Callable[..., tuple[str, dict]], main_verdict: Callable[
     points = {point: yaml.safe_load((ROOT / 'configs' / f'{shape}.yaml').read_text())['board']['constraints']
               for point, (shape, _) in run.POINTS.items()}
     got = {point: (c['sys_clk_hz'], c['milan_clk_hz']) for point, c in points.items()}
-    out.append(("each point's split CPU clock is its bus clock, sys_clk_hz, 100 MHz; its Milan datapath clock stays "
-                "the bare-metal build contract's 50 MHz", set(got.values()) == {(PRODUCT_CPU_HZ, contract)}
-                and contract == MILAN_HZ, str((got, contract))))
+    expected = {point: (80_000_000 if point == 'arty-1x1' else PRODUCT_CPU_HZ, MILAN_HZ)
+                for point in ('1x1', '8x8', '8x8-1if', 'arty-1x1')}
+    out.append(("each point's split CPU uses its own bus clock; Arty is exactly 80,000,000 Hz",
+                got == expected and contract == MILAN_HZ, str((got, contract))))
+    out.extend(stimulus_clock_checks())
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp).resolve()
         (root / 'firmware').mkdir()
@@ -557,3 +566,28 @@ def step_checks(sys_hz: int, cpu_hz: int) -> list[Check]:
     return [("every pass that carries the store's step is counted, a pass that writes nothing to the mailbox and a "
              "work pass alike, with the longest of them and the longest step's own CPU time",
              got == (3, 120_000, 95_000, 9000), str(s)), *aged_checks(sys_hz, cpu_hz)]
+
+
+def stimulus_clock_checks() -> list[Check]:
+    """Keep elapsed waits at Arty's clock while leaving counts and payloads alone."""
+    cases = {
+        'wait cycles 100000': 'wait cycles 80000',
+        'wait cycles 1': 'wait cycles 1',
+        'wait flash idle 200000 within 40000000': 'wait flash idle 160000 within 32000000',
+        'wait tx 3 16 within 1000000': 'wait tx 3 16 within 800000',
+        'wait ms 3150': 'wait ms 3150',
+        'wait ticks 2 within 1000000': 'wait ticks 2 within 800000',
+        'gap 100000': 'gap 80000',
+        'gap 1': 'gap 1',
+        'frame 0 10000000 payload': 'frame 0 10000000 payload',
+    }
+    got = {step: scenario.clocked_step(step, 80_000_000) for step in cases}
+    one = scenario.Group('clock', steps=list(cases), sys_hz=80_000_000)
+    expected = '\n'.join([*cases.values(), 'end']) + '\n'
+    with patch.object(scenario, 'all_groups', lambda point, spec: [scenario.Group('clock', steps=list(cases))]):
+        built = run.all_groups(None, {'sys_hz': 80_000_000})[0].script()
+    return [('Arty stimulus scales only temporal cycle counts, with upward rounding', got == cases, str(got)),
+            ('Arty group scripts use their recorded bus clock', one.script() == expected, one.script()),
+            ('Arty group factory passes the build clock to its stimulus', built == expected, built),
+            ('AX7101 scripts remain byte-identical',
+             all(scenario.clocked_step(step, PRODUCT_CPU_HZ) == step for step in cases), '')]

@@ -10,8 +10,10 @@
 //   TRAP <cycle> <interrupt> <cause>      a trap taken
 //   FETCH <cycle> <address>               a fetch command on the CPU's bus (an instruction-cache refill)
 //   FETCHERR <cycle>                      a fetch response with err
-//   LSU <cycle> <R|W> <address> <data>    a data command on the CPU's bus, a store with its data
-//   RSP <cycle> <address> <data> <err>    a data response, with its command's address
+//   LSU <cycle> <R|W> <address> <data>    a completed cached load or committed store
+//   RSP <cycle> <address> <data> <err>    a completed load, with its address and actual data
+//   BUS <cycle> <C|I> <address>         a cache refill or I/O command
+//   DATAERR <cycle>                     a data-cache refill returned an error
 //   END <cycle> <DONE|HALT>               the probe stored its end word to the report word
 #include "Vsim.h"
 #include "region_config.hpp"
@@ -37,26 +39,31 @@ public:
         if (fetch_cmd_valid(dut) && fetch_cmd_ready(dut))
             std::printf("FETCH %llu %08x\n", ull(cycle_), fetch_address(dut));
         if (fetch_rsp_valid(dut) && fetch_rsp_error(dut)) std::printf("FETCHERR %llu\n", ull(cycle_));
-        if (lsu_cmd_valid(dut) && lsu_cmd_ready(dut)) {
-            const bool write = lsu_write(dut);
-            const std::uint32_t address = lsu_address(dut), data = lsu_wdata(dut);
-            lsu_at_[lsu_cmd_id(dut) % lsu_at_.size()] = address;
-            std::printf("LSU %llu %c %08x %08x\n", ull(cycle_), write ? 'W' : 'R', address, write ? data : 0u);
-            if (write && address == report_address && (data == done_word || data == halt_word)) {
+        if (refill_valid(dut) && refill_ready(dut))
+            std::printf("BUS %llu C %08x\n", ull(cycle_), refill_address(dut));
+        if (io_valid(dut) && io_ready(dut))
+            std::printf("BUS %llu I %08x\n", ull(cycle_), io_address(dut));
+        if (refill_error_valid(dut) && refill_error(dut)) std::printf("DATAERR %llu\n", ull(cycle_));
+        // The Whiteboxer store signal also marks cache-miss retries. Only
+        // architectural commits report the probe once. Both are stage 4.
+        if (store_valid(dut) && commit_valid(dut)) {
+            const std::uint32_t address = store_address(dut), data = store_data(dut);
+            std::printf("LSU %llu W %08x %08x\n", ull(cycle_), address, data);
+            if (address == report_address && (data == done_word || data == halt_word)) {
                 std::printf("END %llu %s\n", ull(cycle_), data == done_word ? "DONE" : "HALT");
                 done_ = true;
             }
         }
-        if (lsu_rsp_valid(dut))
-            std::printf("RSP %llu %08x %08x %u\n", ull(cycle_), lsu_at_[lsu_rsp_id(dut) % lsu_at_.size()],
-                        lsu_rsp_data(dut), unsigned(lsu_rsp_error(dut)));
+        if (load_valid(dut) && commit_valid(dut)) {
+            std::printf("LSU %llu R %08x 00000000\n", ull(cycle_), load_address(dut));
+            std::printf("RSP %llu %08x %08x 0\n", ull(cycle_), load_address(dut), load_data(dut));
+        }
     }
 
     bool done() const { return done_; }
 
 private:
     std::uint64_t cycle_ = 0;
-    std::array<std::uint32_t, 4> lsu_at_{};
     bool done_ = false;
 };
 
@@ -71,18 +78,18 @@ void initialize(Vsim& dut) {
     dut.eval();
 }
 
-// The CPU budget harness's clocking: aligned rising edges, the bus at sys_hz and the CPU at cpu_hz.
+// The CPU budget harness's clocking: CPU and bus on sys_hz; the independent datapath clock is milan_hz.
 void simulate(Vsim& dut, Bench& bench) {
-    const std::array<std::uint64_t, 2> frequency = {sys_hz, cpu_hz};
+    const std::array<std::uint64_t, 2> frequency = {sys_hz, milan_hz};
     std::array<std::uint64_t, 2> edge = {1, 1};
     std::array<std::uint64_t, 2> next{};
-    const std::array<std::uint64_t, 2> offset = {0, (500000000000ULL / cpu_hz - 500000000000ULL / sys_hz)};
+    const std::array<std::uint64_t, 2> offset = {0, (500000000000ULL / milan_hz - 500000000000ULL / sys_hz)};
     for (unsigned i = 0; i < next.size(); ++i) next[i] = 500000000000ULL / frequency[i] + offset[i];
     while (!Verilated::gotFinish() && !bench.done()) {
         const auto time_ps = *std::min_element(next.begin(), next.end());
         if (time_ps > sim_limit_ps) throw std::runtime_error("simulation exceeded its time limit");
         Verilated::threadContextp()->time(time_ps);
-        if (next[1] == time_ps && !dut.milan_clk && !dut.sys_reset) bench.sample(dut);
+        if (next[0] == time_ps && !dut.sys_clk && !dut.sys_reset) bench.sample(dut);
         for (unsigned i = 0; i < next.size(); ++i) {
             if (next[i] != time_ps) continue;
             if (i == 0) dut.sys_clk = !dut.sys_clk;

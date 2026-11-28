@@ -38,6 +38,8 @@ extern "C" {
 #define CTRL_PLAT_CSR_PTP_CMD     0x520u
 #define CTRL_PLAT_CSR_TOD_RD_LO   0x530u
 #define CTRL_PLAT_CSR_TOD_RD_HI   0x534u
+#define CTRL_PLAT_CSR_PTP_ILAT    0x540u
+#define CTRL_PLAT_CSR_PTP_ELAT    0x544u
 #define CTRL_PLAT_CSR_ADP_CTRL    0x600u
 #define CTRL_PLAT_CSR_ADP_EID_LO  0x604u
 #define CTRL_PLAT_CSR_ADP_EID_HI  0x608u
@@ -159,6 +161,14 @@ void ctrl_plat_csr_sink_format(uintptr_t csr, unsigned n, uint64_t format);
 // field is no input here.
 bool ctrl_plat_csr_sink_context(const uint8_t *value, size_t length, uint16_t configuration, uint16_t in_force,
 				uint64_t *format);
+
+#ifdef CTRL_PLAT_LAT_WRITABLE
+// The two runtime latency corrections of a build with gptp.latency_writable
+// (#829): PTP_INGRESS_LAT then PTP_EGRESS_LAT written, then GPTP_LAT read
+// back, which reads the pair the gPTP plane applies. Compiled only under that
+// key (#878).
+uint32_t ctrl_plat_csr_set_lat(uintptr_t csr, uint16_t ingress_ns, uint16_t egress_ns);
+#endif
 
 #ifdef __cplusplus
 }

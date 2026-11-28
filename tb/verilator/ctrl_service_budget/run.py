@@ -16,11 +16,9 @@ rows, every work pass is held to the per-pass share (share.py): the
 default refuses a pass over it even when every row fits, unless
 --record-share-findings is given, which records them.
 
-The CPU runs in the split placement's clock domain, sys, at the bus clock,
-100 MHz (#665, owner decision 2026-10-30): build.json records its domain and
-clock, a build or reused build whose CPU is anywhere else, the Milan clock
-among them, is refused, and every table and the run's last lines name the
-clock its figures are at.
+The CPU runs in the split placement's clock domain, sys, at the bus clock, 100 MHz at AX7101 and 80,000,000 Hz at
+Arty (#878): build.json records its domain and clock, a build or reused build whose CPU is anywhere else, the Milan
+clock among them, is refused, and every table and the run's last lines name the clock its figures are at.
 """
 from __future__ import annotations
 
@@ -37,9 +35,10 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 sys.path.insert(0, str(HERE))
+from stimulus_clock import at_clock  # noqa: E402
 #: 8x8-1if is the flip's 8x8 measurement point (#665 ruling item 1), one interface of the 8x8 shape.
 POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2),
-          '8x8-1if': ('endstation_ax7101_8x8', 1)}
+          '8x8-1if': ('endstation_ax7101_8x8', 1), 'arty-1x1': ('endstation_arty_current', 1)}
 
 
 def run_group(build_dir: Path, out: Path, group: object, flash: str) -> Path:
@@ -864,6 +863,7 @@ def reference_verdict(args: argparse.Namespace, results: list[dict], refusals: l
     return 0 if caught else 1
 
 
+@at_clock
 def all_groups(point: object, spec: dict) -> list:
     """Every group of a point's build; the answering-later variant has only the retried notice's (notice_window)."""
     import notice_window

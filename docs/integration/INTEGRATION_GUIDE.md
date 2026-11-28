@@ -126,6 +126,7 @@ Processor pin `044cb25f` (processor #214) changes the SRP encoder.
 | Interrupt | `o_irq_csr` | Route the aggregate CSR interrupt | Leave the output open during smoke tests |
 | Identify output | `o_identify` | Route the requested visual indication | Leave the output open during smoke tests |
 | MMCM controls | `o_mmcm_*`, `i_mmcm_*`, `i_ps_clk` | Bridge DRP and phase handshakes | Set `i_ps_clk=axis_clk`, DRP inputs zero, `i_mmcm_locked=1`, `i_mmcm_ps_done=0` |
+| Status LED levels | `o_led_*` | Register complete display predicates on `axis_clk`, then synchronize into the display clock | Leave outputs open when no display is present; never use them for flow control |
 | Audio pins | `i2s_*`, `tdm_*`, `media_lrclk_o` | Match the selected audio geometry | Set `i2s_sdout_i=0`, every `tdm_*_i=0`; leave outputs open |
 | PPS output | `pps_o` | Carry the PHC second boundary to a pin | Leave the output open |
 | Split control face | `i_ctl_*`, `o_ctl_*` | Bind the mailbox through `KL_mbx_cdc` when `CTRL_SPLIT_P` = 1 | Tie every `i_ctl_*` to 0; leave the outputs open |

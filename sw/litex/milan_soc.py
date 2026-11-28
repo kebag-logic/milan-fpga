@@ -270,6 +270,8 @@ class _CRG(LiteXModule):
         if board == "arty":
             clkin, clkin_freq = platform.request("clk100"), 100e6
             self.pll = pll = S7PLL(speedgrade=-1)
+            # #878: the Arty clock ruling fixes the VCO at 800 MHz.
+            pll.vco_freq_range = (800e6, 800e6)
         else:
             clkin, clkin_freq = platform.request("clk200"), 200e6
             self.pll = pll = S7PLL(speedgrade=-int(platform.device.rsplit("-", 1)[1]))
@@ -534,6 +536,7 @@ class MilanNIC(LiteXModule):
                  audio_word_bits=AUDIO_IF_WORD_BITS_DEFAULT, pps=False,
                  gptp_plane=None,
                  gptp_ingress_lat_ns=0, gptp_egress_lat_ns=0,
+                 gptp_lat_writable=False,
                  loopback_lane=False,
                  input_loopback_lane=False,
                  render_lpf=True, optional_blocks=None,
@@ -559,6 +562,7 @@ class MilanNIC(LiteXModule):
                            gptp_plane=gptp_plane,
                            gptp_ingress_lat_ns=gptp_ingress_lat_ns,
                            gptp_egress_lat_ns=gptp_egress_lat_ns,
+                           gptp_lat_writable=gptp_lat_writable,
                            loopback_lane=loopback_lane,
                            input_loopback_lane=input_loopback_lane,
                            render_lpf=render_lpf, optional_blocks=optional_blocks,
@@ -874,6 +878,7 @@ def add_milan_datapath(host: Module, platform: object,
                        gptp_plane: bool | None = None,
                        gptp_ingress_lat_ns: int = 0,
                        gptp_egress_lat_ns: int = 0,
+                       gptp_lat_writable: bool = False,
                        loopback_lane: bool = False,
                        input_loopback_lane: bool = False,
                        render_lpf: bool = True,
@@ -1039,6 +1044,10 @@ def add_milan_datapath(host: Module, platform: object,
         dp_params["p_GPTP_INGRESS_LAT_NS_P"] = int(gptp_ingress_lat_ns)
     if gptp_egress_lat_ns:
         dp_params["p_GPTP_EGRESS_LAT_NS_P"] = int(gptp_egress_lat_ns)
+    # issue #829: the same discipline, so a board that does not ask keeps its
+    # generated top .v.
+    if gptp_lat_writable:
+        dp_params["p_GPTP_LAT_WRITABLE_P"] = 1
     if gptp_plane:
         # #116 product-default fabric build. The builder generates this image from
         # the SAME end-station YAML as the AEM: station MAC, gPTP priority1 and
@@ -1675,7 +1684,8 @@ class MilanMAC(LiteXModule):
     validated on hardware (there is no RGMII PHY to exercise in sim). See
     docs/integration/FULLY_FPGA_RISCV_MIGRATION.md §A.7 and the protocol/test matrix."""
     def __init__(self, platform, data_width=64, phy_index=0, milan_cd="sys",
-                 gtx_tx_invert=False, phy_model="gmii", fw_link_owner=False, **_rgmii):
+                 gtx_tx_invert=False, phy_model="gmii", fw_link_owner=False,
+                 usb_net_clk_hz=None, **_rgmii):
         from liteeth.phy.gmii import LiteEthPHYGMII
         from liteeth.mac.core import LiteEthMACCore
         from liteeth.common import eth_phy_description
@@ -1833,8 +1843,11 @@ class MilanMAC(LiteXModule):
         # come out here (#787). Reset-less like the toggles above: a reset
         # that flipped it back would count a frame that never left.
         self.ethtxend_tgl = Signal(reset_less=True)
-        self.sync.eth_tx += If(self.phy.sink.valid & self.phy.sink.ready & self.phy.sink.last,
-                               self.ethtxend_tgl.eq(~self.ethtxend_tgl))
+        # With the USB network path (#1011) the tap produces this toggle and
+        # leaves the computer's frames out of it (usbnet_soc.add_usb_net).
+        if usb_net_clk_hz is None:
+            self.sync.eth_tx += If(self.phy.sink.valid & self.phy.sink.ready & self.phy.sink.last,
+                                   self.ethtxend_tgl.eq(~self.ethtxend_tgl))
         # Sequenced eth-side CDC reset (gaps 5 RTL fix, 2026-07-22): the guard's
         # `eth_rst` re-initializes the MAC core's ETH-side CDC halves in hardware.
         # The MAC's eth domains are derived copies (maceth_tx/maceth_rx) whose reset
@@ -1908,7 +1921,8 @@ class MilanMAC(LiteXModule):
                                     # FIFO exists to provide is preserved (and
                                     # is a structural requirement of this boundary).
                                     buffered=True))
-        self.comb += self.tx_sf.source.connect(self.core.sink)
+        if usb_net_clk_hz is None:   # else the USB network path's arbiter sits here (#1011)
+            self.comb += self.tx_sf.source.connect(self.core.sink)
 
         nb = data_width // 8
         L  = [("data", data_width), ("keep", nb)]
@@ -2067,6 +2081,13 @@ class MilanMAC(LiteXModule):
             MultiReg(self.link_status.fields.link_up,     link_up_cd,     odomain=milan_cd),
             MultiReg(self.link_status.fields.full_duplex, full_duplex_cd, odomain=milan_cd),
         ]
+
+        if usb_net_clk_hz is not None:
+            # #1011, Arty only: the computer's frames below every datapath frame,
+            # held while the internal loopback runs. Its registers come after
+            # every other register of this bank, so none of theirs moves.
+            import usbnet_soc
+            usbnet_soc.add_usb_net(self, platform, usb_net_clk_hz, REPO_ROOT, rx_dp.sys, ~lb)
 
         # ---- RMON event pulses (STAT window 0x210..0x230 / STATS_CAP 0x204) -------
         # THE FIX for "RMON reads zero on both boards" (root-caused 2026-07-22,
@@ -2278,6 +2299,8 @@ class MilanMAC(LiteXModule):
             i_i_ethrx_tgl = self.ethrx_tgl, i_i_ethtx_tgl = self.ethtx_tgl,
             i_i_ethact_tgl = self.ethact_tgl,
         )
+        if usb_net_clk_hz is not None:
+            self.dp_ports["o_o_mac_addr"] = self.usbnet_station_mac_dp
 
 
 class _PPMemDiag(LiteXModule):
@@ -2474,7 +2497,7 @@ def pp_mem_timeout_cycles(sys_clk_hz: float, milan_clk_hz: float,
     processor in milan_cd - so "first" is a comparison in TIME, and cycle counts
     alone do not settle it. A fixed 2,048 held at the shipping AX shape only
     because milan and sys are both 100 MHz there; it was generous on the Arty
-    shape (milan 50, sys 83.333) and it INVERTS on any build with milan faster
+    shape (milan 50, sys 80) and it INVERTS on any build with milan faster
     than sys, silently, with nothing to catch it.
 
     The processor is also AHEAD: its counter starts on `mreq_valid_r`
@@ -3305,8 +3328,12 @@ class CtrlMailbox(LiteXModule):
             ctl["i_ctl_tx_valid"].eq(tx.dp.valid), ctl["i_ctl_tx_data"].eq(tx.dp.data),
             ctl["i_ctl_tx_last"].eq(tx.dp.last), tx.dp.ready.eq(ctl["o_ctl_tx_ready"]),
         ]
-        side.update(i_rx_valid_i=rx.sys.valid, o_rx_ready_o=rx.sys.ready, i_rx_data_i=rx.sys.data,
-                    i_rx_last_i=rx.sys.last, o_tx_valid_o=tx.sys.valid, i_tx_ready_i=tx.sys.ready,
+        received = rx.sys
+        if hasattr(dp, "usbnet_network"):
+            self.comb += rx.sys.connect(dp.usbnet_network)
+            received = dp.usbnet_receiver
+        side.update(i_rx_valid_i=received.valid, o_rx_ready_o=received.ready, i_rx_data_i=received.data,
+                    i_rx_last_i=received.last, o_tx_valid_o=tx.sys.valid, i_tx_ready_i=tx.sys.ready,
                     o_tx_data_o=tx.sys.data, o_tx_last_o=tx.sys.last)
         # the rest through KL_mbx_cdc: the mailbox's outputs in, its inputs out
         link, gm_p, gm_id, gm_dom = Signal(), Signal(), Signal(64), Signal(8)
@@ -3649,8 +3676,10 @@ class MilanSoC(SoCCore):
                  software_profile="baremetal",
                  gptp_plane=None,
                  gptp_ingress_lat_ns=0, gptp_egress_lat_ns=0,
+                 gptp_lat_writable=False,
                  render_lpf=True, optional_blocks=None,
                  entity_gen_dir=None, ctrl_mailbox=False, ctrl_firmware=None, ctrl_cpu_cd=None,
+                 usb_net=False,
                  **kwargs):
         self._cpu_xlen = int(xlen)
         if software_profile != "baremetal":
@@ -3891,7 +3920,7 @@ class MilanSoC(SoCCore):
             # Both boards use the same timing-robust single-lane recipe.
             # The litespi S25FL128S table only
             # lists plain READ_1_1_1 (0x03) on one lane - valid to 50 MHz on
-            # this chip, and our effective SCK at sys 83.333 MHz is ~20.8 MHz.
+            # this chip, and our effective SCK at sys 80 MHz is 20 MHz.
             flash_module = (S25FL128S(SpiCodes.READ_1_1_1) if board == "arty"
                             else N25Q128A13(SpiCodes.READ_1_1_1_FAST))
             # Quad read (0x6B, 3-byte addr → whole 16 MB); mode="4x" drives all four DQ so
@@ -3934,6 +3963,7 @@ class MilanSoC(SoCCore):
                                           phy_index=eth_phy_index,
                                           phy_model=_BOARD_PHY_MODEL[board],
                                           fw_link_owner=ctrl_mailbox,
+                                          usb_net_clk_hz=sys_clk_freq if usb_net else None,
                                           rgmii_tx_delay=rgmii_tx_delay,
                                           rgmii_rx_delay=rgmii_rx_delay)
                 if board == "ax7101":
@@ -4118,6 +4148,9 @@ class MilanSoC(SoCCore):
                                 "nvm_base": _nvm_base,
                                 "nvm_stage_base": _nvm_stage_base,
                                 "window_bytes": _PP_WINDOW}
+            if board == "arty" and with_mac:
+                import usbnet_soc
+                dp_ports.update(usbnet_soc.fabric_ports(self))
             self.milan = MilanNIC(platform, axil, board_ports=dp_ports or None,
                                   desc_base=_desc_base, resp_base=_resp_base,
                                   milan_cd=milan_cd,
@@ -4155,6 +4188,7 @@ class MilanSoC(SoCCore):
                                   gptp_plane=gptp_plane,
                                   gptp_ingress_lat_ns=int(gptp_ingress_lat_ns),
                                   gptp_egress_lat_ns=int(gptp_egress_lat_ns),
+                                  gptp_lat_writable=bool(gptp_lat_writable),
                                   loopback_lane=bool(loopback_lane),
                                   input_loopback_lane=bool(input_loopback_lane),
                                   render_lpf=bool(render_lpf),
@@ -4407,9 +4441,18 @@ class MilanSoC(SoCCore):
                 self.comb += platform.request("user_led", 0).eq(self.milan.identify)
             except Exception:
                 print("[milan] no user_led pad - IDENTIFY LED not wired")
+            # #1018: the Arty's status LEDs LD0 to LD3 (its RGB LEDs)
+            if board == "arty" and with_mac:
+                import usbnet_soc
+                usbnet_soc.add_status_leds(self, platform, sys_clk_freq, REPO_ROOT, self.milan_mac)
 
         # #665 lane F0: the packet mailbox, ONLY under --ctrl-mailbox (default
         # off, so the default build is untouched; see CtrlMailbox).
+        if usb_net:
+            if not ctrl_mailbox:
+                raise ValueError("--usb-net requires the split control receiver (--ctrl-mailbox)")
+            from usbnet_local_soc import add_local_receiver
+            add_local_receiver(self, self.milan_mac, self.milan)
         if ctrl_mailbox:
             add_ctrl_mailbox(self, platform, sys_clk_freq, dp=getattr(self, "milan", None))
 
@@ -4644,7 +4687,8 @@ def main() -> None:
     # emits a flag only for a NON-ZERO one, so a board that applies no
     # correction keeps a byte-identical argv and generated top .v - the
     # default-absent discipline the audio and prune flags already follow.
-    # The fabric gPTP plane is the only consumer; 0x540/0x544 stay inert.
+    # The fabric gPTP plane is the only consumer; 0x540/0x544 stay inert
+    # unless --gptp-lat-writable.
     gptp_group2 = ap.add_argument_group("gPTP timestamp latency")
     gptp_group2.add_argument("--gptp-ingress-lat-ns", default=0, type=int,
                              help="nanoseconds the fabric gPTP plane "
@@ -4660,6 +4704,12 @@ def main() -> None:
                                   "Per-board physical transmit latency, on "
                                   "top of the plane's own measured register "
                                   "stages; 0..65535")
+    gptp_group2.add_argument("--gptp-lat-writable", action="store_true",
+                             help="let CSR 0x540 and 0x544 move the two "
+                                  "corrections at runtime, the pair above "
+                                  "being only their reset value (milan_datapath "
+                                  "GPTP_LAT_WRITABLE_P, issue #829). Off, those "
+                                  "words stay inert scratch")
     # Resolve omission after parsing because --no-milan has no gPTP owner.
     ap.set_defaults(fabric_gptp=None)
     ap.add_argument("--no-render-lpf", action="store_true",
@@ -4731,6 +4781,11 @@ def main() -> None:
     # SUBSTITUTED it for the legacy 1722.1/SRP plane, which is deleted, so
     # milan_datapath instantiates KL_pp_shadow unconditionally and every build
     # gets the processor. A flag that can only be "on" is not a flag.
+    ap.add_argument("--usb-net", action="store_true",
+                    help="Arty only (#1011): the USB network path's datapath tap - the attached "
+                         "computer's filtered receive copy and best-effort transmit injection, "
+                         "with its bus side terminated until a slave-FIFO master binds it "
+                         "(docs/design/USB_NET_PATH.md)")
     ap.add_argument("--ctrl-mailbox", action="store_true",
                     help="#665 lane F0: add the packet mailbox of the control-plane "
                          "firmware (sw/mailbox/mailbox.yaml: KL_mbx behind KL_mbx_wb at "
@@ -5022,6 +5077,8 @@ def main() -> None:
                 % (_flag, _val, AUDIO_IF_FS_HZ_DEFAULT,
                    AUDIO_IF_WORD_BITS_DEFAULT))
 
+    if args.usb_net and (args.board != "arty" or not (args.with_mac or args.full)):
+        ap.error("--usb-net is the Arty's USB network path (#1011): it needs --board arty and the MAC")
     if args.board == "arty":
         if args.fpga_part is not None:
             ap.error("--fpga-part names a die of the ax7101 board, not the arty")
@@ -5040,7 +5097,15 @@ def main() -> None:
     # whole 2026-07-13 AX sweep). The AX bitstream is JTAG-SRAM per policy,
     # so it keeps its platform's proven settings untouched.
     if args.board == "arty":
+        # #878/#818: route with setup and hold at both fixed speed models,
+        # then retain reports at both commercial junction endpoints.
+        timing_script = SOC_DIR / "timing_grade.tcl"
+        for command in (f"source {{{timing_script}}}",
+                        f"kl_timing_grade_configure {platform.device} commercial 0 85 {{Slow Fast}}"):
+            platform.toolchain.pre_placement_commands.append(
+                command.replace("{", "{{").replace("}", "}}"))
         platform.toolchain.bitstream_commands += [
+            "kl_timing_grade_reports {build_name}_signoff",
             "set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]",
             "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]",
             "set_property BITSTREAM.CONFIG.CONFIGRATE 33 [current_design]",
@@ -5080,6 +5145,7 @@ def main() -> None:
                    gptp_plane=args.fabric_gptp,
                    gptp_ingress_lat_ns=args.gptp_ingress_lat_ns,
                    gptp_egress_lat_ns=args.gptp_egress_lat_ns,
+                   gptp_lat_writable=args.gptp_lat_writable,
                    loopback_lane=args.loopback_lane,
                    input_loopback_lane=args.input_loopback_lane,
                    render_lpf=not args.no_render_lpf,
@@ -5095,6 +5161,7 @@ def main() -> None:
                    },
                    entity_gen_dir=args.entity_gen_dir,
                    ctrl_mailbox=args.ctrl_mailbox,
+                   usb_net=args.usb_net,
                    ctrl_firmware=args.ctrl_firmware,
                    audio_if_slots={"i2s_philips": 0, "tdm8": 8, "tdm16": 16,
                                    "tdm32": 32}[args.audio_interface],

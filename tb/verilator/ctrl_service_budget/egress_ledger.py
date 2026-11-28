@@ -10,12 +10,14 @@ backpressure to the service budget. A new or larger miss fails the leg (#894's h
 - a ledger row with no measured instance fails, and so does any instance not measured, or never released or answered;
 - a budget miss of any other row is new, and fails.
 
-The ledger is derived at 8x8/1if, the one point that has one (#894's ledger ruling, items 2 and
-3): each row's figure is the scenario's egress hold (HOLD_MS, read from scenario.py's backlog-owed group) plus the
-service behind it at its measurement (MEASURED, the largest of five images') plus 5 %, rounded up to 0.01 ms (figure).
-Section 13's table states those figures, and the self-test holds the two together and the derivation to the rule.
+The ledgers are derived at 8x8/1if (#894) and at Arty's own 80 MHz point (#878),
+by #894's ledger ruling, items 2 and 3: each row's figure is the scenario's egress hold
+(HOLD_MS, read from scenario.py's backlog-owed group) plus the
+service behind it at its measurement (MEASURED at each point's own clock) plus 5 %, rounded up to 0.01 ms (figure).
+Sections 13 and 15 state those figures. USB_NET_PATH.md states the USB-network Arty's separate point, taking
+the larger of Arty's and the injected census's measurement per row. The self-test holds every table to the rule.
 The tool reads the harness's own output: a results directory's group grades (run.py's <group>.json), whose ms is the
-bus cycles' time to 10 ns, one cycle at 100 MHz, beside its run's results.json, whose refusals fail; or a run's log,
+bus cycles' time at the recorded system clock, beside its run's results.json, whose refusals fail; or a run's log,
 whose BUDGET lines name every instance over its budget to 1 us, so a ledger row read there is held at the most its
 figure can be, and one printed at its ledger figure fails. A log must end in its run's summary, with no refusal and as
 many budget misses as BUDGET lines.
@@ -40,10 +42,12 @@ from unittest.mock import patch
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 DOC = ROOT / 'docs/design/SPLIT_CONTROL_MEMORY.md'
+USB_DOC = ROOT / 'docs/design/USB_NET_PATH.md'
 #: The group whose rows the egress decides (scenario.py, backlog-owed).
 GROUP = 'backlog-owed'
-#: Units of a figure: 10 ns, one cycle of the 100 MHz bus, the resolution of a grade's ms (grade.py rounds it to 5
-#: places), and half a log's printed microsecond in those units.
+#: Units of a figure: 10 ns, the resolution of a grade's ms (grade.py rounds it to 5 places), and half a log's
+#: printed microsecond in those units. Arty's 80 MHz bus cycle is 12.5 ns; one cycle over a ledger figure still
+#: exceeds it after that rounding, which controls() checks at each point's own cycle length.
 PER_MS, LOG_HALF = 100_000, 50
 SCENARIO = HERE / 'scenario.py'
 #: The hold the egress decides the rows by: backlog-owed's wait with the egress held before it is released
@@ -90,6 +94,20 @@ PINNED = {'backlog.owed.if0': 64.09994, 'backlog.owed_behind0.if0': 64.29245, 'b
 #: train's.
 MEASURED = {'8x8-1if': {row: max(MERGED[row], COMPOSED[row], LISTENED[row], TRAIN[row], PINNED[row])
                         for row in MERGED}}
+#: #878's Arty (1,1,2) point, CPU/sys exactly 80 MHz: its own backlog-owed measurements.
+ARTY = {'backlog.owed.if0': 62.79239, 'backlog.owed_behind0.if0': 62.92862,
+        'backlog.owed_behind1.if0': 63.06490, 'backlog.owed_behind2.if0': 63.19966,
+        'backlog.owed_behind3.if0': 63.33355, 'backlog-owed.service.acmp.last.if0': 62.10374,
+        'backlog-owed.service.aecp.last.if0': 61.88720}
+MEASURED['arty-1x1'] = ARTY
+#: The injected 100 Mb/s census at the same 80 MHz point (#1020's held-egress ruling).
+#: Injection changes the release phase; each figure derives from the larger measurement,
+#: leaving both existing points unchanged. These remain recorded budget misses.
+USB_INJECTED = {'backlog.owed.if0': 62.71981, 'backlog.owed_behind0.if0': 62.86221,
+                'backlog.owed_behind1.if0': 63.00366, 'backlog.owed_behind2.if0': 63.14499,
+                'backlog.owed_behind3.if0': 63.28611, 'backlog-owed.service.acmp.last.if0': 61.99278,
+                'backlog-owed.service.aecp.last.if0': 62.03635}
+MEASURED['arty-usbnet-1x1'] = {row: max(ARTY[row], USB_INJECTED[row]) for row in ARTY}
 
 
 def figure(measured_ms: float, hold: int = HOLD_MS) -> float:
@@ -351,33 +369,68 @@ def failing(rc: int, text: str, name: str) -> bool:
     return rc != 0 and any(line.startswith((f'- {name} ', f'- {name}:')) for line in text.splitlines())
 
 
-def controls(base: Path, run: Callable[[list[str]], tuple[int, str]]) -> list[tuple[str, bool, str]]:
+def arty_doc(text: str) -> tuple[dict[str, float], dict[str, float]]:
+    """The Arty table's ledger and measured values, independent of the executable constants."""
+    block = text.split('| Arty held-egress row | Measured at 80 MHz, ms | Ledger, ms |', 1)[1].split('\n\n', 1)[0]
+    rows = re.findall(r'^\| `([^`]+)` \| ([\d.]+) \| ([\d.]+) \|$', block, re.M)
+    return {n: float(f) for n, _, f in rows}, {n: float(m) for n, m, _ in rows}
+
+
+def usb_doc(text: str) -> tuple[dict[str, float], dict[str, float], dict[str, float]]:
+    """The USB table's ledger and both measured inputs, independently read from the document."""
+    heading = '| USB-network Arty held-egress row | Arty measured, ms | Injected measured, ms | Ledger, ms |'
+    block = text.split(heading, 1)[1].split('\n\n', 1)[0]
+    rows = re.findall(r'^\| `([^`]+)` \| ([\d.]+) \| ([\d.]+) \| ([\d.]+) \|$', block, re.M)
+    return ({n: float(f) for n, _, _, f in rows}, {n: float(m) for n, m, _, _ in rows},
+            {n: float(m) for n, _, m, _ in rows})
+
+
+def controls(base: Path, run: Callable[[list[str]], tuple[int, str]],
+             point: str = '8x8-1if') -> list[tuple[str, bool, str]]:
     """Each control and whether it held: (name, held, detail)."""
-    point, ledger = '8x8-1if', LEDGER['8x8-1if']
-    doc_figures, measured = doc_ledger(DOC.read_text())
+    ledger = LEDGER[point]
+    section = '13' if point == '8x8-1if' else '15'
+    cycle_ms = 1 / (PER_MS if point == '8x8-1if' else 80_000)
+    if point == 'arty-usbnet-1x1':
+        section = '3 of USB_NET_PATH.md'
+        doc_figures, arty, injected = usb_doc(USB_DOC.read_text())
+        measured = {row: max(arty[row], injected[row]) for row in arty}
+    else:
+        doc_figures, measured = doc_ledger(DOC.read_text()) if point == '8x8-1if' else arty_doc(DOC.read_text())
     from decimal import ROUND_CEILING, Decimal
     rule = {row: float(HOLD_MS + ((Decimal(str(ms)) - HOLD_MS) * Decimal('1.05')).quantize(Decimal('0.01'),
                                                                                          ROUND_CEILING))
             for row, ms in MEASURED[point].items()}
     planted_hold = SCENARIO.read_text().replace("f'wait cycles {60 * MS}', 'mark room', 'txready 1'",
                                                 "f'wait cycles {59 * MS}', 'mark room', 'txready 1'")
-    out = [("the ledger is section 13's table, row for row and figure for figure", doc_figures == ledger,
+    out = [(f"the ledger is section {section}'s table, row for row and figure for figure", doc_figures == ledger,
             str(doc_figures)),
-           ("section 13's measurement is the one the ledger derives from", measured == MEASURED[point], str(measured)),
-           ("section 13's five measurements are the five images'",
-            doc_measurements(DOC.read_text()) == (MERGED, COMPOSED, LISTENED, TRAIN, PINNED),
-            str(doc_measurements(DOC.read_text()))),
+           (f"section {section}'s measurement is the one the ledger derives from",
+            measured == MEASURED[point], str(measured)),
            ('each figure is the hold plus the service behind it plus 5 %, rounded up to 0.01 ms', ledger == rule,
             str(rule)),
            ("the hold is scenario.py's backlog-owed hold, and a planted hold of another length is read as it",
             HOLD_MS == hold_ms() == 60 and hold_ms(planted_hold) == 59, str(HOLD_MS))]
+    if point == '8x8-1if':
+        out.insert(2, ("section 13's five measurements are the five images'",
+                       doc_measurements(DOC.read_text()) == (MERGED, COMPOSED, LISTENED, TRAIN, PINNED), point))
+    if point == 'arty-usbnet-1x1':
+        out.insert(2, ('the USB table retains both measured inputs',
+                       (arty, injected) == (ARTY, USB_INJECTED), point))
+    if point in ('arty-1x1', 'arty-usbnet-1x1'):
+        name = 'backlog-owed.service.aecp.last.if0'
+        rc, text = run(['--point', point, str(grade_dir(base, 'retained-injected', USB_INJECTED))])
+        held = (failing(rc, text, name) and '62.03635 ms' in text and '61.99 ms' in text) \
+            if point == 'arty-1x1' else rc == 0 and 'RESULT: PASS' in text
+        out.append(('the retained injected measurement fails at Arty and passes only at the USB point',
+                    held, f'rc {rc}'))
     rc, text = run(['--point', point, str(grade_dir(base, 'at-ledger', ledger))])
     out.append(('the unchanged ledger, every row at its figure, passes', rc == 0 and 'RESULT: PASS' in text,
                 f'rc {rc}'))
     rc, text = run(['--point', point, str(grade_dir(base, 'published', measured))])
-    out.append(("section 13's measurement passes", rc == 0, f'rc {rc}'))
+    out.append((f"section {section}'s measurement passes", rc == 0, f'rc {rc}'))
     for k, name in enumerate(ledger):
-        for kind, ms in (('one cycle', ledger[name] + 1 / PER_MS), ('a large increase', ledger[name] + 36.76)):
+        for kind, ms in (('one cycle', round(ledger[name] + cycle_ms, 5)), ('a large increase', ledger[name] + 36.76)):
             rc, text = run(['--point', point, str(grade_dir(base, f'{kind[:5]}-{k}', {**ledger, name: ms}))])
             out.append((f'{name} {kind} over its figure ({ms:.5f} ms) exits nonzero naming it', failing(rc, text, name),
                         f'rc {rc}'))
@@ -401,7 +454,7 @@ def controls(base: Path, run: Callable[[list[str]], tuple[int, str]]) -> list[tu
     rc, _ = run(['--point', point, str(log_file(base, 'log-under', budget_lines(logged), summary(7)))])
     out.append(("a log's rows a printed microsecond under their figures pass", rc == 0, f'rc {rc}'))
     rc, _ = run(['--point', point, str(log_file(base, 'log-published', budget_lines(measured), summary(7)))])
-    out.append(("a log of section 13's measurement passes", rc == 0, f'rc {rc}'))
+    out.append((f"a log of section {section}'s measurement passes", rc == 0, f'rc {rc}'))
     rc, text = run(['--point', point, str(log_file(base, 'log-at', budget_lines({**logged, name: ledger[name]}),
                                                    summary(7)))])
     out.append(("a log's row printed at its figure fails: its log does not show it within", failing(rc, text, name),
@@ -427,6 +480,20 @@ def controls(base: Path, run: Callable[[list[str]], tuple[int, str]]) -> list[tu
 
 #: Each mutant of a rule, which some control must refuse.
 MUTANTS = {
+    'USB uses the original Arty ledger': lambda m: patch.dict(
+        m.LEDGER, {'arty-usbnet-1x1': m.LEDGER['arty-1x1']}),
+    'the USB figure leaks into the original Arty ledger': lambda m: patch.dict(
+        m.LEDGER, {'arty-1x1': m.LEDGER['arty-usbnet-1x1']}),
+    'USB drops the larger original Arty measurements': lambda m: patch.dict(
+        m.MEASURED['arty-usbnet-1x1'], dict(m.USB_INJECTED)),
+    'USB drops the injected measurement': lambda m: patch.dict(
+        m.MEASURED['arty-usbnet-1x1'], dict(m.ARTY)),
+    'Arty uses the AX7101 ledger': lambda m: patch.dict(m.LEDGER, {'arty-1x1': m.LEDGER['8x8-1if']}),
+    'Arty measurement is changed without rederiving its figure': lambda m: patch.dict(
+        m.MEASURED['arty-1x1'], {'backlog.owed.if0': 63.0}),
+    'Arty figure has no service margin': lambda m: patch.dict(m.LEDGER['arty-1x1'], {
+        row: m.HOLD_MS + -(-(round(ms * m.PER_MS) - m.HOLD_MS * m.PER_MS) // 1000) / 100
+        for row, ms in m.MEASURED['arty-1x1'].items()}),
     'a ledger row waived by its name whatever its size': lambda m: patch.object(
         m, 'over', lambda p, figure: False),
     "a grade's figure read at its log's microsecond": lambda m: patch.object(
@@ -471,12 +538,14 @@ def selftest() -> int:
     bad = 0
     with tempfile.TemporaryDirectory() as tmp:
         for mode, run in (('in process', in_process), ('as a process', as_process)):
-            for name, held, detail in controls(Path(tmp) / mode.replace(' ', '-'), run):
-                print(f"{'PASS' if held else 'FAIL'} [{mode}] {name}: {detail}")
-                bad += not held
+            for point in LEDGER:
+                for name, held, detail in controls(Path(tmp) / mode.replace(' ', '-') / point, run, point):
+                    print(f"{'PASS' if held else 'FAIL'} [{mode}, {point}] {name}: {detail}")
+                    bad += not held
         for k, (name, plant) in enumerate(MUTANTS.items()):
             with plant(me):
-                refused = [n for n, held, _ in controls(Path(tmp) / f'mutant-{k}', in_process) if not held]
+                refused = [f'{point}: {n}' for point in LEDGER
+                           for n, held, _ in controls(Path(tmp) / f'mutant-{k}' / point, in_process, point) if not held]
             print(f"{'caught' if refused else 'ESCAPED'} mutant {name!r}" + (f': {refused[0]}' if refused else ''))
             bad += not refused
     print(f'RESULT: {"PASS" if not bad else "FAIL"}: {len(MUTANTS)} mutants, {bad} failure(s)')

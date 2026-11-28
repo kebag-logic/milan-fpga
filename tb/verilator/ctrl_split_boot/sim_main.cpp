@@ -127,7 +127,7 @@ private:
         if (r != 1u) return regs_[r];
         const bool latched = latched_ && addressed;
         if (latched) latched_ = false;
-        return (up_ && !latched) ? 0x0124u : 0x0120u;
+        return ((up_ && !latched) ? 0x0024u : 0x0020u) | (mii_100_only ? 0u : 0x0100u);
     }
     // A whole write: its turnaround 10, then the register set at the PHY's address.
     void written(std::uint64_t cycle) {
@@ -144,12 +144,12 @@ private:
         r[2] = 0x001cu;
         r[4] = 0x01e1u;
         r[5] = 0x01e1u;
-        r[9] = 0x0300u;
-        r[10] = 0x0c00u;
-        r[15] = 0x3000u;
+        r[9] = mii_100_only ? 0u : 0x0300u;
+        r[10] = mii_100_only ? 0u : 0x0c00u;
+        r[15] = mii_100_only ? 0u : 0x3000u;
         return r;
     }();
-    unsigned previous_ = 0, bit_ = 0, command_ = 0, reply_ = 1, value_ = 0, word_ = 13u, publications_ = 0, data_ = 0;
+    unsigned previous_ = 0, bit_ = 0, command_ = 0, reply_ = 1, value_ = 0, word_ = phy_up_word, publications_ = 0, data_ = 0;
     std::uint64_t start_ = 0, rose_ = 0, fall_ = 0;
     std::uint64_t high_ = ~0ull, low_ = ~0ull, period_ = ~0ull;
     bool latched_ = false;
@@ -283,10 +283,10 @@ private:
             phy_mark_ = n;
         }
         const bool late = sys_ - phy_since_ > phy_step_limit_ms * (sys_hz / 1000u);
-        const bool met = (step_ == 8 && phy_.word() == 13u) || (step_ == 9 && n >= phy_mark_ + 2u) ||
-                         (step_ == 10 && n >= phy_mark_ + 2u && phy_.word() == 13u) ||
+        const bool met = (step_ == 8 && phy_.word() == phy_up_word) || (step_ == 9 && n >= phy_mark_ + 2u) ||
+                         (step_ == 10 && n >= phy_mark_ + 2u && phy_.word() == phy_up_word) ||
                          (step_ == 11 && n >= phy_mark_ + 3u && phy_.word() == 0u) ||
-                         (step_ == 12 && n > phy_mark_ && phy_.word() == 13u);
+                         (step_ == 12 && n > phy_mark_ && phy_.word() == phy_up_word);
         if (!met && !late) return;
         if (!met) event("timeout");
         if (step_ == 9) {

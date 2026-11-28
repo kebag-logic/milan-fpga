@@ -20,6 +20,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Unreleased - processor pin 044cb25f](#unreleased---processor-pin-044cb25f)** -- Each MRPDU carries a value once.
 - **[Unreleased - processor pin 92100657](#unreleased---processor-pin-92100657)** -- Pre-settle Talkers apply at the settle.
 - **[Unreleased - station MAC from reset](#unreleased---station-mac-from-reset)** -- No zero source address.
+- **[Unreleased - writable gPTP corrections](#unreleased---writable-gptp-corrections)** -- A key the AX7101 leaves off.
 - **[Unreleased - gPTP on the MII port](#unreleased---gptp-on-the-mii-port)** -- Counts transfers, not clocks.
 - **[Unreleased - AECP REBOOT resets the end station](#unreleased---aecp-reboot-resets-the-end-station)** -- Reloads from flash.
 - **[Unreleased - gPTP pin 1616fc8f](#unreleased---gptp-pin-1616fc8f)** -- clockAccuracy per board.
@@ -359,6 +360,18 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Each source that offers a frame then must be held.
 - The stamp must leave octets outside 6 to 11 unchanged.
 - `bootsa-mutants` plants the shipped defect and eleven more.
+## Unreleased - writable gPTP corrections
+
+- Issue #829 adds the key `gptp.latency_writable`.
+- Writes to `0x540` and `0x544` then move the plane's corrections.
+- `GPTP_LAT` (`0x7F0`) reads the applied pair after every write.
+- The stated pair is only the reset value.
+- A board that omits the key keeps its argv.
+- It keeps its generated top and its inert scratch.
+- The Arty's `split` shape states it.
+- The AX7101 shapes do not.
+- The split console's `lat IIIII EEEEE` writes the pair (#878).
+- `make -C tb/verilator/gptp_txts run-latw` and `make -C tb/verilator/milan_dp gptp-latw` grade it.
 
 ## Unreleased - gPTP on the MII port
 

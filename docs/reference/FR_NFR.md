@@ -499,8 +499,17 @@ The two fabric allowances are bounds the design gives, not yet measurements:
   A held record's commit comes at its channel's next refill, at most one refill period after its last byte, so its allowance is that period plus the same 1 ms; the harness requires it of every held record and measures the held path from the frame's last byte (`grade.py`, group `aecp-held`).
   That measurement already contains the held delay, and it is graded against the bound; the held margins above subtract the held `T_ingress` again on top of the bound, which counts the delay twice and is conservative.
 - `T_egress`, 1 ms: `KL_mbx_tx` sends one record at a time in commit order across the channels, so a response waits at most for the records committed ahead of it.
-  The five transmit rings hold 6,144 bytes, at most 256 records of the 14-byte minimum frame; padded, with FCS, preamble and gap, that is 21,504 bytes on the wire.
+  The five transmit rings hold 6,144 bytes, at most 254 records of the 14-byte minimum frame: each ring holds whole 6-word records, 21, 42, 85, 21 and 85 of them in its 128, 256, 512, 128 and 512 words ([PR #1020's 100 Mb/s ruling](https://github.com/kebag-logic/milan-fpga/pull/1020#issuecomment-7216971645), item 2).
+  Padded, with FCS, preamble and gap, that is 21,336 bytes on the wire.
   At 250 Mb/s, the quarter of the 1000BASE-T link that IEEE 802.1Q-2018 34.3's default 75 % `deltaBandwidth` leaves to unreserved traffic, they leave in under 0.7 ms.
+  That argument holds at 1000BASE-T only (the same ruling, item 1).
+  At 100 Mb/s, the Arty's 100BASE-TX, `T_egress` is a held row instead, a merge gate of [#1004](https://github.com/kebag-logic/milan-fpga/pull/1004#issuecomment-7216972073).
+  Its census drains egress at link rate through the shipping transmit queue (`tb/verilator/ctrl_service_budget/egress_queue.hpp`): the control lane's byte crossing and packer, its 512-cycle minimum-gap gasket, the merges with the shape's SR stream (one 90-byte frame each 125 us) and its gPTP frames, the store-and-forward FIFO's 512 words and 8 frames, and 80 ns a wire octet.
+  A replay of the instant-egress census through that queue changed the free-space test's outcome in 11 of 159 cases, so by the ruling's item 3 the census itself drains at link rate, and every TX_TAIL read the firmware makes sees the link-rate tail.
+  `egress_mii.py` holds each record's wait, from its commit to its last octet, over eight phases of the SR stream, with 5 % and one whole gPTP burst (54.88 us) added and the fixed path measured on the converted MII chain (320 ns, `egress_fixed.py`), to 1 ms. Held egress stays the held-egress ledger's.
+  At the Arty, over the 159 cases of that census, the largest wait is 426.47 us (`aecp-largest-notice`'s 550-byte notice frames), so the row is 505.74 us, within its 1 ms; the census derives the installed scheduler row again unchanged.
+  The structural maximum is AECP's admission burst, a notice's 16 registrations at the 1,514-byte largest frame: the AECP ring holds one such record at a time, so each waits at most 391.5 us, and the burst leaves in 2.18 ms.
+  The gasket spaces control frames at least 10.26 us apart. All five rings at their capacity of the least record, 254 records committed together, would leave their last octet 2.65 ms after the commit; no census case queues more than 19 records at once.
 
 The datapath tap that carries both is open ([MAILBOX_SPLIT.md](../design/MAILBOX_SPLIT.md#open-items)).
 An egress held longer than the allowance, as the composed owed row's 60 ms hold models, is outside this table and open under [tsn-c-stack #26](https://github.com/kebag-logic/tsn-c-stack/issues/26).

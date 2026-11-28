@@ -101,6 +101,19 @@ The CPU does not necessarily run at the system-bus rate.
 Here, CPU execution is 50 MHz.
 The system bus runs at 100 MHz.
 
+The split CPU runs on the system bus clock.
+Arty uses exactly 80 MHz (#878).
+
+Its VCO runs at 800 MHz.
+The exact-divider contract keeps `margin=0`.
+
+| Output | Divider | Frequency |
+|---|---:|---:|
+| sys and split CPU | 10 | 80 MHz |
+| eth_ref | 32 | 25 MHz |
+| milan datapath | 16 | 50 MHz |
+| idelay | 4 | 200 MHz |
+
 Other interface clocks are not extra `_CRG` domains:
 
 - JTAG TCK clocks programming/debug access, not the Milan datapath.
@@ -232,6 +245,7 @@ Conditional paths exist only when their features are elaborated.
 | MAC event pulses | `macsys` → Milan | `KL_mac_rmon_events`, using `cdc_pulse` |
 | Ethernet liveness/activity toggles | `eth_rx`/`eth_tx` → Milan | Reset-less source toggles; synchronization inside `KL_link_guard` |
 | Frame-end toggle for an AECP REBOOT | `eth_tx` → Milan | `ethtxend_tgl`, reset-less, flips on each frame's last octet at `phy.sink`; three-flop synchronization and edge detect inside `KL_reboot_ctrl` (#787) |
+| Arty LD2/LD3 predicates | Milan → `sys` | `KL_status_led_truth` registers complete predicates; `StatusLeds` uses two-stage `MultiReg` crossings into `led_stream_sys` and `led_clock_sys`; display-only, no feedback |
 | PHY hold on an AECP REBOOT | Milan → `sys` | Migen `MultiReg` from `o_reboot_phy_hold`, a level that only rises (#787) |
 | The split's AECP REBOOT request (`--ctrl-mailbox` only) | `sys` → Milan | Migen `MultiReg` from the `ctrl_reboot_req` CSR's storage onto `i_reboot_req`, a level the firmware only sets (#871) |
 | ICAPE2 configuration port | none | `KL_reboot_ctrl` drives it in `axis_clk`; `ICAPE2` takes the same clock |
@@ -365,14 +379,17 @@ TX reference plane.
 
 Peer delay alone cannot identify an external inline-device fault.
 
-The retained latency CSRs do not repair this path.
-In VERSION `0x0002_0060`, `0x540`/`0x544` are readable, inert scratch:
+These latency CSRs do not change the timestamp reference plane.
+In VERSION `0x0002_0060` and a split image's `0x0003_0060`, `0x540`/`0x544` are readable shadow words:
 
 - `PTP_INGRESS_LAT` and `PTP_EGRESS_LAT` are plain RW shadow words.
 - A read returns the last written value.
-- No timestamp path consumes them at this VERSION.
-- The live correction is the plane's, at `0x7F0` (#358).
-- They stay inert so nothing corrects twice.
+- Without `gptp.latency_writable`, they reset to zero and remain inert scratch.
+- With that key, their low halves set the corrections (#829).
+- Writable builds reset readback and correction to the configured pair.
+- The correction flops, plane and CSR block share `axis_clk`: no crossing.
+- `GPTP_LAT` at `0x7F0` publishes the pair the plane applies (#358).
+- The plane remains the only consumer, so nothing corrects twice.
 - Source: `is_plain_rw` and `shadow_mem` in [`milan_csr`](../../hdl/common/csr/milan_csr.sv).
 
 See the [register map](../reference/REGISTER_MAP.md) and

@@ -16,6 +16,7 @@
 // journal's bytes, is loaded over the flash image at the journal; at the end
 // the journal's bytes are written to BUDGET_JOURNAL_OUT.
 #include "Vsim.h"
+#include "egress_queue.hpp"
 #include "budget_config.hpp"
 #include "verilator_harness.hpp"
 #include "flash.hpp"
@@ -146,6 +147,7 @@ public:
             std::printf("EVW %llu %u %08x\n", ull(sys_), evt_addr(dut), evt_data(dut));
             event_word(evt_addr(dut) % ev_words, evt_data(dut));
         }
+        if (egress_link) egress_q_.advance(sys_);
         egress_sample(dut);
         ingress_sample(dut);
         flash_sample(dut);
@@ -165,7 +167,8 @@ public:
         put(dut.mbx_rx_data, std::uint8_t(frame ? frames_.front().bytes.at(offset_) : 0));
         put(dut.mbx_rx_last, frame && offset_ + 1 == frames_.front().bytes.size());
         put(dut.mbx_rx_if, std::uint8_t(frame ? frames_.front().interface : 0));
-        put(dut.mbx_tx_ready, tx_ready_);
+        ready_driven_ = tx_ready_ && (!egress_link || egress_q_.ready());
+        put(dut.mbx_tx_ready, ready_driven_);
         put(dut.mbx_link_up, std::uint8_t(link_));
         put(dut.mbx_gm_change, std::uint8_t(gm_pulse_));
         put(dut.mbx_avb_chg, std::uint8_t(dp_pulse_[0]));
@@ -252,7 +255,8 @@ private:
     }
 
     void egress_sample(Vsim& dut) {
-        if (!dut.mbx_tx_valid || !tx_ready_) return;
+        if (!dut.mbx_tx_valid || !ready_driven_) return;
+        if (egress_link) egress_q_.take(sys_, dut.mbx_tx_last, unsigned(dut.mbx_tx_ch));
         egress_.push_back(dut.mbx_tx_data);
         if (!dut.mbx_tx_last) return;
         std::string hex;
@@ -802,6 +806,10 @@ private:
     std::size_t offset_ = 0;
     std::uint64_t ingress_at_ = 0, gap_ = 20;
     bool tx_ready_ = true;
+    // At a 100 Mb/s point the mailbox's egress drains through the shipping transmit queue (egress_queue.hpp):
+    // its ready is the queue's and the script's together, as the last edge was driven.
+    EgressQueue egress_q_{egress_params()};
+    bool ready_driven_ = true;
     unsigned link_ = 0, gm_pulse_ = 0;
     unsigned dp_pulse_[3] = {0, 0, 0};   // the datapath change pads' pulses: AVB_INFO, AS_PATH, the live map
     bool gm_dirty_ = true;

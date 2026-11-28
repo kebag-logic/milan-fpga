@@ -72,6 +72,7 @@ GATE_READ_DOCS = [
     "docs/design/AREA_BUDGET.md",
     "docs/design/MAILBOX_SPLIT.md",
     "docs/design/SPLIT_CONTROL_MEMORY.md",
+    "docs/design/USB_NET_PATH.md",
     "docs/reference/FR_NFR.md",
     "docs/reference/MAILBOX_CONTRACT.md",
     "docs/reference/REGISTER_MAP.md",
@@ -297,6 +298,7 @@ def _cases() -> list[Case]:
         (["docs/design/MAILBOX_SPLIT.md"], True),
         # The page whose rule table the split control memory test reads (#640).
         (["docs/design/SPLIT_CONTROL_MEMORY.md"], True),
+        (["docs/design/USB_NET_PATH.md"], True),
         # Under docs/, a generator, a manifest, a budget or other non-prose.
         (["docs/traceability/gen_module_matrix.py"], True),
         (["docs/diagrams/PNG_MANIFEST.json"], True),
