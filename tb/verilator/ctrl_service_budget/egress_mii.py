@@ -23,12 +23,15 @@ carries its items 2(a) and 2(b) as a merge gate (comment 7216972073):
     bounded. The fixed path, the converted MII chain's own latency from its boundary to its last octet less the
     frame's wire time, is MII_FIXED_NS (egress_fixed.py measures it again).
 
-Every queue parameter is read from its source (`params`). `--selftest` plants each defect the grade must catch.
+Every queue parameter is read from its source (`params`). `--selftest` runs its controls at every 100 Mb/s point
+(POINTS) and plants each defect the grade must catch, among them a stream load short of its CRF output's frame.
 `--structural` prints the AECP admission burst's figures: a notice's 16 registrations at the largest frame.
 
 `--packet DIR` grades a census packet or compact extract (receipt_regrade.py's): every case's observations as published.
+`--point` names the point whose queue `--packet` and `--structural` hold, arty-1x1 unless given; a case whose
+testbench ran another point's queue is refused, never graded at this one's.
 
-usage: python3 -I egress_mii.py BUILD... | --packet DIR | --selftest | --structural
+usage: python3 -I egress_mii.py BUILD... | --packet DIR [--point P] | --selftest | --structural [--point P]
 """
 
 from __future__ import annotations
@@ -67,6 +70,11 @@ CROSS_DP = 3
 SR_HEADER, AAF_HEADER, SAMPLE_BYTES, SR_PERIOD_PS = 18, 24, 4, 125_000_000
 #: The CRF output's AVTPDU (Milan v1.2 7.3.2, one timestamp a PDU), octets.
 CRF_AVTPDU = 28
+#: The 100 Mb/s points and the configuration each one's census builds: #878's Arty 1x1 and #1027's Arty 4x4.
+POINTS = {'arty-1x1': 'endstation_arty_current', 'arty-4x4': 'endstation_arty_split_4x4'}
+#: Each point's stream load of one class A interval, octets, stated by hand and never derived here: a 2-channel
+#: 48 kHz talker's frame is 18 + 24 + 2 x 6 x 4 = 90, and the CRF output's 18 + 28 = 46 (Milan v1.2 7.2.3, 7.3.2).
+STREAM_LOAD = {'arty-1x1': (90,), 'arty-4x4': (90, 90, 90, 90, 46)}
 #: gPTP's frames, each a 14-byte Ethernet header and its message (IEEE 802.1AS-2020 11.4, 10.6, 10.5.3.2.8): Sync
 #: 44, Follow_Up 76, Announce 76 with a one-entry path trace, Pdelay_Req, Pdelay_Resp and Pdelay_Resp_Follow_Up 54,
 #: Signaling 60. All of them every 125 ms, the Sync interval, though only Sync and Follow_Up come that often.
@@ -557,6 +565,10 @@ def plants(p: Params) -> dict:
             'no-gasket': dict(model=changed(gap_dp=1)),
             'nine-frame-fifo': dict(model=changed(sf_frames=p.sf_frames + 1)),
             'no-sr-stream': dict(model=changed(sr_bytes=())),
+            'crf-frame-not-queued': dict(model=changed(sr_bytes=p.sr_bytes[:-1])),
+            'crf-frame-left-out': dict(source={'CRF_AVTPDU': None}),
+            'crf-frame-zero-length': dict(source={'CRF_AVTPDU': 0}),
+            'crf-frame-short': dict(source={'CRF_AVTPDU': CRF_AVTPDU - 1}),
             'grade-drifted': dict(graded=changed(lane_bytes=p.lane_bytes + 1)),
             'held-counted': dict(mark=lambda recs, windows, ends: None),
             'no-margin': dict(margin=1.0),
@@ -564,16 +576,24 @@ def plants(p: Params) -> dict:
             'agreement-loose': dict(agree=10**9)}
 
 
-def controls(p: Params, defect: dict) -> list[tuple[str, bool]]:
-    """Each control's name and whether it held under defect (an empty dict is the shipping grade)."""
-    shipped = globals()['mark_held'], globals()['AGREE_PS']
+def controls(p: Params, defect: dict, point: str = 'arty-1x1') -> list[tuple[str, bool]]:
+    """Each control's name and whether it held under defect (an empty dict is the shipping grade). A 'source' defect
+    changes a constant sr_frames reads, None removing the CRF output's frame, and the sources' queue is read again."""
+    shipped = globals()['mark_held'], globals()['AGREE_PS'], globals()['sr_frames'], globals()['CRF_AVTPDU']
     if 'mark' in defect:
         globals()['mark_held'] = defect['mark']
     globals()['AGREE_PS'] = defect.get('agree', shipped[1])
+    source = defect.get('source', {})
+    if 'CRF_AVTPDU' in source and source['CRF_AVTPDU'] is None:
+        globals()['sr_frames'] = lambda shape: tuple(b for b in shipped[2](shape) if b != SR_HEADER + CRF_AVTPDU)
+    elif 'CRF_AVTPDU' in source:
+        globals()['CRF_AVTPDU'] = source['CRF_AVTPDU']
     try:
-        return run_controls(p, defect.get('model', p), defect)
+        if source:
+            p = params(point_spec(point))
+        return run_controls(p, defect.get('model', p), defect) + load_controls(point, p, defect.get('model', p))
     finally:
-        globals()['mark_held'], globals()['AGREE_PS'] = shipped
+        globals()['mark_held'], globals()['AGREE_PS'], globals()['sr_frames'], globals()['CRF_AVTPDU'] = shipped
 
 
 def departures(text: str) -> list[tuple[int, int]]:
@@ -585,7 +605,8 @@ def run_controls(p: Params, m: Params, defect: dict) -> list[tuple[str, bool]]:
     """The controls: each writes a testbench log with the model's queue m, grades it with the grade's queue, and
     holds the result to what the sources' queue p gives by hand."""
     graded = defect.get('graded', m)
-    quiet = (p.sr_period_ps * 8 + 20 * 10**6) // p.sys_ps  # 20 us after an SR frame, the gPTP burst long gone
+    load = sum(p.wire_ps(n) + p.gap_octets * p.octet_ps for n in p.sr_bytes)
+    quiet = (p.sr_period_ps * 8 + load + 20 * 10**6) // p.sys_ps  # 20 us after the stream load, the gPTP burst gone
     one = testbench_log(m, [(quiet, 2, 64)])
     (t_in, end), = departures(one)
     row = grade_case(one, graded)
@@ -616,25 +637,50 @@ def run_controls(p: Params, m: Params, defect: dict) -> list[tuple[str, bool]]:
     return out
 
 
-def selftest(p: Params) -> int:
-    """The controls on the shipping grade, then each plant caught by at least one of them."""
-    clean = controls(p, {})
-    for name, ok in clean:
-        print(f'{"PASS" if ok else "FAIL"} {name}')
-    failed = sum(not ok for _, ok in clean)
-    for name, defect in plants(p).items():
-        caught = [c for c, ok in controls(p, defect) if not ok]
+def load_controls(point: str, p: Params, m: Params) -> list[tuple[str, bool]]:
+    """The stream load's controls at a point: the sources' load is the point's stated one, and the queue carries every
+    frame of it, the CRF output's among them, on the wire in each interval; and a log another point's testbench wrote
+    is refused, never graded at this point's queue."""
+    shape = POINTS[point]
+    out = [(f"{point}: the stream load is its talkers' frames and its CRF output's, {STREAM_LOAD[point]}",
+            sr_frames(shape) == p.sr_bytes == STREAM_LOAD[point])]
+    q = Queue(dataclasses.replace(m, gptp_bytes=()))
+    q.advance(p.sr_period_ps // 2)
+    busy = sum(p.wire_ps(n) + p.gap_octets * p.octet_ps for n in STREAM_LOAD[point])
+    out.append((f'{point}: every frame of the stream load is on the wire in its interval', q.wire_free >= busy))
+    for other in POINTS:
+        if other != point:
+            log = testbench_log(params(point_spec(other)), [(1000, 2, 64)])
+            out.append((f"{point}: a log of {other}'s queue is refused", 'refused' in grade_case(log, p)))
+    return out
+
+
+def selftest(points: tuple = tuple(POINTS)) -> int:
+    """The controls on the shipping grade at every point, then each plant caught by at least one of them at one."""
+    at = {point: params(point_spec(point)) for point in points}
+    failed = total = 0
+    for point, p in at.items():
+        for name, ok in controls(p, {}, point):
+            print(f'{"PASS" if ok else "FAIL"} [{point}] {name}')
+            failed, total = failed + (not ok), total + 1
+    for name in plants(next(iter(at.values()))):
+        caught = [f'[{point}] {c}' for point, p in at.items() for c, ok in controls(p, plants(p)[name], point)
+                  if not ok]
         print(f'{"CAUGHT" if caught else "MISSED"} {name}' + (f': {"; ".join(caught)}' if caught else ''))
-        failed += not caught
-    total = len(clean) + len(plants(p))
+        failed, total = failed + (not caught), total + 1
     print(f'egress_mii selftest: {total - failed} of {total} passed')
     return int(bool(failed))
 
 
+def point_spec(point: str) -> dict:
+    """A 100 Mb/s point's clocks and shape, as its census builds them."""
+    cfg = yaml.safe_load((CONFIGS / f'{POINTS[point]}.yaml').read_text())['board']['constraints']
+    return dict(shape=POINTS[point], sys_hz=cfg['sys_clk_hz'], milan_hz=cfg['milan_clk_hz'])
+
+
 def arty_spec() -> dict:
-    """The Arty point's clocks and shape, as its census builds them."""
-    cfg = yaml.safe_load((CONFIGS / 'endstation_arty_current.yaml').read_text())['board']['constraints']
-    return dict(shape='endstation_arty_current', sys_hz=cfg['sys_clk_hz'], milan_hz=cfg['milan_clk_hz'])
+    """The Arty 1x1 point's clocks and shape, as its census builds them."""
+    return point_spec('arty-1x1')
 
 
 def packet_rows(packet: Path, p: Params) -> dict:
@@ -659,17 +705,23 @@ def packet_rows(packet: Path, p: Params) -> dict:
 
 def main(argv: list[str]) -> int:
     """Grade every case of each build directory given (its build.json and results/*.log), or of a packet."""
+    point = 'arty-1x1'
+    if len(argv) >= 2 and argv[-2] == '--point' and argv[0] in ('--packet', '--structural'):
+        if argv[-1] not in POINTS:
+            print(__doc__)
+            return 2
+        point, argv = argv[-1], argv[:-2]
     if len(argv) == 2 and argv[0] == '--packet':
-        p = params(arty_spec())
+        p = params(point_spec(point))
         ok, lines = verdict(packet_rows(Path(argv[1]), p), p)
         print('\n'.join(lines))
-        print(f'RESULT: {"PASS" if ok else "FAIL"}')
+        print(f'RESULT: {"PASS" if ok else "FAIL"} point={point}')
         return int(not ok)
-    if argv in (['--selftest'], ['--structural']):
-        p = params(arty_spec())
-        if argv == ['--selftest']:
-            return selftest(p)
-        print('\n'.join(structural(p)))
+    if argv == ['--selftest']:
+        return selftest()
+    if argv == ['--structural']:
+        print(f'# {point}')
+        print('\n'.join(structural(params(point_spec(point)))))
         return 0
     if not argv:
         print(__doc__)

@@ -296,7 +296,7 @@ The all-fabric placement's boot path is not covered by #972, and this derivation
 > the revisit trigger and the adoption plan are in the
 > [gPTP plane record](../design/GPTP_PLANE.md#propagation-asymmetry-is-not-modelled).
 
-> **Owed (#878):** the Arty 4x4/1if image (`configs/endstation_arty_split_4x4.yaml`,
+> **Owed (#1027):** the Arty 4x4/1if image (`configs/endstation_arty_split_4x4.yaml`,
 > sys and the CPU at 100 MHz) carries the Arty board's measured correction pair,
 > 1409 ns ingress and 100 ns egress, measured with an 80 MHz system clock (#829).
 > Two of its ingress terms cross into sys, so FR-CLK-05's measured physical
@@ -520,8 +520,8 @@ The two fabric allowances are bounds the design gives, not yet measurements:
   There a replay of the instant-egress census through the queue overran AECP's 512-word ring in notice bursts, so its census too drains at link rate.
   Over its 159 cases the largest wait is 446.76 us (`answering-every-port/notice-every-1`), so the row is 527.04 us, within its 1 ms; the fixed path measured at that sys clock is 300.0 ns, within the stated 320.
   Its held egress is its own ledger point's ([SPLIT_CONTROL_MEMORY.md section 15](../design/SPLIT_CONTROL_MEMORY.md#arty-split-4x41if)), 61.65 to 63.50 ms.
-  The structural maximum is AECP's admission burst, a notice's 16 registrations at the 1,514-byte largest frame: the AECP ring holds one such record at a time, so each waits at most 391.5 us, and the burst leaves in 2.18 ms.
-  The gasket spaces control frames at least 10.26 us apart. All five rings at their capacity of the least record, 254 records committed together, would leave their last octet 2.65 ms after the commit; no census case queues more than 19 records at once.
+  The structural maximum is AECP's admission burst, a notice's 16 registrations at the 1,514-byte largest frame: the AECP ring holds one such record at a time, so at the 1x1 each waits at most 391.5 us, and the burst leaves in 2.18 ms; at the 4x4, beside its five SR frames, 431.12 us and 2.42 ms (`egress_mii.py --structural --point arty-4x4`).
+  The gasket spaces control frames at least 10.26 us apart. All five rings at their capacity of the least record, 254 records committed together, would leave their last octet 2.65 ms after the commit at the 1x1 and 2.71 ms at the 4x4; no census case queues more than 19 records at once at the 1x1, or 35 at the 4x4.
 
 The datapath tap that carries both is open ([MAILBOX_SPLIT.md](../design/MAILBOX_SPLIT.md#open-items)).
 An egress held longer than the allowance, as the composed owed row's 60 ms hold models, is outside this table and open under [tsn-c-stack #26](https://github.com/kebag-logic/tsn-c-stack/issues/26).
