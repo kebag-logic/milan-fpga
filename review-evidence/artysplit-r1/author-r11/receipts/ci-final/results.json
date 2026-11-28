@@ -1,0 +1,4606 @@
+[
+ {
+  "job": "docs/docs-check-no-git",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Retain checkout identity before removing metadata",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 2,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Strip git metadata, then run the docs gate",
+    "rc": 0,
+    "seconds": 9
+   },
+   {
+    "step": 4,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "docs/docs-gates-0",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Build the validated HDL reference",
+    "rc": 0,
+    "seconds": 3
+   },
+   {
+    "step": 5,
+    "name": "Install the python gate dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Install the pinned Markdown renderer",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Resolve exact package downloads 6",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 10,
+    "name": "Install diagram gate dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 11,
+    "name": "Link health, wording, dead-reference and local-info gate",
+    "rc": 0,
+    "seconds": 8
+   },
+   {
+    "step": 12,
+    "name": "Added-line em-dash gate",
+    "rc": 0,
+    "seconds": 3
+   },
+   {
+    "step": 13,
+    "name": "Concise audience documentation gate",
+    "rc": 0,
+    "seconds": 1
+   },
+   {
+    "step": 14,
+    "name": "Audience diagram no-drift gate",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 15,
+    "name": "Product solution source-fact gate",
+    "rc": 0,
+    "seconds": 5
+   },
+   {
+    "step": 16,
+    "name": "Verified submodule documentation gate",
+    "rc": 0,
+    "seconds": 1
+   },
+   {
+    "step": 17,
+    "name": "HDL timing diagram no-drift gate",
+    "rc": 0,
+    "seconds": 1
+   },
+   {
+    "step": 18,
+    "name": "Published diagram PNG gate",
+    "rc": 0,
+    "seconds": 8
+   },
+   {
+    "step": 19,
+    "name": "Milan feature-status consistency gate",
+    "rc": 0,
+    "seconds": 1
+   },
+   {
+    "step": 20,
+    "name": "Traceability matrix no-drift gate",
+    "rc": 0,
+    "seconds": 1
+   },
+   {
+    "step": 21,
+    "name": "Fetch the builder source dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 22,
+    "name": "Imported gPTP documentation gate",
+    "rc": 0,
+    "seconds": 1
+   },
+   {
+    "step": 23,
+    "name": "Code-quality measurement self-tests",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 25,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 26,
+    "name": "Bare-metal scope gate",
+    "rc": 0,
+    "seconds": 35
+   },
+   {
+    "step": 28,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 29,
+    "name": "NVM record-space gate",
+    "rc": 0,
+    "seconds": 80
+   },
+   {
+    "step": 30,
+    "name": "Capture measurement census and clock gate",
+    "rc": 0,
+    "seconds": 1
+   },
+   {
+    "step": 31,
+    "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 32,
+    "name": "RTL source-list drift gate",
+    "rc": 0,
+    "seconds": 4
+   },
+   {
+    "step": 33,
+    "name": "Boundary-unit naming ratchet",
+    "rc": 0,
+    "seconds": 1
+   },
+   {
+    "step": 34,
+    "name": "Port contract gate",
+    "rc": 0,
+    "seconds": 6
+   },
+   {
+    "step": 35,
+    "name": "Fail-fast ratchet",
+    "rc": 0,
+    "seconds": 3
+   },
+   {
+    "step": 36,
+    "name": "TODO ownership gate",
+    "rc": 0,
+    "seconds": 4
+   },
+   {
+    "step": 37,
+    "name": "Test-evidence ratchet",
+    "rc": 0,
+    "seconds": 22
+   },
+   {
+    "step": 38,
+    "name": "Mechanical hygiene ratchet",
+    "rc": 0,
+    "seconds": 1
+   },
+   {
+    "step": 39,
+    "name": "SystemVerilog idiom gate",
+    "rc": 0,
+    "seconds": 1
+   },
+   {
+    "step": 40,
+    "name": "C and C++ idiom gate",
+    "rc": 0,
+    "seconds": 4
+   },
+   {
+    "step": 41,
+    "name": "Python idiom gate",
+    "rc": 0,
+    "seconds": 14
+   },
+   {
+    "step": 42,
+    "name": "Shell idiom gate",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 43,
+    "name": "Doc cited-path gate",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 44,
+    "name": "Archive integrity gate",
+    "rc": 0,
+    "seconds": 1
+   },
+   {
+    "step": 45,
+    "name": "Per-page contents gate",
+    "rc": 0,
+    "seconds": 13
+   },
+   {
+    "step": 46,
+    "name": "Documentation inventory freshness gate",
+    "rc": 0,
+    "seconds": 3
+   },
+   {
+    "step": 47,
+    "name": "AEM store generator self-test",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 48,
+    "name": "Sweep/build shape gate",
+    "rc": 0,
+    "seconds": 20
+   },
+   {
+    "step": 49,
+    "name": "Deploy shape gate",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 50,
+    "name": "Entity shape gate",
+    "rc": 0,
+    "seconds": 58
+   },
+   {
+    "step": 51,
+    "name": "Register reference freshness gate",
+    "rc": 0,
+    "seconds": 88
+   },
+   {
+    "step": 52,
+    "name": "Fetch inventory dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 53,
+    "name": "CI scheduling and evidence controls",
+    "rc": 0,
+    "seconds": 67
+   },
+   {
+    "step": 54,
+    "name": "Record executed gate outcomes",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 56,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "docs/docs-gates-1",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Install the python gate dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Install the pinned Markdown renderer",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install diagram gate dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Fetch the builder source dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 11,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "End-station builder gates, leg 0 of 2",
+    "rc": 0,
+    "seconds": 764
+   },
+   {
+    "step": 15,
+    "name": "Record executed gate outcomes",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 17,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "docs/docs-gates-2",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Install the python gate dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Install the pinned Markdown renderer",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install diagram gate dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Fetch the builder source dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 11,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "End-station builder gates, leg 1 of 2",
+    "rc": 0,
+    "seconds": 658
+   },
+   {
+    "step": 15,
+    "name": "Record executed gate outcomes",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 17,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "docs/docs-gates-3",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Install the python gate dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Install the pinned Markdown renderer",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install diagram gate dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Fetch the builder source dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 11,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Compiler-absent firmware controls",
+    "rc": 0,
+    "seconds": 347
+   },
+   {
+    "step": 15,
+    "name": "CI event and SHA contract gate",
+    "rc": 0,
+    "seconds": 345
+   },
+   {
+    "step": 16,
+    "name": "Local act runner contract gate",
+    "rc": 0,
+    "seconds": 100
+   },
+   {
+    "step": 17,
+    "name": "Record executed gate outcomes",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 19,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "docs/docs-gates-4",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Install the python gate dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Install the pinned Markdown renderer",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install diagram gate dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Fetch the builder source dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 11,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Saved-state writer gate",
+    "rc": 0,
+    "seconds": 189
+   },
+   {
+    "step": 15,
+    "name": "Record executed gate outcomes",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 17,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "docs/wire-accountability",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Fetch the engine authority the builder derives from",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Advertised-vs-emitted gate (green since 2026-07-28, item 00)",
+    "rc": 0,
+    "seconds": 1
+   },
+   {
+    "step": 5,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "elaborate/elaborate-gates-0",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Decide whether this head needs an elaboration",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Fetch the source dependencies the elaboration reads",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put a job-private Python environment on PATH",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 10,
+    "name": "Install LiteX at the pinned revisions",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 12,
+    "name": "Install sbt",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Place the VexiiRiscv source at the revision LiteX pins",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Apply the toolchain patch series",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 17,
+    "name": "Elaboration gates, leg 0 of 2",
+    "rc": 0,
+    "seconds": 763
+   },
+   {
+    "step": 18,
+    "name": "Record executed gate outcomes",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "elaborate/elaborate-gates-1",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Decide whether this head needs an elaboration",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Fetch the source dependencies the elaboration reads",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put a job-private Python environment on PATH",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 10,
+    "name": "Install LiteX at the pinned revisions",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Install sbt",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Place the VexiiRiscv source at the revision LiteX pins",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 15,
+    "name": "Apply the toolchain patch series",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 17,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Elaboration gates, leg 1 of 2",
+    "rc": 0,
+    "seconds": 657
+   },
+   {
+    "step": 19,
+    "name": "Keep the generated CPU netlist arguments for the next run",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Record executed gate outcomes",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 22,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "elaborate/elaborate-gates-2",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Decide whether this head needs an elaboration",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Fetch the source dependencies the elaboration reads",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Put a job-private Python environment on PATH",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install LiteX at the pinned revisions",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Install sbt",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 10,
+    "name": "Place the VexiiRiscv source at the revision LiteX pins",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 11,
+    "name": "Apply the toolchain patch series",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 15,
+    "name": "Resolve exact package downloads 16",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 17,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 19,
+    "name": "Standalone LiteX simulation aggregate, leg 0 of 3",
+    "rc": 0,
+    "seconds": 279
+   },
+   {
+    "step": 20,
+    "name": "Record executed gate outcomes",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 22,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "elaborate/elaborate-gates-3",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Decide whether this head needs an elaboration",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Fetch the source dependencies the elaboration reads",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Put a job-private Python environment on PATH",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install LiteX at the pinned revisions",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Install sbt",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 10,
+    "name": "Place the VexiiRiscv source at the revision LiteX pins",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 11,
+    "name": "Apply the toolchain patch series",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 15,
+    "name": "Resolve exact package downloads 16",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 17,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 19,
+    "name": "Standalone LiteX simulation aggregate, leg 1 of 3",
+    "rc": 0,
+    "seconds": 203
+   },
+   {
+    "step": 20,
+    "name": "Record executed gate outcomes",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 22,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "elaborate/elaborate-gates-4",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Decide whether this head needs an elaboration",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Fetch the source dependencies the elaboration reads",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Put a job-private Python environment on PATH",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install LiteX at the pinned revisions",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Install sbt",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 10,
+    "name": "Place the VexiiRiscv source at the revision LiteX pins",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 11,
+    "name": "Apply the toolchain patch series",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 15,
+    "name": "Resolve exact package downloads 16",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 17,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 19,
+    "name": "Standalone LiteX simulation aggregate, leg 2 of 3",
+    "rc": 0,
+    "seconds": 444
+   },
+   {
+    "step": 20,
+    "name": "Record executed gate outcomes",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 22,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/bdd-conformance",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Fetch the processor model inputs",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Install behave",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Run the specification-facing suite",
+    "rc": 0,
+    "seconds": 3
+   },
+   {
+    "step": 6,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/firmware-aecp-mutants-leg0",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Resolve exact package downloads 2",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install GoogleTest and GoogleMock and print the versions",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Run the AECP mutation campaign",
+    "rc": 0,
+    "seconds": 700
+   },
+   {
+    "step": 10,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/firmware-aecp-mutants-leg1",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Resolve exact package downloads 2",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install GoogleTest and GoogleMock and print the versions",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Run the AECP mutation campaign",
+    "rc": 0,
+    "seconds": 702
+   },
+   {
+    "step": 10,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/firmware-boundary-capture-leg0",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Resolve exact package downloads 2",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install GoogleTest and GoogleMock and print the versions",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Capture one leg of the firmware builders' compiles",
+    "rc": 0,
+    "seconds": 992
+   },
+   {
+    "step": 11,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/firmware-boundary-capture-leg1",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Resolve exact package downloads 2",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install GoogleTest and GoogleMock and print the versions",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Capture one leg of the firmware builders' compiles",
+    "rc": 0,
+    "seconds": 701
+   },
+   {
+    "step": 11,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/firmware-control-mutants-leg0",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Resolve exact package downloads 2",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install GoogleTest and GoogleMock and print the versions",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Run the control mutation campaign",
+    "rc": 0,
+    "seconds": 716
+   },
+   {
+    "step": 10,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/firmware-control-mutants-leg1",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Resolve exact package downloads 2",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install GoogleTest and GoogleMock and print the versions",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Run the control mutation campaign",
+    "rc": 0,
+    "seconds": 687
+   },
+   {
+    "step": 10,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/firmware-control-mutants-leg2",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Resolve exact package downloads 2",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install GoogleTest and GoogleMock and print the versions",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Run the control mutation campaign",
+    "rc": 0,
+    "seconds": 625
+   },
+   {
+    "step": 10,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/firmware-control-mutants-leg3",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Resolve exact package downloads 2",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install GoogleTest and GoogleMock and print the versions",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Run the control mutation campaign",
+    "rc": 0,
+    "seconds": 655
+   },
+   {
+    "step": 10,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/firmware-srp-mutants-leg0",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Resolve exact package downloads 2",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install GoogleTest and GoogleMock and print the versions",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Run both SRP mutation campaigns and pin controls",
+    "rc": 0,
+    "seconds": 919
+   },
+   {
+    "step": 10,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/firmware-srp-mutants-leg1",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Resolve exact package downloads 2",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install GoogleTest and GoogleMock and print the versions",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Run both SRP mutation campaigns and pin controls",
+    "rc": 0,
+    "seconds": 930
+   },
+   {
+    "step": 10,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/firmware-unit-leg0",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Resolve exact package downloads 2",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install GoogleTest and GoogleMock and print the versions",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Prove the tally reads a failing and a crashing test as failures",
+    "rc": 0,
+    "seconds": 3
+   },
+   {
+    "step": 9,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 10,
+    "name": "Run the control-plane firmware suites and RV32 builds",
+    "rc": 0,
+    "seconds": 980
+   },
+   {
+    "step": 11,
+    "name": "Run the saved-state store suites and its RV32 build",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 12,
+    "name": "Hold the firmware coverage ratchet",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 13,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/firmware-unit-leg1",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Resolve exact package downloads 2",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install GoogleTest and GoogleMock and print the versions",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Prove the tally reads a failing and a crashing test as failures",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 9,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 10,
+    "name": "Run the control-plane firmware suites and RV32 builds",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 11,
+    "name": "Run the saved-state store suites and its RV32 build",
+    "rc": 0,
+    "seconds": 497
+   },
+   {
+    "step": 12,
+    "name": "Hold the firmware coverage ratchet",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 13,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/firmware-unit-leg2",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Resolve exact package downloads 2",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install GoogleTest and GoogleMock and print the versions",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Prove the tally reads a failing and a crashing test as failures",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 9,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 10,
+    "name": "Run the control-plane firmware suites and RV32 builds",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 11,
+    "name": "Run the saved-state store suites and its RV32 build",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 12,
+    "name": "Hold the firmware coverage ratchet",
+    "rc": 0,
+    "seconds": 930
+   },
+   {
+    "step": 13,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/firmware-verilator",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 3,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Resolve exact package downloads 2",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install GoogleTest and GoogleMock and print the versions",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 10,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 11,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Hold the TSN stack boundary over the Verilator builders' compiles",
+    "rc": 0,
+    "seconds": 710
+   },
+   {
+    "step": 15,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/publication-census-legs-leg0",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Set memory-derived census workers",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 4,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Run the publication census in every shape the builder builds",
+    "rc": 0,
+    "seconds": 249
+   },
+   {
+    "step": 11,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/publication-census-legs-leg1",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Set memory-derived census workers",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 4,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Run the publication census in every shape the builder builds",
+    "rc": 0,
+    "seconds": 249
+   },
+   {
+    "step": 11,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/publication-census-legs-leg2",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Set memory-derived census workers",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 4,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Run the publication census in every shape the builder builds",
+    "rc": 0,
+    "seconds": 266
+   },
+   {
+    "step": 11,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/publication-census-legs-leg3",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Set memory-derived census workers",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 4,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Run the publication census in every shape the builder builds",
+    "rc": 0,
+    "seconds": 274
+   },
+   {
+    "step": 11,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/publication-census-legs-leg4",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Set memory-derived census workers",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 4,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Run the publication census in every shape the builder builds",
+    "rc": 0,
+    "seconds": 236
+   },
+   {
+    "step": 11,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/split-cdc",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Resolve exact package downloads 3",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 10,
+    "name": "Prove every split crossing goes through an approved primitive",
+    "rc": 0,
+    "seconds": 108
+   },
+   {
+    "step": 11,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/verilator-lint",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Resolve exact package downloads 3",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Run the ratcheted whole-tree lint gate",
+    "rc": 0,
+    "seconds": 13
+   },
+   {
+    "step": 8,
+    "name": "Prove protocol-processor source lists are derived",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 9,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl-fast/yosys-elaboration",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 4,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Elaborate the integration-heavy tops",
+    "rc": 0,
+    "seconds": 167
+   },
+   {
+    "step": 8,
+    "name": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "rc": 0,
+    "seconds": 575
+   },
+   {
+    "step": 9,
+    "name": "Prove ooc.sh generates the ROMs and fails on a failed top",
+    "rc": 0,
+    "seconds": 25
+   },
+   {
+    "step": 10,
+    "name": "Prove both synthesis flows refuse active elaboration guards",
+    "rc": 0,
+    "seconds": 27
+   },
+   {
+    "step": 11,
+    "name": "Prove the result cache refuses a planted entry",
+    "rc": 0,
+    "seconds": 55
+   },
+   {
+    "step": 12,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-preflight",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Run the sweep's preflight self-tests once for this head",
+    "rc": 0,
+    "seconds": 132
+   },
+   {
+    "step": 5,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard0-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 467
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard1-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "rc": 0,
+    "seconds": 29
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 328
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard10-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 358
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard11-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 606
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard12-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 639
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard13-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 356
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard14-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 681
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard15-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 513
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard16-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 806
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard17-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 546
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard18-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 480
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard19-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 632
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard2-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 640
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard20-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 575
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard21-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 1147
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard22-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 497
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard23-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 562
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard24-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 896
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard25-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 638
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard26-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 599
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard3-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 672
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard4-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 245
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard5-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 474
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard6-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 424
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard7-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 475
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard8-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 188
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/verilator-shards-shard9-total27",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Resolve exact package downloads 4",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 7,
+    "name": "Build Verilator from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Put Verilator on PATH and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 9,
+    "name": "Prove specialized suite ownership",
+    "rc": 0,
+    "seconds": 2
+   },
+   {
+    "step": 11,
+    "name": "Resolve exact package downloads 8",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 13,
+    "name": "Build Yosys from source on cache miss",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 14,
+    "name": "Resolve exact package downloads 9",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 16,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 18,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 20,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "status": "not run (its condition is false)"
+   },
+   {
+    "step": 21,
+    "name": "Run this exhaustive suite shard",
+    "rc": 0,
+    "seconds": 714
+   },
+   {
+    "step": 23,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/yosys-shards-shard0-total4",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Restore the pinned Yosys build",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Resolve exact package downloads 5",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 10,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 12,
+    "name": "Run this weighted portability shard",
+    "rc": 0,
+    "seconds": 1085
+   },
+   {
+    "step": 14,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/yosys-shards-shard1-total4",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Restore the pinned Yosys build",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Resolve exact package downloads 5",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 10,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 12,
+    "name": "Run this weighted portability shard",
+    "rc": 0,
+    "seconds": 257
+   },
+   {
+    "step": 14,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/yosys-shards-shard2-total4",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Restore the pinned Yosys build",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Resolve exact package downloads 5",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 10,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 12,
+    "name": "Run this weighted portability shard",
+    "rc": 0,
+    "seconds": 714
+   },
+   {
+    "step": 14,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ },
+ {
+  "job": "rtl/yosys-shards-shard3-total4",
+  "status": "success",
+  "steps": [
+   {
+    "step": 1,
+    "name": "Set CPU-derived job budgets",
+    "rc": 0,
+    "seconds": 0
+   },
+   {
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 5,
+    "name": "Restore the pinned Yosys build",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 6,
+    "name": "Resolve exact package downloads 5",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 8,
+    "name": "Install the pinned Yosys and prove the version",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 10,
+    "name": "Install the pinned sv2v release",
+    "status": "not run (setup or evidence)"
+   },
+   {
+    "step": 12,
+    "name": "Run this weighted portability shard",
+    "rc": 0,
+    "seconds": 95
+   },
+   {
+    "step": 14,
+    "name": "Record actual job execution",
+    "status": "not run (setup or evidence)"
+   }
+  ]
+ }
+]

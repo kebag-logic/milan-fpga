@@ -1,0 +1,504 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 2050 live invocations in exactly one shard; shard sizes [107, 881, 399, 663]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+PASS: campaign legs reject a planted dropped leg
+PASS: campaign legs reject a planted duplicated leg
+PASS: 880 live defects of phase 1 in exactly one of 4 legs, leg sizes [220, 220, 220, 220]; six invalid campaign combinations refuse
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': 'absent', 'gmock': 'absent'}
+tsn-c-stack at c3bff8f3dea03870ea7ae62965db360b509ee3b3
+[ok] mutant departing-keeps-index (walk): 2 check(s) failed
+    first: [FAIL] AdpWalk.P7DepartingAndRestart: P7 the restart advertises from index 0
+[ok] mutant second-departing-dropped (adp): 20 check(s) failed
+    first: [FAIL] AdpCore.A16SecondShutdownQueuesItsOwn: A16 a SHUTDOWN while one is owed queues its own ENTITY_DEPARTING and drops the owed AVAILABLE
+[ok] mutant discover-drops-owed-available (adp): 10 check(s) failed
+    first: [FAIL] AdpCore.A19IgnoredInputsKeepTheOwedAvailable: A19 so does an ENTITY_DISCOVER
+[ok] mutant coalesced-departing-uncounted (adp): 4 check(s) failed
+    first: [FAIL] AdpCore.A21DepartingCapacity: A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+[ok] mutant down-answers-discover (walk): 18 check(s) failed
+    first: [FAIL] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DOWN: RCV_ADP_DISCOVER(eid 0) x DOWN: advertise state after
+[ok] mutant advertise-expiry-skips-delay (walk): 14 check(s) failed
+    first: [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P3 into DELAY with a 0..4 s draw
+[ok] mutant stale-tag-accepted (adp): 2 check(s) failed
+    first: [FAIL] AdpAdapter.B1StaleTagDiscarded: B1 an expiry of the arm a GM_CHANGE replaced is discarded by its tag
+[ok] mutant pool-link-unwritten (port): 1 check(s) failed
+    first: [FAIL] Pool.P10AFreedBlocksLinkIsWrittenOverItsClientsBytes: P10 then the one freed before it, through the link its free wrote
+[ok] mutant debug-truncation-uncounted (port): 1 check(s) failed
+    first: [FAIL] DebugSink.S2TruncatedToTheLine: S2 the truncation is counted
+[ok] mutant events-halved (adp, acmp): 3 check(s) failed
+    first: [FAIL] AdpBacklog.F0toF7FullBacklogs: F2 all 16 event records are taken by pass CTRL_LOOP_EVT_PASSES
+[ok] mutant owed-ticks-let-it-sleep (port): 2 check(s) failed
+    first: [FAIL] Loop.L7TickSlices: L7 every one of 40 coalesced centiseconds reaches the consumer
+[ok] mutant lanes-big-endian (model): 29 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter: F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)
+[ok] mutant model-rate-unlimited (model): 10 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/RateLimit: T0 only the frame behind the held one counts in RATE_DROP
+[ok] mutant model-gm-hi-live (model): 1 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot: G0 GM_HI reads the snapshot GM_LO took
+[ok] mutant port-pool-unreported (port): 1 check(s) failed
+    first: [FAIL] Pool.P8PortLayerUnbound: P8 the bound pool is the one reported
+[ok] mutant rx-binds-no-function (port): 1 check(s) failed
+    first: [FAIL] LoopBring.L9TablesRefuseNullAndOverflow: L9 a channel bound to no function is refused
+[ok] mutant app-binds-pool-after-the-mailbox (unit): 1 check(s) failed
+    first: [FAIL] AppComposition.U1BindsTheAppPoolBehindLwsrpBeforeTheMailbox:            Actual: never called - unsatisfied and active
+[ok] mutant step-waits-twice (unit): 1 check(s) failed
+    first: [FAIL] LoopRun.U3TurnsForEverAndSleepsWhenNothingIsOwed: U3 every turn is one pass, and a pass that owed nothing then sleeps
+[ok] mutant unknown-event-decoded-as-a-face-count (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt: D9 an event of a type the contract does not define is taken with no field decoded
+[ok] mutant attach-ignores-poll-room (unit): 1 check(s) failed
+    first: [FAIL] AdpAdapterUnit.B4LoopWithNoRoomRefused: B4 a loop with no room for the poll is refused
+[ok] mutant mbx-tx-aligned-word-from-frame-start (unit): 77 check(s) failed
+    first: [FAIL] DriverUnit.D15PayloadWordsAtEveryLengthAlignmentAndAcrossTheRingEnd: D15 TX word 1 of a 14-byte frame at alignment 0
+[ok] mutant mbx-window-write-elsewhere (unit): 37 check(s) failed
+    first: [FAIL] MmioDriver.M3EveryAccessInPlaceAtBasePlusOffset: M3 and released at RX_TAIL
+[ok] mutant pool-calloc-members-dropped (port): 2 check(s) failed
+    first: [FAIL] Pool.P3CallocZeroesAndRefusesAWrap: P3 calloc hands out a zeroed block, even a reused one
+[ok] mutant mem-move-reads-below-source (unit): 1 check(s) failed
+    first: [FAIL] CtrlMem.W4NoAccessOutsideEitherRange: crashed on signal 11
+[ok] mutant mem-compare-sign-reversed (unit): 1 check(s) failed
+    first: [FAIL] CtrlMem.W6MemcmpEveryAlignmentLengthAndPosition: W6 memcmp a+0 b+0 n 1 at 0 delta 1
+[ok] mutant mem-copy-rest-byte-dropped (unit): 3 check(s) failed
+    first: [FAIL] CtrlMem.W1MemcpyEveryAlignmentAndLength: W1 memcpy byte 16 dst+0 src+0 n 1
+[ok] mutant model-tag-stripped (model): 12 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Classification: C4 a tagged frame, a foreign EtherType and a frame ending before the subtype pass nowhere
+[ok] mutant model-subtype-ignored (model): 66 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Classification: C0 ACMP to this talker or this listener passes; to neither does not
+[ok] mutant model-aecp-command-only (model): 5 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 a valid frame reaches its channel (aecp, response)
+[ok] mutant model-msg-type-off-by-one (model): 13 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 a valid frame reaches its channel (maap, DEFEND to own unicast)
+[ok] mutant own-mac-unguarded (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount: D11 an interface past the contract's is refused
+[ok] mutant app-own-mac-not-the-entity-mac (unit, acmp): 3 check(s) failed
+    first: [FAIL] AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens: U4 interface 0's OWN_MAC is the entity's MAC
+[ok] mutant acmp-init-sink-interface (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold: A0 a sink on an interface the entity lacks is refused
+[ok] mutant acmp-header-retry-2s (acmp, acmpwalk): 16 check(s) failed
+    first: [FAIL] AcmpCore.A9FailureWaitsForTheRetry: A9 and TMR_RETRY 4 s
+[ok] mutant acmp-header-registering-failed-bit (acmp): 3 check(s) failed
+    first: [FAIL] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed: A2 SETTLED_RSV_OK on a Talker Failed: STREAMING_WAIT saved, REGISTERING_FAILED 1 (Table 5.39)
+[ok] mutant acmp-probe-before-response (acmp): 68 check(s) failed
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 BIND_RX_RESPONSE is Table 5.32 field by field
+[ok] mutant acmp-nothing-persisted (acmp, acmpnvm): 32 check(s) failed
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 the binding is saved (5.5.2.4)
+[ok] mutant acmp-sw-read-from-fast-connect (acmp): 16 check(s) failed
+    first: [FAIL] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed: A2 SETTLED_RSV_OK on a Talker Failed: STREAMING_WAIT saved, REGISTERING_FAILED 1 (Table 5.39)
+[ok] mutant acmp-unknown-sink-silent (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId: A2 a command for a sink the entity lacks is answered, msg 6
+[ok] mutant acmp-unbind-keeps-discovery (acmp, acmpwalk): 17 check(s) failed
+    first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 then UNBOUND, binding cleared, nothing running, in state 1
+[ok] mutant acmp-lock-refuses-the-holder (acmp): 9 check(s) failed
+    first: [FAIL] AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked: A4 the locking controller binds
+[ok] mutant acmp-bind-new-keeps-srp (acmp, acmpwalk): 5 check(s) failed
+    first: [FAIL] AcmpCore.A6BindAnotherSourceRestartsTheSink: A6 SRP is stopped and its parameters cleared only when settled (5.5.3.5.37, .43), state 6
+[ok] mutant acmp-response-keyed-on-the-source (acmp): 5 check(s) failed
+    first: [FAIL] AcmpCore.A7ResponsesKeyOnTheListenerUniqueId: A7 the response belongs to the sink its listener_unique_id names, not to every sink probing that source
+[ok] mutant acmp-guard-sequence-id-dropped (acmp, acmpwalk): 10 check(s) failed
+    first: [FAIL] AcmpCore.A7EachGuardTermIsChecked: A7 a response with another controller, talker, talker_unique_id or sequence_id is ignored (5.5.3.5.18 step 1)
+[ok] mutant acmp-no-tk-1s (acmp, acmpwalk): 15 check(s) failed
+    first: [FAIL] AcmpCore.A8SuccessSettles: A8 TMR_NO_RESP stopped and TMR_NO_TK 10 s started
+[ok] mutant acmp-failure-retries-at-200ms (acmp, acmpwalk): 11 check(s) failed
+    first: [FAIL] AcmpCore.A9FailureWaitsForTheRetry: A9 and TMR_RETRY 4 s
+[ok] mutant acmp-retry-ignores-discovery (acmp, acmpwalk): 14 check(s) failed
+    first: [FAIL] AcmpCore.A11RetryWaitsForTheTalkerOrDelays: A11 TMR_RETRY, talker discovered: TMR_DELAY 0 to 1 s, PRB_W_DELAY (5.5.3.5.30 step 2)
+[ok] mutant acmp-reprobe-ignores-discovery (acmp, acmp, acmpwalk): 16 check(s) failed
+    first: [FAIL] AcmpCore.A13NoTalkerAttributeReprobes: A13 talker discovered: TMR_DELAY, PRB_W_DELAY, ACTIVE, status 0 (step 3)
+[ok] mutant acmp-unregistered-anywhere (acmp, acmpwalk): 27 check(s) failed
+    first: [FAIL] AcmpCore.A15UnregisteredReprobes: A15 EVT_TK_UNREGISTERED anywhere else is Table 5.30's x, state 0
+[ok] mutant acmp-unregistered-keeps-srp (acmp, acmpwalk): 3 check(s) failed
+    first: [FAIL] AcmpCore.A15UnregisteredReprobes: A15 EVT_TK_UNREGISTERED, talker not discovered: SRP stopped, PRB_W_AVAIL (5.5.3.5.48 steps 1, 2)
+[ok] mutant acmp-expiry-takes-every-interface (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 an expiry takes the due timers only, of its own interface's sinks
+[ok] mutant acmp-seed-at-every-draw (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A18TheSeedIsTakenAtTheFirstDraw: A18 and never again
+[ok] mutant acmp-probe-tx-any-interface (acmp, acmpwalk): 4 check(s) failed
+    first: [FAIL] AcmpCore.A20ProbeTxIsAnsweredFromTheSource: A20 a probe from another interface than the source's: INCOMPATIBLE_REQUEST (5.5.4.1 step 2, Table 5.41)
+[ok] mutant acmp-get-tx-state-echoes-the-listener (acmp, acmpwalk): 4 check(s) failed
+    first: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 GET_TX_STATE: listener fields 0, cc 0, REGISTERING_FAILED live, the stream (Table 5.47)
+[ok] mutant acmp-every-listener-is-this-one (acmp): 8 check(s) failed
+    first: [FAIL] AcmpCore.A21MessagesNotForThisEntityAreIgnored: A21 commands for another listener or talker, every response but PROBE_TX_RESPONSE and the reserved types are ignored (5.5.3.1, 8.2.1.9, 8.2.1.10)
+[ok] mutant acmp-discovery-reads-no-grandmaster (acmp, acmpwalk): 22 check(s) failed
+    first: [FAIL] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches: A22 TK_NOT_DISCOVERED: an AVAILABLE from another grandmaster is ignored (5.6.4.5.1 step 1)
+[ok] mutant acmp-restart-on-a-smaller-index-only (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 available_index 700 <= last: EVT_TK_DEPARTED then EVT_TK_DISCOVERED, the index noted (5.6.4.5.2 steps 2a, 2c, 3)
+[ok] mutant acmp-departing-taken-undiscovered (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A22DepartingAndAging: A22 a DEPARTING in TK_NOT_DISCOVERED is ignored (Table 5.54 -)
+[ok] mutant acmp-discovery-on-every-interface (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface: A22 every bound sink of the talker processes it (5.6.4.1), only on the interface it arrived on
+[ok] mutant acmp-reentry-unguarded (acmp, acmp): 66 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 0
+[ok] mutant acmp-gptp-port-unflagged (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 2 is guarded
+[ok] mutant acmp-source-port-unflagged (acmp): 6 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 6 is guarded
+[ok] mutant acmp-restore-lands-in-prb-w-resp (acmp, acmpnvm): 20 check(s) failed
+    first: [FAIL] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail: A22 EVT_TK_DISCOVERED in PRB_W_AVAIL: TMR_DELAY 0 to 1 s, PRB_W_DELAY, ACTIVE (5.5.3.5.9)
+[ok] mutant acmp-record-unique-id-little-endian (acmp): 4 check(s) failed
+    first: [FAIL] AcmpCore.A24ARestoredBindingFastConnects: A24 the latch gives the same record back
+[ok] mutant acmp-started-not-saved (acmp, acmpnvm): 8 check(s) failed
+    first: [FAIL] AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink: A19 a change of the last sink is reported at once
+[ok] mutant acmp-frames-on-the-adp-channel (acmp): 29 check(s) failed
+    first: [FAIL] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder: B1 the response, then the probe, on the acmp channel, 70 bytes each, in commit order
+[ok] mutant acmp-tag-reused (acmp): 2 check(s) failed
+    first: [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 the expiry of a replaced arm carries its old tag and is discarded; the new arm stands, interface 0
+[ok] mutant acmp-no-tap (acmp, acmp): 34 check(s) failed
+    first: [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 the expiry of a replaced arm carries its old tag and is discarded; the new arm stands, interface 0
+[ok] mutant acmp-attach-ignores-poll-room (acmp): 1 check(s) failed
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a loop with no room for the poll is refused
+[ok] mutant acmp-get-rx-state-reads-the-clock (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.CommandPortBudgets: GET_RX_STATE needs no clock
+[ok] mutant acmp-expiry-reads-the-clock-twice (acmp, acmp): 14 check(s) failed
+    first: [FAIL] AcmpCore.TimerPortBudgets: timer clock budget for state PRB_W_DELAY
+[ok] mutant acmp-smallest-record-overstated (acmp): 3 check(s) failed
+    first: [FAIL] AcmpMailbox.K7TheRedeliveryTakesAFullRingInThePassThatSends:     Which is: 18
+[ok] mutant rx-one-record-per-pass (acmp, acmp): 8 check(s) failed
+    first: [FAIL] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound: F2 every acmp record is taken by ACMP_MBX_RX_PASSES
+[ok] mutant acmp-no-tk-samples-the-grandmaster (acmp): 3 check(s) failed
+    first: [FAIL] AcmpCore.TimerPortBudgets: timer expiry never samples the grandmaster in SETTLED_NO_RSV
+[ok] mutant acmp-bind-response-always-streaming-wait (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A1BindWithoutStreamingWaitBindsStarted: A1 a bind without STREAMING_WAIT lands started (IEEE 1722.1-2021 7.4.35)
+[ok] mutant acmp-adp-short-frame-taken (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A22OtherAdpFramesAreIgnored: A22 a short ADPDU, a DISCOVER, another subtype or EtherType, or an unknown interface is not discovery's
+[ok] mutant acmp-frames-to-the-own-mac (acmp, acmp): 6 check(s) failed
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 every frame goes to the ACMP multicast address from the interface's MAC, cdl 44 (8.2.1, 5.5.2.2)
+[ok] mutant acmp-nvm-refusal-applied (acmpnvm, acmpnvm): 4 check(s) failed
+    first: [FAIL] AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault: N5 a binding record of a sink the configuration lacks is refused (nvm_state.h REFUSED), the walk goes on
+[ok] mutant acmp-nvm-release-dropped (acmpnvm): 1 check(s) failed
+    first: [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 every other group, settle, the D3 roll-back and the release go to the other owners unchanged
+[ok] mutant acmp-poll-drains-everything (acmp, acmp): 170 check(s) failed
+    first: [FAIL] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits: A19 one frame per poll: the probe is still owed after the response
+[ok] mutant acmp-first-owed-releases-every-change (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether: A19 the bind's response left but the unbind's is still owed: the sink's change still waits
+[ok] mutant acmp-kept-dropped (acmp, acmp): 36 check(s) failed
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the first command behind the full owed set is declined once and kept, the second left in the ring
+[ok] mutant acmp-kept-offered-on-a-refused-poll (acmp): 10 check(s) failed
+    first: [FAIL] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem: C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0
+[ok] mutant acmp-redelivery-takes-no-waiting-record (acmp): 4 check(s) failed
+    first: [FAIL] AcmpMailbox.K4ACommandBehindFramesThatNeedNoAnswerKeepsItsPass: K4 the command behind two frames that need no answer in pass n + 1 + f, f = 1, ahead of the timer probe that falls due in the third pass
+[ok] mutant acmp-redelivery-records-uncounted (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.K7TheRedeliveryTakesAFullRingInThePassThatSends: K7 the kept command and the full ring behind it are taken, and counted, in the pass that sends
+[ok] mutant acmp-version-bits-misread (acmp): 10 check(s) failed
+    first: [FAIL] AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead: A26 a BIND_RX of AVTP version 1 binds nothing, calls no port, counts as malformed
+[ok] mutant acmp-owed-probe-no-resp-2s (acmp): 22 check(s) failed
+    first: [FAIL] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves: A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send
+[ok] mutant acmp-probe-timer-before-its-send (acmp, acmp): 16 check(s) failed
+    first: [FAIL] AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend: A30 the probe taken at once: TMR_NO_RESP 200 ms from the clock after its send
+[ok] mutant acmp-held-timer-armed (acmp): 15 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 and the outer call completes as if it had not been made: TMR_NO_RESP held for the owed probe, entry 0
+[ok] mutant acmp-slot-narrowed-first (acmp): 2 check(s) failed
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a first slot of 256 is refused: past the bank, wrapping the sum, or truncating to a slot
+[ok] mutant acmp-gptp-of-interface-0 (acmpif2): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.B6TheGrandmasterIsTheInterfaces: B6 one from interface 1's grandmaster and domain is taken
+[ok] mutant acmp-nvm-d3-rollback-drops-bindings (acmpnvm, acmpnvm): 4 check(s) failed
+    first: [FAIL] AcmpStore.N7AD3RollBackKeepsTheBindings: N7 and leaves the applied binding as the binding walk left it: bound, PRB_W_AVAIL, discovery running
+[ok] mutant acmp-no-resp-deadline-saturates (acmp): 5 check(s) failed
+    first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_NO_RESP armed 100 ms before the wrap ends 100 ms after it
+[ok] mutant acmp-no-adp-deadline-saturates (acmp): 4 check(s) failed
+    first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_DELAY: nothing before its deadline
+[ok] mutant acmp-admit-on-interface-0 (acmp, acmpif2): 13 check(s) failed
+    first: [FAIL] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker: A29 sink 2's talker on interface 1
+[ok] mutant acmp-open-unguarded (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 10
+[ok] mutant mbx-bound-unguarded (unit): 3 check(s) failed
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 an interface past the contract's is refused
+[ok] mutant mbx-bound-halves-swapped (unit, acmp): 17 check(s) failed
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 BOUND_EID_LO holds talker[31:0]
+[ok] mutant model-bound-low-word-only (model): 4 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers: Q12 an entity_id differing from the entry in [63:32] only: no RX record, no delivery
+[ok] mutant model-bound-en-reads-the-eid (model): 1 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks: R1 each bound-talker entry keeps BOUND_EID's every bit and BOUND_EN's EN only, per interface and entry
+[ok] mutant app-maap-before-acmp (acmp, acmp): 4 check(s) failed
+    first: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 ADP, then ACMP, then MAAP attach, each with its sink and its poll
+[ok] mutant app-maap-preferred-unchecked (acmp, maap): 6 check(s) failed
+    first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 a preferred range below the B.4 pool is refused
+[ok] mutant app-acmp-refusal-ignored (acmp, acmp): 8 check(s) failed
+    first: [FAIL] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract: U5 an ACMP configuration the module refuses fails the composition
+[ok] mutant app-maap-mac-per-interface (acmpif2): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 MAAP sends from its own unicast MAC, where a DEFEND is admitted, interface 1
+[ok] mutant maap-down-start-keeps-owner (maap): 1 check(s) failed
+    first: [FAIL] MaapCore.ReleaseLossAndRetry: starting down withdraws the prior owner
+[ok] mutant maap-wire-version (maap): 13 check(s) failed
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions: B.2 complete PROBE bytes
+[ok] mutant maap-constant-probe_base (maap): 4 check(s) failed
+    first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed: probe base interval
+[ok] mutant maap-seed-clock-ignored (maap): 6 check(s) failed
+    first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed: clock seed spans the probe interval
+[ok] mutant maap-defend-multicast (maap): 8 check(s) failed
+    first: [FAIL] MaapCore.DefendEchoAndIntersection: echo request and exact intersection
+[ok] mutant maap-zero-count-conflicts (maap): 1 check(s) failed
+    first: [FAIL] MaapCore.DisjointAdjacentZeroAndDefendRange: half open intervals and zero count do not conflict
+[ok] mutant maap-malformed-version (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+[ok] mutant maap-malformed-cdl-truncated (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+[ok] mutant maap-malformed-destination (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+[ok] mutant maap-range-end-off-by-one (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.InitAndPreferredRangeBounds: range past pool end is refused
+[ok] mutant maap-allocation-before-commit (maap): 1 check(s) failed
+    first: [FAIL] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry: allocation waits for committed ANNOUNCE
+[ok] mutant maap-release-leaves-output (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.QueueBoundAndWithdrawal: release clears pending output
+[ok] mutant maap-selection-not-restored (maap): 1 check(s) failed
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate: selection restored
+[ok] mutant maap-crf-index-wrong (maap): 3 check(s) failed
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate:     Which is: 4026532104
+[ok] mutant maap-interface-zero (maap_if2): 5 check(s) failed
+    first: [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: record index selects state
+[ok] mutant maap-stall-unqueued (maap): 18 check(s) failed
+    first: [FAIL] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry:     Which is: 1
+[ok] mutant maap-table-b7-0 (maap): 3 check(s) failed
+    first: [FAIL] AllStates/MaapCell.TableB7/0: Table B.7 output count
+[ok] mutant maap-table-b7-4 (maap): 3 check(s) failed
+    first: [FAIL] AllStates/MaapCell.TableB7/4: Table B.7 output count
+[ok] mutant maap-table-b7-8 (maap): 9 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: B.2.3 recognized future and older messages
+[ok] mutant maap-table-b7-12 (maap): 15 check(s) failed
+    first: [FAIL] MaapCore.DefendEchoAndIntersection: echo request and exact intersection[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+
+[ok] mutant maap-table-b7-16 (maap): 3 check(s) failed
+    first: [FAIL] AllStates/MaapCell.TableB7/16: Table B.7 output count
+[ok] mutant maap-begin-down-forgets-range (maap): 3 check(s) failed
+    first: [FAIL] MaapCore.BeginBeforePortOperationalRetainsRange: Begin supplied range survives port down
+[ok] mutant maap-csr-select-listener (maap): 7 check(s) failed
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate: stream destination base plus index
+[ok] mutant maap-generic-probe-state-defends (maap): 32 check(s) failed
+    first: [FAIL] MaapCore.ReverseOctetPriority: least significant octet decides first
+[ok] mutant mover-receive-error-trusted (unit): 3 check(s) failed
+    first: [FAIL] MbxDma.R2AMoveEndingInErrorResynchronises: R2 a move that ends in ERR leaves no record
+[ok] mutant mover-move-not-held-its-own (unit): 19 check(s) failed
+    first: [FAIL] MbxDma.T1AFrameOnAWordIsMovedAndCommitted: T1 the mover is started once, 60 bytes
+[ok] mutant mover-fan-end-keeps-a-completion-for-a-walk-left-owed (unit): 2 check(s) failed
+    first: [FAIL] MbxDma.T6AWalkLeftOwedKeepsNoCompletion: T6 fan_end of a walk left owed after a mid-walk loss keeps no completion
+[ok] mutant mover-error-ignored (unit, unit): 42 check(s) failed
+    first: [FAIL] MbxDma.R2AMoveEndingInErrorResynchronises: R2 a move that ends in ERR leaves no record
+[ok] mutant plat-policy-writes-reordered (plat): 2 check(s) failed
+    first: [FAIL] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder: C2 configure_fabric's writes, in its order, from the policy
+[ok] mutant plat-status-pair-high-first (plat): 2 check(s) failed
+    first: [FAIL] Plat.C3StatusIsReadInMilanStatusOrder: C3 each pair low then high, the gPTP half first
+[ok] mutant plat-tod-torn-printed (plat): 2 check(s) failed
+    first: [FAIL] Plat.K2MilanGettimeAnswersTaiNs: K2 a torn read prints no number
+[ok] mutant plat-dec-leading-zeros (plat): 8 check(s) failed
+    first: [FAIL] Plat.K1MilanStatusAnswersTheGradersLines: K1 milan_status's lines, field for field
+[ok] mutant plat-rx-unbounded (plat): 4 check(s) failed
+    first: [FAIL] Plat.K4EachPassIsBounded: K4 a full slice of input is owed another pass
+[ok] mutant plat-slice-not-owed (plat): 13 check(s) failed
+    first: [FAIL] Plat.K3LinesEndOnceAndOthersAreRefused: K3 a line holding a NUL is no command
+[ok] mutant plat-lat-first-width-unchecked (plat): 5 check(s) failed
+    first: [FAIL] Plat.K9LatencyCommandFitsFifoAndRefusesLostDigits: K9 over-length or unequal fields are refused
+[ok] mutant plat-lat-answer-not-read-back (plat): 2 check(s) failed
+    first: [FAIL] Plat.K7MilanLatWritesThePairAndReadsItBack: K7 the answer is GPTP_LAT read back
+[ok] mutant app-adp-hold-ignored (platboot1, platboot1): 4 check(s) failed
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 ADP's first timer after the face commit
+[ok] mutant plat-mailbox-unchecked (platboot1): 3 check(s) failed
+    first: [FAIL] Boot.B5OtherContractStopsAtMailbox: B5 another contract stops the boot
+[ok] mutant plat-store-step-unbound (platboot1): 14 check(s) failed
+    first: [FAIL] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop: B10 the bind is written back by the store's service on the loop's tick
+wrote $SHARED_STORAGE/tmp/artysplit-a829-r11/final/temp/rtl-fast__firmware-control-mutants-leg3/ctrl-fw-bwj6uvio/mutants/work/build/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SHARED_STORAGE/tmp/artysplit-a829-r11/final/temp/rtl-fast__firmware-control-mutants-leg3/ctrl-fw-bwj6uvio/mutants/work/build/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $SHARED_STORAGE/tmp/artysplit-a829-r11/final/temp/rtl-fast__firmware-control-mutants-leg3/ctrl-fw-bwj6uvio/mutants/work/build/platboot-if2/contract/mbx_contract.h (2 interfaces)
+[ok] mutant plat-window-interface-ignored (platboot2): 3 check(s) failed
+    first: [FAIL] Boot.B3RefusedImageStopsAtImage: B3 after the policy and the one MAAP owner
+[ok] mutant plat-reboot-before-the-response (platboot1): 14 check(s) failed
+    first: [FAIL] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets: B11 every interface sends ENTITY_DEPARTING
+[ok] mutant plat-reboot-before-departing-left (platboot1): 3 check(s) failed
+    first: [FAIL] Boot.B12TheResetWaitsForTheResponseToLeave: B12 no reset while the mailbox holds ENTITY_DEPARTING
+[ok] mutant plat-reboot-hides-the-drain (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange: B16 the drain ends because the write completed, not at its deadline
+[ok] mutant plat-reboot-departs-before-the-rings-drain (platboot1, platboot1, platboot1): 27 check(s) failed
+    first: [FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 no ENTITY_DEPARTING while the ACMP ring holds a frame
+[ok] mutant plat-reboot-takes-aecp-frames-after-the-success (platboot1, platboot1): 12 check(s) failed
+    first: [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no AECP frame is taken after the REBOOT's SUCCESS
+[ok] mutant plat-reboot-departs-past-the-maap-ring (platboot1): 3 check(s) failed
+    first: [FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 no ENTITY_DEPARTING while the MAAP ring holds a frame
+[ok] mutant plat-phy-edge-not-counted (platboot1, platboot1): 52 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 the client owes a step while the PHY owes a frame
+[ok] mutant plat-map-partial-accepted (platmap): 3 check(s) failed
+    first: [FAIL] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_phy_mdio_w (exit 0)
+[ok] mutant plat-phy-beside-a-save-step (platboot1): 2 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 a call whose store takes a step of its save carries no PHY frame
+[ok] mutant plat-phy-frame-beside-the-extra-step (platboot1): 3 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 the yielding call leaves the store's step count unchanged
+[ok] mutant plat-phy-late-sample (platboot1): 152 check(s) failed
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a stage refused past the identity check keeps publishing the link
+[ok] mutant plat-phy-fault-ignored (platboot1): 1 check(s) failed
+    first: [FAIL] PlatPhy.P4ResolvedModesAreTheReleases: P4 a master-slave configuration fault is link down
+[ok] mutant plat-phy-not-owed (platboot1): 208 check(s) failed
+    first: [FAIL] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame: B12 the client owes a step while the PHY owes a frame
+[ok] mutant plat-phy-100base-tx-advertised (platboot1): 49 check(s) failed
+    first: [FAIL] PlatPhy.P3LatchedLossPublishesBothEdges: P3 the latched BMSR, then the current one
+[ok] mutant plat-phy-master-slave-dropped (platboot1): 2 check(s) failed
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 MASTER-SLAVE kept, first arm
+[ok] mutant plat-phy-boot-restarts-whatever-held (platboot1, platboot1): 14 check(s) failed
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 a PHY that holds the advertisement at boot is not restarted
+[ok] mutant plat-phy-10-100-written (platboot1): 13 check(s) failed
+    first: [FAIL] PlatPhy.P4ResolvedModesAreTheReleases: P4 an extended status without 1000BASE-T resolves from 4 and 5
+[ok] mutant plat-phy-lost-local-not-restarted (platboot1): 11 check(s) failed
+    first: [FAIL] PlatPhy.P14AResetPhyIsAdvertisedAgain: P14 a PHY that lost the advertisement is written and restarted once, register 4 alone
+[ok] mutant plat-phy-written-before-read (platboot1): 5 check(s) failed
+    first: [FAIL] PlatPhy.P16AnUnacknowledgedReadWritesNothing: P16 no write before its read: register 4 unacknowledged
+[ok] mutant plat-phy-outcome-count-wraps (platboot1): 1 check(s) failed
+    first: [FAIL] PlatPhy.P18OneRestartAPollUntilOneTakes: P18 the count saturates at 0xffff
+[ok] mutant plat-phy-held-ignores-bmcr (platboot1, platboot1): 28 check(s) failed
+    first: [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot's first poll restarts a forced PHY
+[ok] mutant plat-phy-forced-on-unadvertised (platboot1): 3 check(s) failed
+    first: [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 a PHY the advertisement is not for: the forced mode BMCR names, case 0[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+
+[ok] mutant mii-loss-not-latched (platmii): 3 check(s) failed
+    first: [FAIL] ArtyPhy.LatchedLossRechecksWithoutAnotherRestart: MII both link edges
+[ok] mutant mii-no-room-ignored (platmii): 1 check(s) failed
+    first: [FAIL] ArtyPhy.NoFrameWithoutStepBudget: MII no frame without room
+[ok] mutant step-before-the-polls (port): 2 check(s) failed
+    first: [FAIL] Loop.L11StepLastWithTheDeadlineReadAtTheStart: L11 after every poll
+[ok] mutant step-owed-lets-it-sleep (port): 1 check(s) failed
+    first: [FAIL] Loop.L11StepLastWithTheDeadlineReadAtTheStart: L11 a step still owed asks for the next pass at once
+[ok] mutant step-aged-pass-takes-input (port): 51 check(s) failed
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 and takes nothing else: no event, no record, no poll
+[ok] mutant step-age-kept-by-its-pass (port): 8 check(s) failed
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 (a pass that takes nothing runs the step)
+[ok] mutant retry-binds-twice (port): 2 check(s) failed
+    first: [FAIL] LoopBring.L15RetryBindingRefusals: L15 a second retry client is refused
+[ok] mutant retry-beside-a-centisecond (port): 2 check(s) failed
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 nor one that dispatches a centisecond, though it takes no input
+[ok] mutant retry-owed-lets-it-sleep (port): 1 check(s) failed
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 a retry still owed asks for the next pass at once
+[ok] mutant retry-aged-pass-sleeps (port): 10 check(s) failed
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 the step's pass asks for the next pass at once
+[ok] mutant retry-told-past-the-margin (port): 5 check(s) failed
+    first: [FAIL] Loop.L17AnAgedRetryIsAPassOfItsOwn: L17 a round in a pass of its own has a whole slice under the margin, with no clock
+[ok] mutant transmit-due-ignored (port): 11 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the build is read once as the pass starts, before it takes any input
+[ok] mutant transmit-pass-without-the-retry (port): 1 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the next pass calls the transmit though input waits, then an aged round: its ordinary pass before it left tier 1 holding nothing, so one slice, then tier 1 (THE TIERS)
+[ok] mutant tick-cap-in-every-pass (port): 32 check(s) failed
+    first: [FAIL] Loop.L2PerPassRxBound: L2 a pass takes at most CTRL_LOOP_RX_PER_PASS records of a channel
+[ok] mutant whole-row-beside-a-backlog (port): 2 check(s) failed
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 and no second while records wait and the client yields
+[ok] mutant backlog-never-cleared (port): 11 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 which leaves tier 1 holding nothing
+[ok] mutant spare-records-never-taken (port): 11 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a build owed comes before an aged step
+[ok] mutant rx-start-stays (port): 2 check(s) failed
+    first: [FAIL] Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting: L25 each pass starts one channel on
+[ok] mutant order-moved-past-events-left (port): 1 check(s) failed
+    first: [FAIL] Loop.L24ARecordFollowsOnlyTheEventsPostedBeforeIt: L24 a pass that leaves events keeps the order where it was
+[ok] mutant tier1-held-by-a-module-not-ready (port): 1 check(s) failed
+    first: [FAIL] Loop.L26TierOnesFirstChannelGoesFirst: L26 a first channel whose module is not ready holds the others back no longer
+[ok] mutant holds-a-module-not-ready (port): 4 check(s) failed
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 a tier-1 record whose module is not ready holds none back (THE TIERS)
+[ok] mutant first-notice-not-tier1 (port): 3 check(s) failed
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 a queue's first notice after that pass, though a record waits
+[ok] mutant slice-end-past-the-deadline (port): 1 check(s) failed
+    first: [FAIL] Loop.L27TierTwoRoundsComeAfterTheDrainInSlices: L27 a round in a pass that took nothing has a slice from its start, and never past the pass's deadline
+[ok] mutant f3b-composition-owner (acmp): 5 check(s) failed
+    first: [FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: composed mailbox publishes the accepted probe demand
+[ok] mutant f3b-listener-arm (maap): 17 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant f3b-expiry-refresh (maap): 3 check(s) failed
+    first: [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: last Listener withdrawal closes a gate without probe demand
+[ok] mutant link-up-draws-half-a-second (adp): 21 check(s) failed
+    first: [FAIL] AdpCore.A9DrawKinds: A9 the two kinds are distinct: the 0..4 s draws pass 2 s
+[ok] mutant link-loss-resets-the-index (adp): 1 check(s) failed
+    first: [FAIL] AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp: G1 each ENTITY_AVAILABLE carries the next available_index, across every link-up (6.2.2.15)
+[ok] mutant seed-one-round (adp): 7 check(s) failed
+    first: [FAIL] AdpCore.A22GeneratorNeverStuckAtZero: A22 a seed that mixes to zero starts the generator at 1
+[ok] mutant seed-end-around-carry-added (adp): 4 check(s) failed
+    first: [FAIL] AdpCore.A22GeneratorNeverStuckAtZero: A22 a seed that mixes to zero starts the generator at 1
+[ok] mutant link-up-not-sampled (adp, platboot1): 60 check(s) failed
+    first: [FAIL] AdpCore.A25FirstDrawsAreUniformOverSamples: A25 one host's first draws over neighbouring samples are uniform (6.2.4.2.2)
+[ok] mutant plat-clock-in-milliseconds (platboot1): 2 check(s) failed
+    first: [FAIL] Boot.B25TheAdpDrawIsSeededFromThePlatformsClock: B25 boots one microsecond apart in the clock's origin seed ADP's draw differently (#970)
+[ok] mutant sink-change-unfollowed (platsinks8): 18 check(s) failed
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 SET_STREAM_FORMAT's new format reaches input 7's context
+[ok] mutant sink-redo-unwritten (platsinks8, platsinks8): 8 check(s) failed
+    first: [FAIL] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce: S4 the change done again reaches input 7's context
+[ok] mutant sink-held-configuration-unchecked (platsinks8): 10 check(s) failed
+    first: [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 a SET_CONFIGURATION whose input was bound meanwhile is answered ENTITY_MISBEHAVING at the wait's bound
+[ok] mutant sink-configuration-unwritten (platsinks8): 8 check(s) failed
+    first: [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION rewrites every context at its format in force: input 1 holds none
+[ok] mutant sink-input-zero-written (plat, platsinks8): 7 check(s) failed
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not input 0
+[ok] mutant sink-other-configuration-written (plat): 2 check(s) failed
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not an input of a configuration not in force
+[ok] mutant sink-selection-not-restored (plat, platsinks8): 9 check(s) failed
+    first: [FAIL] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back
+[ok] mutant early-talker-ignored (platsinks8, platsinks1, platsinks8, platsinks1): 190 check(s) failed
+    first: [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 0
+[ok] mutant asking-failed-any-listener (platsinks8): 18 check(s) failed
+    first: [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 0, declaration 2
+[ok] mutant pin-adp-discovery-version (adp): 26 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsUnsupportedDiscoveryVersions: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pin-adp-long-discovery (adp): 31 check(s) failed
+    first: [FAIL] AdpAdapter.PinAcceptsLongDiscoveryThroughMailbox: a longer discovery restarts advertising through the mailbox
+[ok] mutant pub-domain-priority-and-vid-swapped (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SR_DOMAIN holds VID, PRIORITY and ADOPTED in their fields
+[ok] mutant pub-started-in-the-bound-bit (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SID_VALID is clear while the stream_id is written, and set after it
+[ok] mutant model-pub-hole-takes-a-write (model): 3 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P1 DA_GATE keeps OPEN, LICENCE ACTIVE, IDLE_SLOPE every bit, SR_DOMAIN VID, PRIORITY and ADOPTED, TALKER_DECL DECLARED, BINDING BOUND, SID_VALID and STARTED only, per interface and sink
+[ok] mutant model-face-window-tag-ignored (model): 12 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Face: F4 CTR an answer under another tag is discarded: still BUSY, no DATA
+[ok] mutant model-face-avb-change-dropped (model): 3 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Face: F8 one face event posts its record, on its interface, with COUNT 1 and NOW_MS
+[ok] mutant pub-acmp-after-the-response (acmp, acmp): 16 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 the binding is published before the BIND_RX response
+[ok] mutant pub-acmp-every-sink-every-entry (acmp): 12 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 a BIND_RX publishes the sink's binding once
+[ok] mutant pub-acmp-started-after-the-response (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised: A31 the started move is published before the BIND_RX response
+[ok] mutant pub-acmp-adapter-rewrites-the-stream (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream: B12 a started move is one write to the sink's entry, interface 0
+[ok] mutant pub-maap-gate-skipped (maap): 25 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-sources-past-the-block (maap): 1 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate: more sources than the publication block has are refused
+mutants: 220 of 220 caught
+test_ctrl_firmware: PASS

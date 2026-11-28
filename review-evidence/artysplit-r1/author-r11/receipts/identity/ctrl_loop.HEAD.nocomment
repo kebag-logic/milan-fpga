@@ -1,0 +1,193 @@
+#ifndef CTRL_LOOP_H
+#define CTRL_LOOP_H 
+#include <stdbool.h>
+#include <stdint.h>
+#include "mbx.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
+#define CTRL_LOOP_MAX_SINKS 8u
+#define CTRL_LOOP_MAX_TICKS 4u
+#define CTRL_LOOP_MAX_POLLS 8u
+#define CTRL_LOOP_EVENTS_PER_PASS 8u
+#define CTRL_LOOP_RX_PER_PASS 2u
+#define CTRL_LOOP_TICKS_PER_PASS 16u
+#define CTRL_LOOP_RX_PER_TICK_PASS 1u
+#define CTRL_LOOP_DRAIN_RECORDS 12u
+#define CTRL_LOOP_DRAIN_US 1300u
+#ifdef CTRL_SRP_SOURCES
+#define CTRL_LOOP_SOURCES CTRL_SRP_SOURCES
+#define CTRL_LOOP_SINKS CTRL_SRP_SINKS
+#else
+#define CTRL_LOOP_SOURCES 2u
+#define CTRL_LOOP_SINKS 2u
+#endif
+#define CTRL_LOOP_SHAPE(n_if,sources,sinks) \
+ (MBX_N_IF == (n_if) && CTRL_LOOP_SOURCES == (sources) && CTRL_LOOP_SINKS == (sinks))
+#if CTRL_LOOP_SHAPE(1u, 2u, 2u)
+#define CTRL_LOOP_SLICE_US 950u
+#define CTRL_LOOP_BUILD_PASS_US 1010u
+#define CTRL_LOOP_BUILD_ONE_PASS_US 735u
+#define CTRL_LOOP_SRP_UNIT_US 285u
+#define CTRL_LOOP_RETRY_COLD_US 85u
+#define CTRL_LOOP_RETRY_ATTEMPT_US 34u
+#define CTRL_LOOP_QUEUED_MS 130u
+#define CTRL_LOOP_TX_MS 35u
+#elif CTRL_LOOP_SHAPE(1u, 9u, 9u)
+#define CTRL_LOOP_SLICE_US 1475u
+#define CTRL_LOOP_BUILD_PASS_US 1795u
+#define CTRL_LOOP_BUILD_ONE_PASS_US 1475u
+#define CTRL_LOOP_SRP_UNIT_US 375u
+#define CTRL_LOOP_RETRY_COLD_US 165u
+#define CTRL_LOOP_RETRY_ATTEMPT_US 25u
+#define CTRL_LOOP_QUEUED_MS 130u
+#define CTRL_LOOP_TX_MS 77u
+#elif CTRL_LOOP_SHAPE(2u, 2u, 2u)
+#define CTRL_LOOP_SLICE_US 1300u
+#define CTRL_LOOP_BUILD_PASS_US 1995u
+#define CTRL_LOOP_BUILD_ONE_PASS_US 1215u
+#define CTRL_LOOP_SRP_UNIT_US 365u
+#define CTRL_LOOP_RETRY_COLD_US 185u
+#define CTRL_LOOP_RETRY_ATTEMPT_US 34u
+#define CTRL_LOOP_QUEUED_MS 62u
+#define CTRL_LOOP_TX_MS 105u
+#elif CTRL_LOOP_SHAPE(2u, 9u, 9u)
+#define CTRL_LOOP_SLICE_US 1300u
+#define CTRL_LOOP_BUILD_PASS_US 1995u
+#define CTRL_LOOP_BUILD_ONE_PASS_US 1215u
+#define CTRL_LOOP_SRP_UNIT_US 365u
+#define CTRL_LOOP_RETRY_COLD_US 185u
+#define CTRL_LOOP_RETRY_ATTEMPT_US 34u
+#define CTRL_LOOP_QUEUED_MS 62u
+#define CTRL_LOOP_TX_MS 105u
+#elif CTRL_LOOP_SHAPE(1u, 1u, 2u)
+#define CTRL_LOOP_SLICE_US 1250u
+#define CTRL_LOOP_BUILD_PASS_US 1035u
+#define CTRL_LOOP_BUILD_ONE_PASS_US 660u
+#define CTRL_LOOP_SRP_UNIT_US 300u
+#define CTRL_LOOP_RETRY_COLD_US 130u
+#define CTRL_LOOP_RETRY_ATTEMPT_US 30u
+#define CTRL_LOOP_QUEUED_MS 125u
+#define CTRL_LOOP_TX_MS 35u
+#define CTRL_LOOP_STEP_PASS_US 1060u
+#define CTRL_LOOP_TICK_US 160u
+#define AECP_NOTICE_US 230u
+#define AECP_PACE_MS 10u
+#else
+#error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+#endif
+#define CTRL_LOOP_WHOLE_RUN (MBX_N_IF == 1u ? 3u : 4u)
+#define CTRL_LOOP_T_SVC_MS 20u
+#define CTRL_LOOP_SHARE_PASSES 10u
+#define CTRL_LOOP_SHARE_US (1000u * CTRL_LOOP_T_SVC_MS / CTRL_LOOP_SHARE_PASSES)
+#define CTRL_LOOP_SHARE_MARGIN_US 65u
+#define CTRL_LOOP_STEP_AGE 2u
+#ifndef CTRL_LOOP_STEP_PASS_US
+#define CTRL_LOOP_STEP_PASS_US (MBX_N_IF == 1u ? 975u : 1030u)
+#endif
+#define CTRL_LOOP_BUILD_MOST (CTRL_LOOP_SLICE_US >= CTRL_LOOP_BUILD_PASS_US ? 2u : 1u)
+#define CTRL_LOOP_JOIN_CS 19u
+#define CTRL_LOOP_T_INGRESS_MS 1u
+#define CTRL_LOOP_T_EGRESS_MS 1u
+#define CTRL_LOOP_TX_BOUND_MS (240u - 10u * CTRL_LOOP_JOIN_CS - CTRL_LOOP_T_EGRESS_MS)
+#ifndef CTRL_LOOP_TICK_US
+#define CTRL_LOOP_TICK_US 430u
+#endif
+#define CTRL_LOOP_EVT_BACKLOG (MBX_EVT_WORDS / MBX_EV_WORDS)
+#define CTRL_LOOP_RX_MIN_RECORD_WORDS (MBX_RX_HDR_WORDS + 4u)
+#define CTRL_LOOP_RX_BACKLOG(rx_words) ((rx_words) / CTRL_LOOP_RX_MIN_RECORD_WORDS)
+#define CTRL_LOOP_EVT_PASSES \
+ ((CTRL_LOOP_EVT_BACKLOG + CTRL_LOOP_EVENTS_PER_PASS - 1u) / CTRL_LOOP_EVENTS_PER_PASS)
+#define CTRL_LOOP_RX_PASSES(rx_words) \
+ ((CTRL_LOOP_RX_BACKLOG(rx_words) + CTRL_LOOP_RX_PER_PASS - 1u) / CTRL_LOOP_RX_PER_PASS)
+typedef void (*ctrl_rx_fn)(void *ctx, const struct mbx_frame *f);
+typedef void (*ctrl_event_fn)(void *ctx, const struct mbx_event *ev);
+typedef void (*ctrl_tick_fn)(void);
+typedef bool (*ctrl_poll_fn)(void *ctx);
+typedef bool (*ctrl_step_fn)(void *ctx, uint32_t deadline);
+typedef uint32_t (*ctrl_clock_fn)(void *ctx);
+typedef bool (*ctrl_retry_fn)(void *ctx, unsigned left_us);
+typedef bool (*ctrl_retry_aged_fn)(void *ctx);
+typedef void (*ctrl_transmit_fn)(void *ctx, unsigned most);
+typedef bool (*ctrl_transmit_aged_fn)(void *ctx);
+struct ctrl_loop_rx {
+ bool (*ready)(void *ctx);
+ ctrl_rx_fn fn;
+ void *ctx;
+};
+struct ctrl_loop_sink {
+ ctrl_event_fn fn;
+ void *ctx;
+};
+struct ctrl_loop_poll {
+ ctrl_poll_fn fn;
+ void *ctx;
+};
+struct ctrl_loop_stats {
+ uint32_t passes;
+ uint32_t events;
+ uint32_t rx_records;
+ uint32_t rx_bad;
+ uint32_t ticks;
+ uint32_t owed_passes;
+ uint32_t aged_passes;
+ uint32_t retry_passes;
+ uint32_t transmit_passes;
+};
+struct ctrl_loop {
+ struct ctrl_loop_rx rx[MBX_N_CH];
+ struct ctrl_loop_sink sinks[CTRL_LOOP_MAX_SINKS];
+ unsigned n_sinks;
+ ctrl_tick_fn ticks[CTRL_LOOP_MAX_TICKS];
+ unsigned n_ticks;
+ struct ctrl_loop_poll polls[CTRL_LOOP_MAX_POLLS];
+ unsigned n_polls;
+ ctrl_step_fn step;
+ void *step_ctx;
+ ctrl_clock_fn clock;
+ void *clock_ctx;
+ ctrl_retry_fn retry;
+ ctrl_retry_aged_fn retry_aged;
+ void *retry_ctx;
+ struct mbx_frame frame;
+ uint32_t ticks_owed;
+ uint32_t step_age;
+ struct ctrl_loop_stats stats;
+ ctrl_transmit_fn transmit;
+ ctrl_transmit_aged_fn transmit_aged;
+ void *transmit_ctx;
+ uint32_t rx_cap;
+ uint32_t run;
+ uint32_t whole;
+ bool backlog;
+ bool retry_firm;
+ bool retry_queued;
+ unsigned drain_ch;
+ bool events_left;
+ uint16_t rx_order;
+ unsigned rx_from;
+ bool rx_held;
+ unsigned first_ch;
+ bool retry_first;
+ bool round_one;
+ bool tier1_done;
+ bool drained;
+ uint32_t rx_left;
+};
+void ctrl_loop_init(struct ctrl_loop *l);
+bool ctrl_loop_bind_rx(struct ctrl_loop *l, unsigned ch, ctrl_rx_fn fn, void *ctx);
+void ctrl_loop_set_rx_ready(struct ctrl_loop *l, unsigned ch, bool (*ready)(void *ctx));
+bool ctrl_loop_add_sink(struct ctrl_loop *l, ctrl_event_fn fn, void *ctx);
+bool ctrl_loop_add_tick(struct ctrl_loop *l, ctrl_tick_fn fn);
+bool ctrl_loop_add_poll(struct ctrl_loop *l, ctrl_poll_fn fn, void *ctx);
+bool ctrl_loop_set_step(struct ctrl_loop *l, ctrl_step_fn fn, void *ctx, ctrl_clock_fn clock, void *clock_ctx);
+bool ctrl_loop_set_retry(struct ctrl_loop *l, ctrl_retry_fn fn, ctrl_retry_aged_fn aged, void *ctx);
+bool ctrl_loop_set_transmit(struct ctrl_loop *l, ctrl_transmit_fn fn, ctrl_transmit_aged_fn aged, void *ctx);
+bool ctrl_loop_open(struct ctrl_loop *l, uint64_t entity_id, const uint64_t own_mac[MBX_N_IF]);
+unsigned ctrl_loop_service(struct ctrl_loop *l);
+void ctrl_loop_step(struct ctrl_loop *l);
+void ctrl_loop_run(struct ctrl_loop *l);
+#ifdef __cplusplus
+}
+#endif
+#endif

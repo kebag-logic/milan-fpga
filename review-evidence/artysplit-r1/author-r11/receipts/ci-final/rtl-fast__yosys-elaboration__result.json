@@ -1,0 +1,62 @@
+{
+ "job": "rtl-fast/yosys-elaboration",
+ "status": "success",
+ "steps": [
+  {
+   "step": 1,
+   "name": "Set CPU-derived job budgets",
+   "rc": 0,
+   "seconds": 0
+  },
+  {
+   "step": 2,
+   "name": "Fetch RTL dependencies",
+   "status": "not run (setup or evidence)"
+  },
+  {
+   "step": 4,
+   "name": "Install the pinned Yosys and prove the version",
+   "status": "not run (setup or evidence)"
+  },
+  {
+   "step": 6,
+   "name": "Install the pinned sv2v release",
+   "status": "not run (setup or evidence)"
+  },
+  {
+   "step": 7,
+   "name": "Elaborate the integration-heavy tops",
+   "rc": 0,
+   "seconds": 167
+  },
+  {
+   "step": 8,
+   "name": "Prove the OOC read sets come from run.sh and refuse a bad one",
+   "rc": 0,
+   "seconds": 575
+  },
+  {
+   "step": 9,
+   "name": "Prove ooc.sh generates the ROMs and fails on a failed top",
+   "rc": 0,
+   "seconds": 25
+  },
+  {
+   "step": 10,
+   "name": "Prove both synthesis flows refuse active elaboration guards",
+   "rc": 0,
+   "seconds": 27
+  },
+  {
+   "step": 11,
+   "name": "Prove the result cache refuses a planted entry",
+   "rc": 0,
+   "seconds": 55
+  },
+  {
+   "step": 12,
+   "name": "Record actual job execution",
+   "status": "not run (setup or evidence)"
+  }
+ ]
+}
