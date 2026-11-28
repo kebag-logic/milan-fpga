@@ -27,6 +27,7 @@ from pathlib import Path
 
 import arm_path
 import declaring_outputs
+import egress_mii
 import notice_window
 import observers
 import talker_notice
@@ -696,6 +697,7 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
               'inline const char* const entry_name[n_entries] = {'
               + ', '.join(f'"{name}"' for name in entries) + '};', *observers.owner_lines(entries, table, paths)]
     lines += trace_lines(table, Path(spec['elf']), modules)
+    lines += egress_mii.header_lines(spec)
     journal = json.loads((Path(spec['flash_map']) / 'flash_port.json').read_text())['journal']
     lines += [f"constexpr std::uint32_t journal_offset = 0x{journal['offset']:x}u;",
               f"constexpr std::uint32_t journal_size = 0x{journal['size']:x}u;"]
@@ -837,7 +839,8 @@ def run_inputs(build_dir: Path, spec: dict) -> list[Path]:
     return [Path(spec['elf']), *([Path(spec['flash_image'])] if spec.get('flash_image') else []),
             *[Path(spec['flash_map']) / name for name in FLASH_MAP_FILES],
             *sorted((build_dir / 'runtime').glob('*.a')), *sorted(gateware.glob('*.init')),
-            build_dir / 'budget_config.hpp', HERE / 'sim_main.cpp', HERE / 'observe.vlt', SIBLING / 'flash.hpp',
+            build_dir / 'budget_config.hpp', HERE / 'sim_main.cpp', HERE / 'egress_queue.hpp', HERE / 'observe.vlt',
+            SIBLING / 'flash.hpp',
             *[Path(s) for s in spec['sources']]]
 
 

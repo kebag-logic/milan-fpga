@@ -5,7 +5,9 @@
 Usage: python3 receipt_regrade.py PACKET [--case VARIANT/GROUP]
 The packet's census.json lists case manifests. Each manifest binds the full
 local log's size and hash, the extracted observations, the scenario, the
-original grade and any saved-state journal. Parts are text, below 190 KB.
+original grade and any saved-state journal. Parts are text, below 190 KB, or
+in a compact census extract (census_extract.py) at most the part_limit its
+census.json states, never 15 MB.
 The full-log hash is provenance; the extract alone cannot prove omitted bytes.
 """
 from __future__ import annotations
@@ -28,7 +30,12 @@ def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def read_parts(directory: Path, record: dict) -> bytes:
+#: A part's size limit: below 190 KB in a packet, at most 15 MB in a compact census extract whose census.json states
+#: its own part_limit (census_extract.py).
+PART_LIMIT, EXTRACT_PART_LIMIT = 190_000, 15_000_000
+
+
+def read_parts(directory: Path, record: dict, limit: int = PART_LIMIT) -> bytes:
     """Reassemble numbered text parts, checking each and the whole."""
     chunks = []
     for part in record['parts']:
@@ -36,7 +43,7 @@ def read_parts(directory: Path, record: dict) -> bytes:
         if not path.resolve().is_relative_to(directory.resolve()):
             raise ValueError('receipt part escapes its directory')
         data = path.read_bytes()
-        if len(data) >= 190_000 or len(data) != part['bytes'] or sha(data) != part['sha256']:
+        if len(data) >= limit or len(data) != part['bytes'] or sha(data) != part['sha256']:
             raise ValueError(f'part integrity failure: {part["file"]}')
         data.decode('utf-8')
         chunks.append(data)
@@ -58,21 +65,21 @@ def group_from(data: dict) -> scenario.Group:
     return scenario.Group(**fields, probes=probes)
 
 
-def regrade(path: Path, staged: Path | None = None) -> dict:
+def regrade(path: Path, staged: Path | None = None, limit: int = PART_LIMIT) -> dict:
     """Reproduce one complete original grade from its primary observations."""
     manifest = json.loads(path.read_text())
     directory = path.parent
-    group = group_from(json.loads(read_parts(directory, manifest['group'])))
-    script = read_parts(directory, manifest['stimulus']).decode()
+    group = group_from(json.loads(read_parts(directory, manifest['group'], limit)))
+    script = read_parts(directory, manifest['stimulus'], limit).decode()
     if group.script() != script:
         raise ValueError('scenario differs from the recorded stimulus')
-    text = read_parts(directory, manifest['extract']).decode()
-    expected = json.loads(read_parts(directory, manifest['grade']))
+    text = read_parts(directory, manifest['extract'], limit).decode()
+    expected = json.loads(read_parts(directory, manifest['grade'], limit))
     with tempfile.TemporaryDirectory(prefix='receipt-') as tmp:
         journal = None
         if manifest.get('journal'):
             journal = Path(tmp) / 'journal.bin'
-            journal.write_bytes(bytes.fromhex(read_parts(directory, manifest['journal']).decode()))
+            journal.write_bytes(bytes.fromhex(read_parts(directory, manifest['journal'], limit).decode()))
         got = grade.grade(text, group, manifest['sys_hz'], manifest['cpu_hz'],
                           shape_costs.Shape(*manifest['shape']), journal)
     if json.loads(json.dumps(got)) != expected:
@@ -86,7 +93,7 @@ def regrade(path: Path, staged: Path | None = None) -> dict:
     return got
 
 
-def qualify(packet: Path, staged: Path, results: list[dict]) -> None:
+def qualify(packet: Path, staged: Path, results: list[dict], limit: int = PART_LIMIT) -> None:
     """Reapply the cross-case costs, record classes, ledger and owner bounds."""
     import arty_grade
     import declaring_outputs
@@ -111,7 +118,7 @@ def qualify(packet: Path, staged: Path, results: list[dict]) -> None:
         (directory / 'build.json').write_text(json.dumps(spec))
         legs.append(record_classes.read_leg(directory)[0])
         instances.extend(egress_ledger.from_results(directory))
-        groups = [group_from(json.loads(read_parts(path.parent, json.loads(path.read_text())['group'])))
+        groups = [group_from(json.loads(read_parts(path.parent, json.loads(path.read_text())['group'], limit)))
                   for path in sorted((packet / 'census' / directory.name).glob('*/manifest.json'))]
         found.extend(declaring_outputs.findings(spec, directory, groups))
         found.extend(line for group in groups for line in run.unstated(group))
@@ -181,6 +188,8 @@ def main() -> int:
     if args.timing_only:
         return 0
     census = json.loads((args.packet / 'census.json').read_text())
+    # A compact extract states its parts' largest size; a part reaching the limit is refused (read_parts).
+    limit = min(census['part_limit'] + 1, EXTRACT_PART_LIMIT) if 'part_limit' in census else PART_LIMIT
     rows = [r for r in census['cases'] if args.case is None or r['case'] == args.case]
     if not rows:
         parser.error('no selected cases')
@@ -191,12 +200,12 @@ def main() -> int:
             path = args.packet / row['manifest']
             if sha(path.read_bytes()) != row['sha256']:
                 raise ValueError(f'manifest integrity failure: {row["case"]}')
-            got = regrade(path, staged / row['case'].split('/')[0] if args.case is None else None)
+            got = regrade(path, staged / row['case'].split('/')[0] if args.case is None else None, limit)
             results.append(got)
             worst = max(worst, got['passes']['worst']['cycles'])
             print(f'PASS {row["case"]}: complete grade reproduced', flush=True)
         if args.case is None:
-            qualify(args.packet, staged, results)
+            qualify(args.packet, staged, results, limit)
     print(f'RESULT: PASS cases={len(rows)} worst_pass_cycles={worst}')
     return 0
 

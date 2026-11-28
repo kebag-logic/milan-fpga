@@ -1364,6 +1364,18 @@ FIRMWARE_BOUNDARY_JOB = "firmware-boundary"
 FIRMWARE_BOUNDARY_CAPTURE_JOB = "firmware-boundary-capture"
 FIRMWARE_BOUNDARY_LEGS = (0, 1)
 FIRMWARE_BOUNDARY_STRATEGY = {"fail-fast": True, "matrix": {"leg": list(FIRMWARE_BOUNDARY_LEGS)}}
+#: #1008: the fast jobs the generator (scripts/ci_fast_legs.py) runs as matrix legs, each with its leg count. Each
+#: leg runs on a runner of its own under GitHub's own fail-fast; the census legs' judge needs them, and the verdict
+#: reads the legs' result itself, since a failed leg skips the judge. Issue #1008; REQ-VER-01 and REQ-VER-04.
+FAST_LEG_JOBS = {"firmware-unit": 3, "firmware-control-mutants": 4, "firmware-aecp-mutants": 2,
+                 "firmware-srp-mutants": 2, "publication-census-legs": 5}
+FAST_LEG_JUDGE = {"publication-census-legs": "publication-census"}
+#: The divided mutation jobs: each runs its phase once, as `--campaign-shard "${{ matrix.leg }}" COUNT`, and COUNT
+#: must be its own matrix's leg count. A COUNT above the matrix's would leave a share of the phase in no leg,
+#: and every leg would still pass (#1008).
+FAST_LEG_CAMPAIGNS = ("firmware-control-mutants", "firmware-aecp-mutants", "firmware-srp-mutants")
+CAMPAIGN_SHARD_RE = re.compile(r'--campaign-shard\s+("[^"]*"|\S+)\s+(\S+)')
+CAMPAIGN_LEG_INDEX = '"${{ matrix.leg }}"'
 #: #697: the fast job that judges the TSN stack boundary over the compiles of the builders that need Verilator.
 FIRMWARE_VERILATOR_JOB = "firmware-verilator"
 #: #665 F-INT: the fast job that runs the mailbox publication census in every
@@ -3913,6 +3925,40 @@ def check_boundary_legs(c: Contract, wf: YamlMap, legs: int) -> None:
                f"job `{jid}` timeout must remain 30 minutes")
 
 
+def check_fast_legs(c: Contract, wf: YamlMap) -> None:
+    """#1008: in the generated rtl-fast.yml, each divided fast job runs exactly its legs under GitHub's own
+    fail-fast, so a failed leg cancels its siblings on every event, a fork's included, with no token
+    (docs/testing/CI_WORKFLOWS.md: hosted matrices retain `fail-fast: true`). The census legs keep 30 minutes,
+    their judge needs them and the verdict reads their result, so a failed leg that skips the judge still fails
+    rtl-fast. Issue #1008; REQ-VER-01 and REQ-VER-04."""
+    aggregate = jobs(wf).get(FAST_AGGREGATE_JOB, {})
+    verdict = "\n".join(str(step.get("run", "")) for step in aggregate.get("steps", []))
+    for jid, count in FAST_LEG_JOBS.items():
+        want = {"fail-fast": True, "matrix": {"leg": list(range(count))}}
+        found = jobs(wf).get(jid, {}).get("strategy")
+        c.item(found == want, RTL_FAST, f"job `{jid}` strategy must be exactly {want!r} (found {found!r})")
+        needs = aggregate.get("needs")
+        env = fast_result_env_name(jid)
+        c.item(isinstance(needs, list) and jid in needs and f'"{jid}:${env}"' in verdict, RTL_FAST,
+               f"job `{FAST_AGGREGATE_JOB}` must need `{jid}` and judge its result")
+    for jid, job in jobs(wf).items():
+        runs = [match for step in steps(job) for match in CAMPAIGN_SHARD_RE.findall(str(step.get("run", "")))]
+        if jid not in FAST_LEG_CAMPAIGNS:
+            c.item(not runs, RTL_FAST, f"job `{jid}` is no divided campaign, so it runs no `--campaign-shard`")
+            continue
+        legs = (job.get("strategy") or {}).get("matrix", {}).get("leg")
+        want = [(CAMPAIGN_LEG_INDEX, str(len(legs)))] if isinstance(legs, list) else None
+        c.item(runs == want, RTL_FAST,
+               f"job `{jid}` must run its campaign once as `--campaign-shard {CAMPAIGN_LEG_INDEX} COUNT`, COUNT its "
+               f"matrix's leg count (found {runs!r} for legs {legs!r})")
+    for legs, judge in FAST_LEG_JUDGE.items():
+        needs = jobs(wf).get(judge, {}).get("needs")
+        c.item(isinstance(needs, list) and legs in needs, RTL_FAST,
+               f"job `{judge}` must need `{legs}` (found {needs!r})")
+        c.item(jobs(wf).get(legs, {}).get("timeout-minutes") == 30, RTL_FAST,
+               f"job `{legs}` timeout must remain 30 minutes")
+
+
 def check_rtl_fast(c: Contract, wf: YamlMap) -> None:
     """Everything rtl-fast.yml owes: triggers, concurrency, one carrier per
     public name, the selector, the verdict, the ooc.sh self-test and the
@@ -4549,6 +4595,8 @@ def check(parsed: World) -> Contract:
     if isinstance(parsed, SemanticWorld):
         return check_semantic(parsed)
     c = Contract()
+    # #1008: the generator makes these legs, so they are held in the generated file, which no template holds.
+    check_fast_legs(c, parsed[RTL_FAST])
     return check_semantic(project_gate_templates(parsed, c), c)
 
 
@@ -8412,6 +8460,68 @@ def _install_cache_arms(pristine: World) -> list[Arm]:
     return arms
 
 
+def _fast_leg_arms() -> list[Arm]:
+    """#1008: each divided fast job's matrix, the census judge's needs, the legs' timeout and the verdict's reading
+    of each legs job refuse their planted defects. Issue #1008; REQ-VER-01 and REQ-VER-04."""
+    arms: list[Arm] = []
+    for jid, count in FAST_LEG_JOBS.items():
+        strategy = f"job `{jid}` strategy must be exactly"
+        arms += [
+            (f"{jid} one leg dropped", _m_job_key_any(RTL_FAST, jid, "strategy",
+                                                      {"fail-fast": True, "matrix": {"leg": list(range(count - 1))}}),
+             strategy),
+            (f"{jid} cancellation disabled",
+             _m_job_key_any(RTL_FAST, jid, "strategy", {"fail-fast": False, "matrix": {"leg": list(range(count))}}),
+             strategy),
+            (f"{jid} fail-fast left to the default", _m_job_key_any(RTL_FAST, jid, "strategy",
+                                                                    {"matrix": {"leg": list(range(count))}}), strategy),
+            (f"{jid} unread by the verdict", _m_fast_verdict_drops(jid),
+             f"job `{FAST_AGGREGATE_JOB}` must need `{jid}` and judge its result")]
+    campaign = "must run its campaign once as `--campaign-shard"
+    for jid in FAST_LEG_CAMPAIGNS:
+        count = FAST_LEG_JOBS[jid]
+        tail = f"--campaign-shard {CAMPAIGN_LEG_INDEX} {count}"
+        head = f"--campaign-shard {CAMPAIGN_LEG_INDEX} "
+        arms += [
+            (f"{jid} command counts one leg more", _m_campaign_command(jid, tail, head + str(count + 1)),
+             f"job `{jid}` {campaign}"),
+            (f"{jid} command counts one leg fewer", _m_campaign_command(jid, tail, head + str(count - 1)),
+             f"job `{jid}` {campaign}"),
+            (f"{jid} command runs leg 0 everywhere", _m_campaign_command(jid, tail, f"--campaign-shard 0 {count}"),
+             f"job `{jid}` {campaign}"),
+            (f"{jid} command runs its phase twice", _m_campaign_command(jid, tail, tail + "\n" + tail),
+             f"job `{jid}` {campaign}")]
+    arms.append(("campaign shard in an undivided job",
+                 _m_campaign_command("firmware-unit", "--shard 0/4", "--shard 0/4 --campaign-shard 0 2"),
+                 "job `firmware-unit` is no divided campaign"))
+    for legs, judge in FAST_LEG_JUDGE.items():
+        arms += [(f"{judge} needs no legs", _m_job_key_any(RTL_FAST, judge, "needs", ["changes"]),
+                  f"job `{judge}` must need `{legs}`"),
+                 (f"{legs} timeout raised", _m_job_key_any(RTL_FAST, legs, "timeout-minutes", 31),
+                  f"job `{legs}` timeout must remain 30 minutes")]
+    return arms
+
+
+def _m_campaign_command(jid: str, old: str, new: str) -> Mutator:
+    """Job `jid`'s one step whose run holds `old`, with `old` replaced by `new`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        step, = (step for step in jobs(w[RTL_FAST])[jid]["steps"] if old in str(step.get("run", "")))
+        step["run"] = step["run"].replace(old, new)
+    return f
+
+
+def _m_fast_verdict_drops(jid: str) -> Mutator:
+    """The fast verdict with `jid`'s result pair removed from its loop."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        step = next(step for step in jobs(w[RTL_FAST])[FAST_AGGREGATE_JOB]["steps"]
+                    if step.get("name") == "Require every applicable fast gate to pass")
+        pair = f'"{jid}:${fast_result_env_name(jid)}" \\'
+        step["run"] = "\n".join(line for line in step["run"].split("\n") if line.strip() != pair)
+    return f
+
+
 def _boundary_leg_arms() -> list[Arm]:
     """#1003: the capture job's matrix, its judge's needs, both timeouts and the gate's leg count refuse their
     planted defects. Issue #998; REQ-VER-01 and REQ-VER-04."""
@@ -9053,6 +9163,23 @@ def _selftest_generated_gates(pristine: World) -> tuple[list[str], int]:
     return problems, arms
 
 
+def _selftest_fast_legs(pristine: World) -> tuple[list[str], int]:
+    """#1008: each fast-leg arm, applied to the actual generated graph, is refused by check() with its own words.
+    These legs exist in the generated rtl-fast.yml only, so they are not among the template arms."""
+    problems, arms = [], 0
+    for name, mutate, want in _fast_leg_arms():
+        world = copy.deepcopy(pristine)
+        mutate(world)
+        arms += 1
+        findings = check(world).findings
+        if any(want in finding for finding in findings):
+            print(f"  ok   caught: {name}")
+        else:
+            problems.append(f"mutation not caught: [{name}] expected a finding naming {want!r}, got "
+                            f"{findings or 'no findings'}")
+    return problems, arms
+
+
 def selftest(root: pathlib.Path) -> int:
     """`--selftest`: the gate's own proof, stage by stage in the order it
     prints. Returns the exit code: 0 when every arm bit, 1 when any did not,
@@ -9080,6 +9207,7 @@ def selftest(root: pathlib.Path) -> int:
     # stay in the order the arms were written.
     checked_arms = 0
     for found, arms in (_selftest_generated_gates(generated_pristine),
+                        _selftest_fast_legs(generated_pristine),
                         _selftest_arms(pristine),
                         _selftest_cannot_run(root),
                         _selftest_on_disk(root),

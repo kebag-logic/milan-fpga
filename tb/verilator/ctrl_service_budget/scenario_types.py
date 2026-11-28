@@ -45,4 +45,3 @@ class Point:
     mac: int
     sources: int
     sinks: int
-

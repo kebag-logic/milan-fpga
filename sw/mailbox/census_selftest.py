@@ -219,11 +219,9 @@ def mutations(every: list[Arm], through: list[bool | None]) -> int:
     return failed
 
 
-def selftest(src: pc.Sources, known: set[str], jobs: int) -> int:
-    """Every arm, the shaped ones first, jobs at a time, then every rule removed; the number of failures.
-    The port arms ride on the arms that elaborate the tracked sources at the recipe's shape, shared out
-    among them, so they add no elaboration."""
-    began, every = time.monotonic(), arms(src)
+def jobs_for(src: pc.Sources, known: set[str]) -> list[tuple[Arm, set[str], tuple[Arm, ...]]]:
+    """The complete execution inventory, with every rider bound to its original host (#1008)."""
+    every = arms(src)
     every.sort(key=lambda a: -sum(w != "recipe" for w in a.at))       # stable: the larger shapes first
     load: dict[int, tuple[Arm, ...]] = {}
     for both in (False, True):
@@ -237,6 +235,13 @@ def selftest(src: pc.Sources, known: set[str], jobs: int) -> int:
     jobs_list = [(a, known, load.get(id(a), ())) for a in every if not a.rides]
     # stable: the larger shapes first, then the hosts carrying port arms
     jobs_list.sort(key=lambda j: (-sum(w != "recipe" for w in j[0].at), -len(j[2])))
+    return jobs_list
+
+
+def selftest(src: pc.Sources, known: set[str], jobs: int) -> int:
+    """Every arm and rule removal, in the same order as the complete execution inventory."""
+    began = time.monotonic()
+    jobs_list = jobs_for(src, known)
     WORK.roms()                        # once, here: the workers share this process's scratch directory
     failed, judged, through = 0, [], []
     with ProcessPoolExecutor(max_workers=jobs, mp_context=multiprocessing.get_context("fork")) as pool:

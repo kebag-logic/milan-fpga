@@ -19,7 +19,7 @@ Their divisors are 10, 32, 16 and four respectively.
 The MII platform advertises 100BASE-TX full duplex only.
 This follows IEEE 802.1BA-2011 Table 6-1 and 6.5 through Milan v1.2 4.2.1.
 
-The owner's round-4 ruling gives seven held-egress rows their own ledger.
+[#878's held-egress ruling](https://github.com/kebag-logic/milan-fpga/issues/878#issuecomment-7097474930) gives seven held-egress rows their own ledger.
 The ledger adds the measured 80 MHz service to the 60 ms hold.
 Its procedure and controls are in `ctrl_service_budget/egress_ledger.py`.
 Those rows remain service-budget misses; the ledger permits only their bounded extent.

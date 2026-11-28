@@ -110,7 +110,7 @@ board:
     phy: mii-100                     # DP83848 MII (arty) | gmii-1g (ax7101)
     gtx_tx_invert: false             # GMII-only knob (ax7101)
     floorplan: false
-    flashboot: baremetal             # #259: the {bitstream, aem} manifest (N25Q128 QSPI)
+    flashboot: baremetal             # #259: the {bitstream, aem} manifest (S25FL128S QSPI)
     uart_baudrate: 115200
     num_queues: 5                    # 802.1Q shaper queues =
                                      # ethernet_packet_pkg::NUMBER_OF_QUEUES
@@ -253,7 +253,6 @@ gptp:
   # IS NOT: egress takes the DP83848's 100BASE-TX figures, one 40 ns MII
   # clock to the PHY's sampling edge and 6 bit times to the wire, and ingress
   # the rest. The measurement used the same 80 MHz system clock selected
-  # here. #878 keeps this board's calibration; the manager verifies the
-  # split image on the bench after IMAGE READY.
+  # here. #878 keeps this board's calibration.
   ingress_latency_ns: 1409
   egress_latency_ns: 100

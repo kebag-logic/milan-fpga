@@ -36,11 +36,8 @@ from ctrl_build import CTRL, STACK, STACK_PARTS, STACK_PREFIX, Outcome, Refusal,
 from ctrl_mutant import ACMP_C, ADP_C, WIRE_H, Mutant
 
 
-from ctrl_mutant_fixtures import (APP_BRING, APP_BRING_LATE, LOOP_OPEN, LOOP_OWN_MAC,
+from ctrl_mutant_fixtures import (APP_BRING, APP_BRING_LATE, CDL_BOUND, LOOP_OPEN, LOOP_OWN_MAC,
                                   MODEL_CLASSIFY, MODEL_CLASSIFY_UNTAGGED, MODEL_GROUP, TX_ROOM)
-#: adp_rx's bound on the 11-bit control_data_length
-CDL_BOUND = "(wire_be16(frame + ADP_HEADER_BYTES + 2u) & 0x07FFu) < ADP_CONTROL_DATA_LENGTH ||"
-
 
 MUTANTS = (
     Mutant("reentry-guard-removed", ADP_C,
@@ -290,9 +287,8 @@ MUTANTS = (
     Mutant("rx-binds-no-function", "loop/ctrl_loop.c", "if (ch >= MBX_N_CH || fn == NULL) {",
            "if (ch >= MBX_N_CH) {", "port", "LoopBring.L9TablesRefuseNullAndOverflow",
            "L9 a channel bound to no function is refused"),
-    Mutant("seed-left-at-zero", ADP_C, "0x9E3779B9u;\n\tif (a->rng == 0u) {\n\t\ta->rng = 1u;\n\t}\n",
-           "0x9E3779B9u;\n", "adp", "AdpCore.A22GeneratorNeverStuckAtZero",
-           "A22 an entity id whose words cancel the seed constant"),
+    Mutant("seed-left-at-zero", ADP_C, "a->rng = x != 0u ? x : 1u;", "a->rng = x;",
+           "adp", "AdpCore.A22GeneratorNeverStuckAtZero", "A22 a seed that mixes to zero starts the generator at 1"),
     Mutant("enable-not-idempotent", ADP_C, "\tif (enable == a->enabled) {\n\t\treturn;\n\t}\n", "",
            "adp", "AdpCore.A23RepeatedEnableOrDisableChangesNothing",
            "A23 an enable while enabled draws and arms nothing"),

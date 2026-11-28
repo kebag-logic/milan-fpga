@@ -4,9 +4,7 @@
 
 #: ctrl_app_compose and ctrl_app_open, from the pool's bind to the mailbox's
 #: open: the app binds lwSRP's pool before anything reads the mailbox window.
-#: (Lane FC: the open also takes every interface's own MAC. Lane F3: the boot
-#: is two calls, compose then open, with ACMP composed after ADP, and since
-#: round 6 lane F2's MAAP after ACMP; the defect is unchanged.)
+#: The open takes every interface's own MAC; boot composes ADP, ACMP and MAAP before opening (#665).
 APP_BRING = ("\tshlan_port_bind_pool(&app->pool);\n\tctrl_debug_bind(cfg->sink, cfg->sink_ctx);\n"
              "\tctrl_loop_init(&app->loop);\n"
              "\tif (!adp_mbx_init(&app->adp, cfg->entity, CTRL_APP_ADP_FIRST_SLOT, "
@@ -27,7 +25,7 @@ APP_BRING = ("\tshlan_port_bind_pool(&app->pool);\n\tctrl_debug_bind(cfg->sink, 
              "\tif (!ctrl_loop_open(&app->loop, cfg->entity->entity_id, own_mac)) {\n\t\treturn false;\n\t}\n")
 
 #: The model's classifier entry, and the same with a front end that strips an
-#: 802.1Q C-tag before it (lane FC, rule 1).
+#: 802.1Q C-tag before it (#665, NFR-SCOUT-08).
 MODEL_CLASSIFY = "\tbool mismatch = false;\n\tint found = classify(m, frame, len, interface, &mismatch);\n"
 MODEL_CLASSIFY_UNTAGGED = ("\tuint8_t stripped[MBX_FRAME_BYTES_MAX + 4u];\n"
                            "\tif (len > 16u && len <= sizeof stripped && wire_be16(frame + 12u) == 0x8100u) {\n"
@@ -52,4 +50,5 @@ TX_ROOM = ("\t\tt->tail = counter(ch_reg(ch, MBX_CH_REG_TX_TAIL));\n\t\tused = (
 #: The same with the pool bound only once the mailbox is open.
 APP_BRING_LATE = APP_BRING.removeprefix("\tshlan_port_bind_pool(&app->pool);\n") + \
     "\tshlan_port_bind_pool(&app->pool);\n"
-
+#: adp_rx's bound on the 11-bit control_data_length
+CDL_BOUND = "(wire_be16(frame + ADP_HEADER_BYTES + 2u) & 0x07FFu) < ADP_CONTROL_DATA_LENGTH ||"

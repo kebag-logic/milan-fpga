@@ -164,6 +164,7 @@ Its one-interface entry is 58.5 with a waiting SET_STREAM_FORMAT's running check
 It is 58.0 with the largest legal record's cut and the hot list relearned on it on the train with #936, and still 58.0 with #946's writes, 138,432 B of `rom`; it is 137,472 B before them, 256 B past the 137,216 B that 57.5 holds; it is 57.5 before them, with `ctrl_plat` at 18,944 B and 136,984 B of `rom` (18,496 B and 136,304 B before #925's changes, 1,136 B past the 135,168 B that 57.0 holds).
 With the Talkers SRP keeps for StreamIDs no binding holds (#969), the two-interface entry is 63.5, 408 B of `rom` past the 141,312 B that 63.0 holds beside its 115,760 B of `sram`, and the one-interface entry 58.5, 872 B of `rom` past the 139,264 B that 58.0 holds, by the same rule (below, with the kept Talkers).
 On the post-flip composition train (#956, #957, #950, #954, #948, #584, #969, #973, #972) ([section 5](#5-fit)) each entry is its composed image's measured tiles by the same rule: the platform's two-interface image 64.5 (143,368 B of `rom` and 117,632 B of `sram`, `ctrl_plat` at 21,888 B), its one-interface image 59.5 (141,616 B and 100,096 B, `ctrl_plat` at 19,136 B), the size fixture's one-interface image 57.5 (its `declaring-outputs` arm, 133,128 B of `rom`; every other arm and plant 57.0) and its two-interface image 61.5 (every arm and plant).
+The saved-state store's 100 ms window for its binding records (#1009) adds 72 B of `rom` at the platform's 1x1 points and 64 B at its 8x8 points, and no `sram` and no tile at any (`plat_ledger.py`: 127,640 and 129,424 B at 1x1, 141,744 and 143,496 B at 8x8, against `dev-soft-core` `c34e7d8b`'s 127,568, 129,352, 141,680 and 143,432 B); the size fixture's arms 64 to 72 B and no tile, each from its own plan: with one interface 132,472 B (no variant), 133,256 B (`declaring-outputs`) and 132,976 B (`answering-ports`), 57.0, 57.5 and 57.0 RAMB36 as at the base (132,408, 133,192 and 132,904 B), and with two 134,160, 134,976 and 134,656 B, 61.5 each as at the base (134,088, 134,912 and 134,592 B). No entry moves.
 Each image is refused half a tile past its entry, at 62.0 and 58.0 (the size fixture's), 65.0 and 60.0 (the platform's).
 
 Each override recognises its image by the image's own symbols.
@@ -324,7 +325,7 @@ In the composed flip train (measured [below](#5-fit)) the entries were:
 - the target platform's 8x8 image with one interface, a product image, 58.5 with the kept Talkers (#969), a debt of 2.5, 10,240 B, its own entry, which the product SoC build plans it at by its symbols;
 - every other point stays at or under 56.
 
-On the post-flip composition train (#956, #957, #950, #954, #948, #584, #969, #973, #972) they are 64.5 (a debt of 8.5), 61.5 (5.5), 59.5 (3.5), and the size fixture's 8x8 image with one interface 57.5 (1.5).
+On the post-flip composition train (#956, #957, #950, #954, #948, #584, #969, #973, #972) they are 64.5 (a debt of 8.5), 61.5 (5.5), 59.5 (3.5), and the size fixture's 8x8 image with one interface 57.5 (1.5). The saved-state store's binding window (#1009) leaves each as it is.
 
 S14 is the first lane after the flip.
 `ctrl_memory.LEDGERED` holds the platform's two-interface entry at 64.5 on the post-flip composition train (#956, #957, #950, #954, #948, #584, #969, #973, #972), 64.0 with each 8x8 STREAM_PORT_INPUT's AUDIO_CLUSTER (#584), 63.5 in the composed flip train (#665), its measured tiles with the Talkers SRP keeps for StreamIDs no binding holds (#969), 63.0 with each AAF Stream Input's current format written into its receive-monitor context (#946), 62.5 with the StreamIDs held with their latest Talker kind (#925) on the train's other changes, 62.0 with the map edits' commit (#923) before them, 61.5 on the train before the commit, 61.0 since the PHY poll's merge (#919), at #923's head and at #925's, 60.5 before them, its cap since SRP's Talker declarations' merge with the tiers (#895), which GET_AS_PATH's read composed on them takes (#897), as AECP's REBOOT on them does (#871), and 60.0 before that; the platform's one-interface entry at 59.5 on the post-flip composition train, 59.0 with #584's clusters, 58.5 in the composed train with the kept Talkers (#969), 58.0 with the largest legal record's cut and the hot list relearned on it, 57.5 before them, 57.0 on the train before the commit, 56.5 with the PHY poll (#919) and at #923's head; and the size fixture's at 61.5 with #584's clusters (its one-interface image at 57.5 on the post-flip composition train, 57.0 with #584's), 60.5 in the composed train with the largest legal record's cut, 60.0 before it, 59.5 since GET_AS_PATH's read composed with SRP's Talker declarations (#897), by [the owner's decision of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6892332745), and at #923's head, 59.0 before it, its cap since the tiers' merge (#894), and 58.5 before that by the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP (below). Each is refused half a tile past ([section 3](#3-named-refusals)).
@@ -752,6 +753,8 @@ The base left 544 B of `rom` before the next granule at 1x1 with one interface a
 | 8x8, two interfaces (largest) | 143,368 / 117,632 | 64.5 | 21,888 | at its entry's 64.5, S14's debt of 8.5 RAMB36 |
 
 These are the composed images' own figures, measured, not the PRs' figures added: `ctrl_plat` is 64 B larger at 1x1 with two interfaces and at both 8x8 points than with #969's kept Talkers alone. Each 8x8 image plans half a tile past the entry #584 gave it (59.0 and 64.0), so each entry is raised to its measured tiles by the owner's rule of 2026-11-15. The size fixture's images were linked at both 8x8 points for every labelled arm of the CPU budget harness, every arm of the split saved-state harness and every planted mutation: with one interface the `declaring-outputs` arm plans 57.5 (133,128 B of `rom`, 98,848 B of `sram`), past the 57.0 #584 ledgered, and every other image 57.0; with two interfaces every image plans 61.5, its entry.
+
+**With the seeded ADP draw (#970)**, measured the same way (`plat_ledger.py`) against this change's own base `c34e7d8b` (127,568 / 129,352 / 141,680 / 143,432 B of `rom`), the same points take 127,832 B (1x1, one interface, 264 B more), 129,624 B (1x1, two, 272 B), 141,944 B (8x8, one, 264 B) and 143,688 B (8x8, two, 256 B), with `sram`, the tiles and `ctrl_plat` unchanged. The stack pin to `a795471c`, which #1013 also moves, adds nothing at any of the four points.
 
 Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
 One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
@@ -1919,6 +1922,10 @@ A SET_NAME of the entity marks both its names (`aecp_nvm.c` marks every name of 
 A change marked while a save is in flight, once its capture has passed the change's record, waits for the rest of that save first, so a change's worst case is longer: 22,870 ms at 8x8/2if and 6,070 ms at 1x1 ([the next subsection](#aged-windows-a-change-while-a-save-is-in-flight-and-the-retry)).
 That is on the harness's flash model, which has no busy time: a part's erase adds at most its erase time, and each page program at most its program time (the next subsection gives the product part's figure).
 The owner's 0.5 s ([#823](https://github.com/kebag-logic/milan-fpga/issues/823)) applies to the firmware writer of the append-only design through this same step; this image states its own worst case and does not meet 0.5 s.
+
+**A binding record's window (#1009).**
+A change to a binding record (BIND_RX, UNBIND_RX, STARTED and STOPPED; Milan v1.2 5.3.8.3 and 5.5.3.5.3) waits 100 ms instead of 1,000 ms (`NVM_BIND_DEBOUNCE_MS`), so with no save in flight it is durable at most 100 ms + S × 3 × 10 ms + 10 ms after its change, with its save's S; a binding change marked while a save is in flight opens the next 100 ms window, and its save starts at the later of that window's end and the first idle step after the save in flight. Each save stays a whole commit, one erase.
+With the part's erase and page-program times modelled in the harness (120 ms and 0.5 ms, calibrated on the board's readings of the base image's whole save), BIND_RX, STOP_STREAMING, START_STREAMING and UNBIND_RX on an idle store are durable at most 550.5 ms after their response at 8x8/1if and 304.5 ms at 1x1/1if; a BIND_RX that arrives during a SET_NAME's save at most 891.2 ms and 395.0 ms, just after that save's capture (ten arrivals, the seal to the verify's end); and 64 binds and unbinds 10 ms apart leave every sink as last commanded at most 646.4 ms and 306.5 ms after its last command's response, in 2 and 4 saves ([the harness's bind groups](../../tb/verilator/ctrl_service_budget/README.md)).
 
 **A save under load.**
 `save-held` holds every receive channel at its contract refill rate with its bursts from the save's change until its worst case has passed: admission's records at once, again every as many refill periods, each channel's bursts 0.2 ms apart, AECP's first one refill period after the change, since the SET_NAME takes one of its tokens.
@@ -3514,14 +3521,36 @@ bound and a 35 ms ordinary transmit bound.
 The merge of dev-soft-core `c34e7d8b` raised the measured AECP, ACMP and MAAP costs at this point.
 By the same rules, the first row (950 us, 9 ms, 30 ms) became this one.
 A complete campaign at it then raised the poll base, centisecond, LINK, MAAP and withdrawal statements, again by the rule.
+The merge of dev-soft-core `0b594023` (#1015's ADP link-up draw, #1017's binding save window) raised the ADP record, the
+ACMP event and timer, LINK and the AECP response statements, by the same rule; the slice, pace and bounds held.
 Its costs are the larger of each measurement on the merged firmware and the one before it.
 The `srp-kept` and `srp-bound` registrations over their statements are owed to #977 under #969's disposition,
 as at the other points (`kept_grade.py`), and do not restate the row; their other measurements do.
-The complete 80 MHz campaign qualifies the row over 147 native cases across eight image variants.
-The second step changed no firmware byte, so its census regrades the first step's traces against these statements.
+[#1022](https://github.com/kebag-logic/milan-fpga/issues/1022), blocked by #977, carries that owed cost at this point:
+the measurement of the Arty's registrations and the row derived with them counted.
+Counted, they leave no qualifying row: over the 159 cases on that merge no candidate meets every owner bound, and the
+least last queued notice is 237.0 ms (225.54 ms before it), against its 140 ms bound.
+Two rows meet every rule and bound at the installed statements: this one and 950 us at a 130 ms queued bound.
+The derivation takes the first by pace, then queued bound, then slice, which is this one.
+The complete 80 MHz campaign on that merge measures the row over 159 native cases across eight image variants.
+Raising statements changes no firmware byte, so the census at the raised row regrades the same traces against them.
 The seven held-egress misses remain recorded under their ledger; every other service row meets its bound.
 The slice holds the measured build of both MRPDUs, so `CTRL_LOOP_BUILD_MOST`
 builds both in one pass at this point.
+
+A binding change that arrives during another save is held to the rest of that save plus one save (#1009's ruling 3,
+item 4), at this point by [PR #1004's ruling](https://github.com/kebag-logic/milan-fpga/pull/1004#issuecomment-7221391389).
+The census models the Arty's whole save, from its window to durable, at 188.8 ms (the idle bind's 288.8 ms less its
+100 ms window), so the rule gives 377.6 ms, stated as 400 ms rounded up to 50 ms like 1x1/1if's 450 and 8x8/1if's
+950; the burst's saves by the same rule are 4. The bench's SET_NAME was durable 1.146 to 1.245 s after its command,
+a save of at most 245 ms after the name's 1,000 ms window, which would give 490 ms (500 stated) and 4 saves; the rule
+uses the census model's figure. The worst of the ten in-flight arrivals is 369.2 ms, and the 64-bind burst converges in
+239.6 ms and 4 saves, within both.
+
+At 100 Mb/s this point's census drains egress at link rate through the shipping transmit queue ([FR_NFR 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing), [PR #1020's ruling](https://github.com/kebag-logic/milan-fpga/pull/1020#issuecomment-7216971645), item 3):
+replayed through that queue, the instant-egress census changed the free-space test's outcome in 11 of its 159 cases.
+Measured again with the queue (`egress_queue.hpp`), the 159 cases derive the installed row unchanged, every cost and owner row the same, a fixed point.
+Its qualification passes, the 100 Mb/s egress row (`egress_mii.py`) at 505.74 us of its 1 ms, and the no-disposition control still finds no qualifying row, its least last queued notice again 237.0 ms.
 
 | Work | Statement, us |
 |---|---:|
@@ -3532,7 +3561,7 @@ builds both in one pass at this point.
 | Centisecond work | 160 |
 | SRP record | 300 |
 | ACMP record | 245 |
-| ADP record | 120 |
+| ADP record | 125 |
 | MAAP record | 125 |
 | Ordinary AECP record | 290 |
 | Long AECP record | 1105 |
@@ -3540,17 +3569,17 @@ builds both in one pass at this point.
 | Retry refused attempt | 30 |
 | Retry notice | 230 |
 | Transmit notice | 205 |
-| Transmit response | 45 |
+| Transmit response | 50 |
 | Transmit long response | 385 |
 
 The retry fit measures 9767 cycles cold, 1929 cycles per refused attempt and
 17193 cycles per notice before applying the cost rule.
 These are measurements of the complete retry rounds, distinct from the
 transmit-only spans.
-The slice and pace rules give load 0.5004771140, txL 48.82 ms, last notice
-117.47 ms and ACMP 29.77 ms.
-The observed maximum whole pass in that qualification is 142775 cycles,
-or 1.7846875 ms at 80 MHz.
+The slice and pace rules give load 0.5013971140, txL 48.90 ms, last notice
+117.58 ms and ACMP 29.84 ms.
+The observed maximum whole pass in that campaign is 143165 cycles,
+or 1.7895625 ms at 80 MHz.
 The MII PHY frame statement is 195 us from 14487 cycles, or 181.0875 us,
 with the same 5 percent and 5 us rounding rule.
 
@@ -3562,7 +3591,7 @@ Each ledger figure is the 60 ms hold plus measured service, with 5 percent on se
 The result is rounded up to 0.01 ms.
 These remain misses against the 20 ms budget.
 A new or larger miss fails.
-The campaign at the row above measured each row below its figure, 61.79729 to 63.29190 ms, and the ledger keeps the larger first measurements.
+The campaign at the row above measured each row below its figure, 61.80119 to 63.30645 ms, and the ledger keeps the larger first measurements.
 
 | Arty held-egress row | Measured at 80 MHz, ms | Ledger, ms |
 |---|---:|---:|
@@ -3583,13 +3612,13 @@ Memory fit does not waive the service-budget or routed timing checks.
 
 | Item | Bytes or RAMB36 equivalent |
 |---|---:|
-| Linked ELF file | 159620 bytes |
-| `.text` | 113908 bytes |
+| Linked ELF file | 159844 bytes |
+| `.text` | 114240 bytes |
 | `.rodata` | 11558 bytes |
 | `.data` | 100 bytes |
 | `.bss` | 45136 bytes |
 | `.stack` | 8192 bytes |
-| ROM live extent, including initial data | 125572 bytes |
+| ROM live extent, including initial data | 125900 bytes |
 | SRAM live extent, including stack | 53456 bytes |
 | ROM allocation | 31 RAMB36 |
 | SRAM allocation | 13.5 RAMB36 |
@@ -3597,4 +3626,5 @@ Memory fit does not waive the service-budget or routed timing checks.
 | Budget | 56 RAMB36 |
 
 The linked image's `size.json` records the sections and bank decomposition.
+The ROM banks (64, 32, 16, 8 and 4 KiB) hold 126976 bytes, so 1076 bytes remain before another bank.
 The routed image binds that firmware through `image_manifest.json`.

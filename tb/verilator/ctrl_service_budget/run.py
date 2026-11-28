@@ -16,11 +16,9 @@ rows, every work pass is held to the per-pass share (share.py): the
 default refuses a pass over it even when every row fits, unless
 --record-share-findings is given, which records them.
 
-The CPU runs in the split placement's clock domain, sys, at the bus clock,
-100 MHz at AX7101 and 80,000,000 Hz at Arty (#878): build.json records its domain and
-clock, a build or reused build whose CPU is anywhere else, the Milan clock
-among them, is refused, and every table and the run's last lines name the
-clock its figures are at.
+The CPU runs in the split placement's clock domain, sys, at the bus clock, 100 MHz at AX7101 and 80,000,000 Hz at
+Arty (#878): build.json records its domain and clock, a build or reused build whose CPU is anywhere else, the Milan
+clock among them, is refused, and every table and the run's last lines name the clock its figures are at.
 """
 from __future__ import annotations
 
@@ -39,7 +37,6 @@ ROOT = HERE.parents[2]
 sys.path.insert(0, str(HERE))
 from stimulus_clock import at_clock  # noqa: E402
 #: 8x8-1if is the flip's 8x8 measurement point (#665 ruling item 1), one interface of the 8x8 shape.
-#: arty-1x1 is #878's FPGA point: one AAF source, AAF/CRF sinks, CPU/sys exactly 80 MHz.
 POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2),
           '8x8-1if': ('endstation_ax7101_8x8', 1), 'arty-1x1': ('endstation_arty_current', 1)}
 
@@ -50,8 +47,8 @@ def run_group(build_dir: Path, out: Path, group: object, flash: str) -> Path:
     script.write_text(group.script())
     log = out / f'{group.name}.log'
     argv = [str(build_dir / 'native/Vsim'), str(script), flash]
-    # a group that grades the journal a cut leaves has the testbench write it at the script's end (save_burst.py)
-    env = dict(os.environ, BUDGET_JOURNAL_OUT=str(journal_of(out, group))) if group.save.get('journal') else None
+    import bind_save
+    env = bind_save.environment(group.save, journal_of(out, group))
     print('COMMAND', shlex.join(argv), flush=True)
     with log.open('w') as sink:
         subprocess.run(argv, cwd=build_dir / 'gateware', stdout=sink, stderr=subprocess.STDOUT, check=False, env=env)
@@ -64,10 +61,11 @@ def journal_of(out: Path, group: object) -> Path:
 
 
 def burst_misses(results: list[dict]) -> list[str]:
-    """Each name of a burst or a change in flight not durable within its target, or missing at the cut, and a next
-    save that waited past the first idle step (save_burst.misses), named by its group."""
+    """Each name of a burst or a change in flight not durable within its target, or missing at the cut, a next save
+    that waited past the first idle step (save_burst.misses), and a bind group's (bind_save.late), each by its group."""
+    import bind_save
     import save_burst
-    return [m for g in results if g.get('burst') for m in save_burst.misses(g['burst'], g['group'])]
+    return save_burst.late(results) + bind_save.late(results)
 
 
 def burst_lines(results: list[dict]) -> list[str]:
@@ -88,8 +86,9 @@ def burst_lines(results: list[dict]) -> list[str]:
 
 
 def print_bursts(results: list[dict]) -> None:
-    """Each burst's and change in flight's BURST line (burst_lines), as the run prints it."""
-    for line in burst_lines(results):
+    """Each burst's and change in flight's BURST line (burst_lines) and bind group's BIND line, as the run prints it."""
+    import bind_save
+    for line in burst_lines(results) + bind_save.lines(results):
         print(line)
 
 
@@ -520,6 +519,7 @@ def share_table(results: list[dict]) -> list[str]:
 def table(results: list[dict], point: str, clock: str = '') -> str:
     """The clock, the Markdown rows of every path's worst instance, the composed windows, the
     per-pass share, then every probe, then the timeouts."""
+    import bind_save
     tally = counts(results)
     lines = [f'### {point}', '', *([f'Clock: {clock}.', ''] if clock else []),
              f"{tally['path_misses']} of {tally['paths']} paths and {tally['instance_misses']} of "
@@ -555,7 +555,7 @@ def table(results: list[dict], point: str, clock: str = '') -> str:
     lines += share_table(results)
     lines += aged_table(results)
     lines += save_table(results)
-    lines += burst_table(results)
+    lines += burst_table(results) + bind_save.table(results)
     lines += notice_table(results)
     lines += step_table(results)
     lines += ['', '| Path | Probe | CPU cycles | ms | Budget (+W) ms | Ceiling ms | Verdict | Taking pass cycles '
@@ -898,8 +898,8 @@ def main() -> int:
     """Build or reuse a point, run its groups, grade them and write the tables."""
     parser, args = arguments()
     if args.self_test:
-        import selftest
-        return selftest.main([])
+        import model_counts, selftest   # the published ADP counts against the adapter's (model_counts.py)
+        return model_counts.main() or selftest.main([])
     if not args.point or not args.build_dir:
         parser.error('--point and --build-dir are required unless --self-test')
     build_dir = args.build_dir.resolve()

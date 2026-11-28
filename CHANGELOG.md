@@ -10,6 +10,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 - **[Unreleased - pins 3ce71b76 and a795471c](#unreleased---pins-3ce71b76-and-a795471c)** -- Negative link delay; long ENTITY_DISCOVER.
 - **[Unreleased - gPTP pin 1213ac5b](#unreleased---gptp-pin-1213ac5b)** -- A new master announces at once.
+- **[Unreleased - ADP's draw per link-up](#unreleased---adps-draw-per-link-up)** -- Each samples afresh.
 - **[Unreleased - the boot forms its link once](#unreleased---the-boot-forms-its-link-once)** -- No boot restart.
 - **[Unreleased - a link-up inside a loop pass](#unreleased---a-link-up-inside-a-loop-pass)** -- SRP resets once.
 - **[Unreleased - 8x8 input clusters](#unreleased---8x8-input-clusters)** -- Every input port owns one.
@@ -113,6 +114,21 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The owner accepted the donor's +455 LUTs at 8x8/1if.
 - On this base that growth does not appear.
 - VERSION is unchanged; the release step owns the bump.
+
+## Unreleased - ADP's draw per link-up
+
+- #970: ADP's first draws were not uniform.
+- Every boot of one entity drew 640 to 890 ms.
+- Sixteen neighbouring entity IDs drew within 5 ms.
+- A LINK_UP also drew without a fresh sample.
+- The stack now samples at each leave of DOWN.
+- That is the startup draw and each qualified LINK_UP.
+- A duplicate or disabled LINK_UP takes no sample.
+- The seed sums the MAC address and the sample.
+- It mixes the entity ID and the interface in.
+- The sample is the platform's microsecond clock.
+- Milan's draw ranges and the 6.0 s stand.
+- tsn-c-stack moves to c3bff8f3 (PR #40) for it.
 
 ## Unreleased - the boot forms its link once
 
@@ -354,7 +370,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - It keeps its generated top and its inert scratch.
 - The Arty's `split` shape states it.
 - The AX7101 shapes do not.
-- The split console's `milan_lat` writes the pair (#878).
+- The split console's `lat IIIII EEEEE` writes the pair (#878).
 - `make -C tb/verilator/gptp_txts run-latw` and `make -C tb/verilator/milan_dp gptp-latw` grade it.
 
 ## Unreleased - gPTP on the MII port

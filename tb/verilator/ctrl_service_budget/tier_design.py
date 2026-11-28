@@ -40,4 +40,3 @@ class Design(NamedTuple):
                 (f', quotas {"/".join(map(str, self.quota))}' if self.quota else '') +
                 ('' if self.long == LONG_RULES[0] else f', long notices {self.long}') +
                 ('' if self.datapath else ', datapath events left out'))
-

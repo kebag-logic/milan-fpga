@@ -35,6 +35,7 @@ import mrpdu_grade
 import poll_grade
 import round_grade
 import slice_grade
+import bind_save
 import save_burst
 import save_grade
 import save_window
@@ -272,8 +273,8 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             log.step_passes.append((int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2])))
             log.stepped.append((int(rest[0]), int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2]),
                                 'aged=1' in rest[5:]))
-        elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH', 'FLASHDATA'):
-            continue
+        elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH', 'FLASHDATA', 'EGRESSQ', 'EGRESS'):
+            continue  # EGRESSQ and EGRESS, the 100 Mb/s queue and its departures, are egress_mii.py's
         elif kind == 'FAIL:':
             log.errors.append(line)
         else:
@@ -992,4 +993,5 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int,
                             polls=poll_grade.held(log, stated_at), slices=slice_grade.held(log, stated_at),
                             joins=join_grade.held(log)),
                 save=save_grade.save_time(log, group), burst=save_burst.grade(log, group, journal),
+                bind=bind_save.grade(log, group, journal),
                 summary=log.summary, modules=log.modules, code=log.code)
