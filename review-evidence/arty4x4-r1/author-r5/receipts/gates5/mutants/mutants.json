@@ -1,0 +1,97 @@
+[
+  {
+    "mutant": "R967 F2 a: sr_frames returns the talkers alone",
+    "file": "tb/verilator/ctrl_service_budget/egress_mii.py",
+    "caught": true,
+    "failing": {
+      "egress_mii": 1
+    },
+    "named": [
+      "FAIL [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46)",
+      "FAIL [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval"
+    ]
+  },
+  {
+    "mutant": "R967 F2 b: CRF_AVTPDU = 0",
+    "file": "tb/verilator/ctrl_service_budget/egress_mii.py",
+    "caught": true,
+    "failing": {
+      "egress_mii": 1
+    },
+    "named": [
+      "FAIL [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46)"
+    ]
+  },
+  {
+    "mutant": "R968 M1: crf = ()",
+    "file": "tb/verilator/ctrl_service_budget/egress_mii.py",
+    "caught": true,
+    "failing": {
+      "egress_mii": 1
+    },
+    "named": [
+      "FAIL [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46)",
+      "FAIL [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval"
+    ]
+  },
+  {
+    "mutant": "R968 M8: point_name maps the 4x4 configuration to arty-1x1",
+    "file": "tb/verilator/ctrl_service_budget/record_classes.py",
+    "caught": true,
+    "failing": {
+      "record_classes": 1
+    },
+    "named": [
+      "ESCAPED endstation_arty_split_4x4 is named to arty-4x4"
+    ]
+  },
+  {
+    "mutant": "R968 M9: poll_grade reads arty-1x1's record.acmp at (1,5,5)",
+    "file": "tb/verilator/ctrl_service_budget/poll_grade.py",
+    "caught": true,
+    "failing": {
+      "record_classes": 1
+    },
+    "named": [
+      "ESCAPED endstation_arty_split_4x4: its shape (1, 5, 5) reads arty-4x4's ACMP record cost, 210 us"
+    ]
+  },
+  {
+    "mutant": "R968 M10 / R967 S1: ARTY_CLOCKS['arty-4x4'] = 80 MHz",
+    "file": "tb/verilator/ctrl_service_budget/record_classes.py",
+    "caught": true,
+    "failing": {
+      "record_classes": 1
+    },
+    "named": [
+      "ESCAPED arty-4x4 record classes accept their complete 100 MHz fixture"
+    ]
+  },
+  {
+    "mutant": "R967 S2: CLOCK_KHZ['arty-4x4'] = 80,000",
+    "file": "tb/verilator/ctrl_service_budget/egress_ledger.py",
+    "caught": true,
+    "failing": {
+      "egress_ledger": 1
+    },
+    "named": [
+      "FAIL [in process, arty-4x4] one cycle over a figure is planted at the point's own bus cycle, its configuration's sys_clk_hz: 80000 kHz",
+      "FAIL [as a process, arty-4x4] one cycle over a figure is planted at the point's own bus cycle, its configuration's sys_clk_hz: 80000 kHz",
+      "RESULT: FAIL: 26 mutants, 2 failure(s)"
+    ]
+  },
+  {
+    "mutant": "R968 S1: SYS_HZ read with no whole-ps check",
+    "file": "tb/verilator/ctrl_service_budget/egress_fixed.py",
+    "caught": true,
+    "failing": {
+      "egress_fixed": 1
+    },
+    "named": []
+  },
+  {
+    "mutant": "none (restored tree)",
+    "caught": null,
+    "failing": {}
+  }
+]

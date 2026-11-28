@@ -1,0 +1,15 @@
+PASS SYS_HZ '0' is refused with the usage, exit 2
+PASS SYS_HZ '-1' is refused with the usage, exit 2
+PASS SYS_HZ 'abc' is refused with the usage, exit 2
+PASS SYS_HZ '3' is refused with the usage, exit 2
+PASS SYS_HZ '1e8' is refused with the usage, exit 2
+PASS SYS_HZ 100000000 builds the bench at a 10000 ps sys period
+PASS 300.0 ns at 100 MHz is reported within the stated figure, exit 0
+PASS a fixed path 1 ps over the stated figure is reported OVER, exit 1
+PASS no SYS_HZ builds the bench at the Arty 1x1's 12500 ps
+PASS 312.5 ns, stated 320 ns, passes the default run
+PASS a measurement that rounds to another stated figure fails the default run
+CAUGHT SYS_HZ read without its whole-ps check: SYS_HZ '0' is refused with the usage, exit 2
+CAUGHT the bench built at the default period whatever SYS_HZ: SYS_HZ 100000000 builds the bench at a 10000 ps sys period
+CAUGHT a report over the stated figure read as within: a fixed path 1 ps over the stated figure is reported OVER, exit 1
+egress_fixed selftest: PASS, 3 mutants, 0 failure(s)

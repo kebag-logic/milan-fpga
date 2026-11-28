@@ -1,0 +1,9 @@
+CAUGHT R967 F2 a: sr_frames returns the talkers alone {'egress_mii': 1}
+CAUGHT R967 F2 b: CRF_AVTPDU = 0 {'egress_mii': 1}
+CAUGHT R968 M1: crf = () {'egress_mii': 1}
+CAUGHT R968 M8: point_name maps the 4x4 configuration to arty-1x1 {'record_classes': 1}
+CAUGHT R968 M9: poll_grade reads arty-1x1's record.acmp at (1,5,5) {'record_classes': 1}
+CAUGHT R968 M10 / R967 S1: ARTY_CLOCKS['arty-4x4'] = 80 MHz {'record_classes': 1}
+CAUGHT R967 S2: CLOCK_KHZ['arty-4x4'] = 80,000 {'egress_ledger': 1}
+CAUGHT R968 S1: SYS_HZ read with no whole-ps check {'egress_fixed': 1}
+MUTANTS PASS 8 of 8 caught; restored tree passes

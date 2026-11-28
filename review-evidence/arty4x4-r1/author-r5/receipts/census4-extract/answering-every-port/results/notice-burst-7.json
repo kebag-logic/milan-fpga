@@ -1,0 +1,2090 @@
+{
+ "group": "notice-burst-7",
+ "probes": [
+  {
+   "probe": "notice-burst-7.notices.f.5.0.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 316571785,
+   "sys_cycles": 1502052,
+   "cpu_cycles": 1502052,
+   "ms": 15.02052,
+   "wait_ms": 105.0,
+   "passes": 18,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 316563149,
+    "last_sys": 316571785,
+    "per_recipient_cpu_cycles": 575
+   },
+   "bound_cpu_cycles": 1527198,
+   "bound_ms": 15.27198,
+   "bound_within_budget": true,
+   "pass_cycles": 42675,
+   "pass_instr": 9490,
+   "pass_mbx_accesses": 100,
+   "pass_fetch_share": 0.3309,
+   "pass_fetch_wait_share": 0.262,
+   "pass_regions": {
+    "rom": [
+     135,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     7,
+     93
+    ],
+    "csr": [
+     0,
+     78,
+     95
+    ]
+   },
+   "pass_modules": {
+    "aecp": 16441,
+    "mbx": 13680,
+    "aecp_commands": 3637,
+    "ctrl_mem": 2975,
+    "aecp_mbx": 2902,
+    "ctrl_app_aecp": 815
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.29.5.0.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 316608650,
+   "sys_cycles": 1538917,
+   "cpu_cycles": 1538917,
+   "ms": 15.38917,
+   "wait_ms": 105.0,
+   "passes": 19,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 316578974,
+    "last_sys": 316608650,
+    "per_recipient_cpu_cycles": 1978
+   },
+   "bound_cpu_cycles": 1552287,
+   "bound_ms": 15.52287,
+   "bound_within_budget": true,
+   "pass_cycles": 25089,
+   "pass_instr": 4802,
+   "pass_mbx_accesses": 30,
+   "pass_fetch_share": 0.7516,
+   "pass_fetch_wait_share": 0.3792,
+   "pass_regions": {
+    "rom": [
+     115,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     25,
+     5
+    ],
+    "csr": [
+     0,
+     3,
+     5
+    ]
+   },
+   "pass_modules": {
+    "aecp": 5453,
+    "ctrl_loop": 3762,
+    "mbx": 2296,
+    "ctrl_app_aecp": 2294,
+    "srp_mbx": 1868,
+    "ctrl_mem": 1531
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.f.5.1.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 315243407,
+   "sys_cycles": 173674,
+   "cpu_cycles": 173674,
+   "ms": 1.73674,
+   "wait_ms": 105.0,
+   "passes": 4,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 315234353,
+    "last_sys": 315243407,
+    "per_recipient_cpu_cycles": 603
+   },
+   "bound_cpu_cycles": 224088,
+   "bound_ms": 2.24088,
+   "bound_within_budget": true,
+   "pass_cycles": 65970,
+   "pass_instr": 16451,
+   "pass_mbx_accesses": 167,
+   "pass_fetch_share": 0.1996,
+   "pass_fetch_wait_share": 0.1383,
+   "pass_regions": {
+    "rom": [
+     108,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     15,
+     152
+    ],
+    "csr": [
+     0,
+     114,
+     152
+    ]
+   },
+   "pass_modules": {
+    "aecp": 25939,
+    "mbx": 21719,
+    "ctrl_mem": 6061,
+    "aecp_commands": 5008,
+    "aecp_mbx": 3810,
+    "ctrl_app_aecp": 1320
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.29.5.1.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 315261341,
+   "sys_cycles": 191608,
+   "cpu_cycles": 191608,
+   "ms": 1.91608,
+   "wait_ms": 105.0,
+   "passes": 4,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 315250499,
+    "last_sys": 315261341,
+    "per_recipient_cpu_cycles": 722
+   },
+   "bound_cpu_cycles": 224088,
+   "bound_ms": 2.24088,
+   "bound_within_budget": true,
+   "pass_cycles": 65970,
+   "pass_instr": 16451,
+   "pass_mbx_accesses": 167,
+   "pass_fetch_share": 0.1996,
+   "pass_fetch_wait_share": 0.1383,
+   "pass_regions": {
+    "rom": [
+     108,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     15,
+     152
+    ],
+    "csr": [
+     0,
+     114,
+     152
+    ]
+   },
+   "pass_modules": {
+    "aecp": 25939,
+    "mbx": 21719,
+    "ctrl_mem": 6061,
+    "aecp_commands": 5008,
+    "aecp_mbx": 3810,
+    "ctrl_app_aecp": 1320
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.f.5.2.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 315278062,
+   "sys_cycles": 208329,
+   "cpu_cycles": 208329,
+   "ms": 2.08329,
+   "wait_ms": 105.0,
+   "passes": 4,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 315269077,
+    "last_sys": 315278062,
+    "per_recipient_cpu_cycles": 599
+   },
+   "bound_cpu_cycles": 224088,
+   "bound_ms": 2.24088,
+   "bound_within_budget": true,
+   "pass_cycles": 65970,
+   "pass_instr": 16451,
+   "pass_mbx_accesses": 167,
+   "pass_fetch_share": 0.1996,
+   "pass_fetch_wait_share": 0.1383,
+   "pass_regions": {
+    "rom": [
+     108,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     15,
+     152
+    ],
+    "csr": [
+     0,
+     114,
+     152
+    ]
+   },
+   "pass_modules": {
+    "aecp": 25939,
+    "mbx": 21719,
+    "ctrl_mem": 6061,
+    "aecp_commands": 5008,
+    "aecp_mbx": 3810,
+    "ctrl_app_aecp": 1320
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.29.5.2.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 315324415,
+   "sys_cycles": 254682,
+   "cpu_cycles": 254682,
+   "ms": 2.54682,
+   "wait_ms": 105.0,
+   "passes": 6,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 315284626,
+    "last_sys": 315324415,
+    "per_recipient_cpu_cycles": 2652
+   },
+   "bound_cpu_cycles": 278811,
+   "bound_ms": 2.78811,
+   "bound_within_budget": true,
+   "pass_cycles": 28215,
+   "pass_instr": 6246,
+   "pass_mbx_accesses": 39,
+   "pass_fetch_share": 0.3846,
+   "pass_fetch_wait_share": 0.1583,
+   "pass_regions": {
+    "rom": [
+     55,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     18,
+     21
+    ],
+    "csr": [
+     0,
+     29,
+     20
+    ]
+   },
+   "pass_modules": {
+    "aecp": 9208,
+    "mbx": 4314,
+    "ctrl_loop": 3112,
+    "ctrl_app_aecp": 1541,
+    "acmp": 1342,
+    "ctrl_mem": 1332
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.f.5.3.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 315546841,
+   "sys_cycles": 477108,
+   "cpu_cycles": 477108,
+   "ms": 4.77108,
+   "wait_ms": 105.0,
+   "passes": 9,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 315537966,
+    "last_sys": 315546841,
+    "per_recipient_cpu_cycles": 591
+   },
+   "bound_cpu_cycles": 502110,
+   "bound_ms": 5.0211,
+   "bound_within_budget": true,
+   "pass_cycles": 41857,
+   "pass_instr": 9658,
+   "pass_mbx_accesses": 101,
+   "pass_fetch_share": 0.2785,
+   "pass_fetch_wait_share": 0.2089,
+   "pass_regions": {
+    "rom": [
+     105,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     8,
+     93
+    ],
+    "csr": [
+     0,
+     76,
+     95
+    ]
+   },
+   "pass_modules": {
+    "aecp": 16055,
+    "mbx": 13650,
+    "aecp_commands": 3592,
+    "ctrl_mem": 2945,
+    "aecp_mbx": 2625,
+    "ctrl_app_aecp": 815
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.29.5.3.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 315578870,
+   "sys_cycles": 509137,
+   "cpu_cycles": 509137,
+   "ms": 5.09137,
+   "wait_ms": 105.0,
+   "passes": 10,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 315553736,
+    "last_sys": 315578870,
+    "per_recipient_cpu_cycles": 1675
+   },
+   "bound_cpu_cycles": 650346,
+   "bound_ms": 6.50346,
+   "bound_within_budget": true,
+   "pass_cycles": 148236,
+   "pass_instr": 18975,
+   "pass_mbx_accesses": 144,
+   "pass_fetch_share": 0.264,
+   "pass_fetch_wait_share": 0.1044,
+   "pass_regions": {
+    "rom": [
+     184,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     27,
+     117
+    ],
+    "flash": [
+     0,
+     128,
+     0
+    ],
+    "csr": [
+     0,
+     118,
+     123
+    ]
+   },
+   "pass_modules": {
+    "nvm_flash_litespi": 71344,
+    "aecp": 25370,
+    "mbx": 19476,
+    "ctrl_mem": 5136,
+    "aecp_commands": 4106,
+    "aecp_mbx": 3747
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.f.5.4.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 315606821,
+   "sys_cycles": 537088,
+   "cpu_cycles": 537088,
+   "ms": 5.37088,
+   "wait_ms": 105.0,
+   "passes": 10,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 315598049,
+    "last_sys": 315606821,
+    "per_recipient_cpu_cycles": 584
+   },
+   "bound_cpu_cycles": 650346,
+   "bound_ms": 6.50346,
+   "bound_within_budget": true,
+   "pass_cycles": 148236,
+   "pass_instr": 18975,
+   "pass_mbx_accesses": 144,
+   "pass_fetch_share": 0.264,
+   "pass_fetch_wait_share": 0.1044,
+   "pass_regions": {
+    "rom": [
+     184,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     27,
+     117
+    ],
+    "flash": [
+     0,
+     128,
+     0
+    ],
+    "csr": [
+     0,
+     118,
+     123
+    ]
+   },
+   "pass_modules": {
+    "nvm_flash_litespi": 71344,
+    "aecp": 25370,
+    "mbx": 19476,
+    "ctrl_mem": 5136,
+    "aecp_commands": 4106,
+    "aecp_mbx": 3747
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.29.5.4.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 315624913,
+   "sys_cycles": 555180,
+   "cpu_cycles": 555180,
+   "ms": 5.5518,
+   "wait_ms": 105.0,
+   "passes": 10,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 315614001,
+    "last_sys": 315624913,
+    "per_recipient_cpu_cycles": 727
+   },
+   "bound_cpu_cycles": 650346,
+   "bound_ms": 6.50346,
+   "bound_within_budget": true,
+   "pass_cycles": 148236,
+   "pass_instr": 18975,
+   "pass_mbx_accesses": 144,
+   "pass_fetch_share": 0.264,
+   "pass_fetch_wait_share": 0.1044,
+   "pass_regions": {
+    "rom": [
+     184,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     27,
+     117
+    ],
+    "flash": [
+     0,
+     128,
+     0
+    ],
+    "csr": [
+     0,
+     118,
+     123
+    ]
+   },
+   "pass_modules": {
+    "nvm_flash_litespi": 71344,
+    "aecp": 25370,
+    "mbx": 19476,
+    "ctrl_mem": 5136,
+    "aecp_commands": 4106,
+    "aecp_mbx": 3747
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.f.6.0.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 316728418,
+   "sys_cycles": 1658685,
+   "cpu_cycles": 1658685,
+   "ms": 16.58685,
+   "wait_ms": 105.0,
+   "passes": 26,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 316719779,
+    "last_sys": 316728418,
+    "per_recipient_cpu_cycles": 575
+   },
+   "bound_cpu_cycles": 1694955,
+   "bound_ms": 16.94955,
+   "bound_within_budget": true,
+   "pass_cycles": 51428,
+   "pass_instr": 12445,
+   "pass_mbx_accesses": 135,
+   "pass_fetch_share": 0.2521,
+   "pass_fetch_wait_share": 0.1934,
+   "pass_regions": {
+    "rom": [
+     120,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     12,
+     123
+    ],
+    "csr": [
+     0,
+     96,
+     125
+    ]
+   },
+   "pass_modules": {
+    "aecp": 19442,
+    "mbx": 17848,
+    "aecp_commands": 4636,
+    "ctrl_mem": 3821,
+    "aecp_mbx": 3353,
+    "ctrl_app_aecp": 800
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.29.6.0.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 316746150,
+   "sys_cycles": 1676417,
+   "cpu_cycles": 1676417,
+   "ms": 16.76417,
+   "wait_ms": 105.0,
+   "passes": 26,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 316735235,
+    "last_sys": 316746150,
+    "per_recipient_cpu_cycles": 727
+   },
+   "bound_cpu_cycles": 1694955,
+   "bound_ms": 16.94955,
+   "bound_within_budget": true,
+   "pass_cycles": 51428,
+   "pass_instr": 12445,
+   "pass_mbx_accesses": 135,
+   "pass_fetch_share": 0.2521,
+   "pass_fetch_wait_share": 0.1934,
+   "pass_regions": {
+    "rom": [
+     120,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     12,
+     123
+    ],
+    "csr": [
+     0,
+     96,
+     125
+    ]
+   },
+   "pass_modules": {
+    "aecp": 19442,
+    "mbx": 17848,
+    "aecp_commands": 4636,
+    "ctrl_mem": 3821,
+    "aecp_mbx": 3353,
+    "ctrl_app_aecp": 800
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.f.6.1.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 316779043,
+   "sys_cycles": 1709310,
+   "cpu_cycles": 1709310,
+   "ms": 17.0931,
+   "wait_ms": 105.0,
+   "passes": 27,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 316752281,
+    "last_sys": 316779043,
+    "per_recipient_cpu_cycles": 1784
+   },
+   "bound_cpu_cycles": 1722361,
+   "bound_ms": 17.22361,
+   "bound_within_budget": true,
+   "pass_cycles": 27406,
+   "pass_instr": 5804,
+   "pass_mbx_accesses": 48,
+   "pass_fetch_share": 0.5311,
+   "pass_fetch_wait_share": 0.2818,
+   "pass_regions": {
+    "rom": [
+     94,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     25,
+     23
+    ],
+    "csr": [
+     0,
+     12,
+     23
+    ]
+   },
+   "pass_modules": {
+    "aecp": 6264,
+    "mbx": 4356,
+    "ctrl_loop": 3457,
+    "ctrl_app_aecp": 2225,
+    "srp_mbx": 1856,
+    "ctrl_app_srp": 1354
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.29.6.1.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 316923080,
+   "sys_cycles": 1853347,
+   "cpu_cycles": 1853347,
+   "ms": 18.53347,
+   "wait_ms": 105.0,
+   "passes": 36,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 316912256,
+    "last_sys": 316923080,
+    "per_recipient_cpu_cycles": 721
+   },
+   "bound_cpu_cycles": 1884853,
+   "bound_ms": 18.84853,
+   "bound_within_budget": true,
+   "pass_cycles": 47605,
+   "pass_instr": 11546,
+   "pass_mbx_accesses": 115,
+   "pass_fetch_share": 0.2506,
+   "pass_fetch_wait_share": 0.1866,
+   "pass_regions": {
+    "rom": [
+     105,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     10,
+     105
+    ],
+    "csr": [
+     0,
+     92,
+     107
+    ]
+   },
+   "pass_modules": {
+    "aecp": 18649,
+    "mbx": 15980,
+    "aecp_commands": 4185,
+    "ctrl_mem": 3573,
+    "aecp_mbx": 3119,
+    "ctrl_app_aecp": 610
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.f.6.2.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 316939296,
+   "sys_cycles": 1869563,
+   "cpu_cycles": 1869563,
+   "ms": 18.69563,
+   "wait_ms": 105.0,
+   "passes": 36,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 316930572,
+    "last_sys": 316939296,
+    "per_recipient_cpu_cycles": 581
+   },
+   "bound_cpu_cycles": 1884853,
+   "bound_ms": 18.84853,
+   "bound_within_budget": true,
+   "pass_cycles": 47605,
+   "pass_instr": 11546,
+   "pass_mbx_accesses": 115,
+   "pass_fetch_share": 0.2506,
+   "pass_fetch_wait_share": 0.1866,
+   "pass_regions": {
+    "rom": [
+     105,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     10,
+     105
+    ],
+    "csr": [
+     0,
+     92,
+     107
+    ]
+   },
+   "pass_modules": {
+    "aecp": 18649,
+    "mbx": 15980,
+    "aecp_commands": 4185,
+    "ctrl_mem": 3573,
+    "aecp_mbx": 3119,
+    "ctrl_app_aecp": 610
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.29.6.2.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 316992407,
+   "sys_cycles": 1922674,
+   "cpu_cycles": 1922674,
+   "ms": 19.22674,
+   "wait_ms": 105.0,
+   "passes": 38,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 316945443,
+    "last_sys": 316992407,
+    "per_recipient_cpu_cycles": 3130
+   },
+   "bound_cpu_cycles": 1934855,
+   "bound_ms": 19.34855,
+   "bound_within_budget": true,
+   "pass_cycles": 20274,
+   "pass_instr": 4203,
+   "pass_mbx_accesses": 20,
+   "pass_fetch_share": 0.6818,
+   "pass_fetch_wait_share": 0.2421,
+   "pass_regions": {
+    "rom": [
+     60,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     16,
+     4
+    ],
+    "csr": [
+     0,
+     3,
+     5
+    ]
+   },
+   "pass_modules": {
+    "aecp": 4941,
+    "ctrl_loop": 2627,
+    "ctrl_app_aecp": 1764,
+    "mbx": 1596,
+    "ctrl_mem": 1419,
+    "ctrl_app_srp": 1313
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.f.6.3.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 315378293,
+   "sys_cycles": 308560,
+   "cpu_cycles": 308560,
+   "ms": 3.0856,
+   "wait_ms": 105.0,
+   "passes": 7,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 315369657,
+    "last_sys": 315378293,
+    "per_recipient_cpu_cycles": 575
+   },
+   "bound_cpu_cycles": 423774,
+   "bound_ms": 4.23774,
+   "bound_within_budget": true,
+   "pass_cycles": 144963,
+   "pass_instr": 19090,
+   "pass_mbx_accesses": 139,
+   "pass_fetch_share": 0.2028,
+   "pass_fetch_wait_share": 0.0749,
+   "pass_regions": {
+    "rom": [
+     129,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     22,
+     117
+    ],
+    "flash": [
+     0,
+     128,
+     0
+    ],
+    "csr": [
+     0,
+     117,
+     123
+    ]
+   },
+   "pass_modules": {
+    "nvm_flash_litespi": 71510,
+    "aecp": 27522,
+    "mbx": 18704,
+    "aecp_commands": 4658,
+    "ctrl_mem": 4328,
+    "aecp_mbx": 3391
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.29.6.3.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 315397457,
+   "sys_cycles": 327724,
+   "cpu_cycles": 327724,
+   "ms": 3.27724,
+   "wait_ms": 105.0,
+   "passes": 7,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 315386615,
+    "last_sys": 315397457,
+    "per_recipient_cpu_cycles": 722
+   },
+   "bound_cpu_cycles": 423774,
+   "bound_ms": 4.23774,
+   "bound_within_budget": true,
+   "pass_cycles": 144963,
+   "pass_instr": 19090,
+   "pass_mbx_accesses": 139,
+   "pass_fetch_share": 0.2028,
+   "pass_fetch_wait_share": 0.0749,
+   "pass_regions": {
+    "rom": [
+     129,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     22,
+     117
+    ],
+    "flash": [
+     0,
+     128,
+     0
+    ],
+    "csr": [
+     0,
+     117,
+     123
+    ]
+   },
+   "pass_modules": {
+    "nvm_flash_litespi": 71510,
+    "aecp": 27522,
+    "mbx": 18704,
+    "aecp_commands": 4658,
+    "ctrl_mem": 4328,
+    "aecp_mbx": 3391
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.f.6.4.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 317119642,
+   "sys_cycles": 2049909,
+   "cpu_cycles": 2049909,
+   "ms": 20.49909,
+   "wait_ms": 105.0,
+   "passes": 46,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 317110930,
+    "last_sys": 317119642,
+    "per_recipient_cpu_cycles": 580
+   },
+   "bound_cpu_cycles": 2101403,
+   "bound_ms": 21.01403,
+   "bound_within_budget": true,
+   "pass_cycles": 66900,
+   "pass_instr": 16742,
+   "pass_mbx_accesses": 209,
+   "pass_fetch_share": 0.1938,
+   "pass_fetch_wait_share": 0.1543,
+   "pass_regions": {
+    "rom": [
+     125,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     17,
+     192
+    ],
+    "csr": [
+     0,
+     117,
+     194
+    ]
+   },
+   "pass_modules": {
+    "mbx": 25873,
+    "aecp": 24595,
+    "aecp_commands": 5374,
+    "aecp_mbx": 4877,
+    "ctrl_mem": 3874,
+    "ctrl_app_aecp": 687
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.29.6.4.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 317137380,
+   "sys_cycles": 2067647,
+   "cpu_cycles": 2067647,
+   "ms": 20.67647,
+   "wait_ms": 105.0,
+   "passes": 46,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 317126465,
+    "last_sys": 317137380,
+    "per_recipient_cpu_cycles": 727
+   },
+   "bound_cpu_cycles": 2101403,
+   "bound_ms": 21.01403,
+   "bound_within_budget": true,
+   "pass_cycles": 66900,
+   "pass_instr": 16742,
+   "pass_mbx_accesses": 209,
+   "pass_fetch_share": 0.1938,
+   "pass_fetch_wait_share": 0.1543,
+   "pass_regions": {
+    "rom": [
+     125,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     17,
+     192
+    ],
+    "csr": [
+     0,
+     117,
+     194
+    ]
+   },
+   "pass_modules": {
+    "mbx": 25873,
+    "aecp": 24595,
+    "aecp_commands": 5374,
+    "aecp_mbx": 4877,
+    "ctrl_mem": 3874,
+    "ctrl_app_aecp": 687
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.27.9.0.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 317151385,
+   "sys_cycles": 2081652,
+   "cpu_cycles": 2081652,
+   "ms": 20.81652,
+   "wait_ms": 105.0,
+   "passes": 46,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 317142589,
+    "last_sys": 317151385,
+    "per_recipient_cpu_cycles": 586
+   },
+   "bound_cpu_cycles": 2101403,
+   "bound_ms": 21.01403,
+   "bound_within_budget": true,
+   "pass_cycles": 66900,
+   "pass_instr": 16742,
+   "pass_mbx_accesses": 209,
+   "pass_fetch_share": 0.1938,
+   "pass_fetch_wait_share": 0.1543,
+   "pass_regions": {
+    "rom": [
+     125,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     17,
+     192
+    ],
+    "csr": [
+     0,
+     117,
+     194
+    ]
+   },
+   "pass_modules": {
+    "mbx": 25873,
+    "aecp": 24595,
+    "aecp_commands": 5374,
+    "aecp_mbx": 4877,
+    "ctrl_mem": 3874,
+    "ctrl_app_aecp": 687
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.28.9.0.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 317164033,
+   "sys_cycles": 2094300,
+   "cpu_cycles": 2094300,
+   "ms": 20.943,
+   "wait_ms": 105.0,
+   "passes": 46,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 317155310,
+    "last_sys": 317164033,
+    "per_recipient_cpu_cycles": 581
+   },
+   "bound_cpu_cycles": 2101403,
+   "bound_ms": 21.01403,
+   "bound_within_budget": true,
+   "pass_cycles": 66900,
+   "pass_instr": 16742,
+   "pass_mbx_accesses": 209,
+   "pass_fetch_share": 0.1938,
+   "pass_fetch_wait_share": 0.1543,
+   "pass_regions": {
+    "rom": [
+     125,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     17,
+     192
+    ],
+    "csr": [
+     0,
+     117,
+     194
+    ]
+   },
+   "pass_modules": {
+    "mbx": 25873,
+    "aecp": 24595,
+    "aecp_commands": 5374,
+    "aecp_mbx": 4877,
+    "ctrl_mem": 3874,
+    "ctrl_app_aecp": 687
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.29.9.0.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 315499975,
+   "sys_cycles": 430242,
+   "cpu_cycles": 430242,
+   "ms": 4.30242,
+   "wait_ms": 105.0,
+   "passes": 8,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 315405575,
+    "last_sys": 315499975,
+    "per_recipient_cpu_cycles": 6293
+   },
+   "bound_cpu_cycles": 460253,
+   "bound_ms": 4.60253,
+   "bound_within_budget": true,
+   "pass_cycles": 36479,
+   "pass_instr": 7939,
+   "pass_mbx_accesses": 57,
+   "pass_fetch_share": 0.4064,
+   "pass_fetch_wait_share": 0.2077,
+   "pass_regions": {
+    "rom": [
+     89,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     24,
+     33
+    ],
+    "csr": [
+     0,
+     44,
+     29
+    ]
+   },
+   "pass_modules": {
+    "aecp": 12111,
+    "mbx": 6292,
+    "ctrl_loop": 3841,
+    "ctrl_app_aecp": 2081,
+    "srp_mbx": 1949,
+    "aecp_mbx": 1787
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.notices.29.36.0.if0",
+   "row": "a queued notice, from its port's answer",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "notice.queued",
+    0
+   ],
+   "start_sys": 315069733,
+   "end_sys": 315731067,
+   "sys_cycles": 661334,
+   "cpu_cycles": 661334,
+   "ms": 6.61334,
+   "wait_ms": 105.0,
+   "passes": 11,
+   "ring": "events",
+   "ahead": 1,
+   "budget_ms": 125.0,
+   "ceiling_ms": 129.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 16,
+    "first_sys": 315633070,
+    "last_sys": 315731067,
+    "per_recipient_cpu_cycles": 6533
+   },
+   "bound_cpu_cycles": 807723,
+   "bound_ms": 8.07723,
+   "bound_within_budget": true,
+   "pass_cycles": 157377,
+   "pass_instr": 34322,
+   "pass_mbx_accesses": 156,
+   "pass_fetch_share": 0.4184,
+   "pass_fetch_wait_share": 0.2218,
+   "pass_regions": {
+    "rom": [
+     418,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     77,
+     79
+    ],
+    "csr": [
+     0,
+     324,
+     101
+    ]
+   },
+   "pass_modules": {
+    "aecp": 61533,
+    "mbx": 32638,
+    "ctrl_mem": 27820,
+    "ctrl_loop": 5868,
+    "aecp_commands": 5771,
+    "aecp_mbx": 4317
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.held.adp.if0",
+   "row": "ADP record, every channel at its refill rate, the longest",
+   "family": "adp",
+   "interface": 0,
+   "path": [
+    "held.adp",
+    0
+   ],
+   "start_sys": 315600874,
+   "wait_ms": 0.0,
+   "ring": "adp",
+   "records": 16,
+   "ahead": 7,
+   "starved": false,
+   "pass_cycles": 113823,
+   "pass_instr": 30472,
+   "pass_mbx_accesses": 189,
+   "pass_fetch_share": 0.2215,
+   "pass_fetch_wait_share": 0.093,
+   "pass_regions": {
+    "rom": [
+     128,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     75,
+     114
+    ],
+    "csr": [
+     0,
+     166,
+     95
+    ]
+   },
+   "pass_modules": {
+    "acmp": 36142,
+    "mbx": 28063,
+    "ctrl_loop": 10431,
+    "ctrl_mem": 9625,
+    "maap": 7265,
+    "aecp": 3945
+   },
+   "end_sys": 316137431,
+   "sys_cycles": 536557,
+   "cpu_cycles": 536557,
+   "ms": 5.36557,
+   "passes": 5,
+   "budget_ms": 20.0,
+   "ceiling_ms": 200.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.held.acmp.if0",
+   "row": "ACMP record, every channel at its refill rate, the longest",
+   "family": "acmp",
+   "interface": 0,
+   "path": [
+    "held.acmp",
+    0
+   ],
+   "start_sys": 315621142,
+   "wait_ms": 0.0,
+   "ring": "acmp",
+   "records": 37,
+   "ahead": 11,
+   "starved": false,
+   "pass_cycles": 113823,
+   "pass_instr": 30472,
+   "pass_mbx_accesses": 189,
+   "pass_fetch_share": 0.2215,
+   "pass_fetch_wait_share": 0.093,
+   "pass_regions": {
+    "rom": [
+     128,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     75,
+     114
+    ],
+    "csr": [
+     0,
+     166,
+     95
+    ]
+   },
+   "pass_modules": {
+    "acmp": 36142,
+    "mbx": 28063,
+    "ctrl_loop": 10431,
+    "ctrl_mem": 9625,
+    "maap": 7265,
+    "aecp": 3945
+   },
+   "end_sys": 316137431,
+   "sys_cycles": 516289,
+   "cpu_cycles": 516289,
+   "ms": 5.16289,
+   "passes": 5,
+   "budget_ms": 20.0,
+   "ceiling_ms": 20.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.held.aecp.if0",
+   "row": "AECP record, every channel at its refill rate, the longest",
+   "family": "aecp",
+   "interface": 0,
+   "path": [
+    "held.aecp",
+    0
+   ],
+   "start_sys": 315641346,
+   "wait_ms": 0.0,
+   "ring": "aecp",
+   "records": 49,
+   "ahead": 15,
+   "starved": false,
+   "pass_cycles": 150808,
+   "pass_instr": 35001,
+   "pass_mbx_accesses": 186,
+   "pass_fetch_share": 0.4028,
+   "pass_fetch_wait_share": 0.2025,
+   "pass_regions": {
+    "rom": [
+     371,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     81,
+     105
+    ],
+    "csr": [
+     0,
+     268,
+     96
+    ]
+   },
+   "pass_modules": {
+    "aecp": 34784,
+    "mbx": 33800,
+    "acmp": 22217,
+    "ctrl_mem": 21923,
+    "ctrl_loop": 8393,
+    "maap": 6033
+   },
+   "end_sys": 316023608,
+   "sys_cycles": 382262,
+   "cpu_cycles": 382262,
+   "ms": 3.82262,
+   "passes": 4,
+   "budget_ms": 20.0,
+   "ceiling_ms": 24.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.held.maap.if0",
+   "row": "MAAP record, every channel at its refill rate, the longest",
+   "family": "maap",
+   "interface": 0,
+   "path": [
+    "held.maap",
+    0
+   ],
+   "start_sys": 315660617,
+   "wait_ms": 0.0,
+   "ring": "maap",
+   "records": 7,
+   "ahead": 6,
+   "starved": false,
+   "pass_cycles": 113823,
+   "pass_instr": 30472,
+   "pass_mbx_accesses": 189,
+   "pass_fetch_share": 0.2215,
+   "pass_fetch_wait_share": 0.093,
+   "pass_regions": {
+    "rom": [
+     128,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     75,
+     114
+    ],
+    "csr": [
+     0,
+     166,
+     95
+    ]
+   },
+   "pass_modules": {
+    "acmp": 36142,
+    "mbx": 28063,
+    "ctrl_loop": 10431,
+    "ctrl_mem": 9625,
+    "maap": 7265,
+    "aecp": 3945
+   },
+   "end_sys": 316137431,
+   "sys_cycles": 476814,
+   "cpu_cycles": 476814,
+   "ms": 4.76814,
+   "passes": 5,
+   "budget_ms": 20.0,
+   "ceiling_ms": 50.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "status": "measured"
+  },
+  {
+   "probe": "notice-burst-7.held.srp.if0",
+   "row": "SRP record, every channel at its refill rate, the longest",
+   "family": "srp",
+   "interface": 0,
+   "path": [
+    "held.srp",
+    0
+   ],
+   "start_sys": 315682642,
+   "wait_ms": 0.0,
+   "ring": "srp",
+   "records": 96,
+   "ahead": 31,
+   "starved": false,
+   "pass_cycles": 80198,
+   "pass_instr": 17447,
+   "pass_mbx_accesses": 38,
+   "pass_fetch_share": 0.7561,
+   "pass_fetch_wait_share": 0.2899,
+   "pass_regions": {
+    "rom": [
+     279,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     31,
+     7
+    ],
+    "csr": [
+     0,
+     26,
+     26
+    ]
+   },
+   "pass_modules": {
+    "srp_mbx": 16630,
+    "mrp_pdu": 12331,
+    "ctrl_mem": 10694,
+    "mrp_mad": 10196,
+    "mbx": 6889,
+    "ctrl_loop": 5153
+   },
+   "end_sys": 316549600,
+   "sys_cycles": 866958,
+   "cpu_cycles": 866958,
+   "ms": 8.66958,
+   "passes": 9,
+   "budget_ms": 20.0,
+   "ceiling_ms": 20.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "status": "measured"
+  }
+ ],
+ "timeouts": [],
+ "passes": {
+  "count": 21975,
+  "work": 1330,
+  "idle_min": 3857,
+  "idle_max": 105680,
+  "worst": {
+   "cycles": 157377,
+   "ms": 1.57377,
+   "instr": 34322,
+   "start_sys": 315715423,
+   "modules": {
+    "aecp_mbx": 4317,
+    "ctrl_app_aecp": 2818,
+    "ctrl_loop": 5868,
+    "nvm_store": 1665,
+    "nvm_flash_litespi": 2566,
+    "aecp": 61533,
+    "mbx": 32638,
+    "mbx_plat_mmio": 54,
+    "srp_mbx": 3011,
+    "acmp_mbx": 873,
+    "adp_mbx": 534,
+    "adp": 844,
+    "acmp": 1535,
+    "maap_mbx": 1147,
+    "ctrl_mem": 27820,
+    "ctrl_app_srp": 1642,
+    "ctrl_aecp_image": 35,
+    "maap": 384,
+    "aecp_nvm": 49,
+    "aecp_face": 1217,
+    "timer": 821,
+    "mrp_mad": 235,
+    "aecp_commands": 5771
+   }
+  },
+  "composed": null,
+  "share": {
+   "ms": 2.0,
+   "cycles": 200000,
+   "passes": 1330,
+   "over": 0,
+   "over_passes": [],
+   "idle_over": 0,
+   "idle_longest": 105680
+  },
+  "steps": {
+   "passes": 512,
+   "cycles": 148236,
+   "ms": 1.48236,
+   "start_sys": 315567187,
+   "store_cycles": 78098,
+   "store_ms": 0.78098,
+   "store_start_sys": 275672765
+  },
+  "stated": {
+   "heaviest": {
+    "step": 76337,
+    "build": 48824,
+    "build-one": 24775
+   },
+   "limits": {
+    "step": 85000,
+    "build": 82500,
+    "build-one": 60000
+   },
+   "over": []
+  },
+  "rounds": {
+   "rounds": 20725,
+   "heaviest": {
+    "0": 19763,
+    "2": 41259,
+    "3": 54695,
+    "4": 65824
+   },
+   "stated": {
+    "cold": 125,
+    "notice": 195,
+    "attempt": 25
+   },
+   "over": []
+  },
+  "polls": {
+   "passes": 21893,
+   "heaviest": {
+    "base": 17061,
+    "withdraw": 0,
+    "rebuild": 0,
+    "walk": 494,
+    "reclaim": 0,
+    "retained": 0,
+    "mrpdu": 0,
+    "acmp": 0,
+    "aecp": 12572,
+    "aecp_long": 0,
+    "acmp_declined": 0,
+    "record": 20595,
+    "acmp_kept": 0
+   },
+   "limits": {
+    "base": 23000,
+    "withdraw": 10000,
+    "rebuild": 18500,
+    "walk": 3000,
+    "reclaim": 1500,
+    "retained": 30000,
+    "mrpdu": 60000,
+    "acmp": 6000,
+    "aecp": 14000,
+    "aecp_long": 31000,
+    "acmp_declined": 2000,
+    "record": 30000,
+    "acmp_kept": 21000
+   },
+   "over": [],
+   "long": []
+  },
+  "slices": {
+   "slices": 20743,
+   "longest": {
+    "srp": 102472,
+    "build": 48824,
+    "round": 65824
+   },
+   "limit": 125000,
+   "over": []
+  },
+  "joins": {
+   "count": 3,
+   "shortest": 188.419,
+   "longest": 189.991,
+   "over": [],
+   "runs": {
+    "released": 9,
+    "empty": 8,
+    "late": 0,
+    "absent": 0,
+    "unresolved": 0,
+    "unowned": 0
+   },
+   "failing": [],
+   "leave_all": {
+    "runs": {
+     "sent": 0,
+     "skipped": 0,
+     "late": 0,
+     "absent": 0,
+     "unresolved": 0,
+     "unowned": 0
+    },
+    "failing": []
+   }
+  }
+ },
+ "save": null,
+ "burst": null,
+ "bind": null,
+ "summary": {
+  "sys": "329149573",
+  "cpu": "329149509",
+  "passes": "21975",
+  "instr": "84819613",
+  "bus_errors": "0",
+  "traps": "0",
+  "flash_erase": "0",
+  "flash_program": "0",
+  "mbx_read": "203834/1674161/7/70",
+  "mbx_write": "3576/32964/7/70",
+  "host_cycles": "227731/426143/1/2",
+  "fetch_rom": "136661/11034197/80/209",
+  "load_rom": "0/0/0/0",
+  "store_rom": "0/0/0/0",
+  "fetch_sram": "0/0/0/0",
+  "load_sram": "0/0/0/0",
+  "store_sram": "0/0/0/0",
+  "fetch_mbx": "0/0/0/0",
+  "load_mbx": "203834/1674161/7/70",
+  "store_mbx": "3576/32964/7/70",
+  "fetch_flash": "0/0/0/0",
+  "load_flash": "14592/7609071/267/658",
+  "store_flash": "0/0/0/0",
+  "fetch_csr": "0/0/0/0",
+  "load_csr": "113113/842825/7/82",
+  "store_csr": "94871/675384/7/64",
+  "fetch_other": "0/0/0/0",
+  "load_other": "0/0/0/0",
+  "store_other": "0/0/0/0"
+ },
+ "modules": {
+  "ctrl_split_start": 248158,
+  "aecp_mbx": 7274096,
+  "ctrl_app_aecp": 28328369,
+  "ctrl_loop": 52973460,
+  "nvm_store": 10602907,
+  "nvm_flash_litespi": 23921237,
+  "aecp": 63225330,
+  "mbx": 13499231,
+  "mbx_plat_mmio": 124124,
+  "srp_mbx": 18191019,
+  "acmp_mbx": 10430652,
+  "adp_mbx": 257778,
+  "adp": 1743293,
+  "acmp": 22431802,
+  "maap_mbx": 13267071,
+  "ctrl_mem": 15738795,
+  "ctrl_app_srp": 28773293,
+  "ctrl_aecp_image": 3457641,
+  "maap": 5865197,
+  "aecp_nvm": 357206,
+  "aecp_face": 2796675,
+  "timer": 181344,
+  "mrp_mad": 453116,
+  "aecp_commands": 524936,
+  "msrp": 66054,
+  "shlan_port": 2174,
+  "ctrl_pool": 7980,
+  "mvrp": 2534,
+  "nvm_klj2": 1687210,
+  "aecp_maps": 8590,
+  "ctrl_debug": 18,
+  "acmp_nvm": 794,
+  "ctrl_app": 2453,
+  "aecp_image": 2494267,
+  "aecp_state": 1700,
+  "mrp_pdu": 208655,
+  "unmapped": 350
+ },
+ "code": {
+  "boot_bytes": "15872",
+  "service_bytes": "68416",
+  "service_only_bytes": "63680",
+  "aecp_mbx": "1296",
+  "ctrl_app_aecp": "2012",
+  "ctrl_loop": "2472",
+  "nvm_store": "3172",
+  "nvm_flash_litespi": "1300",
+  "aecp": "8204",
+  "mbx": "2884",
+  "mbx_plat_mmio": "20",
+  "srp_mbx": "7672",
+  "acmp_mbx": "760",
+  "adp_mbx": "448",
+  "adp": "2420",
+  "acmp": "7000",
+  "maap_mbx": "1668",
+  "ctrl_mem": "1016",
+  "ctrl_app_srp": "1128",
+  "ctrl_aecp_image": "724",
+  "maap": "2832",
+  "aecp_nvm": "1108",
+  "aecp_face": "1948",
+  "timer": "144",
+  "mrp_mad": "7088",
+  "aecp_commands": "3996",
+  "msrp": "1592",
+  "shlan_port": "84",
+  "ctrl_pool": "516",
+  "mvrp": "508",
+  "nvm_klj2": "1364",
+  "aecp_maps": "1096",
+  "ctrl_debug": "20",
+  "acmp_nvm": "128",
+  "ctrl_app": "108",
+  "aecp_state": "480",
+  "mrp_pdu": "1208"
+ }
+}

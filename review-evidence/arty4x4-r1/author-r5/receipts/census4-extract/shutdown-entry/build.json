@@ -1,0 +1,233 @@
+{
+  "sources": [
+    "$LANES/arty-4x4/hdl/milan/mailbox/KL_mbx_pkg.sv",
+    "$LANES/arty-4x4/hdl/milan/mailbox/KL_mbx_ring.sv",
+    "$LANES/arty-4x4/hdl/milan/mailbox/KL_mbx_rx.sv",
+    "$LANES/arty-4x4/hdl/milan/mailbox/KL_mbx_tx.sv",
+    "$LANES/arty-4x4/hdl/milan/mailbox/KL_mbx_evt.sv",
+    "$LANES/arty-4x4/hdl/milan/mailbox/KL_mbx.sv",
+    "$LANES/arty-4x4/hdl/milan/mailbox/KL_mbx_wb.sv",
+    "$LANES/arty-4x4/hdl/milan/mailbox/KL_mbx_dma.sv",
+    "$WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v",
+    "$WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v",
+    "$WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_9fdf25696b8f525f981b84f78b4a1952.v",
+    "$VALIDATION_STORAGE/arty4x4-a863/c4q/shutdown-entry/gateware/sim.v"
+  ],
+  "includes": [],
+  "sys_hz": 100000000,
+  "cpu_cd": "sys",
+  "cpu_hz": 100000000,
+  "milan_hz": 50000000,
+  "shape": "endstation_arty_split_4x4",
+  "interfaces": 1,
+  "addresses": {
+    "mailbox": 2147483648,
+    "mbx_dma": 4026591232,
+    "spiflash": 4026537984,
+    "timer0": 4026540032,
+    "flash": 16777216,
+    "flash_size": 16777216
+  },
+  "window_bytes": 32768,
+  "netlist": "VexiiRiscvLitex_9fdf25696b8f525f981b84f78b4a1952",
+  "vexii_soc_args": {
+    "cpu_count": "1",
+    "imsic_interrupt_number": "0",
+    "l2_bytes": "0",
+    "l2_self_flush": "None",
+    "l2_ways": "4",
+    "mac_sg": "[]",
+    "video": "[]",
+    "with_aplic": "False",
+    "with_axi3": "False",
+    "with_axilite_xlen": "False",
+    "with_cpu_clk": "False",
+    "with_dma": "True",
+    "with_jtag_instruction": "False",
+    "with_jtag_tap": "False"
+  },
+  "vexii_args": " --with-isa=,zicsr,m,zifencei,zmmul,i --xlen=32 --with-mul --with-div --fetch-l1 --fetch-l1-sets=128 --fetch-l1-ways=2 --lsu-l1 --lsu-l1-sets=128 --lsu-l1-ways=1 --reset-vector 0",
+  "memory_regions": [
+    [
+      0,
+      229376,
+      "rxc",
+      "p"
+    ],
+    [
+      268435456,
+      229376,
+      "rwxc",
+      "p"
+    ],
+    [
+      2147483648,
+      32768,
+      "rw",
+      "p"
+    ],
+    [
+      16777216,
+      16777216,
+      "r",
+      "p"
+    ],
+    [
+      4026531840,
+      65536,
+      "rw",
+      "p"
+    ]
+  ],
+  "cpu_regions": "cover",
+  "cpu_memory_regions": [
+    [
+      0,
+      131072,
+      "rxc",
+      "p"
+    ],
+    [
+      131072,
+      65536,
+      "rxc",
+      "p"
+    ],
+    [
+      196608,
+      32768,
+      "rxc",
+      "p"
+    ],
+    [
+      268435456,
+      131072,
+      "rwxc",
+      "p"
+    ],
+    [
+      268566528,
+      65536,
+      "rwxc",
+      "p"
+    ],
+    [
+      268632064,
+      32768,
+      "rwxc",
+      "p"
+    ],
+    [
+      2147483648,
+      32768,
+      "rw",
+      "p"
+    ],
+    [
+      16777216,
+      16777216,
+      "r",
+      "p"
+    ],
+    [
+      4026531840,
+      65536,
+      "rw",
+      "p"
+    ]
+  ],
+  "fetch_l1": "split",
+  "fetch_l1_geometry": [
+    128,
+    2
+  ],
+  "ctrl_plan": {
+    "rom": {
+      "bytes": 123072,
+      "banks": [
+        65536,
+        32768,
+        16384,
+        8192,
+        2048
+      ],
+      "RAMB36": 30,
+      "RAMB18": 1
+    },
+    "sram": {
+      "bytes": 68400,
+      "banks": [
+        65536,
+        4096
+      ],
+      "RAMB36": 17,
+      "RAMB18": 0
+    },
+    "tiles": 47.5,
+    "budget_tiles": 56
+  },
+  "elf": "$VALIDATION_STORAGE/arty4x4-a863/c4q/shutdown-entry/image/ctrl_app.elf",
+  "flash_map": "$VALIDATION_STORAGE/arty4x4-a863/c4q/shutdown-entry/split-soc/flash-map",
+  "xip": false,
+  "flash_image": null,
+  "channels": 5,
+  "filter_en": 40,
+  "tmr_cmd": 60,
+  "evt_tail": 100,
+  "ev_words": 4,
+  "ev_tick": {
+    "type": 4,
+    "count_lsb": 0,
+    "count_width": 16
+  },
+  "ch_base": 256,
+  "ch_stride": 32,
+  "tx_head": 8,
+  "variant": "shutdown-entry",
+  "inputs": {
+    "build:image/ctrl_app.elf": "9819bcb081401832ccd2419028c229691f4b8c7ea95b16e17fa707301be239f0",
+    "build:split-soc/flash-map/generated/csr.h": "efc75c3e190b57c02b7f67c91e12ca75d4b046aa182cb3346d71891b83dd8a60",
+    "build:split-soc/flash-map/generated/mem.h": "a8d504a7309a08ae77fc6dcde987381c96a5338242783ea2e8d2736379bc5635",
+    "build:split-soc/flash-map/flash_port.json": "4c2519013eedd5fdae0a0ef0d29e3f0d8697dafee507584079782e8eece46847",
+    "build:runtime/libc.a": "2fd0d9249dfe927539db51c2cf33e253cb4863696fe8e586483d0da5cc240177",
+    "build:runtime/libcompiler_rt.a": "32d48a013dce9020772bcd792f7db5be2cff67f36fc9fcd409b7e8173c60022d",
+    "build:gateware/sim_mem.init": "d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335",
+    "build:gateware/sim_rom_bank0.init": "81cd03e796b342a77037169fd03f00b2653c0d2626c3908dbe6b06caf3db4add",
+    "build:gateware/sim_rom_bank1.init": "c20d7be70f293fdd84d188404f1d1916a1f81040701c639587bc5100f242e65b",
+    "build:gateware/sim_rom_bank2.init": "264885108a4d4d804046af8ecadde4f0782070cdf8e99574a5f229e5d7dec060",
+    "build:gateware/sim_rom_bank3.init": "c458af94156e57bd8d2e13efeb37dea456b19412842a6bace8c778e8c020c65a",
+    "build:gateware/sim_rom_bank4.init": "07c0a34baf5eb89bdd12124761094814e0798ab42526058006cdac6eb8b5f1a1",
+    "build:budget_config.hpp": "9485b47cd6ce0fcf2caf4cd2b4f166dbdd7182b6f6aa62cec9c41f56fc670d1e",
+    "checkout:tb/verilator/ctrl_service_budget/sim_main.cpp": "e721eebf756410c43f6341691376280299de0ed744b5b6f53e572ea05b6adea6",
+    "checkout:tb/verilator/ctrl_service_budget/egress_queue.hpp": "ff371dd94825040c10d4b4fbefd85014d343478a8e171d0aa2528d6bafe45557",
+    "checkout:tb/verilator/ctrl_service_budget/observe.vlt": "23da5f89cbf848f09c2cfbc06f2cf4c9fd8e61cdcf73c189d74bc2a57e2ba851",
+    "checkout:tb/verilator/fw_service_budget/flash.hpp": "f050f0d2baebcce9feffd91e915fdeae9599c11857bceded102e3af5df2ad43e",
+    "checkout:hdl/milan/mailbox/KL_mbx_pkg.sv": "492c5030b65a68c1f8fb11f68d788d2fc279cf45d6a47f6b4e05cae4cc66f2ba",
+    "checkout:hdl/milan/mailbox/KL_mbx_ring.sv": "6f306c031d6a851c4223b96591ff5dd8852eae44e82962f00d74cfdccd6dfa3c",
+    "checkout:hdl/milan/mailbox/KL_mbx_rx.sv": "0fae22450666d44ab92faf0e5969c761a975e68b105baccde7d255bf12ca48b0",
+    "checkout:hdl/milan/mailbox/KL_mbx_tx.sv": "840ede25d27b69bf78042adcc8cd58e317d1ab0bd388fa5ff9049428373de663",
+    "checkout:hdl/milan/mailbox/KL_mbx_evt.sv": "8e25fb3fb873a8a7dd1f6b187332ee4da2ee5d6207286412b90bb5d8c7150d58",
+    "checkout:hdl/milan/mailbox/KL_mbx.sv": "49ead58f0e1a1682032814663b4d4936b94a394a1a0e0a1f31ccf2184c6f48c7",
+    "checkout:hdl/milan/mailbox/KL_mbx_wb.sv": "01efd0c3d6e8f027cd1b2946b9fe9e0c25dff009ea55819777e9add35be2e329",
+    "checkout:hdl/milan/mailbox/KL_mbx_dma.sv": "3b337037cb7f4b157d868fd4a096a579e68108eb1fe52bddce3e2c2c50c52045",
+    "external:$WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v": "c319d54c5a0bbe20a72ab9b394a3a1e57ef34866ae2478c5caed50e064a72523",
+    "external:$WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v": "c8361e5fd0bc23be5f91cb2b63a091ab41bcdd857cc1c97f6e7e4ef8b6f61626",
+    "external:$WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_9fdf25696b8f525f981b84f78b4a1952.v": "ed89236565f117c69ab571dd6c9f82a7b567436baa9ad1da3a8f73af1ba8f873",
+    "build:gateware/sim.v": "692581ad05cc20c8ec8dc9914d27bba0ddb3ae460bf3450d394793c9188b3967",
+    "tree:firmware": "d0ac0d2633901f264204857e96b6a374d7a7ea03d8a24d9f01dfd599123673e0",
+    "tree:config": "5903b645b0954883a070812b225051f1acb0872d8c2d67c175d00c40f7d1c56c"
+  },
+  "symbols": {
+    "ctrl_loop_service": 140,
+    "main": 67404,
+    "nvm_store_service": 15204,
+    "adp_mbx_set_enable": 59912,
+    "on_join_timer": 98396,
+    "on_pt_timer": 100196,
+    "on_la_timer": 98584,
+    "build_mrpdu": 94340
+  },
+  "mutation": "none",
+  "executable_sha256": "56b15047a2f22fd897220d9b9db0e16131be48ba9a86fdab16f7d9646c2b11f0",
+  "measurement_pace_ms": 5
+}

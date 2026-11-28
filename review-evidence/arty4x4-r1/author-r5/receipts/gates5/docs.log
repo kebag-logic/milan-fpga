@@ -1,0 +1,98 @@
+0 python3 scripts/check_wire_accountability.py --self-test
+0 python3 scripts/docs_check.py
+0 python3 scripts/check_feature_status.py
+2 python3 scripts/check_em_dash.py --base "$base"
+0 python3 scripts/check_doc_style.py
+0 python3 scripts/check_doc_style.py --selftest
+0 python3 scripts/check_gptp_docs.py
+0 python3 scripts/check_gptp_docs.py --selftest
+0 python3 docs/DOC_MAP.gen.py --check
+0 python3 docs/DOC_MAP.gen.py --selftest
+0 python3 docs/diagrams/timesync_chain.gen.py --check
+0 python3 docs/diagrams/timesync_chain.gen.py --selftest
+0 python3 scripts/check_solution_docs.py
+0 python3 scripts/check_solution_docs.py --selftest
+0 python3 docs/diagrams/submodule_boundaries.gen.py --check
+0 python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+0 python3 scripts/check_submodule_docs.py
+0 python3 scripts/check_submodule_docs.py --selftest
+0 python3 scripts/gen_wavedrom.py --selftest
+0 python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check
+0 python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check
+0 python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check
+0 python3 scripts/check_diagram_pngs.py
+0 python3 scripts/check_diagram_pngs.py --selftest
+0 python3 scripts/check_feature_status.py --self-test
+0 python3 docs/traceability/gen_module_matrix.py --check
+0 python3 scripts/measure_control_flow.py --selftest
+0 python3 scripts/measure_cohesion.py --selftest
+0 python3 scripts/check_baremetal_only.py --check
+0 python3 scripts/check_baremetal_only.py --selftest
+0 python3 scripts/ci_rv32_sdk_selftest.py
+0 python3 scripts/check_nvm_record_space.py
+0 python3 scripts/check_nvm_record_space.py --self-test
+0 python3 scripts/check_nvm_format_32x32.py
+0 python3 scripts/check_nvm_format_32x32.py --self-test
+0 python3 scripts/check_nvm_klj3.py
+0 python3 scripts/check_nvm_klj3.py --self-test
+0 python3 scripts/check_nvm_capture.py
+0 python3 scripts/check_soc_sources.py
+0 python3 scripts/check_soc_sources.py --selftest
+0 python3 sw/litex/iob_pack_selftest.py
+0 python3 scripts/check_rtl_source_lists.py
+0 python3 scripts/check_rtl_source_lists.py --selftest
+0 python3 scripts/measure_naming.py --check
+0 python3 scripts/measure_naming.py --selftest
+0 python3 scripts/check_port_contracts.py
+0 python3 scripts/check_port_contracts.py --selftest
+0 python3 scripts/measure_fail_fast.py --check
+0 python3 scripts/measure_fail_fast.py --selftest
+0 python3 scripts/check_todo_ownership.py
+0 python3 scripts/check_todo_ownership.py --selftest
+0 python3 scripts/measure_test_evidence.py --check
+0 python3 scripts/measure_test_evidence.py --selftest
+0 python3 scripts/check_hygiene.py --check
+0 python3 scripts/check_hygiene.py --selftest
+0 python3 scripts/check_sv_idiom.py
+0 python3 scripts/check_sv_idiom.py --selftest
+0 python3 scripts/check_cpp_idiom.py
+0 python3 scripts/check_cpp_idiom.py --selftest
+0 python3 scripts/check_py_idiom.py
+0 python3 scripts/check_py_idiom.py --selftest
+0 python3 scripts/check_sh_idiom.py
+0 python3 scripts/check_sh_idiom.py --selftest
+0 python3 scripts/check_doc_paths.py
+0 python3 scripts/check_archive.py
+0 python3 scripts/check_archive.py --selftest
+2 python3 scripts/gen_toc.py --selftest
+2 python3 scripts/gen_toc.py --verify-anchors
+2 python3 scripts/gen_toc.py --check
+0 python3 scripts/docs_inventory.py --check
+0 python3 scripts/docs_inventory.py --selftest
+0 python3 avdecc/gen_aem_store.py --self-test
+0 python3 scripts/check_sweep_shape.py --self-test
+0 python3 scripts/check_deploy_shape.py --self-test
+0 python3 scripts/check_entity_shape.py --self-test
+0 python3 scripts/gen_register_reference.py --check
+0 python3 scripts/gen_register_reference.py --selftest
+0 python3 docs/diagrams/memory_map.gen.py --check
+0 python3 scripts/ci_gate_workflows.py --check
+0 python3 scripts/ci_gate_workflows_selftest.py
+0 python3 scripts/ci_case_receipts_selftest.py
+0 python3 scripts/ci_make_cases_selftest.py
+0 python3 scripts/ci_maap_cases_selftest.py
+0 python3 scripts/ci_capture_cases_selftest.py
+0 python3 scripts/ci_suite_pieces_selftest.py
+0 python3 scripts/ci_suite_collect_selftest.py
+0 python3 scripts/ci_fail_fast_selftest.py
+0 python3 scripts/generate_ci_evidence_pins.py --check
+0 python3 scripts/ci_workflow_plan_selftest.py
+0 python3 scripts/ci_manifest_selftest.py
+0 python3 scripts/mutant_stage.py --selftest
+0 python3 sw/builder/test_firmware_compiler.py --selftest
+0 python3 scripts/ci_events.py --check
+0 python3 scripts/ci_events.py --selftest
+0 python3 scripts/act_ci.py --selftest
+0 python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+DOCS FAIL 47f2a3d7ffdf7ef701c69267a91ac92892a1c99e 96 commands 4 failed
+rc=1

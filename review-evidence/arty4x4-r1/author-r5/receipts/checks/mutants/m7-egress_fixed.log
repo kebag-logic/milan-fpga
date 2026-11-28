@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "$LANES/arty-4x4/tb/verilator/ctrl_service_budget/egress_fixed.py", line 174, in <module>
+    sys.exit(main(sys.argv[1:]))
+             ~~~~^^^^^^^^^^^^^^
+  File "$LANES/arty-4x4/tb/verilator/ctrl_service_budget/egress_fixed.py", line 71, in main
+    return selftest()
+  File "$LANES/arty-4x4/tb/verilator/ctrl_service_budget/egress_fixed.py", line 161, in selftest
+    for name, ok in controls():
+                    ~~~~~~~~^^
+  File "$LANES/arty-4x4/tb/verilator/ctrl_service_budget/egress_fixed.py", line 117, in controls
+    rc, text = run([tmp, bad])
+               ~~~^^^^^^^^^^^^
+  File "$LANES/arty-4x4/tb/verilator/ctrl_service_budget/egress_fixed.py", line 112, in run
+    return main(argv), text.getvalue()
+           ~~~~^^^^^^
+  File "$LANES/arty-4x4/tb/verilator/ctrl_service_budget/egress_fixed.py", line 72, in main
+    sys_ps = sys_period(argv[1]) if len(argv) == 2 else 12500
+             ~~~~~~~~~~^^^^^^^^^
+  File "$LANES/arty-4x4/tb/verilator/ctrl_service_budget/egress_fixed.py", line 60, in sys_period
+    return 10**12 // int(text)
+           ~~~~~~~^^~~~~~~~~~~
+ZeroDivisionError: division by zero

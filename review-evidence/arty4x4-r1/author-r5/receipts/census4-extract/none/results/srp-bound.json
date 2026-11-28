@@ -1,0 +1,359 @@
+{
+ "group": "srp-bound",
+ "probes": [
+  {
+   "probe": "srp.bound_advertise.if0",
+   "row": "Talker Advertise RX for every input, bound",
+   "family": "srp",
+   "interface": 0,
+   "path": [
+    "srp.bound_advertise",
+    0
+   ],
+   "start_sys": 479803393,
+   "end_sys": 479927314,
+   "sys_cycles": 123921,
+   "cpu_cycles": 123921,
+   "ms": 1.23921,
+   "wait_ms": 0.0,
+   "passes": 2,
+   "ring": "srp",
+   "ahead": 0,
+   "budget_ms": 20.0,
+   "ceiling_ms": 20.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "bound_cpu_cycles": 123987,
+   "bound_ms": 1.23987,
+   "bound_within_budget": true,
+   "pass_cycles": 123987,
+   "pass_instr": 25529,
+   "pass_mbx_accesses": 21,
+   "pass_fetch_share": 0.9187,
+   "pass_fetch_wait_share": 0.2455,
+   "pass_regions": {
+    "rom": [
+     373,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     11,
+     10
+    ],
+    "csr": [
+     0,
+     6,
+     6
+    ]
+   },
+   "pass_modules": {
+    "srp_mbx": 24228,
+    "mrp_mad": 23603,
+    "ctrl_mem": 23357,
+    "acmp": 17823,
+    "msrp": 7473,
+    "ctrl_pool": 5577
+   },
+   "status": "measured"
+  }
+ ],
+ "timeouts": [],
+ "passes": {
+  "count": 39226,
+  "work": 2835,
+  "idle_min": 4169,
+  "idle_max": 96287,
+  "worst": {
+   "cycles": 123987,
+   "ms": 1.23987,
+   "instr": 25529,
+   "start_sys": 479803327,
+   "modules": {
+    "aecp_mbx": 277,
+    "ctrl_app_aecp": 2135,
+    "ctrl_loop": 3778,
+    "nvm_store": 663,
+    "nvm_flash_litespi": 387,
+    "aecp": 2403,
+    "mbx": 1997,
+    "srp_mbx": 24228,
+    "acmp_mbx": 862,
+    "adp_mbx": 6,
+    "adp": 193,
+    "acmp": 17823,
+    "maap_mbx": 721,
+    "ctrl_mem": 23357,
+    "ctrl_app_srp": 2662,
+    "ctrl_aecp_image": 65,
+    "maap": 294,
+    "aecp_nvm": 49,
+    "aecp_face": 180,
+    "timer": 119,
+    "mrp_mad": 23603,
+    "msrp": 7473,
+    "shlan_port": 390,
+    "ctrl_pool": 5577,
+    "mrp_pdu": 4745
+   }
+  },
+  "composed": null,
+  "share": {
+   "ms": 2.0,
+   "cycles": 200000,
+   "passes": 2835,
+   "over": 0,
+   "over_passes": [],
+   "idle_over": 0,
+   "idle_longest": 96287
+  },
+  "steps": {
+   "passes": 1333,
+   "cycles": 100388,
+   "ms": 1.00388,
+   "start_sys": 467995650,
+   "store_cycles": 78800,
+   "store_ms": 0.788,
+   "store_start_sys": 467328513
+  },
+  "stated": {
+   "heaviest": {
+    "step": 0,
+    "build": 49685,
+    "build-one": 100680
+   },
+   "limits": {
+    "step": 85000,
+    "build": 82500,
+    "build-one": 60000
+   },
+   "over": [
+    {
+     "kind": "build-one",
+     "start_sys": 479927314,
+     "cycles": 100680
+    },
+    {
+     "kind": "build-one",
+     "start_sys": 498620913,
+     "cycles": 66271
+    },
+    {
+     "kind": "build-one",
+     "start_sys": 517646953,
+     "cycles": 68327
+    }
+   ]
+  },
+  "rounds": {
+   "rounds": 37615,
+   "heaviest": {
+    "0": 10942
+   },
+   "stated": {
+    "cold": 125,
+    "notice": 195,
+    "attempt": 25
+   },
+   "over": []
+  },
+  "polls": {
+   "passes": 38822,
+   "heaviest": {
+    "base": 34667,
+    "withdraw": 0,
+    "rebuild": 0,
+    "walk": 6878,
+    "reclaim": 0,
+    "retained": 0,
+    "mrpdu": 0,
+    "acmp": 0,
+    "aecp": 0,
+    "aecp_long": 0,
+    "acmp_declined": 0,
+    "record": 82071,
+    "acmp_kept": 0
+   },
+   "limits": {
+    "base": 23000,
+    "withdraw": 10000,
+    "rebuild": 18500,
+    "walk": 3000,
+    "reclaim": 1500,
+    "retained": 30000,
+    "mrpdu": 60000,
+    "acmp": 6000,
+    "aecp": 14000,
+    "aecp_long": 31000,
+    "acmp_declined": 2000,
+    "record": 30000,
+    "acmp_kept": 21000
+   },
+   "over": [
+    {
+     "kind": "base",
+     "start_sys": 479891797,
+     "cycles": 34667
+    },
+    {
+     "kind": "walk",
+     "start_sys": 480039360,
+     "cycles": 6878
+    },
+    {
+     "kind": "record",
+     "start_sys": 479807858,
+     "cycles": 82071
+    }
+   ],
+   "long": []
+  },
+  "slices": {
+   "slices": 37626,
+   "longest": {
+    "srp": 86703,
+    "build": 100680,
+    "round": 10942
+   },
+   "limit": 125000,
+   "over": []
+  },
+  "joins": {
+   "count": 4,
+   "shortest": 186.591,
+   "longest": 190.025,
+   "over": [],
+   "runs": {
+    "released": 15,
+    "empty": 12,
+    "late": 0,
+    "absent": 0,
+    "unresolved": 0,
+    "unowned": 0
+   },
+   "failing": [],
+   "leave_all": {
+    "runs": {
+     "sent": 0,
+     "skipped": 0,
+     "late": 0,
+     "absent": 0,
+     "unresolved": 0,
+     "unowned": 0
+    },
+    "failing": []
+   }
+  }
+ },
+ "save": null,
+ "burst": null,
+ "bind": null,
+ "summary": {
+  "sys": "582889194",
+  "cpu": "582889130",
+  "passes": "39226",
+  "instr": "139829275",
+  "bus_errors": "0",
+  "traps": "0",
+  "flash_erase": "0",
+  "flash_program": "0",
+  "mbx_read": "364190/3063333/7/70",
+  "mbx_write": "10394/115810/7/69",
+  "host_cycles": "375151/732699/1/2",
+  "fetch_rom": "100692/8641401/80/670",
+  "load_rom": "0/0/0/0",
+  "store_rom": "0/0/0/0",
+  "fetch_sram": "0/0/0/0",
+  "load_sram": "0/0/0/0",
+  "store_sram": "0/0/0/0",
+  "fetch_mbx": "0/0/0/0",
+  "load_mbx": "364190/3063333/7/70",
+  "store_mbx": "10394/115810/7/69",
+  "fetch_flash": "0/0/0/0",
+  "load_flash": "56640/29520417/267/640",
+  "store_flash": "0/0/0/0",
+  "fetch_csr": "0/0/0/0",
+  "load_csr": "273877/1921352/7/82",
+  "store_csr": "186724/1314957/7/51",
+  "fetch_other": "0/0/0/0",
+  "load_other": "0/0/0/0",
+  "store_other": "0/0/0/0"
+ },
+ "modules": {
+  "ctrl_split_start": 250464,
+  "aecp_mbx": 12686014,
+  "ctrl_app_aecp": 48538007,
+  "ctrl_loop": 93628940,
+  "nvm_store": 34241481,
+  "nvm_flash_litespi": 64963515,
+  "aecp": 75317098,
+  "mbx": 26723078,
+  "mbx_plat_mmio": 220240,
+  "srp_mbx": 35115119,
+  "acmp_mbx": 18771234,
+  "adp_mbx": 451385,
+  "adp": 3060516,
+  "acmp": 40606098,
+  "maap_mbx": 24311299,
+  "ctrl_mem": 27901825,
+  "ctrl_app_srp": 49589626,
+  "ctrl_aecp_image": 1363605,
+  "maap": 10271262,
+  "aecp_nvm": 623128,
+  "aecp_face": 5413189,
+  "timer": 471204,
+  "mrp_mad": 562611,
+  "aecp_commands": 1873812,
+  "msrp": 15859,
+  "shlan_port": 1108,
+  "ctrl_pool": 14597,
+  "mvrp": 3879,
+  "nvm_klj2": 3372489,
+  "aecp_maps": 7269,
+  "ctrl_debug": 18,
+  "acmp_nvm": 1164,
+  "ctrl_app": 2413,
+  "aecp_image": 2494363,
+  "mrp_pdu": 20871,
+  "unmapped": 350
+ },
+ "code": {
+  "boot_bytes": "15936",
+  "service_bytes": "59840",
+  "service_only_bytes": "55296",
+  "aecp_mbx": "812",
+  "ctrl_app_aecp": "1668",
+  "ctrl_loop": "2472",
+  "nvm_store": "3116",
+  "nvm_flash_litespi": "1308",
+  "aecp": "4128",
+  "mbx": "3164",
+  "mbx_plat_mmio": "20",
+  "srp_mbx": "9320",
+  "acmp_mbx": "704",
+  "adp_mbx": "468",
+  "adp": "2060",
+  "acmp": "6484",
+  "maap_mbx": "1616",
+  "ctrl_mem": "1016",
+  "ctrl_app_srp": "1568",
+  "ctrl_aecp_image": "404",
+  "maap": "2120",
+  "aecp_nvm": "200",
+  "aecp_face": "1960",
+  "timer": "144",
+  "mrp_mad": "6896",
+  "aecp_commands": "1404",
+  "msrp": "1908",
+  "shlan_port": "84",
+  "ctrl_pool": "516",
+  "mvrp": "508",
+  "nvm_klj2": "1308",
+  "aecp_maps": "1064",
+  "ctrl_debug": "20",
+  "acmp_nvm": "128",
+  "ctrl_app": "108",
+  "mrp_pdu": "1144"
+ }
+}
