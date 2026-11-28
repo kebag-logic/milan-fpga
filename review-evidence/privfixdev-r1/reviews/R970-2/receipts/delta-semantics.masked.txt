@@ -1,0 +1,54 @@
+== docs/history/v1/NXN_ARCHITECTURE.md
+   L652: em-dash 1->0; wording: [('<removed, 18 chars>', 'Inline capture tap,')]
+== docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md
+   L123: em-dash 0->0; wording: [('<removed, 61 chars>', '`srcs/the-private-test-repo/scripts/` (the bench-host-pair clock-recovery soak script)')]
+== docs/history/v1/tests/CONFORMANCE_TESTING_HOWTO.md
+   L106: em-dash 0->0; wording: [('<removed, 27 chars>', 'the capture-tap topology page,')]
+== docs/history/v1/traceability/milan-v12.md
+   L183: em-dash 12->0; wording: [('<removed, 10 chars>', 'inline capture'), ('<removed, 12 chars>', 'an inline'), ('<removed, 6 chars>', 'tap')]
+== docs/integration/BUILDING.md
+   L589: em-dash 0->0; wording: [('<removed, 5 chars>', 'controller bench host')]
+   L590: em-dash 0->0; wording: [('<removed, 10 chars>', 'inline capture')]
+   L591: em-dash 0->0; wording: [('<removed, 5 chars>', 'a second bench host')]
+== docs/reference/REGISTER_MAP_CLASSES.md
+   L37: em-dash 1->0; wording: [('<removed, 12 chars>', 'an inline capture tap')]
+   L38: em-dash 1->0; wording: []
+   L39: em-dash 1->0; wording: []
+   L52: em-dash 0->0; wording: [('<removed, 12 chars>', 'an inline capture tap')]
+== docs/testing/RUNNING_TESTS.md
+   L232: em-dash 0->0; wording: [('<removed, 6 chars>', ''), ('<removed, 18 chars>', 'controller bench host,'), ('<removed, 6 chars>', 'inline')]
+   L233: em-dash 0->0; wording: [('<removed, 0 chars>', 'capture taps on the Ubuntu')]
+== docs/testing/TESTING.md
+   L100: em-dash 0->0; wording: [('<removed, 6 chars>', 'controller bench host)')]
+   L1124: em-dash 0->0; wording: [('<removed, 10 chars>', 'inline capture'), ('<removed, 5 chars>', 'the controller bench host')]
+== scripts/act_ci.py
+   AST str-constant @L15368: [('<removed, 10 chars>', '192.0.2.1')]
+== scripts/check_baremetal_only.py
+   AST str-constant @L1137: [('<removed, 13 chars>', 'root@192.0.2.2')]
+== tb/tools/avtp_wire_truth.py
+   AST str-docstring @L4: [('<removed, 12 chars>', 'an'), ('<removed, 0 chars>', 'capture')]
+   AST str-constant @L185: [('<removed, 12 chars>', 'an'), ('<removed, 0 chars>', 'capture')]
+== tb/tools/avtp_wire_truth_selftest.py
+   AST str-docstring @L617: [('<removed, 10 chars>', 'capture-tap')]
+   AST str-docstring @L621: [('<removed, 10 chars>', ''), ('<removed, 0 chars>', 'capture')]
+== tb/tools/avtp_wire_truth_wire.py
+   AST str-docstring @L214: [('<removed, 12 chars>', 'An'), ('<removed, 0 chars>', 'capture')]
+== tb/tools/check_tu_on_wire.sh
+   L20: em-dash 0->0; wording: [('<removed, 10 chars>', 'capture')]
+== tb/tools/torture_campaign.py
+   AST str-constant @L2989: [('<removed, 6 chars>', '')]
+   AST str-docstring @L3064: [('<removed, 8 chars>', ''), ('<removed, 4 chars>', 'AVB switch')]
+   AST str-constant @L6783: [('<removed, 10 chars>', 'capture-tap')]
+== tests/features/milan_streaming_licence.feature
+   L23: em-dash 0->0; wording: [('<removed, 10 chars>', ''), ('<removed, 0 chars>', 'capture')]
+== tests/features/torture_campaign_plan.feature
+   L279: em-dash 0->0; wording: [('<removed, 12 chars>', 'AVB switch,')]
+== tests/features/wire_truth_avtp.feature
+   L274: em-dash 0->0; wording: [('<removed, 16 chars>', 'an inline-tap')]
+== tests/steps/milan_streaming_licence_steps.py
+   TOKEN comment: [('<removed, 18 chars>', '(inline capture')]
+== tests/steps/torture_plan_steps.py
+   TOKEN comment: [('<removed, 4 chars>', 'AVB switch')]
+== tests/steps/wire_truth_steps.py
+   AST str-docstring @L244: [('<removed, 21 chars>', 'inline-tap')]
+NON-STRING/STRUCTURAL DIFFERENCES: 0
