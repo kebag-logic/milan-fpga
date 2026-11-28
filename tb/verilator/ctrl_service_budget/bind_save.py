@@ -48,11 +48,16 @@ if TYPE_CHECKING:
 #: 8x8/1if base image's whole save at 1,451.5 ms from its change, a board between its 1,440 ms and 1,502 ms readings.
 FLASH_US = (120000, 500)
 #: From a response to durable, ms: an idle store's gate, and the bound on a bind that arrives during another save or a
-#: burst, by point (#1009's scope ruling, items 3 and 4).
+#: burst, by point (#1009's scope ruling, items 3 and 4): the rest of that save plus one save, each the point's whole
+#: save from its window to durable as these groups model it (1x1 204.5 ms, 8x8-1if 451.5 ms), twice that rounded up to
+#: 50 ms. At arty-1x1 (PR #1004's ruling of 2026-11-27) the save-bind group's 288.8 ms less its 100 ms window gives
+#: 188.8 ms: 377.6, stated 400.
 IDLE_MS = 800
-FLIGHT_MS = {'1x1': 450, '8x8-1if': 950}
-#: The burst: its commands, their pace, ms, and the most saves it takes, by point, each one erase of 64 KiB.
-BURST, PACE_MS, BURST_SAVES = 64, 10, {'1x1': 4, '8x8-1if': 3}
+FLIGHT_MS = {'1x1': 450, '8x8-1if': 950, 'arty-1x1': 400}
+#: The burst: its commands, their pace, ms, and the most saves it takes, by point, each one erase of 64 KiB. By the same
+#: rule, saves start back to back from the first window's end while commands arrive, and the last command takes one
+#: more: floor((630 - 100) / save) + 2, 4 at 1x1 and arty-1x1, 3 at 8x8-1if.
+BURST, PACE_MS, BURST_SAVES = 64, 10, {'1x1': 4, '8x8-1if': 3, 'arty-1x1': 4}
 #: The time after each command of the idle group, and after the burst and a bind in flight, ms: past the gate.
 SETTLE_MS, END_MS = 1200, 2000
 #: The binding record's payload: VALID and STARTED, the talker's unique id, its entity id, the controller's.
