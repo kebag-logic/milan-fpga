@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "$MANAGEMENT/2026-09-23/usbnet-a855/round8/receipts/source/qualify-retained.py", line 40, in <module>
+    command('record-classes', ['tb/verilator/ctrl_service_budget/record_classes.py', *paths])
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$MANAGEMENT/2026-09-23/usbnet-a855/round8/receipts/source/qualify-retained.py", line 37, in command
+    assert proc.returncode == expected, (name, proc.returncode, text[-5000:])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('record-classes', 1, 'Traceback (most recent call last):\n  File "$LANES/usbnet-1011/tb/verilator/ctrl_service_budget/record_classes.py", line 579, in <module>\n    sys.exit(main(sys.argv[1:]))\n             ~~~~^^^^^^^^^^^^^^\n  File "$LANES/usbnet-1011/tb/verilator/ctrl_service_budget/record_classes.py", line 549, in main\n    leg, spec = read_leg(d.resolve())\n                ~~~~~~~~^^^^^^^^^^^^^\n  File "$LANES/usbnet-1011/tb/verilator/ctrl_service_budget/record_classes.py", line 175, in read_leg\n    spec_path = next(p for p in (results / \'build.json\', results.parent / \'build.json\') if p.is_file())\nStopIteration\n')

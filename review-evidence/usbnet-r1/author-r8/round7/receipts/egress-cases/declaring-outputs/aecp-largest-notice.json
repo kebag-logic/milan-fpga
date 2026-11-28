@@ -1,0 +1,63 @@
+{
+  "case": [
+    "declaring-outputs",
+    "aecp-largest-notice"
+  ],
+  "trace_sha256": "bd651a2a93b750e1e3432b16e77f9b0ca69a74b371b80d808a0ef3f1976efcb8",
+  "inputs": {
+    "sources": {
+      "tb/verilator/usbnet/egress_usb.py": "a9add87675a329eebfa8c6eab7aecafba2201c9349706df65fbba18d17853138",
+      "tb/verilator/usbnet/egress_grade.py": "ad2fc5235c92131ca40db168877b9bde60bdac6fc7a517b4aa7aa8189a0d8682",
+      "tb/verilator/ctrl_service_budget/egress_mii.py": "c43b2d549af13cdee8762f3667cd069e62197b65c98921b22651efbfec150cfe",
+      "tb/verilator/ctrl_service_budget/grade.py": "9dd69779b70d0c9cf466ecd780d27f66747cece7b77f9f8644f977f1419e42fb"
+    },
+    "params": {
+      "sys_ps": 12500,
+      "dp_ps": 20000,
+      "octet_ps": 80000,
+      "lane_bytes": 17,
+      "cross_dp": 3,
+      "gap_dp": 513,
+      "sf_beats": 512,
+      "sf_frames": 8,
+      "preamble": 8,
+      "fcs": 4,
+      "gap_octets": 12,
+      "min_frame": 60,
+      "sr_bytes": [
+        90
+      ],
+      "sr_period_ps": 125000000,
+      "gptp_bytes": [
+        58,
+        90,
+        90,
+        68,
+        68,
+        68,
+        74
+      ],
+      "gptp_period_ps": 125000000000,
+      "ring_words": [
+        128,
+        256,
+        512,
+        128,
+        512
+      ]
+    }
+  },
+  "result": {
+    "records": 58,
+    "held": 0,
+    "agree_ps": 0,
+    "wait_ps": 557450000,
+    "phase": 3,
+    "at": {
+      "commit": 61828052,
+      "ch": 2,
+      "length": 550
+    },
+    "queued": 9
+  }
+}

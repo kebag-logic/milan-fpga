@@ -1,0 +1,15 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] endstation_arty_split: 1x1 AAF + CRF, i2s_philips, 16 clusters (cluster-per-stream-channel), model_id 0x001BC50AC1000006 (pin); 3 planned element(s); resources OVER (worst LUT 81.7%)
+  wrote sw/builder/out/endstation_arty_split/soc_params.json
+  wrote sw/builder/out/endstation_arty_split/aem_overlay.json
+  wrote sw/builder/out/endstation_arty_split/build_plan.md
+  wrote sw/builder/out/endstation_arty_split/lwsrp_table.json
+  wrote sw/builder/out/endstation_arty_split/lwsrp_table.svh
+  wrote sw/builder/out/endstation_arty_split/lwsrp_csr_defaults.svh
+  wrote sw/builder/out/endstation_arty_split/adp_shape_defaults.svh
+  wrote configs/generated/endstation_arty_split/gen/adp_shape_defaults.svh
+  wrote sw/builder/out/endstation_arty_split/platform_shape.json
+  wrote configs/generated/sweep_opts_arty.sh
+  wrote sw/builder/out/endstation_arty_split/nvm_split.json
+  wrote sw/builder/out/endstation_arty_split/gptp_ucode.hex
+  wrote sw/builder/out/endstation_arty_split/aecp_aem_rom.svh

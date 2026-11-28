@@ -1,0 +1,238 @@
+{
+  "status": "PASS",
+  "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+  "ledger_point": "arty-usbnet-1x1",
+  "measurement_point": "arty-1x1",
+  "groups": 159,
+  "images": 8,
+  "raw_traces_unchanged": true,
+  "measured_grades_identical": true,
+  "native_rerun": false,
+  "checks": {
+    "owner-model": "PASS",
+    "share": "PASS",
+    "record-classes": "PASS",
+    "retry-costs": "PASS",
+    "transmit-costs": "PASS",
+    "egress-ledger": "PASS",
+    "egress-100": "PASS"
+  },
+  "findings": [],
+  "model": {
+    "status": "PASS",
+    "evidence": "stated-cost model only",
+    "cpu_hz": 80000000,
+    "shape": [
+      1,
+      1,
+      2
+    ],
+    "load": 0.5013971140350877,
+    "load_terms": {
+      "rec.aecp": 0.058,
+      "rec.acmp": 0.049,
+      "rec.adp": 0.0125,
+      "rec.maap": 0.00625,
+      "srp": 0.18,
+      "item.reclaim": 0.020421052631578947,
+      "item.aecp": 0.0442,
+      "notices": 0.0018,
+      "item.acmp": 0.018600000000000002,
+      "item.acmp_declined": 0.012400000000000001,
+      "ticks": 0.021,
+      "item.walk": 0.0033157894736842108,
+      "builds": 0.006947368421052632,
+      "item.mrpdu": 0.013894736842105264,
+      "steps": 0.035333333333333335,
+      "timers": 0.0176415,
+      "gm": 9.333333333333334e-05
+    },
+    "rows_ms": {
+      "R4": 14.57,
+      "R5": 69.07,
+      "R6": 67.09,
+      "first": 14.89,
+      "last": 117.58,
+      "R4L": 218.83,
+      "ACMP": 29.84,
+      "ADP": 27.83,
+      "MAAP": 27.95,
+      "tx": 34.89,
+      "txL": 48.9
+    },
+    "slice_us": 1250,
+    "slice_margin": 0.002040816326530641,
+    "pace_ms": 10
+  },
+  "worst_pass": {
+    "variant": "answering-every-port",
+    "group": "notice-burst-7",
+    "native_status": 0,
+    "trace_sha256": "05ed553d685a1e890e780ff0253a20ed1952a0dfa8764fee9414b432bb817290",
+    "refusals": [],
+    "misses": [],
+    "share": [],
+    "late": [],
+    "forbidden": [],
+    "stated": [],
+    "seconds": 1644.3578839302063,
+    "worst_pass_cycles": 143391
+  },
+  "held_egress_rows": {
+    "backlog.owed.if0": {
+      "measured_ms": 62.71981,
+      "ledger_ms": 62.94,
+      "margin_ms": 0.22019
+    },
+    "backlog.owed_behind0.if0": {
+      "measured_ms": 62.86221,
+      "ledger_ms": 63.08,
+      "margin_ms": 0.21779
+    },
+    "backlog.owed_behind1.if0": {
+      "measured_ms": 63.00366,
+      "ledger_ms": 63.22,
+      "margin_ms": 0.21634
+    },
+    "backlog.owed_behind2.if0": {
+      "measured_ms": 63.14499,
+      "ledger_ms": 63.36,
+      "margin_ms": 0.21501
+    },
+    "backlog.owed_behind3.if0": {
+      "measured_ms": 63.28611,
+      "ledger_ms": 63.51,
+      "margin_ms": 0.22389
+    },
+    "backlog-owed.service.acmp.last.if0": {
+      "measured_ms": 61.99278,
+      "ledger_ms": 62.21,
+      "margin_ms": 0.21722
+    },
+    "backlog-owed.service.aecp.last.if0": {
+      "measured_ms": 62.03635,
+      "ledger_ms": 62.14,
+      "margin_ms": 0.10365
+    }
+  },
+  "commands": [
+    {
+      "name": "record-classes",
+      "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+      "command": [
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "tb/verilator/ctrl_service_budget/record_classes.py",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/none/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-ports/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-every-port/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/valid-destinations/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/declaring-outputs/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-later/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/talker-notices/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/shutdown-entry/results"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "log": "record-classes.log",
+      "log_sha256": "81a77519132eb1edbc9030ab119f936937da3494f45aedc3c06dab28abcfc290"
+    },
+    {
+      "name": "egress-ledger",
+      "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+      "command": [
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "tb/verilator/ctrl_service_budget/egress_ledger.py",
+        "--point",
+        "arty-usbnet-1x1",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/none/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-ports/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-every-port/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/valid-destinations/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/declaring-outputs/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-later/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/talker-notices/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/shutdown-entry/results"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "log": "egress-ledger.log",
+      "log_sha256": "f26451956c84ae0f2c4634dec69ecd878b121b63533d301df54c3c54f3835572"
+    },
+    {
+      "name": "original-arty-negative",
+      "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+      "command": [
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "tb/verilator/ctrl_service_budget/egress_ledger.py",
+        "--point",
+        "arty-1x1",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/none/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-ports/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-every-port/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/valid-destinations/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/declaring-outputs/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-later/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/talker-notices/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round8/census/shutdown-entry/results"
+      ],
+      "returncode": 1,
+      "expected": 1,
+      "log": "original-arty-negative.log",
+      "log_sha256": "147289498c2afd3776ac75c90b75c6fb033045dd34a5240269b173734a968689"
+    },
+    {
+      "name": "usb-at-figure",
+      "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+      "command": [
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "tb/verilator/ctrl_service_budget/egress_ledger.py",
+        "--point",
+        "arty-usbnet-1x1",
+        "$MANAGEMENT/2026-09-23/usbnet-a855/round8/receipts/controls/usb-at-figure"
+      ],
+      "returncode": 0,
+      "expected": 0,
+      "log": "usb-at-figure.log",
+      "log_sha256": "f7ce7b95b03dea55a2ccae6d5db56c1a1b4a7c2aaad7acc7108d8324f7c3c2aa"
+    },
+    {
+      "name": "usb-one-cycle-over",
+      "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+      "command": [
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "tb/verilator/ctrl_service_budget/egress_ledger.py",
+        "--point",
+        "arty-usbnet-1x1",
+        "$MANAGEMENT/2026-09-23/usbnet-a855/round8/receipts/controls/usb-one-cycle-over"
+      ],
+      "returncode": 1,
+      "expected": 1,
+      "log": "usb-one-cycle-over.log",
+      "log_sha256": "db510e18a4f7fb20d3bad26081b2c154d8cf27e6a99de2f82d56ec7bfd384ad7"
+    }
+  ],
+  "owed_969": [
+    "srp.kept_advertise.if0: a record of 33,872 CPU cycles, 445 us by the rule, over CTRL_LOOP_SRP_UNIT_US 300 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp.kept_recount.if0: a record of 30,562 CPU cycles, 405 us by the rule, over CTRL_LOOP_SRP_UNIT_US 300 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp.kept_failed.if0: a record of 32,935 CPU cycles, 435 us by the rule, over CTRL_LOOP_SRP_UNIT_US 300 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp.bound_advertise.if0: a record of 38,620 CPU cycles, 510 us by the rule, over CTRL_LOOP_SRP_UNIT_US 300 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-bound: a build-one pass at bus cycle 310324108: 56,239 CPU cycles over its stated 52,800 (CTRL_LOOP_BUILD_ONE_PASS_US, not restated), the bound path's registrations, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-bound: a build-one pass of 56,239 CPU cycles, over its stated 52,800, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-bound: a walk item of 2,654 CPU cycles, over its stated 2,400, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-bound: an SRP record's apply of 38,227 CPU cycles, over its stated 24,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-kept: an SRP record's apply of 33,543 CPU cycles, over its stated 24,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-kept: an SRP record's apply of 30,292 CPU cycles, over its stated 24,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-kept: an SRP record's apply of 32,523 CPU cycles, over its stated 24,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)"
+  ],
+  "note": "Seven held-egress rows remain service-budget misses, within the separate ruled ledger. Wire replay evidence is carried after exact trace, source and parameter verification."
+}

@@ -1,0 +1,10 @@
+{
+  "reason": "The cross-image class checker requires an unchanged build.json beside each newly staged results directory. The first invocation refused the missing metadata before grading.",
+  "correction": "Copy the original build.json unchanged into each staging directory; retain the initial refusal; rerun qualification only.",
+  "trace_changes": false,
+  "source_changes": false,
+  "executed_regrade_source": "source/regrade-retained-executed.py",
+  "executed_regrade_sha256": "d18e555a1f59e22dba1db1d483a015df602798324c8b980caecea24daf9801c0",
+  "corrected_reproduction_source": "source/regrade-retained.py",
+  "corrected_reproduction_sha256": "2491096c664857c8648febdc67c639c95c0adf9ed1c462e87fdf391908f00cb6"
+}

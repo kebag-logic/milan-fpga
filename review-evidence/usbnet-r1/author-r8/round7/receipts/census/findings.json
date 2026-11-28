@@ -1,0 +1,81 @@
+[
+  {
+    "variant": "none",
+    "group": "backlog-owed",
+    "native_status": 0,
+    "trace_sha256": "148bef0033421d8ca845cea05674734c058bbb8926eb3460b56a06d6f4ecc20d",
+    "refusals": [],
+    "misses": [
+      "backlog.owed.if0: 62.720 ms over its budget 20 ms",
+      "backlog.owed_behind0.if0: 62.862 ms over its budget 20 ms",
+      "backlog.owed_behind1.if0: 63.004 ms over its budget 20 ms",
+      "backlog.owed_behind2.if0: 63.145 ms over its budget 20 ms",
+      "backlog.owed_behind3.if0: 63.286 ms over its budget 20 ms",
+      "backlog-owed.service.acmp.last.if0: 61.993 ms over its budget 20 ms",
+      "backlog-owed.service.aecp.last.if0: 62.036 ms over its budget 20 ms"
+    ],
+    "share": [],
+    "late": [],
+    "forbidden": [
+      {
+        "probe": "backlog-owed.service.aecp.last.if0",
+        "row": "AECP record released under the composed load, last",
+        "family": "aecp",
+        "interface": 0,
+        "path": [
+          "service.aecp.last",
+          0
+        ],
+        "start_sys": 218288657,
+        "wait_ms": 0.0,
+        "ring": "aecp",
+        "ahead": 15,
+        "in_window": true,
+        "starved": false,
+        "pass_cycles": 116720,
+        "pass_instr": 26279,
+        "pass_mbx_accesses": 107,
+        "pass_fetch_share": 0.373,
+        "pass_fetch_wait_share": 0.2141,
+        "pass_regions": {
+          "rom": [
+            301,
+            0,
+            0
+          ],
+          "mbx": [
+            0,
+            63,
+            44
+          ],
+          "csr": [
+            0,
+            322,
+            77
+          ]
+        },
+        "pass_modules": {
+          "ctrl_mem": 30070,
+          "aecp": 29371,
+          "mbx": 27850,
+          "acmp": 6470,
+          "aecp_commands": 4565,
+          "ctrl_loop": 4500
+        },
+        "end_sys": 223251565,
+        "sys_cycles": 4962908,
+        "cpu_cycles": 4962908,
+        "ms": 62.03635,
+        "passes": 16,
+        "budget_ms": 20.0,
+        "ceiling_ms": 24.0,
+        "within_budget": false,
+        "within_ceiling": false,
+        "status": "measured"
+      }
+    ],
+    "stated": [],
+    "seconds": 1019.4698386192322,
+    "worst_pass_cycles": 116720
+  }
+]

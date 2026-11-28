@@ -1,0 +1,88 @@
+{
+  "rule": "60 + 1.05 * (max(Arty, injected) - 60), rounded upward to 0.01 ms",
+  "rows": [
+    {
+      "row": "backlog.owed.if0",
+      "arty_measured_ms": 62.79239,
+      "injected_measured_ms": 62.71981,
+      "larger_ms": 62.79239,
+      "old_arty_ledger_ms": 62.94,
+      "usb_ledger_ms": 62.94,
+      "margin_ms": 0.22019
+    },
+    {
+      "row": "backlog.owed_behind0.if0",
+      "arty_measured_ms": 62.92862,
+      "injected_measured_ms": 62.86221,
+      "larger_ms": 62.92862,
+      "old_arty_ledger_ms": 63.08,
+      "usb_ledger_ms": 63.08,
+      "margin_ms": 0.21779
+    },
+    {
+      "row": "backlog.owed_behind1.if0",
+      "arty_measured_ms": 63.0649,
+      "injected_measured_ms": 63.00366,
+      "larger_ms": 63.0649,
+      "old_arty_ledger_ms": 63.22,
+      "usb_ledger_ms": 63.22,
+      "margin_ms": 0.21634
+    },
+    {
+      "row": "backlog.owed_behind2.if0",
+      "arty_measured_ms": 63.19966,
+      "injected_measured_ms": 63.14499,
+      "larger_ms": 63.19966,
+      "old_arty_ledger_ms": 63.36,
+      "usb_ledger_ms": 63.36,
+      "margin_ms": 0.21501
+    },
+    {
+      "row": "backlog.owed_behind3.if0",
+      "arty_measured_ms": 63.33355,
+      "injected_measured_ms": 63.28611,
+      "larger_ms": 63.33355,
+      "old_arty_ledger_ms": 63.51,
+      "usb_ledger_ms": 63.51,
+      "margin_ms": 0.22389
+    },
+    {
+      "row": "backlog-owed.service.acmp.last.if0",
+      "arty_measured_ms": 62.10374,
+      "injected_measured_ms": 61.99278,
+      "larger_ms": 62.10374,
+      "old_arty_ledger_ms": 62.21,
+      "usb_ledger_ms": 62.21,
+      "margin_ms": 0.21722
+    },
+    {
+      "row": "backlog-owed.service.aecp.last.if0",
+      "arty_measured_ms": 61.8872,
+      "injected_measured_ms": 62.03635,
+      "larger_ms": 62.03635,
+      "old_arty_ledger_ms": 61.99,
+      "usb_ledger_ms": 62.14,
+      "margin_ms": 0.10365
+    }
+  ],
+  "original_points": {
+    "arty-1x1": {
+      "backlog.owed.if0": 62.94,
+      "backlog.owed_behind0.if0": 63.08,
+      "backlog.owed_behind1.if0": 63.22,
+      "backlog.owed_behind2.if0": 63.36,
+      "backlog.owed_behind3.if0": 63.51,
+      "backlog-owed.service.acmp.last.if0": 62.21,
+      "backlog-owed.service.aecp.last.if0": 61.99
+    },
+    "8x8-1if": {
+      "backlog.owed.if0": 64.31,
+      "backlog.owed_behind0.if0": 64.51,
+      "backlog.owed_behind1.if0": 64.71,
+      "backlog.owed_behind2.if0": 64.91,
+      "backlog.owed_behind3.if0": 65.11,
+      "backlog-owed.service.acmp.last.if0": 63.29,
+      "backlog-owed.service.aecp.last.if0": 63.23
+    }
+  }
+}

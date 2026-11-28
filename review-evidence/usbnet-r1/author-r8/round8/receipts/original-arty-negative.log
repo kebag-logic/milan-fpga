@@ -1,0 +1,12 @@
+# arty-1x1: the rows the egress decides against their ledger; 1411 instance(s) read (1411 measured) from 8 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 62.71981 | 62.94 | -0.22019 | yes |
+| `backlog.owed_behind0.if0` | 62.86221 | 63.08 | -0.21779 | yes |
+| `backlog.owed_behind1.if0` | 63.00366 | 63.22 | -0.21634 | yes |
+| `backlog.owed_behind2.if0` | 63.14499 | 63.36 | -0.21501 | yes |
+| `backlog.owed_behind3.if0` | 63.28611 | 63.51 | -0.22389 | yes |
+| `backlog-owed.service.acmp.last.if0` | 61.99278 | 62.21 | -0.21722 | yes |
+| `backlog-owed.service.aecp.last.if0` | 62.03635 | 61.99 | +0.04635 | no |
+RESULT: FAIL
+- backlog-owed.service.aecp.last.if0 (backlog-owed): 62.03635 ms, over its ledger figure 61.99 ms by 0.04635 ms: a larger miss

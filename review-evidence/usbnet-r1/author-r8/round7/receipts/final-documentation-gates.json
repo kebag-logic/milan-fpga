@@ -1,0 +1,92 @@
+[
+  {
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "log": "final-doc-0.log"
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/usbnet-a855/round6/markdown-venv/bin/python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "log": "final-doc-1.log"
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/usbnet-a855/round6/markdown-venv/bin/python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "log": "final-doc-2.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "log": "final-doc-3.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/docs_inventory.py",
+      "--check"
+    ],
+    "rc": 1,
+    "log": "final-doc-4.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--check"
+    ],
+    "rc": 0,
+    "log": "final-doc-5.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0,
+    "log": "final-doc-6.log"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0,
+    "log": "final-doc-7.log"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--cached",
+      "--check"
+    ],
+    "rc": 0,
+    "log": "final-doc-8.log"
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/usbnet-a855/round6/markdown-venv/bin/python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "91252ecf7457287079d5d2f794b8544f0d9d34c4"
+    ],
+    "rc": 0,
+    "log": "final-doc-9.log"
+  }
+]

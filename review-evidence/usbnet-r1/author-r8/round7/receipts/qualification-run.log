@@ -1,0 +1,369 @@
+regrade-answering-ports 0
+regrade-answering-every-port 0
+regrade-answering-later 0
+regrade-talker-notices 0
+regrade-shutdown-entry 0
+regrade-declaring-outputs 0
+regrade-valid-destinations 0
+regrade-none 0
+egress-ledger 1
+egress-100 0
+record-classes 0
+census 0
+merge-census 0
+derive-model 0
+{
+  "status": "FAIL",
+  "kind": "complete measured Arty FPGA point",
+  "point": "arty-1x1",
+  "cpu_hz": 80000000,
+  "shape": [
+    1,
+    1,
+    2
+  ],
+  "groups": 159,
+  "checks": {
+    "owner-model": "PASS",
+    "share": "PASS",
+    "record-classes": "PASS",
+    "retry-costs": "PASS",
+    "transmit-costs": "PASS",
+    "egress-ledger": "FAIL",
+    "egress-100": "PASS"
+  },
+  "findings": [
+    "none/backlog-owed: forbidden: {'probe': 'backlog-owed.service.aecp.last.if0', 'row': 'AECP record released under the composed load, last', 'family': 'aecp', 'interface': 0, 'path': ['service.aecp.last', 0], 'start_sys': 218288657, 'wait_ms': 0.0, 'ring': 'aecp', 'ahead': 15, 'in_window': True, 'starved': False, 'pass_cycles': 116720, 'pass_instr': 26279, 'pass_mbx_accesses': 107, 'pass_fetch_share': 0.373, 'pass_fetch_wait_share': 0.2141, 'pass_regions': {'rom': [301, 0, 0], 'mbx': [0, 63, 44], 'csr': [0, 322, 77]}, 'pass_modules': {'ctrl_mem': 30070, 'aecp': 29371, 'mbx': 27850, 'acmp': 6470, 'aecp_commands': 4565, 'ctrl_loop': 4500}, 'end_sys': 223251565, 'sys_cycles': 4962908, 'cpu_cycles': 4962908, 'ms': 62.03635, 'passes': 16, 'budget_ms': 20.0, 'ceiling_ms': 24.0, 'within_budget': False, 'within_ceiling': False, 'status': 'measured'}",
+    "egress-ledger"
+  ],
+  "model": {
+    "status": "PASS",
+    "evidence": "stated-cost model only",
+    "cpu_hz": 80000000,
+    "shape": [
+      1,
+      1,
+      2
+    ],
+    "load": 0.5013971140350877,
+    "load_terms": {
+      "rec.aecp": 0.058,
+      "rec.acmp": 0.049,
+      "rec.adp": 0.0125,
+      "rec.maap": 0.00625,
+      "srp": 0.18,
+      "item.reclaim": 0.020421052631578947,
+      "item.aecp": 0.0442,
+      "notices": 0.0018,
+      "item.acmp": 0.018600000000000002,
+      "item.acmp_declined": 0.012400000000000001,
+      "ticks": 0.021,
+      "item.walk": 0.0033157894736842108,
+      "builds": 0.006947368421052632,
+      "item.mrpdu": 0.013894736842105264,
+      "steps": 0.035333333333333335,
+      "timers": 0.0176415,
+      "gm": 9.333333333333334e-05
+    },
+    "rows_ms": {
+      "R4": 14.57,
+      "R5": 69.07,
+      "R6": 67.09,
+      "first": 14.89,
+      "last": 117.58,
+      "R4L": 218.83,
+      "ACMP": 29.84,
+      "ADP": 27.83,
+      "MAAP": 27.95,
+      "tx": 34.89,
+      "txL": 48.9
+    },
+    "slice_us": 1250,
+    "slice_margin": 0.002040816326530641,
+    "pace_ms": 10
+  },
+  "worst_pass": {
+    "variant": "answering-every-port",
+    "group": "notice-burst-7",
+    "native_status": 0,
+    "trace_sha256": "05ed553d685a1e890e780ff0253a20ed1952a0dfa8764fee9414b432bb817290",
+    "refusals": [],
+    "misses": [],
+    "share": [],
+    "late": [],
+    "forbidden": [],
+    "stated": [],
+    "seconds": 1644.3578839302063,
+    "worst_pass_cycles": 143391
+  },
+  "commands": [
+    {
+      "name": "regrade-answering-ports",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-B",
+        "$MANAGEMENT/2026-09-23/usbnet-a855/round7/receipts/source/parallel-regrade.py",
+        "--point",
+        "arty-1x1",
+        "--build-dir",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/answering-ports",
+        "--variant",
+        "answering-ports",
+        "--regrade",
+        "--record-budget-findings",
+        "--groups",
+        "aecp-fanout,aecp,aecp-reboot,aecp-largest-notice"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/regrade-answering-ports.log",
+      "sha256": "c2c5a70ed98172ac1a754cf269b18a7d6d34283a244818eda8572d0884c2528f"
+    },
+    {
+      "name": "regrade-answering-every-port",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-B",
+        "$MANAGEMENT/2026-09-23/usbnet-a855/round7/receipts/source/parallel-regrade.py",
+        "--point",
+        "arty-1x1",
+        "--build-dir",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/answering-every-port",
+        "--variant",
+        "answering-every-port",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/regrade-answering-every-port.log",
+      "sha256": "82925ce6cdd2c948bae817b2e8b59f8e5efff8b3689f5ef9de5841c6da6539a0"
+    },
+    {
+      "name": "regrade-answering-later",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-B",
+        "$MANAGEMENT/2026-09-23/usbnet-a855/round7/receipts/source/parallel-regrade.py",
+        "--point",
+        "arty-1x1",
+        "--build-dir",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/answering-later",
+        "--variant",
+        "answering-later",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/regrade-answering-later.log",
+      "sha256": "9d3cbe724e9b45269073fc3e20e688375c3432af33f45433f86872787ddb1290"
+    },
+    {
+      "name": "regrade-talker-notices",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-B",
+        "$MANAGEMENT/2026-09-23/usbnet-a855/round7/receipts/source/parallel-regrade.py",
+        "--point",
+        "arty-1x1",
+        "--build-dir",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/talker-notices",
+        "--variant",
+        "talker-notices",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/regrade-talker-notices.log",
+      "sha256": "f77b28d3cd5e5b0ab281cd757d4cecdfe1eb15951f1895758999407cd0ab4345"
+    },
+    {
+      "name": "regrade-shutdown-entry",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-B",
+        "$MANAGEMENT/2026-09-23/usbnet-a855/round7/receipts/source/parallel-regrade.py",
+        "--point",
+        "arty-1x1",
+        "--build-dir",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/shutdown-entry",
+        "--variant",
+        "shutdown-entry",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/regrade-shutdown-entry.log",
+      "sha256": "a6c92736ecb8f1b52f81cd2b253fbe243cf49d85767a15dbbddc3e8d5974ea8c"
+    },
+    {
+      "name": "regrade-declaring-outputs",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-B",
+        "$MANAGEMENT/2026-09-23/usbnet-a855/round7/receipts/source/parallel-regrade.py",
+        "--point",
+        "arty-1x1",
+        "--build-dir",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/declaring-outputs",
+        "--variant",
+        "declaring-outputs",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/regrade-declaring-outputs.log",
+      "sha256": "8d689b0f8c733104b70cc5e3d1d9f13ef6b0cdac0091c5d8dc575153cb9895fd"
+    },
+    {
+      "name": "regrade-valid-destinations",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-B",
+        "$MANAGEMENT/2026-09-23/usbnet-a855/round7/receipts/source/parallel-regrade.py",
+        "--point",
+        "arty-1x1",
+        "--build-dir",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/valid-destinations",
+        "--variant",
+        "valid-destinations",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/regrade-valid-destinations.log",
+      "sha256": "0653a2ece1dba8fba31d107a4edecde26f974e0efb148f8cb7b0b9cecf4787fa"
+    },
+    {
+      "name": "regrade-none",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-B",
+        "$MANAGEMENT/2026-09-23/usbnet-a855/round7/receipts/source/parallel-regrade.py",
+        "--point",
+        "arty-1x1",
+        "--build-dir",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/none",
+        "--variant",
+        "none",
+        "--regrade",
+        "--record-budget-findings"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/regrade-none.log",
+      "sha256": "f00a7cc7ac2a30289bd6af911fb8791012fce051e7826a5a8f74cf510a211a8b"
+    },
+    {
+      "name": "egress-ledger",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-I",
+        "-B",
+        "tb/verilator/ctrl_service_budget/egress_ledger.py",
+        "--point",
+        "arty-1x1",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/none/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/answering-ports/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/answering-every-port/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/valid-destinations/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/declaring-outputs/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/answering-later/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/talker-notices/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/shutdown-entry/results"
+      ],
+      "returncode": 1,
+      "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/egress-ledger.log",
+      "sha256": "147289498c2afd3776ac75c90b75c6fb033045dd34a5240269b173734a968689"
+    },
+    {
+      "name": "egress-100",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-B",
+        "$MANAGEMENT/2026-09-23/usbnet-a855/round7/receipts/source/collect-egress.py",
+        "verify"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/egress-100.log",
+      "sha256": "06839e68ce2373917e248d8ede79c674039b794515f572845bdae5bacead19d5"
+    },
+    {
+      "name": "record-classes",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-I",
+        "-B",
+        "tb/verilator/ctrl_service_budget/record_classes.py",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/none/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/answering-ports/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/answering-every-port/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/valid-destinations/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/declaring-outputs/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/answering-later/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/talker-notices/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/shutdown-entry/results"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/record-classes.log",
+      "sha256": "81a77519132eb1edbc9030ab119f936937da3494f45aedc3c06dab28abcfc290"
+    },
+    {
+      "name": "census",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-B",
+        "$MANAGEMENT/2026-09-23/usbnet-a855/round7/receipts/source/census7.py",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/census.json",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/none/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/answering-ports/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/answering-every-port/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/valid-destinations/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/declaring-outputs/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/answering-later/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/talker-notices/results",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/shutdown-entry/results"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/census.log",
+      "sha256": "673df29f697ba833924a619fa9e72f91d1f37e920953bc303f567b475d471055"
+    },
+    {
+      "name": "merge-census",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-B",
+        "$MANAGEMENT/2026-09-23/usbnet-a855/round7/receipts/source/merge-census.py",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/merged-census.json",
+        "$MANAGEMENT/2026-09-23/artysplit-a829/round10/receipts/derivation/merged-census.json",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/census.json"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/merge-census.log",
+      "sha256": "0e1e67eef9b69e5d8502772a28ad71b5cf2f1cf469c74d52074386869ea09faa"
+    },
+    {
+      "name": "derive-model",
+      "command": [
+        "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+        "-B",
+        "$MANAGEMENT/2026-09-23/usbnet-a855/round7/receipts/source/derive-own.py",
+        "$VALIDATION_STORAGE/usbnet-a855/round7/census/merged-census.json"
+      ],
+      "returncode": 0,
+      "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/derive-model.log",
+      "sha256": "32813a87f702261dc91b6a7cdca24354ef6ca84e4a948b57646ba06a31c4f5af"
+    }
+  ],
+  "owed_969": [
+    "srp.kept_advertise.if0: a record of 33,872 CPU cycles, 445 us by the rule, over CTRL_LOOP_SRP_UNIT_US 300 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp.kept_recount.if0: a record of 30,562 CPU cycles, 405 us by the rule, over CTRL_LOOP_SRP_UNIT_US 300 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp.kept_failed.if0: a record of 32,935 CPU cycles, 435 us by the rule, over CTRL_LOOP_SRP_UNIT_US 300 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp.bound_advertise.if0: a record of 38,620 CPU cycles, 510 us by the rule, over CTRL_LOOP_SRP_UNIT_US 300 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-bound: a build-one pass at bus cycle 310324108: 56,239 CPU cycles over its stated 52,800 (CTRL_LOOP_BUILD_ONE_PASS_US, not restated), the bound path's registrations, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-bound: a build-one pass of 56,239 CPU cycles, over its stated 52,800, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-bound: a walk item of 2,654 CPU cycles, over its stated 2,400, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-bound: an SRP record's apply of 38,227 CPU cycles, over its stated 24,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-kept: an SRP record's apply of 33,543 CPU cycles, over its stated 24,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-kept: an SRP record's apply of 30,292 CPU cycles, over its stated 24,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+    "srp-kept: an SRP record's apply of 32,523 CPU cycles, over its stated 24,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)"
+  ],
+  "note": "Seven held-egress rows remain recorded budget misses, held to their own ledger."
+}

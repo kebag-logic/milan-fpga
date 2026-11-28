@@ -1,0 +1,46 @@
+PASS one longest frame and handshake delay the first departure
+PASS a second frame in the busy period adds only its own wire time
+PASS a new busy period receives another injection
+PASS injection does not consume a datapath FIFO slot
+PASS changed ring availability refuses census carry
+PASS a census without injected traffic is refused
+PASS the separate handshake counts at the 1000 us boundary
+PASS an independently shifted injected departure agrees
+PASS a queue omitting injection cannot pass with only its declaration
+CAUGHT injected-frame-omitted one longest frame and handshake delay the first departure; a new busy period receives another injection; an independently shifted injected departure agrees; a queue omitting injection cannot pass with only its declaration
+CAUGHT injected-frame-at-gigabit-rate one longest frame and handshake delay the first departure; a new busy period receives another injection; an independently shifted injected departure agrees; a queue omitting injection cannot pass with only its declaration
+CAUGHT handshake-omitted one longest frame and handshake delay the first departure; a new busy period receives another injection; the separate handshake counts at the 1000 us boundary; an independently shifted injected departure agrees; a queue omitting injection cannot pass with only its declaration
+Traceback (most recent call last):
+  File "$LANES/usbnet-1011/tb/verilator/usbnet/egress_controls.py", line 119, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$LANES/usbnet-1011/tb/verilator/usbnet/egress_controls.py", line 104, in main
+    caught = [name for name, ok in controls().items() if not ok]
+                                   ~~~~~~~~^^
+  File "$LANES/usbnet-1011/tb/verilator/usbnet/egress_controls.py", line 46, in controls
+    good = egress_grade.grade("\n".join(shifted) + "\n", p)
+  File "$LANES/usbnet-1011/tb/verilator/usbnet/egress_grade.py", line 27, in grade
+    return usb.base.grade_case(text, p)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "$LANES/usbnet-1011/tb/verilator/ctrl_service_budget/egress_mii.py", line 438, in grade_case
+    first = replay(recs, log['holds'], p, 0, anchored=True)
+  File "$LANES/usbnet-1011/tb/verilator/ctrl_service_budget/egress_mii.py", line 398, in replay
+    q.advance((free_at + 1) * p.sys_ps + 64 * p.wire_ps(1514) + 2 * p.gptp_period_ps // 10**3)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/usbnet-1011/tb/verilator/ctrl_service_budget/egress_mii.py", line 220, in advance
+    self.cycle(self.next_dp)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+  File "$LANES/usbnet-1011/tb/verilator/ctrl_service_budget/egress_mii.py", line 242, in cycle
+    self.complete(t, self.frame[0], True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/usbnet-1011/tb/verilator/usbnet/egress_controls.py", line 81, in every_frame
+    usb.base.Queue.complete(self, t, length, control)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/usbnet-1011/tb/verilator/usbnet/egress_controls.py", line 81, in every_frame
+    usb.base.Queue.complete(self, t, length, control)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/usbnet-1011/tb/verilator/usbnet/egress_controls.py", line 81, in every_frame
+    usb.base.Queue.complete(self, t, length, control)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 989 more times]
+RecursionError: maximum recursion depth exceeded

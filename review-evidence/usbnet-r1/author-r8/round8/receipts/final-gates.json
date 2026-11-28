@@ -1,0 +1,278 @@
+[
+  {
+    "name": "ledger-selftest",
+    "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+    "ci_arguments": [
+      "/usr/bin/python3",
+      "tb/verilator/ctrl_service_budget/egress_ledger.py",
+      "--selftest"
+    ],
+    "actual_command": [
+      "/usr/bin/python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/usbnet-a855/round8/receipts/source/audited-python.py",
+      "tb/verilator/ctrl_service_budget/egress_ledger.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "seconds": 30.424902941012988,
+    "log": "ledger-selftest.log",
+    "log_sha256": "d360318df2e61c59d19f66cb46fb1bdc2b58ec300986bbaa5ad6cd871dc5885b"
+  },
+  {
+    "name": "docs-check",
+    "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+    "ci_arguments": [
+      "/usr/bin/python3",
+      "scripts/docs_check.py"
+    ],
+    "actual_command": [
+      "/usr/bin/python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/usbnet-a855/round8/receipts/source/audited-python.py",
+      "scripts/docs_check.py"
+    ],
+    "returncode": 0,
+    "seconds": 9.662479155987967,
+    "log": "docs-check.log",
+    "log_sha256": "15fdeacaa3da572f3ea019079789772e115100ade510ebc8b8c7b395a81ffbbf"
+  },
+  {
+    "name": "contents-selftest",
+    "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+    "ci_arguments": [
+      "$VALIDATION_STORAGE/usbnet-a855/round6/markdown-venv/bin/python3",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "actual_command": [
+      "$VALIDATION_STORAGE/usbnet-a855/round6/markdown-venv/bin/python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/usbnet-a855/round8/receipts/source/audited-python.py",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "seconds": 0.9305980920034926,
+    "log": "contents-selftest.log",
+    "log_sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32"
+  },
+  {
+    "name": "contents-anchors",
+    "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+    "ci_arguments": [
+      "$VALIDATION_STORAGE/usbnet-a855/round6/markdown-venv/bin/python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "actual_command": [
+      "$VALIDATION_STORAGE/usbnet-a855/round6/markdown-venv/bin/python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/usbnet-a855/round8/receipts/source/audited-python.py",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "returncode": 0,
+    "seconds": 6.327220271981787,
+    "log": "contents-anchors.log",
+    "log_sha256": "db5efddef3f05bb81fe3f8aee90f5243ce55326957c51d3204623f7635a6d6dd"
+  },
+  {
+    "name": "contents-check",
+    "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+    "ci_arguments": [
+      "$VALIDATION_STORAGE/usbnet-a855/round6/markdown-venv/bin/python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "actual_command": [
+      "$VALIDATION_STORAGE/usbnet-a855/round6/markdown-venv/bin/python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/usbnet-a855/round8/receipts/source/audited-python.py",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "seconds": 7.722339380998164,
+    "log": "contents-check.log",
+    "log_sha256": "a32245eed8b9c23f6408214dfbbcd6910b8c653a200a6e0c879683982dc958a4"
+  },
+  {
+    "name": "doc-paths",
+    "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+    "ci_arguments": [
+      "/usr/bin/python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "actual_command": [
+      "/usr/bin/python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/usbnet-a855/round8/receipts/source/audited-python.py",
+      "scripts/check_doc_paths.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.09924821599270217,
+    "log": "doc-paths.log",
+    "log_sha256": "4e0924ec43ee6ae29686d64a8e3e5738e12abb4c019dec38842911fe1b1989d6"
+  },
+  {
+    "name": "inventory-check",
+    "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+    "ci_arguments": [
+      "/usr/bin/python3",
+      "scripts/docs_inventory.py",
+      "--check"
+    ],
+    "actual_command": [
+      "/usr/bin/python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/usbnet-a855/round8/receipts/source/audited-python.py",
+      "scripts/docs_inventory.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "seconds": 2.1041737419727724,
+    "log": "inventory-check.log",
+    "log_sha256": "135c897e02862c6467baa7eb9b96a17df6b7d5bfb7a4b26de43f015e13232746"
+  },
+  {
+    "name": "inventory-selftest",
+    "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+    "ci_arguments": [
+      "/usr/bin/python3",
+      "scripts/docs_inventory.py",
+      "--selftest"
+    ],
+    "actual_command": [
+      "/usr/bin/python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/usbnet-a855/round8/receipts/source/audited-python.py",
+      "scripts/docs_inventory.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "seconds": 18.49583421900752,
+    "log": "inventory-selftest.log",
+    "log_sha256": "ff994a60a1473ac2543b4392b5d3101c85bd508f343fe95fcc6370fb5da60143"
+  },
+  {
+    "name": "python-idiom",
+    "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+    "ci_arguments": [
+      "/usr/bin/python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "actual_command": [
+      "/usr/bin/python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/usbnet-a855/round8/receipts/source/audited-python.py",
+      "scripts/check_py_idiom.py"
+    ],
+    "returncode": 0,
+    "seconds": 7.914078305999283,
+    "log": "python-idiom.log",
+    "log_sha256": "71fc72785d904d50f0361c30084a201ac283c9d345619c109134d6367f8ceb0b"
+  },
+  {
+    "name": "fail-fast",
+    "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+    "ci_arguments": [
+      "/usr/bin/python3",
+      "scripts/measure_fail_fast.py",
+      "--check"
+    ],
+    "actual_command": [
+      "/usr/bin/python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/usbnet-a855/round8/receipts/source/audited-python.py",
+      "scripts/measure_fail_fast.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "seconds": 2.112069722992601,
+    "log": "fail-fast.log",
+    "log_sha256": "877360a2a9bfbe9596f78967df7846c86f2eea9d2f4cb5c85e5953f522f573f4"
+  },
+  {
+    "name": "hygiene",
+    "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+    "ci_arguments": [
+      "/usr/bin/python3",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "actual_command": [
+      "/usr/bin/python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/usbnet-a855/round8/receipts/source/audited-python.py",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "seconds": 0.4930002369801514,
+    "log": "hygiene.log",
+    "log_sha256": "b28eac10f96ab5eae0273f686f3326beb6dad6e5a21d8a7781c53d1dacb482e1"
+  },
+  {
+    "name": "naming",
+    "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+    "ci_arguments": [
+      "/usr/bin/python3",
+      "scripts/measure_naming.py",
+      "--check"
+    ],
+    "actual_command": [
+      "/usr/bin/python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/usbnet-a855/round8/receipts/source/audited-python.py",
+      "scripts/measure_naming.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "seconds": 0.5318045270105358,
+    "log": "naming.log",
+    "log_sha256": "ee08be58358ef86fc4976046c583e0cefa01abea7977388b392bd170e05e2e48"
+  },
+  {
+    "name": "test-evidence",
+    "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+    "ci_arguments": [
+      "/usr/bin/python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "actual_command": [
+      "/usr/bin/python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/usbnet-a855/round8/receipts/source/audited-python.py",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "seconds": 10.485195824003313,
+    "log": "test-evidence.log",
+    "log_sha256": "90f66bec4175873c2356a2d2d5d04353e01a7186a2491bfc9414ffa599049c71"
+  },
+  {
+    "name": "em-dash",
+    "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+    "ci_arguments": [
+      "$VALIDATION_STORAGE/usbnet-a855/round6/markdown-venv/bin/python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "a4f00496fdaede7a6e6baee46e360f7cbc7f0c95"
+    ],
+    "actual_command": [
+      "$VALIDATION_STORAGE/usbnet-a855/round6/markdown-venv/bin/python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/usbnet-a855/round8/receipts/source/audited-python.py",
+      "scripts/check_em_dash.py",
+      "--base",
+      "a4f00496fdaede7a6e6baee46e360f7cbc7f0c95"
+    ],
+    "returncode": 0,
+    "seconds": 5.178958739998052,
+    "log": "em-dash.log",
+    "log_sha256": "2cda1ad739a07c02e9f630a3a0e8e1edc6905283c967717b6b2a20968d2b7ba3"
+  }
+]

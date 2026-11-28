@@ -1,0 +1,140 @@
+[
+  {
+    "command": [
+      "$LANES/usbnet-1011/tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/census/none",
+      "--variant",
+      "none",
+      "--out",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/none/results",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "seconds": 204.15931845500018
+  },
+  {
+    "command": [
+      "$LANES/usbnet-1011/tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/census/answering-ports",
+      "--variant",
+      "answering-ports",
+      "--out",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-ports/results",
+      "--regrade",
+      "--record-budget-findings",
+      "--groups",
+      "aecp-fanout,aecp,aecp-reboot,aecp-largest-notice"
+    ],
+    "returncode": 0,
+    "seconds": 0.859436093014665
+  },
+  {
+    "command": [
+      "$LANES/usbnet-1011/tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/census/answering-every-port",
+      "--variant",
+      "answering-every-port",
+      "--out",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-every-port/results",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "seconds": 9.865053519024514
+  },
+  {
+    "command": [
+      "$LANES/usbnet-1011/tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/census/valid-destinations",
+      "--variant",
+      "valid-destinations",
+      "--out",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/valid-destinations/results",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "seconds": 120.30163813798572
+  },
+  {
+    "command": [
+      "$LANES/usbnet-1011/tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/census/declaring-outputs",
+      "--variant",
+      "declaring-outputs",
+      "--out",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/declaring-outputs/results",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "seconds": 105.68259956900147
+  },
+  {
+    "command": [
+      "$LANES/usbnet-1011/tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/census/answering-later",
+      "--variant",
+      "answering-later",
+      "--out",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-later/results",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "seconds": 5.674566112982575
+  },
+  {
+    "command": [
+      "$LANES/usbnet-1011/tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/census/talker-notices",
+      "--variant",
+      "talker-notices",
+      "--out",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/talker-notices/results",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "seconds": 6.64063652898767
+  },
+  {
+    "command": [
+      "$LANES/usbnet-1011/tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/census/shutdown-entry",
+      "--variant",
+      "shutdown-entry",
+      "--out",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/shutdown-entry/results",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "seconds": 2.4456583480059635
+  }
+]

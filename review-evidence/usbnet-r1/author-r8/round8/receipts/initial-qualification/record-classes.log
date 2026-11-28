@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "$LANES/usbnet-1011/tb/verilator/ctrl_service_budget/record_classes.py", line 579, in <module>
+    sys.exit(main(sys.argv[1:]))
+             ~~~~^^^^^^^^^^^^^^
+  File "$LANES/usbnet-1011/tb/verilator/ctrl_service_budget/record_classes.py", line 549, in main
+    leg, spec = read_leg(d.resolve())
+                ~~~~~~~~^^^^^^^^^^^^^
+  File "$LANES/usbnet-1011/tb/verilator/ctrl_service_budget/record_classes.py", line 175, in read_leg
+    spec_path = next(p for p in (results / 'build.json', results.parent / 'build.json') if p.is_file())
+StopIteration

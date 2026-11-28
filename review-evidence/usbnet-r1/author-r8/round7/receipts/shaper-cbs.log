@@ -1,0 +1,24 @@
+== CBS verification harness (runtime config; default slope @1G idleSlope=500Mbps HI=761 LO=-761 clk=100MHz) ==
+  [PASS] idle saturates at HI: credit=761.000 (HI=761) allow=1
+  [PASS] tx drains to LO: credit=-761.000 (LO=-761) allow=0
+  [PASS] empty & credit>0 -> credit=0.000 (expect 0)
+  [PASS] negative(-396.00) recovers to credit=0.000 (expect 0)
+  [PASS] randomized 50000 cycles (frames + tlast): DUT tracks fixed-point ref exactly
+  [INFO] 100M idle_slope_per_cycle=4096 send_slope_per_byte=-32768
+  [PASS] strict-priority (shaped=0): allow always high, credit=0.000 (expect 0)
+  [PASS] granted+backpressure accrues to HI: credit=761.000 (expect ~761)
+  [PASS] live reconfig 500M/HI761 -> 200M/HI304: credit=304.000 (expect ~304)
+  [PASS] REQ-CBS-05 allow_transmit is not stale (lag 0 cycle(s), 0 P1 misses)
+  [PASS] REQ-CBS-05 residual input-pipeline lag pinned at 1 CBS-port cycle
+  [PASS] REQ-CBS-06 slope quotients round to nearest (both terms)
+  [INFO] REQ-CBS-06 residual over 20000 free-accrual cycles @ idleSlope 1007081:
+         fixed-point 25.328323 B, ideal 25.175766 B, drift 0.152557 B (6059.69 ppm)
+  [PASS] REQ-CBS-06 residual measured and inside the half-LSB/cycle bound
+  [INFO] REQ-CBS-06 residual over 20000 free-accrual cycles @ idleSlope 490000000:
+         fixed-point 12249.448532 B, ideal 12249.387500 B, drift 0.061032 B (4.98 ppm)
+  [PASS] REQ-CBS-06 residual measured and inside the half-LSB/cycle bound
+  [PASS] REQ-CBS-07 L=64+V=24: wire window 70 cyc (oracle 71), credit frozen inside it, accrual resumes after
+  [PASS] REQ-CBS-07 L=46+V=38: wire window 67 cyc (oracle 68), credit frozen inside it, accrual resumes after
+--------------------------------------------------------------
+cycle checks: 130256   mismatches: 0   max |DUT-ideal|: 0.1526 bytes
+RESULT: PASS

@@ -1,0 +1,18 @@
+wait ready
+mark booted
+wait cycles 4000000
+wait quiet 3 within 1600000
+mark adp.link_up.if0
+link 0 1
+wait tmr 0 1 within 24000000
+mark adp-advertise.barrier0
+mark adp.tmr_delay.if0
+wait tx 0 1 within 336000000
+wait cycles 1600000
+wait quiet 3 within 1600000
+mark adp-advertise.barrier1
+mark adp.tmr_advertise.if0
+wait cycles 384000000
+wait tmr 0 1 within 56000000
+mark adp-advertise.barrier2
+end

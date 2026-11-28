@@ -1,0 +1,37 @@
+make: Entering directory '$VALIDATION_STORAGE/usbnet-a855/round7/egress-chain/native'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable  -DVM_PREFIX_INCLUDE="<Vusbnet_egress_chain.h>"   -O2 -std=c++17   -O3  -c -o sim_egress.o $LANES/usbnet-1011/tb/verilator/usbnet/sim_egress.cpp
+In file included from /usr/include/c++/16/deque:68,
+                 from /usr/share/verilator/include/verilated.h:56,
+                 from ./Vusbnet_egress_chain.h:11,
+                 from $LANES/usbnet-1011/tb/verilator/usbnet/sim_egress.cpp:7:
+In function ‘_ForwardIterator std::uninitialized_copy(_InputIterator, _InputIterator, _ForwardIterator) [with _InputIterator = const unsigned char*; _ForwardIterator = unsigned char*]’,
+    inlined from ‘_ForwardIterator std::__uninitialized_copy_a(_InputIterator, _Sentinel, _ForwardIterator, allocator<_Tp>&) [with _InputIterator = const unsigned char*; _Sentinel = const unsigned char*; _ForwardIterator = unsigned char*; _Tp = unsigned char]’ at /usr/include/c++/16/bits/stl_uninitialized.h:661:37,
+    inlined from ‘void std::vector<_Tp, _Alloc>::_M_range_insert(iterator, _ForwardIterator, _ForwardIterator, std::forward_iterator_tag) [with _ForwardIterator = const unsigned char*; _Tp = unsigned char; _Alloc = std::allocator<unsigned char>]’ at /usr/include/c++/16/bits/vector.tcc:984:34,
+    inlined from ‘std::vector<_Tp, _Alloc>::iterator std::vector<_Tp, _Alloc>::insert(const_iterator, std::initializer_list<_Tp>) [with _Tp = unsigned char; _Alloc = std::allocator<unsigned char>]’ at /usr/include/c++/16/bits/stl_vector.h:1539:17,
+    inlined from ‘uint64_t {anonymous}::Run::measure(unsigned int)’ at $LANES/usbnet-1011/tb/verilator/usbnet/sim_egress.cpp:99:19,
+    inlined from ‘int main(int, char**)’ at $LANES/usbnet-1011/tb/verilator/usbnet/sim_egress.cpp:130:72:
+/usr/include/c++/16/bits/stl_uninitialized.h:294:31: warning: writing 10 bytes into a region of size 0 [-Wstringop-overflow=]
+  294 |               __builtin_memcpy(std::__niter_base(__result),
+      |               ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  295 |                                std::__niter_base(__first),
+      |                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  296 |                                __n * sizeof(_ValT));
+      |                                ~~~~~~~~~~~~~~~~~~~~
+In file included from /usr/include/c++/16/x86_64-pc-linux-gnu/bits/c++allocator.h:33,
+                 from /usr/include/c++/16/bits/allocator.h:46,
+                 from /usr/include/c++/16/string:46,
+                 from /usr/share/verilator/include/verilatedos.h:697,
+                 from /usr/share/verilator/include/verilated.h:43:
+In member function ‘_Tp* std::__new_allocator<_Tp>::allocate(size_type, const void*) [with _Tp = unsigned char]’,
+    inlined from ‘static _Tp* std::allocator_traits<std::allocator<_CharT> >::allocate(allocator_type&, size_type) [with _Tp = unsigned char]’ at /usr/include/c++/16/bits/alloc_traits.h:638:28,
+    inlined from ‘std::_Vector_base<_Tp, _Alloc>::pointer std::_Vector_base<_Tp, _Alloc>::_M_allocate(std::size_t) [with _Tp = unsigned char; _Alloc = std::allocator<unsigned char>]’ at /usr/include/c++/16/bits/stl_vector.h:389:33,
+    inlined from ‘void std::_Vector_base<_Tp, _Alloc>::_M_create_storage(std::size_t) [with _Tp = unsigned char; _Alloc = std::allocator<unsigned char>]’ at /usr/include/c++/16/bits/stl_vector.h:407:44,
+    inlined from ‘std::_Vector_base<_Tp, _Alloc>::_Vector_base(std::size_t, const allocator_type&) [with _Tp = unsigned char; _Alloc = std::allocator<unsigned char>]’ at /usr/include/c++/16/bits/stl_vector.h:341:26,
+    inlined from ‘std::vector<_Tp, _Alloc>::vector(const std::vector<_Tp, _Alloc>&) [with _Tp = unsigned char; _Alloc = std::allocator<unsigned char>]’ at /usr/include/c++/16/bits/stl_vector.h:623:61,
+    inlined from ‘uint64_t {anonymous}::Run::measure(unsigned int)’ at $LANES/usbnet-1011/tb/verilator/usbnet/sim_egress.cpp:98:41,
+    inlined from ‘int main(int, char**)’ at $LANES/usbnet-1011/tb/verilator/usbnet/sim_egress.cpp:130:72:
+/usr/include/c++/16/bits/new_allocator.h:162:75: note: at offset 6 into destination object of size 6 allocated by ‘operator new’
+  162 |           return static_cast<_Tp*>(_GLIBCXX_OPERATOR_NEW(__n * sizeof(_Tp)));
+      |                                                                           ^
+g++    sim_egress.o verilated.o verilated_threads.o Vusbnet_egress_chain__ALL.a    -pthread -lpthread -latomic   -o Vegress
+make: Leaving directory '$VALIDATION_STORAGE/usbnet-a855/round7/egress-chain/native'

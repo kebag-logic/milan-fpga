@@ -1,0 +1,19 @@
+PASS one longest frame and handshake delay the first departure
+PASS a second frame in the busy period adds only its own wire time
+PASS a new busy period receives another injection
+PASS injection does not consume a datapath FIFO slot
+PASS changed ring availability refuses census carry
+PASS a census without injected traffic is refused
+PASS the separate handshake counts at the 1000 us boundary
+PASS an independently shifted injected departure agrees
+PASS a queue omitting injection cannot pass with only its declaration
+CAUGHT injected-frame-omitted one longest frame and handshake delay the first departure; a new busy period receives another injection; an independently shifted injected departure agrees; a queue omitting injection cannot pass with only its declaration
+CAUGHT injected-frame-at-gigabit-rate one longest frame and handshake delay the first departure; a new busy period receives another injection; an independently shifted injected departure agrees; a queue omitting injection cannot pass with only its declaration
+CAUGHT handshake-omitted one longest frame and handshake delay the first departure; a new busy period receives another injection; the separate handshake counts at the 1000 us boundary; an independently shifted injected departure agrees; a queue omitting injection cannot pass with only its declaration
+CAUGHT injected-before-every-frame a second frame in the busy period adds only its own wire time; a new busy period receives another injection
+CAUGHT later-busy-period-forgotten a new busy period receives another injection
+CAUGHT free-space-change-ignored changed ring availability refuses census carry
+CAUGHT uninjected-census-accepted a census without injected traffic is refused; an independently shifted injected departure agrees; a queue omitting injection cannot pass with only its declaration
+CAUGHT separate-handshake-omitted the separate handshake counts at the 1000 us boundary
+CAUGHT injected-departure-mismatch-ignored a queue omitting injection cannot pass with only its declaration
+USB egress controls: 18/18

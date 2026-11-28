@@ -1,0 +1,14 @@
+PASS one longest frame and handshake delay the first departure
+PASS a second frame in the busy period adds only its own wire time
+PASS a new busy period receives another injection
+PASS injection does not consume a datapath FIFO slot
+PASS changed ring availability refuses census carry
+PASS a census without injected traffic is refused
+CAUGHT injected-frame-omitted one longest frame and handshake delay the first departure; a new busy period receives another injection
+CAUGHT injected-frame-at-gigabit-rate one longest frame and handshake delay the first departure; a new busy period receives another injection
+CAUGHT handshake-omitted one longest frame and handshake delay the first departure; a new busy period receives another injection
+CAUGHT injected-before-every-frame a second frame in the busy period adds only its own wire time; a new busy period receives another injection
+CAUGHT later-busy-period-forgotten a new busy period receives another injection
+CAUGHT free-space-change-ignored changed ring availability refuses census carry
+CAUGHT uninjected-census-accepted a census without injected traffic is refused
+USB egress controls: 13/13

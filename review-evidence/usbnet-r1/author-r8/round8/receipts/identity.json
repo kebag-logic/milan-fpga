@@ -1,0 +1,142 @@
+{
+  "status": "PASS",
+  "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+  "dependency": "640699e6866602b2a5de5d404c43f3bd4df8037c",
+  "changed_since_round7": [
+    "docs/DOCUMENTATION_AUDIT.md",
+    "docs/design/USB_NET_PATH.md",
+    "tb/verilator/ctrl_service_budget/egress_ledger.py"
+  ],
+  "dependency_files": [
+    {
+      "path": "docs/design/SPLIT_CONTROL_MEMORY.md",
+      "sha256": "490a9ccd673eb22f354e9901a94497a1c8d7531b28a6f4c975e77f40e42b251d",
+      "identical": true
+    },
+    {
+      "path": "docs/reference/FR_NFR.md",
+      "sha256": "f18cbc68547cd0bf49d313e97559c6be3d63fc858361958e0257987fc853e78c",
+      "identical": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/README.md",
+      "sha256": "8d453bdb94253ba2957ea72cc0dc526a218663e00d7f10e5b6ddf0fabc050e3a",
+      "identical": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/bind_save.py",
+      "sha256": "8810597628924a681111526fe2268577cce29ddd2141a02b326a69975f58c1ef",
+      "identical": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/build.py",
+      "sha256": "27fcb2df542d9492e06790da772594532d5275e836826098aadf4e76a64d8e2d",
+      "identical": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/census_extract.py",
+      "sha256": "5ccf1d1bc146b031edca31d6f1114a780722c226f38a20289f59ce910c63fe11",
+      "identical": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/egress_fixed.py",
+      "sha256": "bab68117fabaea52456daed04e69633fb71c2a6e306b8b38645283b21a299304",
+      "identical": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/egress_fixed_main.cpp",
+      "sha256": "3d69df1e818567e3740ec352d3cf2059ada108d8bf21989b2fd3ce7f3cdf246e",
+      "identical": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/egress_mii.py",
+      "sha256": "c43b2d549af13cdee8762f3667cd069e62197b65c98921b22651efbfec150cfe",
+      "identical": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/egress_queue.hpp",
+      "sha256": "ff371dd94825040c10d4b4fbefd85014d343478a8e171d0aa2528d6bafe45557",
+      "identical": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/grade.py",
+      "sha256": "9dd69779b70d0c9cf466ecd780d27f66747cece7b77f9f8644f977f1419e42fb",
+      "identical": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/selftest_bind.py",
+      "sha256": "fab5154efaa40ca7d95395e56bfc3e8e8ef093a8083d07ddcdc7c18b3ed46355",
+      "identical": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/sim_main.cpp",
+      "sha256": "e721eebf756410c43f6341691376280299de0ed744b5b6f53e572ea05b6adea6",
+      "identical": true
+    }
+  ],
+  "pins": [
+    " efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external (heads/main)",
+    " 3ce71b768a2f6f6a5274c127080146e755d02275 gptp-processor (remotes/origin/640-m7-124-g3ce71b7)",
+    " 801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor (v2.0-912-g801ef22)",
+    " d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b third_party/lwSRP (heads/main)",
+    " c3bff8f3dea03870ea7ae62965db360b509ee3b3 third_party/tsn-c-stack (heads/main)",
+    " 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)"
+  ],
+  "firmware": [
+    {
+      "recipe": "ax7101",
+      "tree": "candidate",
+      "measured_head": "91252ecf7457287079d5d2f794b8544f0d9d34c4",
+      "hashes": {
+        "ctrl_app.elf": "6e0a54124483adfadd04e8e6f62d296bdf884794b197d0ed9dc24c71de49fd56",
+        "ctrl_plat_map_gen.h": "5f0c602687dacba302959ebb99763e5922aff8ad19f76e7c7c05919b45a936fa"
+      }
+    },
+    {
+      "recipe": "ax7101",
+      "tree": "baseline",
+      "measured_head": "640699e6866602b2a5de5d404c43f3bd4df8037c",
+      "hashes": {
+        "ctrl_app.elf": "6e0a54124483adfadd04e8e6f62d296bdf884794b197d0ed9dc24c71de49fd56",
+        "ctrl_plat_map_gen.h": "5f0c602687dacba302959ebb99763e5922aff8ad19f76e7c7c05919b45a936fa"
+      }
+    },
+    {
+      "recipe": "ax8x8",
+      "tree": "candidate",
+      "measured_head": "91252ecf7457287079d5d2f794b8544f0d9d34c4",
+      "hashes": {
+        "ctrl_app.elf": "0f1450acefdd7fa0173d1de3221f8c5a6456e59d96fc99611b5121b1c26a2c3f",
+        "ctrl_plat_map_gen.h": "5f0c602687dacba302959ebb99763e5922aff8ad19f76e7c7c05919b45a936fa"
+      }
+    },
+    {
+      "recipe": "ax8x8",
+      "tree": "baseline",
+      "measured_head": "640699e6866602b2a5de5d404c43f3bd4df8037c",
+      "hashes": {
+        "ctrl_app.elf": "0f1450acefdd7fa0173d1de3221f8c5a6456e59d96fc99611b5121b1c26a2c3f",
+        "ctrl_plat_map_gen.h": "5f0c602687dacba302959ebb99763e5922aff8ad19f76e7c7c05919b45a936fa"
+      }
+    },
+    {
+      "recipe": "arty",
+      "tree": "candidate",
+      "measured_head": "91252ecf7457287079d5d2f794b8544f0d9d34c4",
+      "hashes": {
+        "ctrl_app.elf": "f17d1a9da8ba6e50a1e8cf0af9b77ed434288a1d0a689a357a0c6a57ecda92cf",
+        "ctrl_plat_map_gen.h": "5f0c602687dacba302959ebb99763e5922aff8ad19f76e7c7c05919b45a936fa"
+      }
+    },
+    {
+      "recipe": "arty",
+      "tree": "baseline",
+      "measured_head": "640699e6866602b2a5de5d404c43f3bd4df8037c",
+      "hashes": {
+        "ctrl_app.elf": "f17d1a9da8ba6e50a1e8cf0af9b77ed434288a1d0a689a357a0c6a57ecda92cf",
+        "ctrl_plat_map_gen.h": "5f0c602687dacba302959ebb99763e5922aff8ad19f76e7c7c05919b45a936fa"
+      }
+    }
+  ],
+  "proof": "Retained six same-pin builds rehashed; firmware, configuration, RTL and submodule inputs unchanged since their measured merge. No rebuild claimed."
+}

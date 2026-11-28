@@ -1,0 +1,34 @@
+[
+  {
+    "tree": "candidate",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "sw/firmware/ctrl/plat/ctrl_plat_gen.py",
+      "map",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/fresh-map/candidate/csr.csv",
+      "-o",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/fresh-map/candidate/ctrl_plat_map_gen.h"
+    ],
+    "rc": 0,
+    "source_csr_sha256": "463004489abe0f2a32917d4519241aab8d217b444208a61441e6e7c00599ee88",
+    "map_sha256": "5f0c602687dacba302959ebb99763e5922aff8ad19f76e7c7c05919b45a936fa",
+    "identical_to_firmware_build": true
+  },
+  {
+    "tree": "baseline",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "sw/firmware/ctrl/plat/ctrl_plat_gen.py",
+      "map",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/fresh-map/baseline/csr.csv",
+      "-o",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/fresh-map/baseline/ctrl_plat_map_gen.h"
+    ],
+    "rc": 0,
+    "source_csr_sha256": "eaac9700d93cf94aa6dda777d3b07924c04ad4b2c32e4917b9135daeed95a2df",
+    "map_sha256": "5f0c602687dacba302959ebb99763e5922aff8ad19f76e7c7c05919b45a936fa",
+    "identical_to_firmware_build": true
+  }
+]

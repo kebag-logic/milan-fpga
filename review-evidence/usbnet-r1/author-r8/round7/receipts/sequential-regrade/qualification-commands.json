@@ -1,0 +1,137 @@
+[
+  {
+    "name": "regrade-answering-ports",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/census/answering-ports",
+      "--variant",
+      "answering-ports",
+      "--regrade",
+      "--record-budget-findings",
+      "--groups",
+      "aecp-fanout,aecp,aecp-reboot,aecp-largest-notice"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/regrade-answering-ports.log",
+    "sha256": "c2c5a70ed98172ac1a754cf269b18a7d6d34283a244818eda8572d0884c2528f"
+  },
+  {
+    "name": "regrade-answering-every-port",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/census/answering-every-port",
+      "--variant",
+      "answering-every-port",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/regrade-answering-every-port.log",
+    "sha256": "82925ce6cdd2c948bae817b2e8b59f8e5efff8b3689f5ef9de5841c6da6539a0"
+  },
+  {
+    "name": "regrade-answering-later",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/census/answering-later",
+      "--variant",
+      "answering-later",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/regrade-answering-later.log",
+    "sha256": "9d3cbe724e9b45269073fc3e20e688375c3432af33f45433f86872787ddb1290"
+  },
+  {
+    "name": "regrade-talker-notices",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/census/talker-notices",
+      "--variant",
+      "talker-notices",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/regrade-talker-notices.log",
+    "sha256": "f77b28d3cd5e5b0ab281cd757d4cecdfe1eb15951f1895758999407cd0ab4345"
+  },
+  {
+    "name": "regrade-shutdown-entry",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/census/shutdown-entry",
+      "--variant",
+      "shutdown-entry",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/regrade-shutdown-entry.log",
+    "sha256": "a6c92736ecb8f1b52f81cd2b253fbe243cf49d85767a15dbbddc3e8d5974ea8c"
+  },
+  {
+    "name": "regrade-declaring-outputs",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/census/declaring-outputs",
+      "--variant",
+      "declaring-outputs",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/regrade-declaring-outputs.log",
+    "sha256": "8d689b0f8c733104b70cc5e3d1d9f13ef6b0cdac0091c5d8dc575153cb9895fd"
+  },
+  {
+    "name": "regrade-valid-destinations",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/run.py",
+      "--point",
+      "arty-1x1",
+      "--build-dir",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/census/valid-destinations",
+      "--variant",
+      "valid-destinations",
+      "--regrade",
+      "--record-budget-findings"
+    ],
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/usbnet-a855/round7/census/regrade-valid-destinations.log",
+    "sha256": "0653a2ece1dba8fba31d107a4edecde26f974e0efb148f8cb7b0b9cecf4787fa"
+  }
+]

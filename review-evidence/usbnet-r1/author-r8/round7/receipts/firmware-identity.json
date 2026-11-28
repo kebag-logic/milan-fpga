@@ -1,0 +1,224 @@
+[
+  {
+    "recipe": "ax7101",
+    "tree": "candidate",
+    "head": "91252ecf7457287079d5d2f794b8544f0d9d34c4",
+    "hashes": {
+      "ctrl_app.elf": "6e0a54124483adfadd04e8e6f62d296bdf884794b197d0ed9dc24c71de49fd56",
+      "ctrl_plat_map_gen.h": "5f0c602687dacba302959ebb99763e5922aff8ad19f76e7c7c05919b45a936fa"
+    },
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "sw/firmware/ctrl/test/ctrl_plat_image.py",
+      "--config",
+      "$LANES/usbnet-1011/configs/endstation_ax7101_1x1_tdm8.yaml",
+      "--csr-csv",
+      "$VALIDATION_STORAGE/usbnet-a855/round2/resume-identity/head/ax7101/csr.csv",
+      "--flash-map",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/product/candidate/ax7101/flash-map",
+      "--output",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/product/candidate/ax7101",
+      "--interfaces",
+      "1",
+      "--libc",
+      "$VALIDATION_STORAGE/usbnet-a855/round2/resume-identity/base/ax7101/software/libc/libc.a",
+      "--compiler-runtime",
+      "$VALIDATION_STORAGE/usbnet-a855/round2/resume-identity/base/ax7101/software/libcompiler_rt/libcompiler_rt.a"
+    ],
+    "generator": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "sw/firmware/ctrl_nvm/plat/gen_flash_port.py",
+      "--csr-csv",
+      "$VALIDATION_STORAGE/usbnet-a855/round2/resume-identity/head/ax7101/csr.csv",
+      "--csr-h",
+      "$VALIDATION_STORAGE/usbnet-a855/round2/resume-identity/head/ax7101/software/include/generated/csr.h",
+      "--out",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/product/candidate/ax7101/flash-map"
+    ]
+  },
+  {
+    "recipe": "ax7101",
+    "tree": "baseline",
+    "head": "640699e6866602b2a5de5d404c43f3bd4df8037c",
+    "hashes": {
+      "ctrl_app.elf": "6e0a54124483adfadd04e8e6f62d296bdf884794b197d0ed9dc24c71de49fd56",
+      "ctrl_plat_map_gen.h": "5f0c602687dacba302959ebb99763e5922aff8ad19f76e7c7c05919b45a936fa"
+    },
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "sw/firmware/ctrl/test/ctrl_plat_image.py",
+      "--config",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/baseline/configs/endstation_ax7101_1x1_tdm8.yaml",
+      "--csr-csv",
+      "$VALIDATION_STORAGE/usbnet-a855/round2/resume-identity/head/ax7101/csr.csv",
+      "--flash-map",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/product/baseline/ax7101/flash-map",
+      "--output",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/product/baseline/ax7101",
+      "--interfaces",
+      "1",
+      "--libc",
+      "$VALIDATION_STORAGE/usbnet-a855/round2/resume-identity/base/ax7101/software/libc/libc.a",
+      "--compiler-runtime",
+      "$VALIDATION_STORAGE/usbnet-a855/round2/resume-identity/base/ax7101/software/libcompiler_rt/libcompiler_rt.a"
+    ],
+    "generator": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "sw/firmware/ctrl_nvm/plat/gen_flash_port.py",
+      "--csr-csv",
+      "$VALIDATION_STORAGE/usbnet-a855/round2/resume-identity/head/ax7101/csr.csv",
+      "--csr-h",
+      "$VALIDATION_STORAGE/usbnet-a855/round2/resume-identity/head/ax7101/software/include/generated/csr.h",
+      "--out",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/product/baseline/ax7101/flash-map"
+    ]
+  },
+  {
+    "recipe": "ax8x8",
+    "tree": "candidate",
+    "head": "91252ecf7457287079d5d2f794b8544f0d9d34c4",
+    "hashes": {
+      "ctrl_app.elf": "0f1450acefdd7fa0173d1de3221f8c5a6456e59d96fc99611b5121b1c26a2c3f",
+      "ctrl_plat_map_gen.h": "5f0c602687dacba302959ebb99763e5922aff8ad19f76e7c7c05919b45a936fa"
+    },
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "sw/firmware/ctrl/test/ctrl_plat_image.py",
+      "--config",
+      "$LANES/usbnet-1011/configs/endstation_ax7101_8x8.yaml",
+      "--csr-csv",
+      "$VALIDATION_STORAGE/usbnet-a855/round2/resume-identity/head/ax8x8/csr.csv",
+      "--flash-map",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/product/candidate/ax8x8/flash-map",
+      "--output",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/product/candidate/ax8x8",
+      "--interfaces",
+      "1",
+      "--libc",
+      "$VALIDATION_STORAGE/usbnet-a855/round2/resume-identity/base/ax8x8/software/libc/libc.a",
+      "--compiler-runtime",
+      "$VALIDATION_STORAGE/usbnet-a855/round2/resume-identity/base/ax8x8/software/libcompiler_rt/libcompiler_rt.a"
+    ],
+    "generator": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "sw/firmware/ctrl_nvm/plat/gen_flash_port.py",
+      "--csr-csv",
+      "$VALIDATION_STORAGE/usbnet-a855/round2/resume-identity/head/ax8x8/csr.csv",
+      "--csr-h",
+      "$VALIDATION_STORAGE/usbnet-a855/round2/resume-identity/head/ax8x8/software/include/generated/csr.h",
+      "--out",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/product/candidate/ax8x8/flash-map"
+    ]
+  },
+  {
+    "recipe": "ax8x8",
+    "tree": "baseline",
+    "head": "640699e6866602b2a5de5d404c43f3bd4df8037c",
+    "hashes": {
+      "ctrl_app.elf": "0f1450acefdd7fa0173d1de3221f8c5a6456e59d96fc99611b5121b1c26a2c3f",
+      "ctrl_plat_map_gen.h": "5f0c602687dacba302959ebb99763e5922aff8ad19f76e7c7c05919b45a936fa"
+    },
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "sw/firmware/ctrl/test/ctrl_plat_image.py",
+      "--config",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/baseline/configs/endstation_ax7101_8x8.yaml",
+      "--csr-csv",
+      "$VALIDATION_STORAGE/usbnet-a855/round2/resume-identity/head/ax8x8/csr.csv",
+      "--flash-map",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/product/baseline/ax8x8/flash-map",
+      "--output",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/product/baseline/ax8x8",
+      "--interfaces",
+      "1",
+      "--libc",
+      "$VALIDATION_STORAGE/usbnet-a855/round2/resume-identity/base/ax8x8/software/libc/libc.a",
+      "--compiler-runtime",
+      "$VALIDATION_STORAGE/usbnet-a855/round2/resume-identity/base/ax8x8/software/libcompiler_rt/libcompiler_rt.a"
+    ],
+    "generator": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "sw/firmware/ctrl_nvm/plat/gen_flash_port.py",
+      "--csr-csv",
+      "$VALIDATION_STORAGE/usbnet-a855/round2/resume-identity/head/ax8x8/csr.csv",
+      "--csr-h",
+      "$VALIDATION_STORAGE/usbnet-a855/round2/resume-identity/head/ax8x8/software/include/generated/csr.h",
+      "--out",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/product/baseline/ax8x8/flash-map"
+    ]
+  },
+  {
+    "recipe": "arty",
+    "tree": "candidate",
+    "head": "91252ecf7457287079d5d2f794b8544f0d9d34c4",
+    "hashes": {
+      "ctrl_app.elf": "f17d1a9da8ba6e50a1e8cf0af9b77ed434288a1d0a689a357a0c6a57ecda92cf",
+      "ctrl_plat_map_gen.h": "5f0c602687dacba302959ebb99763e5922aff8ad19f76e7c7c05919b45a936fa"
+    },
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "sw/firmware/ctrl/test/ctrl_plat_image.py",
+      "--config",
+      "$LANES/usbnet-1011/configs/endstation_arty_split.yaml",
+      "--csr-csv",
+      "$VALIDATION_STORAGE/usbnet-a855/round5/route/gen-final/csr.csv",
+      "--flash-map",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/product/candidate/arty/flash-map",
+      "--output",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/product/candidate/arty",
+      "--interfaces",
+      "1",
+      "--libc",
+      "$VALIDATION_STORAGE/usbnet-a855/round5/route/gen-final/software/libc/libc.a",
+      "--compiler-runtime",
+      "$VALIDATION_STORAGE/usbnet-a855/round5/route/gen-final/software/libcompiler_rt/libcompiler_rt.a"
+    ],
+    "generator": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "sw/firmware/ctrl_nvm/plat/gen_flash_port.py",
+      "--csr-csv",
+      "$VALIDATION_STORAGE/usbnet-a855/round5/route/gen-final/csr.csv",
+      "--csr-h",
+      "$VALIDATION_STORAGE/usbnet-a855/round5/route/gen-final/software/include/generated/csr.h",
+      "--out",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/product/candidate/arty/flash-map"
+    ]
+  },
+  {
+    "recipe": "arty",
+    "tree": "baseline",
+    "head": "640699e6866602b2a5de5d404c43f3bd4df8037c",
+    "hashes": {
+      "ctrl_app.elf": "f17d1a9da8ba6e50a1e8cf0af9b77ed434288a1d0a689a357a0c6a57ecda92cf",
+      "ctrl_plat_map_gen.h": "5f0c602687dacba302959ebb99763e5922aff8ad19f76e7c7c05919b45a936fa"
+    },
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "sw/firmware/ctrl/test/ctrl_plat_image.py",
+      "--config",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/baseline/configs/endstation_arty_split.yaml",
+      "--csr-csv",
+      "$VALIDATION_STORAGE/usbnet-a855/round5/route/gen-ExtraTimingOpt-none/csr.csv",
+      "--flash-map",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/product/baseline/arty/flash-map",
+      "--output",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/product/baseline/arty",
+      "--interfaces",
+      "1",
+      "--libc",
+      "$VALIDATION_STORAGE/usbnet-a855/round5/route/gen-ExtraTimingOpt-none/software/libc/libc.a",
+      "--compiler-runtime",
+      "$VALIDATION_STORAGE/usbnet-a855/round5/route/gen-ExtraTimingOpt-none/software/libcompiler_rt/libcompiler_rt.a"
+    ],
+    "generator": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "sw/firmware/ctrl_nvm/plat/gen_flash_port.py",
+      "--csr-csv",
+      "$VALIDATION_STORAGE/usbnet-a855/round5/route/gen-ExtraTimingOpt-none/csr.csv",
+      "--csr-h",
+      "$VALIDATION_STORAGE/usbnet-a855/round5/route/gen-ExtraTimingOpt-none/software/include/generated/csr.h",
+      "--out",
+      "$VALIDATION_STORAGE/usbnet-a855/round7/product/baseline/arty/flash-map"
+    ]
+  }
+]

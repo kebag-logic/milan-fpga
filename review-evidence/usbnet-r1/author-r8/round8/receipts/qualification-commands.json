@@ -1,0 +1,106 @@
+[
+  {
+    "name": "record-classes",
+    "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+    "command": [
+      "/usr/bin/python3",
+      "-I",
+      "-B",
+      "tb/verilator/ctrl_service_budget/record_classes.py",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/none/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-ports/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-every-port/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/valid-destinations/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/declaring-outputs/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-later/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/talker-notices/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/shutdown-entry/results"
+    ],
+    "returncode": 0,
+    "expected": 0,
+    "log": "record-classes.log",
+    "log_sha256": "81a77519132eb1edbc9030ab119f936937da3494f45aedc3c06dab28abcfc290"
+  },
+  {
+    "name": "egress-ledger",
+    "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+    "command": [
+      "/usr/bin/python3",
+      "-I",
+      "-B",
+      "tb/verilator/ctrl_service_budget/egress_ledger.py",
+      "--point",
+      "arty-usbnet-1x1",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/none/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-ports/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-every-port/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/valid-destinations/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/declaring-outputs/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-later/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/talker-notices/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/shutdown-entry/results"
+    ],
+    "returncode": 0,
+    "expected": 0,
+    "log": "egress-ledger.log",
+    "log_sha256": "f26451956c84ae0f2c4634dec69ecd878b121b63533d301df54c3c54f3835572"
+  },
+  {
+    "name": "original-arty-negative",
+    "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+    "command": [
+      "/usr/bin/python3",
+      "-I",
+      "-B",
+      "tb/verilator/ctrl_service_budget/egress_ledger.py",
+      "--point",
+      "arty-1x1",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/none/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-ports/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-every-port/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/valid-destinations/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/declaring-outputs/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/answering-later/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/talker-notices/results",
+      "$VALIDATION_STORAGE/usbnet-a855/round8/census/shutdown-entry/results"
+    ],
+    "returncode": 1,
+    "expected": 1,
+    "log": "original-arty-negative.log",
+    "log_sha256": "147289498c2afd3776ac75c90b75c6fb033045dd34a5240269b173734a968689"
+  },
+  {
+    "name": "usb-at-figure",
+    "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+    "command": [
+      "/usr/bin/python3",
+      "-I",
+      "-B",
+      "tb/verilator/ctrl_service_budget/egress_ledger.py",
+      "--point",
+      "arty-usbnet-1x1",
+      "$MANAGEMENT/2026-09-23/usbnet-a855/round8/receipts/controls/usb-at-figure"
+    ],
+    "returncode": 0,
+    "expected": 0,
+    "log": "usb-at-figure.log",
+    "log_sha256": "f7ce7b95b03dea55a2ccae6d5db56c1a1b4a7c2aaad7acc7108d8324f7c3c2aa"
+  },
+  {
+    "name": "usb-one-cycle-over",
+    "head": "701f294405d47a81eed1079d32b54e1eea4a4f31",
+    "command": [
+      "/usr/bin/python3",
+      "-I",
+      "-B",
+      "tb/verilator/ctrl_service_budget/egress_ledger.py",
+      "--point",
+      "arty-usbnet-1x1",
+      "$MANAGEMENT/2026-09-23/usbnet-a855/round8/receipts/controls/usb-one-cycle-over"
+    ],
+    "returncode": 1,
+    "expected": 1,
+    "log": "usb-one-cycle-over.log",
+    "log_sha256": "db510e18a4f7fb20d3bad26081b2c154d8cf27e6a99de2f82d56ec7bfd384ad7"
+  }
+]

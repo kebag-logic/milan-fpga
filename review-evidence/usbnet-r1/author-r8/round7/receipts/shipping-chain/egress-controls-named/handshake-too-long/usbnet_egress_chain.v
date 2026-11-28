@@ -1,0 +1,2955 @@
+/* Machine-generated using Migen */
+module usbnet_egress_chain(
+	input sys_clk,
+	input sys_rst,
+	input dp_clk,
+	input dp_rst,
+	input eth_tx_clk,
+	input eth_rx_clk,
+	input eth_phy_rst,
+	input reinit,
+	input eth_rst,
+	input loopback,
+	input [63:0] dp_tdata,
+	input [7:0] dp_tkeep,
+	input dp_tvalid,
+	input dp_tlast,
+	output dp_tready,
+	output gmii_tx_en,
+	output [7:0] gmii_tx_data,
+	output gmii_tx_er,
+	output phy_sink_valid,
+	output phy_sink_ready,
+	output [7:0] phy_sink_data,
+	output phy_sink_last,
+	output maceth_tx_rst,
+	input inject_enable,
+	input dn_valid,
+	output dn_ready,
+	input [15:0] dn_data,
+	output active,
+	output hi_valid,
+	output hi_ready
+);
+
+wire eth_tx_clk_1;
+reg eth_tx_rst = 1'd0;
+wire eth_rx_clk_1;
+reg eth_rx_rst = 1'd0;
+wire macsys_clk;
+reg macsys_rst = 1'd0;
+wire macdp_clk;
+reg macdp_rst = 1'd0;
+wire maceth_tx_clk;
+reg maceth_tx_rst_1 = 1'd0;
+wire maceth_rx_clk;
+reg maceth_rx_rst = 1'd0;
+reg chain_generate_pads_tx_en = 1'd0;
+reg [3:0] chain_generate_pads_tx_data = 4'd0;
+reg chain_generate_pads_rx_dv = 1'd0;
+reg [3:0] chain_generate_pads_rx_data = 4'd0;
+wire chain_generate_liteethphymiitx_sink_valid;
+wire chain_generate_liteethphymiitx_sink_ready;
+wire chain_generate_liteethphymiitx_sink_first;
+wire chain_generate_liteethphymiitx_sink_last;
+wire [7:0] chain_generate_liteethphymiitx_sink_payload_data;
+wire chain_generate_liteethphymiitx_sink_payload_last_be;
+wire chain_generate_liteethphymiitx_sink_payload_error;
+wire chain_generate_liteethphymiitx_converter_sink_valid;
+wire chain_generate_liteethphymiitx_converter_sink_ready;
+reg chain_generate_liteethphymiitx_converter_sink_first = 1'd0;
+reg chain_generate_liteethphymiitx_converter_sink_last = 1'd0;
+wire [7:0] chain_generate_liteethphymiitx_converter_sink_payload_data;
+wire chain_generate_liteethphymiitx_converter_source_valid;
+wire chain_generate_liteethphymiitx_converter_source_ready;
+wire chain_generate_liteethphymiitx_converter_source_first;
+wire chain_generate_liteethphymiitx_converter_source_last;
+reg [3:0] chain_generate_liteethphymiitx_converter_source_payload_data;
+wire chain_generate_liteethphymiitx_converter_source_payload_valid_token_count;
+reg chain_generate_liteethphymiitx_converter_mux = 1'd0;
+wire chain_generate_liteethphymiitx_converter_first;
+wire chain_generate_liteethphymiitx_converter_last;
+wire chain_generate_liteethphymiitx_source_source_valid;
+wire chain_generate_liteethphymiitx_source_source_ready;
+wire chain_generate_liteethphymiitx_source_source_first;
+wire chain_generate_liteethphymiitx_source_source_last;
+wire [3:0] chain_generate_liteethphymiitx_source_source_payload_data;
+wire chain_generate_liteethphymiirx_source_valid;
+wire chain_generate_liteethphymiirx_source_ready;
+wire chain_generate_liteethphymiirx_source_first;
+wire chain_generate_liteethphymiirx_source_last;
+wire [7:0] chain_generate_liteethphymiirx_source_payload_data;
+reg chain_generate_liteethphymiirx_source_payload_last_be = 1'd0;
+reg chain_generate_liteethphymiirx_source_payload_error = 1'd0;
+reg chain_generate_liteethphymiirx_converter_sink_valid = 1'd0;
+wire chain_generate_liteethphymiirx_converter_sink_ready;
+reg chain_generate_liteethphymiirx_converter_sink_first = 1'd0;
+wire chain_generate_liteethphymiirx_converter_sink_last;
+reg [3:0] chain_generate_liteethphymiirx_converter_sink_payload_data = 4'd0;
+wire chain_generate_liteethphymiirx_converter_source_valid;
+wire chain_generate_liteethphymiirx_converter_source_ready;
+reg chain_generate_liteethphymiirx_converter_source_first = 1'd0;
+reg chain_generate_liteethphymiirx_converter_source_last = 1'd0;
+reg [7:0] chain_generate_liteethphymiirx_converter_source_payload_data = 8'd0;
+reg [1:0] chain_generate_liteethphymiirx_converter_source_payload_valid_token_count = 2'd0;
+reg chain_generate_liteethphymiirx_converter_demux = 1'd0;
+wire chain_generate_liteethphymiirx_converter_load_part;
+reg chain_generate_liteethphymiirx_converter_strobe_all = 1'd0;
+wire chain_generate_liteethphymiirx_source_source_valid;
+wire chain_generate_liteethphymiirx_source_source_ready;
+wire chain_generate_liteethphymiirx_source_source_first;
+wire chain_generate_liteethphymiirx_source_source_last;
+wire [7:0] chain_generate_liteethphymiirx_source_source_payload_data;
+reg chain_generate_liteethphymiirx_reset = 1'd0;
+wire chain_generate_sink_valid;
+wire chain_generate_sink_ready;
+reg chain_generate_sink_first = 1'd0;
+wire chain_generate_sink_last;
+wire [63:0] chain_generate_sink_payload_data;
+wire [7:0] chain_generate_sink_payload_last_be;
+wire [7:0] chain_generate_sink_payload_error;
+wire chain_generate_source_valid;
+reg chain_generate_source_ready;
+wire chain_generate_source_first;
+wire chain_generate_source_last;
+wire [63:0] chain_generate_source_payload_data;
+wire [7:0] chain_generate_source_payload_last_be;
+wire [7:0] chain_generate_source_payload_error;
+wire chain_generate_tx_cdc_sink_sink_valid;
+wire chain_generate_tx_cdc_sink_sink_ready;
+wire chain_generate_tx_cdc_sink_sink_first;
+wire chain_generate_tx_cdc_sink_sink_last;
+wire [63:0] chain_generate_tx_cdc_sink_sink_payload_data;
+wire [7:0] chain_generate_tx_cdc_sink_sink_payload_last_be;
+wire [7:0] chain_generate_tx_cdc_sink_sink_payload_error;
+wire chain_generate_tx_cdc_source_source_valid;
+wire chain_generate_tx_cdc_source_source_ready;
+wire chain_generate_tx_cdc_source_source_first;
+wire chain_generate_tx_cdc_source_source_last;
+wire [63:0] chain_generate_tx_cdc_source_source_payload_data;
+wire [7:0] chain_generate_tx_cdc_source_source_payload_last_be;
+wire [7:0] chain_generate_tx_cdc_source_source_payload_error;
+wire chain_generate_tx_cdc_cdc_sink_valid;
+wire chain_generate_tx_cdc_cdc_sink_ready;
+wire chain_generate_tx_cdc_cdc_sink_first;
+wire chain_generate_tx_cdc_cdc_sink_last;
+wire [63:0] chain_generate_tx_cdc_cdc_sink_payload_data;
+wire [7:0] chain_generate_tx_cdc_cdc_sink_payload_last_be;
+wire [7:0] chain_generate_tx_cdc_cdc_sink_payload_error;
+wire chain_generate_tx_cdc_cdc_source_valid;
+wire chain_generate_tx_cdc_cdc_source_ready;
+wire chain_generate_tx_cdc_cdc_source_first;
+wire chain_generate_tx_cdc_cdc_source_last;
+wire [63:0] chain_generate_tx_cdc_cdc_source_payload_data;
+wire [7:0] chain_generate_tx_cdc_cdc_source_payload_last_be;
+wire [7:0] chain_generate_tx_cdc_cdc_source_payload_error;
+wire chain_generate_tx_cdc_cdc_asyncfifo_we;
+wire chain_generate_tx_cdc_cdc_asyncfifo_writable;
+wire chain_generate_tx_cdc_cdc_asyncfifo_re;
+wire chain_generate_tx_cdc_cdc_asyncfifo_readable;
+wire [81:0] chain_generate_tx_cdc_cdc_asyncfifo_din;
+wire [81:0] chain_generate_tx_cdc_cdc_asyncfifo_dout;
+wire chain_generate_tx_cdc_cdc_graycounter0_ce;
+(* no_retiming = "true" *) reg [5:0] chain_generate_tx_cdc_cdc_graycounter0_q = 6'd0;
+wire [5:0] chain_generate_tx_cdc_cdc_graycounter0_q_next;
+reg [5:0] chain_generate_tx_cdc_cdc_graycounter0_q_binary = 6'd0;
+reg [5:0] chain_generate_tx_cdc_cdc_graycounter0_q_next_binary;
+wire chain_generate_tx_cdc_cdc_graycounter1_ce;
+(* no_retiming = "true" *) reg [5:0] chain_generate_tx_cdc_cdc_graycounter1_q = 6'd0;
+wire [5:0] chain_generate_tx_cdc_cdc_graycounter1_q_next;
+reg [5:0] chain_generate_tx_cdc_cdc_graycounter1_q_binary = 6'd0;
+reg [5:0] chain_generate_tx_cdc_cdc_graycounter1_q_next_binary;
+wire [5:0] chain_generate_tx_cdc_cdc_produce_rdomain;
+wire [5:0] chain_generate_tx_cdc_cdc_consume_wdomain;
+wire [4:0] chain_generate_tx_cdc_cdc_wrport_adr;
+wire [81:0] chain_generate_tx_cdc_cdc_wrport_dat_r;
+wire chain_generate_tx_cdc_cdc_wrport_we;
+wire [81:0] chain_generate_tx_cdc_cdc_wrport_dat_w;
+wire [4:0] chain_generate_tx_cdc_cdc_rdport_adr;
+wire [81:0] chain_generate_tx_cdc_cdc_rdport_dat_r;
+wire [63:0] chain_generate_tx_cdc_cdc_fifo_in_payload_data;
+wire [7:0] chain_generate_tx_cdc_cdc_fifo_in_payload_last_be;
+wire [7:0] chain_generate_tx_cdc_cdc_fifo_in_payload_error;
+wire chain_generate_tx_cdc_cdc_fifo_in_first;
+wire chain_generate_tx_cdc_cdc_fifo_in_last;
+wire [63:0] chain_generate_tx_cdc_cdc_fifo_out_payload_data;
+wire [7:0] chain_generate_tx_cdc_cdc_fifo_out_payload_last_be;
+wire [7:0] chain_generate_tx_cdc_cdc_fifo_out_payload_error;
+wire chain_generate_tx_cdc_cdc_fifo_out_first;
+wire chain_generate_tx_cdc_cdc_fifo_out_last;
+wire chain_generate_tx_converter_sink_valid;
+wire chain_generate_tx_converter_sink_ready;
+wire chain_generate_tx_converter_sink_first;
+wire chain_generate_tx_converter_sink_last;
+wire [63:0] chain_generate_tx_converter_sink_payload_data;
+wire [7:0] chain_generate_tx_converter_sink_payload_last_be;
+wire [7:0] chain_generate_tx_converter_sink_payload_error;
+wire chain_generate_tx_converter_source_valid;
+wire chain_generate_tx_converter_source_ready;
+wire chain_generate_tx_converter_source_first;
+wire chain_generate_tx_converter_source_last;
+wire [7:0] chain_generate_tx_converter_source_payload_data;
+wire chain_generate_tx_converter_source_payload_last_be;
+wire chain_generate_tx_converter_source_payload_error;
+wire chain_generate_tx_converter_converter_sink_valid;
+wire chain_generate_tx_converter_converter_sink_ready;
+wire chain_generate_tx_converter_converter_sink_first;
+wire chain_generate_tx_converter_converter_sink_last;
+reg [79:0] chain_generate_tx_converter_converter_sink_payload_data;
+wire chain_generate_tx_converter_converter_source_valid;
+wire chain_generate_tx_converter_converter_source_ready;
+wire chain_generate_tx_converter_converter_source_first;
+wire chain_generate_tx_converter_converter_source_last;
+reg [9:0] chain_generate_tx_converter_converter_source_payload_data;
+wire chain_generate_tx_converter_converter_source_payload_valid_token_count;
+reg [2:0] chain_generate_tx_converter_converter_mux = 3'd0;
+wire chain_generate_tx_converter_converter_first;
+wire chain_generate_tx_converter_converter_last;
+wire chain_generate_tx_converter_source_source_valid;
+wire chain_generate_tx_converter_source_source_ready;
+wire chain_generate_tx_converter_source_source_first;
+wire chain_generate_tx_converter_source_source_last;
+wire [9:0] chain_generate_tx_converter_source_source_payload_data;
+reg chain_generate_tx_converter_last_be_drop = 1'd0;
+wire chain_generate_tx_converter_last_be_packet_end;
+wire chain_generate_tx_last_be_sink_sink_valid;
+wire chain_generate_tx_last_be_sink_sink_ready;
+wire chain_generate_tx_last_be_sink_sink_first;
+wire chain_generate_tx_last_be_sink_sink_last;
+wire [7:0] chain_generate_tx_last_be_sink_sink_payload_data;
+wire chain_generate_tx_last_be_sink_sink_payload_last_be;
+wire chain_generate_tx_last_be_sink_sink_payload_error;
+wire chain_generate_tx_last_be_source_source_valid;
+wire chain_generate_tx_last_be_source_source_ready;
+wire chain_generate_tx_last_be_source_source_first;
+wire chain_generate_tx_last_be_source_source_last;
+wire [7:0] chain_generate_tx_last_be_source_source_payload_data;
+wire chain_generate_tx_last_be_source_source_payload_last_be;
+wire chain_generate_tx_last_be_source_source_payload_error;
+wire chain_generate_tx_last_be_last_handler_sink_valid;
+reg chain_generate_tx_last_be_last_handler_sink_ready;
+wire chain_generate_tx_last_be_last_handler_sink_first;
+wire chain_generate_tx_last_be_last_handler_sink_last;
+wire [7:0] chain_generate_tx_last_be_last_handler_sink_payload_data;
+wire chain_generate_tx_last_be_last_handler_sink_payload_last_be;
+wire chain_generate_tx_last_be_last_handler_sink_payload_error;
+reg chain_generate_tx_last_be_last_handler_source_valid;
+wire chain_generate_tx_last_be_last_handler_source_ready;
+reg chain_generate_tx_last_be_last_handler_source_first;
+reg chain_generate_tx_last_be_last_handler_source_last;
+reg [7:0] chain_generate_tx_last_be_last_handler_source_payload_data;
+reg chain_generate_tx_last_be_last_handler_source_payload_last_be;
+reg chain_generate_tx_last_be_last_handler_source_payload_error;
+wire chain_generate_tx_padding_sink_valid;
+reg chain_generate_tx_padding_sink_ready;
+wire chain_generate_tx_padding_sink_first;
+wire chain_generate_tx_padding_sink_last;
+wire [7:0] chain_generate_tx_padding_sink_payload_data;
+wire chain_generate_tx_padding_sink_payload_last_be;
+wire chain_generate_tx_padding_sink_payload_error;
+reg chain_generate_tx_padding_source_valid;
+wire chain_generate_tx_padding_source_ready;
+reg chain_generate_tx_padding_source_first;
+reg chain_generate_tx_padding_source_last;
+reg [7:0] chain_generate_tx_padding_source_payload_data;
+reg chain_generate_tx_padding_source_payload_last_be;
+reg chain_generate_tx_padding_source_payload_error;
+reg [15:0] chain_generate_tx_padding_counter = 16'd0;
+wire chain_generate_tx_padding_counter_done;
+wire chain_generate_tx_crc_sink_valid;
+reg chain_generate_tx_crc_sink_ready;
+wire chain_generate_tx_crc_sink_first;
+wire chain_generate_tx_crc_sink_last;
+wire [7:0] chain_generate_tx_crc_sink_payload_data;
+wire chain_generate_tx_crc_sink_payload_last_be;
+wire chain_generate_tx_crc_sink_payload_error;
+reg chain_generate_tx_crc_source_valid;
+wire chain_generate_tx_crc_source_ready;
+reg chain_generate_tx_crc_source_first;
+reg chain_generate_tx_crc_source_last;
+reg [7:0] chain_generate_tx_crc_source_payload_data;
+reg chain_generate_tx_crc_source_payload_last_be;
+reg chain_generate_tx_crc_source_payload_error;
+reg [31:0] chain_generate_tx_crc_crc_packet = 32'd0;
+reg chain_generate_tx_crc_last_be = 1'd0;
+wire [7:0] chain_generate_tx_crc_data0;
+wire chain_generate_tx_crc_be;
+reg [31:0] chain_generate_tx_crc_value;
+reg chain_generate_tx_crc_error;
+wire [7:0] chain_generate_tx_crc_data1;
+wire [31:0] chain_generate_tx_crc_crc_prev;
+reg [31:0] chain_generate_tx_crc_crc_next;
+reg [31:0] chain_generate_tx_crc_reg = 32'd4294967295;
+reg chain_generate_tx_crc_ce;
+reg chain_generate_tx_crc_reset;
+reg [1:0] chain_generate_tx_crc_cnt = 2'd3;
+wire chain_generate_tx_crc_cnt_done;
+reg chain_generate_tx_crc_is_ongoing0;
+reg chain_generate_tx_crc_is_ongoing1;
+wire chain_generate_tx_crc_sink_sink_valid;
+wire chain_generate_tx_crc_sink_sink_ready;
+wire chain_generate_tx_crc_sink_sink_first;
+wire chain_generate_tx_crc_sink_sink_last;
+wire [7:0] chain_generate_tx_crc_sink_sink_payload_data;
+wire chain_generate_tx_crc_sink_sink_payload_last_be;
+wire chain_generate_tx_crc_sink_sink_payload_error;
+wire chain_generate_tx_crc_source_source_valid;
+wire chain_generate_tx_crc_source_source_ready;
+wire chain_generate_tx_crc_source_source_first;
+wire chain_generate_tx_crc_source_source_last;
+wire [7:0] chain_generate_tx_crc_source_source_payload_data;
+wire chain_generate_tx_crc_source_source_payload_last_be;
+wire chain_generate_tx_crc_source_source_payload_error;
+wire chain_generate_tx_crc_pipe_valid_sink_valid;
+wire chain_generate_tx_crc_pipe_valid_sink_ready;
+wire chain_generate_tx_crc_pipe_valid_sink_first;
+wire chain_generate_tx_crc_pipe_valid_sink_last;
+wire [7:0] chain_generate_tx_crc_pipe_valid_sink_payload_data;
+wire chain_generate_tx_crc_pipe_valid_sink_payload_last_be;
+wire chain_generate_tx_crc_pipe_valid_sink_payload_error;
+reg chain_generate_tx_crc_pipe_valid_source_valid = 1'd0;
+wire chain_generate_tx_crc_pipe_valid_source_ready;
+reg chain_generate_tx_crc_pipe_valid_source_first = 1'd0;
+reg chain_generate_tx_crc_pipe_valid_source_last = 1'd0;
+reg [7:0] chain_generate_tx_crc_pipe_valid_source_payload_data = 8'd0;
+reg chain_generate_tx_crc_pipe_valid_source_payload_last_be = 1'd0;
+reg chain_generate_tx_crc_pipe_valid_source_payload_error = 1'd0;
+wire chain_generate_tx_preamble_sink_valid;
+reg chain_generate_tx_preamble_sink_ready;
+wire chain_generate_tx_preamble_sink_first;
+wire chain_generate_tx_preamble_sink_last;
+wire [7:0] chain_generate_tx_preamble_sink_payload_data;
+wire chain_generate_tx_preamble_sink_payload_last_be;
+wire chain_generate_tx_preamble_sink_payload_error;
+reg chain_generate_tx_preamble_source_valid;
+wire chain_generate_tx_preamble_source_ready;
+reg chain_generate_tx_preamble_source_first;
+reg chain_generate_tx_preamble_source_last;
+reg [7:0] chain_generate_tx_preamble_source_payload_data;
+wire chain_generate_tx_preamble_source_payload_last_be;
+reg chain_generate_tx_preamble_source_payload_error;
+reg [63:0] chain_generate_tx_preamble_preamble = 64'd15372286728091293013;
+reg [2:0] chain_generate_tx_preamble_count = 3'd0;
+wire chain_generate_tx_gap_sink_valid;
+reg chain_generate_tx_gap_sink_ready;
+wire chain_generate_tx_gap_sink_first;
+wire chain_generate_tx_gap_sink_last;
+wire [7:0] chain_generate_tx_gap_sink_payload_data;
+wire chain_generate_tx_gap_sink_payload_last_be;
+wire chain_generate_tx_gap_sink_payload_error;
+reg chain_generate_tx_gap_source_valid;
+wire chain_generate_tx_gap_source_ready;
+reg chain_generate_tx_gap_source_first;
+reg chain_generate_tx_gap_source_last;
+reg [7:0] chain_generate_tx_gap_source_payload_data;
+reg chain_generate_tx_gap_source_payload_last_be;
+reg chain_generate_tx_gap_source_payload_error;
+reg [3:0] chain_generate_tx_gap_counter = 4'd0;
+reg [31:0] chain_generate_preamble_errors_status = 32'd0;
+reg [31:0] chain_generate_crc_errors_status = 32'd0;
+wire chain_generate_rx_preamble_sink_valid;
+reg chain_generate_rx_preamble_sink_ready;
+wire chain_generate_rx_preamble_sink_first;
+wire chain_generate_rx_preamble_sink_last;
+wire [7:0] chain_generate_rx_preamble_sink_payload_data;
+wire chain_generate_rx_preamble_sink_payload_last_be;
+wire chain_generate_rx_preamble_sink_payload_error;
+reg chain_generate_rx_preamble_source_valid;
+wire chain_generate_rx_preamble_source_ready;
+reg chain_generate_rx_preamble_source_first;
+reg chain_generate_rx_preamble_source_last;
+wire [7:0] chain_generate_rx_preamble_source_payload_data;
+wire chain_generate_rx_preamble_source_payload_last_be;
+reg chain_generate_rx_preamble_source_payload_error;
+reg chain_generate_rx_preamble_error;
+reg [63:0] chain_generate_rx_preamble_preamble = 64'd15372286728091293013;
+wire chain_generate_pulsesynchronizer0_i;
+wire chain_generate_pulsesynchronizer0_o;
+reg chain_generate_pulsesynchronizer0_toggle_i = 1'd0;
+wire chain_generate_pulsesynchronizer0_toggle_o;
+reg chain_generate_pulsesynchronizer0_toggle_o_r = 1'd0;
+wire chain_generate_liteethmaccrc32checker_sink_sink_valid;
+reg chain_generate_liteethmaccrc32checker_sink_sink_ready;
+wire chain_generate_liteethmaccrc32checker_sink_sink_first;
+wire chain_generate_liteethmaccrc32checker_sink_sink_last;
+wire [7:0] chain_generate_liteethmaccrc32checker_sink_sink_payload_data;
+wire chain_generate_liteethmaccrc32checker_sink_sink_payload_last_be;
+wire chain_generate_liteethmaccrc32checker_sink_sink_payload_error;
+reg chain_generate_liteethmaccrc32checker_source_source_valid;
+wire chain_generate_liteethmaccrc32checker_source_source_ready;
+wire chain_generate_liteethmaccrc32checker_source_source_first;
+reg chain_generate_liteethmaccrc32checker_source_source_last;
+wire [7:0] chain_generate_liteethmaccrc32checker_source_source_payload_data;
+reg chain_generate_liteethmaccrc32checker_source_source_payload_last_be;
+reg chain_generate_liteethmaccrc32checker_source_source_payload_error;
+reg chain_generate_liteethmaccrc32checker_error;
+wire [7:0] chain_generate_liteethmaccrc32checker_crc_data0;
+wire chain_generate_liteethmaccrc32checker_crc_be;
+reg chain_generate_liteethmaccrc32checker_crc_error0;
+reg [7:0] chain_generate_liteethmaccrc32checker_crc_data1;
+wire [31:0] chain_generate_liteethmaccrc32checker_crc_crc_prev;
+reg [31:0] chain_generate_liteethmaccrc32checker_crc_crc_next;
+reg [31:0] chain_generate_liteethmaccrc32checker_crc_reg = 32'd4294967295;
+reg chain_generate_liteethmaccrc32checker_crc_ce;
+reg chain_generate_liteethmaccrc32checker_crc_reset;
+reg chain_generate_liteethmaccrc32checker_syncfifo_sink_valid;
+wire chain_generate_liteethmaccrc32checker_syncfifo_sink_ready;
+wire chain_generate_liteethmaccrc32checker_syncfifo_sink_first;
+wire chain_generate_liteethmaccrc32checker_syncfifo_sink_last;
+wire [7:0] chain_generate_liteethmaccrc32checker_syncfifo_sink_payload_data;
+wire chain_generate_liteethmaccrc32checker_syncfifo_sink_payload_last_be;
+wire chain_generate_liteethmaccrc32checker_syncfifo_sink_payload_error;
+wire chain_generate_liteethmaccrc32checker_syncfifo_source_valid;
+reg chain_generate_liteethmaccrc32checker_syncfifo_source_ready;
+wire chain_generate_liteethmaccrc32checker_syncfifo_source_first;
+wire chain_generate_liteethmaccrc32checker_syncfifo_source_last;
+wire [7:0] chain_generate_liteethmaccrc32checker_syncfifo_source_payload_data;
+wire chain_generate_liteethmaccrc32checker_syncfifo_source_payload_last_be;
+wire chain_generate_liteethmaccrc32checker_syncfifo_source_payload_error;
+wire chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_we;
+wire chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_writable;
+wire chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_re;
+wire chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_readable;
+wire [11:0] chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_din;
+wire [11:0] chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_dout;
+reg [2:0] chain_generate_liteethmaccrc32checker_syncfifo_level = 3'd0;
+reg chain_generate_liteethmaccrc32checker_syncfifo_replace = 1'd0;
+reg [2:0] chain_generate_liteethmaccrc32checker_syncfifo_produce = 3'd0;
+reg [2:0] chain_generate_liteethmaccrc32checker_syncfifo_consume = 3'd0;
+reg [2:0] chain_generate_liteethmaccrc32checker_syncfifo_wrport_adr;
+wire [11:0] chain_generate_liteethmaccrc32checker_syncfifo_wrport_dat_r;
+wire chain_generate_liteethmaccrc32checker_syncfifo_wrport_we;
+wire [11:0] chain_generate_liteethmaccrc32checker_syncfifo_wrport_dat_w;
+wire chain_generate_liteethmaccrc32checker_syncfifo_do_read;
+wire [2:0] chain_generate_liteethmaccrc32checker_syncfifo_rdport_adr;
+wire [11:0] chain_generate_liteethmaccrc32checker_syncfifo_rdport_dat_r;
+wire [7:0] chain_generate_liteethmaccrc32checker_syncfifo_fifo_in_payload_data;
+wire chain_generate_liteethmaccrc32checker_syncfifo_fifo_in_payload_last_be;
+wire chain_generate_liteethmaccrc32checker_syncfifo_fifo_in_payload_error;
+wire chain_generate_liteethmaccrc32checker_syncfifo_fifo_in_first;
+wire chain_generate_liteethmaccrc32checker_syncfifo_fifo_in_last;
+wire [7:0] chain_generate_liteethmaccrc32checker_syncfifo_fifo_out_payload_data;
+wire chain_generate_liteethmaccrc32checker_syncfifo_fifo_out_payload_last_be;
+wire chain_generate_liteethmaccrc32checker_syncfifo_fifo_out_payload_error;
+wire chain_generate_liteethmaccrc32checker_syncfifo_fifo_out_first;
+wire chain_generate_liteethmaccrc32checker_syncfifo_fifo_out_last;
+reg chain_generate_liteethmaccrc32checker_fifo_reset;
+wire chain_generate_liteethmaccrc32checker_fifo_in;
+wire chain_generate_liteethmaccrc32checker_fifo_out;
+wire chain_generate_liteethmaccrc32checker_fifo_full;
+reg chain_generate_liteethmaccrc32checker_last_be = 1'd0;
+reg chain_generate_liteethmaccrc32checker_crc_error1 = 1'd0;
+wire chain_generate_bufferizeendpoints_sink_sink_valid;
+wire chain_generate_bufferizeendpoints_sink_sink_ready;
+wire chain_generate_bufferizeendpoints_sink_sink_first;
+wire chain_generate_bufferizeendpoints_sink_sink_last;
+wire [7:0] chain_generate_bufferizeendpoints_sink_sink_payload_data;
+wire chain_generate_bufferizeendpoints_sink_sink_payload_last_be;
+wire chain_generate_bufferizeendpoints_sink_sink_payload_error;
+wire chain_generate_bufferizeendpoints_source_source_valid;
+wire chain_generate_bufferizeendpoints_source_source_ready;
+wire chain_generate_bufferizeendpoints_source_source_first;
+wire chain_generate_bufferizeendpoints_source_source_last;
+wire [7:0] chain_generate_bufferizeendpoints_source_source_payload_data;
+wire chain_generate_bufferizeendpoints_source_source_payload_last_be;
+wire chain_generate_bufferizeendpoints_source_source_payload_error;
+wire chain_generate_bufferizeendpoints_pipe_valid_sink_valid;
+wire chain_generate_bufferizeendpoints_pipe_valid_sink_ready;
+wire chain_generate_bufferizeendpoints_pipe_valid_sink_first;
+wire chain_generate_bufferizeendpoints_pipe_valid_sink_last;
+wire [7:0] chain_generate_bufferizeendpoints_pipe_valid_sink_payload_data;
+wire chain_generate_bufferizeendpoints_pipe_valid_sink_payload_last_be;
+wire chain_generate_bufferizeendpoints_pipe_valid_sink_payload_error;
+reg chain_generate_bufferizeendpoints_pipe_valid_source_valid = 1'd0;
+wire chain_generate_bufferizeendpoints_pipe_valid_source_ready;
+reg chain_generate_bufferizeendpoints_pipe_valid_source_first = 1'd0;
+reg chain_generate_bufferizeendpoints_pipe_valid_source_last = 1'd0;
+reg [7:0] chain_generate_bufferizeendpoints_pipe_valid_source_payload_data = 8'd0;
+reg chain_generate_bufferizeendpoints_pipe_valid_source_payload_last_be = 1'd0;
+reg chain_generate_bufferizeendpoints_pipe_valid_source_payload_error = 1'd0;
+wire chain_generate_pulsesynchronizer1_i;
+wire chain_generate_pulsesynchronizer1_o;
+reg chain_generate_pulsesynchronizer1_toggle_i = 1'd0;
+wire chain_generate_pulsesynchronizer1_toggle_o;
+reg chain_generate_pulsesynchronizer1_toggle_o_r = 1'd0;
+wire chain_generate_rx_padding_sink_valid;
+wire chain_generate_rx_padding_sink_ready;
+wire chain_generate_rx_padding_sink_first;
+wire chain_generate_rx_padding_sink_last;
+wire [7:0] chain_generate_rx_padding_sink_payload_data;
+wire chain_generate_rx_padding_sink_payload_last_be;
+wire chain_generate_rx_padding_sink_payload_error;
+wire chain_generate_rx_padding_source_valid;
+wire chain_generate_rx_padding_source_ready;
+wire chain_generate_rx_padding_source_first;
+wire chain_generate_rx_padding_source_last;
+wire [7:0] chain_generate_rx_padding_source_payload_data;
+wire chain_generate_rx_padding_source_payload_last_be;
+reg chain_generate_rx_padding_source_payload_error;
+reg [10:0] chain_generate_rx_padding_length = 11'd0;
+reg [3:0] chain_generate_rx_padding_length_inc;
+wire chain_generate_rx_last_be_sink_valid;
+wire chain_generate_rx_last_be_sink_ready;
+wire chain_generate_rx_last_be_sink_first;
+wire chain_generate_rx_last_be_sink_last;
+wire [7:0] chain_generate_rx_last_be_sink_payload_data;
+wire chain_generate_rx_last_be_sink_payload_last_be;
+wire chain_generate_rx_last_be_sink_payload_error;
+wire chain_generate_rx_last_be_source_valid;
+wire chain_generate_rx_last_be_source_ready;
+wire chain_generate_rx_last_be_source_first;
+wire chain_generate_rx_last_be_source_last;
+wire [7:0] chain_generate_rx_last_be_source_payload_data;
+reg chain_generate_rx_last_be_source_payload_last_be;
+wire chain_generate_rx_last_be_source_payload_error;
+wire chain_generate_rx_converter_sink_valid;
+wire chain_generate_rx_converter_sink_ready;
+wire chain_generate_rx_converter_sink_first;
+wire chain_generate_rx_converter_sink_last;
+wire [7:0] chain_generate_rx_converter_sink_payload_data;
+wire chain_generate_rx_converter_sink_payload_last_be;
+wire chain_generate_rx_converter_sink_payload_error;
+wire chain_generate_rx_converter_source_valid;
+wire chain_generate_rx_converter_source_ready;
+wire chain_generate_rx_converter_source_first;
+wire chain_generate_rx_converter_source_last;
+reg [63:0] chain_generate_rx_converter_source_payload_data;
+reg [7:0] chain_generate_rx_converter_source_payload_last_be;
+reg [7:0] chain_generate_rx_converter_source_payload_error;
+wire chain_generate_rx_converter_converter_sink_valid;
+wire chain_generate_rx_converter_converter_sink_ready;
+wire chain_generate_rx_converter_converter_sink_first;
+wire chain_generate_rx_converter_converter_sink_last;
+wire [9:0] chain_generate_rx_converter_converter_sink_payload_data;
+wire chain_generate_rx_converter_converter_source_valid;
+wire chain_generate_rx_converter_converter_source_ready;
+reg chain_generate_rx_converter_converter_source_first = 1'd0;
+reg chain_generate_rx_converter_converter_source_last = 1'd0;
+reg [79:0] chain_generate_rx_converter_converter_source_payload_data = 80'd0;
+reg [3:0] chain_generate_rx_converter_converter_source_payload_valid_token_count = 4'd0;
+reg [2:0] chain_generate_rx_converter_converter_demux = 3'd0;
+wire chain_generate_rx_converter_converter_load_part;
+reg chain_generate_rx_converter_converter_strobe_all = 1'd0;
+wire chain_generate_rx_converter_source_source_valid;
+wire chain_generate_rx_converter_source_source_ready;
+wire chain_generate_rx_converter_source_source_first;
+wire chain_generate_rx_converter_source_source_last;
+wire [79:0] chain_generate_rx_converter_source_source_payload_data;
+wire chain_generate_rx_cdc_sink_sink_valid;
+wire chain_generate_rx_cdc_sink_sink_ready;
+wire chain_generate_rx_cdc_sink_sink_first;
+wire chain_generate_rx_cdc_sink_sink_last;
+wire [63:0] chain_generate_rx_cdc_sink_sink_payload_data;
+wire [7:0] chain_generate_rx_cdc_sink_sink_payload_last_be;
+wire [7:0] chain_generate_rx_cdc_sink_sink_payload_error;
+wire chain_generate_rx_cdc_source_source_valid;
+wire chain_generate_rx_cdc_source_source_ready;
+wire chain_generate_rx_cdc_source_source_first;
+wire chain_generate_rx_cdc_source_source_last;
+wire [63:0] chain_generate_rx_cdc_source_source_payload_data;
+wire [7:0] chain_generate_rx_cdc_source_source_payload_last_be;
+wire [7:0] chain_generate_rx_cdc_source_source_payload_error;
+wire chain_generate_rx_cdc_cdc_sink_valid;
+wire chain_generate_rx_cdc_cdc_sink_ready;
+wire chain_generate_rx_cdc_cdc_sink_first;
+wire chain_generate_rx_cdc_cdc_sink_last;
+wire [63:0] chain_generate_rx_cdc_cdc_sink_payload_data;
+wire [7:0] chain_generate_rx_cdc_cdc_sink_payload_last_be;
+wire [7:0] chain_generate_rx_cdc_cdc_sink_payload_error;
+wire chain_generate_rx_cdc_cdc_source_valid;
+wire chain_generate_rx_cdc_cdc_source_ready;
+wire chain_generate_rx_cdc_cdc_source_first;
+wire chain_generate_rx_cdc_cdc_source_last;
+wire [63:0] chain_generate_rx_cdc_cdc_source_payload_data;
+wire [7:0] chain_generate_rx_cdc_cdc_source_payload_last_be;
+wire [7:0] chain_generate_rx_cdc_cdc_source_payload_error;
+wire chain_generate_rx_cdc_cdc_asyncfifo_we;
+wire chain_generate_rx_cdc_cdc_asyncfifo_writable;
+wire chain_generate_rx_cdc_cdc_asyncfifo_re;
+wire chain_generate_rx_cdc_cdc_asyncfifo_readable;
+wire [81:0] chain_generate_rx_cdc_cdc_asyncfifo_din;
+wire [81:0] chain_generate_rx_cdc_cdc_asyncfifo_dout;
+wire chain_generate_rx_cdc_cdc_graycounter0_ce;
+(* no_retiming = "true" *) reg [5:0] chain_generate_rx_cdc_cdc_graycounter0_q = 6'd0;
+wire [5:0] chain_generate_rx_cdc_cdc_graycounter0_q_next;
+reg [5:0] chain_generate_rx_cdc_cdc_graycounter0_q_binary = 6'd0;
+reg [5:0] chain_generate_rx_cdc_cdc_graycounter0_q_next_binary;
+wire chain_generate_rx_cdc_cdc_graycounter1_ce;
+(* no_retiming = "true" *) reg [5:0] chain_generate_rx_cdc_cdc_graycounter1_q = 6'd0;
+wire [5:0] chain_generate_rx_cdc_cdc_graycounter1_q_next;
+reg [5:0] chain_generate_rx_cdc_cdc_graycounter1_q_binary = 6'd0;
+reg [5:0] chain_generate_rx_cdc_cdc_graycounter1_q_next_binary;
+wire [5:0] chain_generate_rx_cdc_cdc_produce_rdomain;
+wire [5:0] chain_generate_rx_cdc_cdc_consume_wdomain;
+wire [4:0] chain_generate_rx_cdc_cdc_wrport_adr;
+wire [81:0] chain_generate_rx_cdc_cdc_wrport_dat_r;
+wire chain_generate_rx_cdc_cdc_wrport_we;
+wire [81:0] chain_generate_rx_cdc_cdc_wrport_dat_w;
+wire [4:0] chain_generate_rx_cdc_cdc_rdport_adr;
+wire [81:0] chain_generate_rx_cdc_cdc_rdport_dat_r;
+wire [63:0] chain_generate_rx_cdc_cdc_fifo_in_payload_data;
+wire [7:0] chain_generate_rx_cdc_cdc_fifo_in_payload_last_be;
+wire [7:0] chain_generate_rx_cdc_cdc_fifo_in_payload_error;
+wire chain_generate_rx_cdc_cdc_fifo_in_first;
+wire chain_generate_rx_cdc_cdc_fifo_in_last;
+wire [63:0] chain_generate_rx_cdc_cdc_fifo_out_payload_data;
+wire [7:0] chain_generate_rx_cdc_cdc_fifo_out_payload_last_be;
+wire [7:0] chain_generate_rx_cdc_cdc_fifo_out_payload_error;
+wire chain_generate_rx_cdc_cdc_fifo_out_first;
+wire chain_generate_rx_cdc_cdc_fifo_out_last;
+reg chain_generate_packetfifo_sink_sink_valid;
+wire chain_generate_packetfifo_sink_sink_ready;
+reg chain_generate_packetfifo_sink_sink_first = 1'd0;
+wire chain_generate_packetfifo_sink_sink_last;
+wire [63:0] chain_generate_packetfifo_sink_sink_payload_data;
+wire [7:0] chain_generate_packetfifo_sink_sink_payload_last_be;
+reg [7:0] chain_generate_packetfifo_sink_sink_payload_error = 8'd0;
+wire chain_generate_packetfifo_source_source_valid;
+wire chain_generate_packetfifo_source_source_ready;
+reg chain_generate_packetfifo_source_source_first;
+wire chain_generate_packetfifo_source_source_last;
+wire [63:0] chain_generate_packetfifo_source_source_payload_data;
+wire [7:0] chain_generate_packetfifo_source_source_payload_last_be;
+wire [7:0] chain_generate_packetfifo_source_source_payload_error;
+wire chain_generate_packetfifo_payload_fifo_sink_valid;
+wire chain_generate_packetfifo_payload_fifo_sink_ready;
+wire chain_generate_packetfifo_payload_fifo_sink_first;
+wire chain_generate_packetfifo_payload_fifo_sink_last;
+wire [63:0] chain_generate_packetfifo_payload_fifo_sink_payload_data;
+wire [7:0] chain_generate_packetfifo_payload_fifo_sink_payload_last_be;
+wire [7:0] chain_generate_packetfifo_payload_fifo_sink_payload_error;
+wire chain_generate_packetfifo_payload_fifo_source_valid;
+wire chain_generate_packetfifo_payload_fifo_source_ready;
+wire chain_generate_packetfifo_payload_fifo_source_first;
+wire chain_generate_packetfifo_payload_fifo_source_last;
+wire [63:0] chain_generate_packetfifo_payload_fifo_source_payload_data;
+wire [7:0] chain_generate_packetfifo_payload_fifo_source_payload_last_be;
+wire [7:0] chain_generate_packetfifo_payload_fifo_source_payload_error;
+wire chain_generate_packetfifo_payload_fifo_re;
+reg chain_generate_packetfifo_payload_fifo_readable = 1'd0;
+wire chain_generate_packetfifo_payload_fifo_syncfifo_we;
+wire chain_generate_packetfifo_payload_fifo_syncfifo_writable;
+wire chain_generate_packetfifo_payload_fifo_syncfifo_re;
+wire chain_generate_packetfifo_payload_fifo_syncfifo_readable;
+wire [81:0] chain_generate_packetfifo_payload_fifo_syncfifo_din;
+wire [81:0] chain_generate_packetfifo_payload_fifo_syncfifo_dout;
+reg [9:0] chain_generate_packetfifo_payload_fifo_level0 = 10'd0;
+reg chain_generate_packetfifo_payload_fifo_replace = 1'd0;
+reg [8:0] chain_generate_packetfifo_payload_fifo_produce = 9'd0;
+reg [8:0] chain_generate_packetfifo_payload_fifo_consume = 9'd0;
+reg [8:0] chain_generate_packetfifo_payload_fifo_wrport_adr;
+wire [81:0] chain_generate_packetfifo_payload_fifo_wrport_dat_r;
+wire chain_generate_packetfifo_payload_fifo_wrport_we;
+wire [81:0] chain_generate_packetfifo_payload_fifo_wrport_dat_w;
+wire chain_generate_packetfifo_payload_fifo_do_read;
+wire [8:0] chain_generate_packetfifo_payload_fifo_rdport_adr;
+wire [81:0] chain_generate_packetfifo_payload_fifo_rdport_dat_r;
+wire chain_generate_packetfifo_payload_fifo_rdport_re;
+wire [9:0] chain_generate_packetfifo_payload_fifo_level1;
+wire [63:0] chain_generate_packetfifo_payload_fifo_fifo_in_payload_data;
+wire [7:0] chain_generate_packetfifo_payload_fifo_fifo_in_payload_last_be;
+wire [7:0] chain_generate_packetfifo_payload_fifo_fifo_in_payload_error;
+wire chain_generate_packetfifo_payload_fifo_fifo_in_first;
+wire chain_generate_packetfifo_payload_fifo_fifo_in_last;
+wire [63:0] chain_generate_packetfifo_payload_fifo_fifo_out_payload_data;
+wire [7:0] chain_generate_packetfifo_payload_fifo_fifo_out_payload_last_be;
+wire [7:0] chain_generate_packetfifo_payload_fifo_fifo_out_payload_error;
+wire chain_generate_packetfifo_payload_fifo_fifo_out_first;
+wire chain_generate_packetfifo_payload_fifo_fifo_out_last;
+wire chain_generate_packetfifo_param_fifo_sink_valid;
+wire chain_generate_packetfifo_param_fifo_sink_ready;
+reg chain_generate_packetfifo_param_fifo_sink_first = 1'd0;
+reg chain_generate_packetfifo_param_fifo_sink_last = 1'd0;
+reg chain_generate_packetfifo_param_fifo_sink_param_dummy = 1'd0;
+wire chain_generate_packetfifo_param_fifo_source_valid;
+wire chain_generate_packetfifo_param_fifo_source_ready;
+wire chain_generate_packetfifo_param_fifo_source_first;
+wire chain_generate_packetfifo_param_fifo_source_last;
+wire chain_generate_packetfifo_param_fifo_source_param_dummy;
+wire chain_generate_packetfifo_param_fifo_re;
+reg chain_generate_packetfifo_param_fifo_readable = 1'd0;
+wire chain_generate_packetfifo_param_fifo_syncfifo_we;
+wire chain_generate_packetfifo_param_fifo_syncfifo_writable;
+wire chain_generate_packetfifo_param_fifo_syncfifo_re;
+wire chain_generate_packetfifo_param_fifo_syncfifo_readable;
+wire [2:0] chain_generate_packetfifo_param_fifo_syncfifo_din;
+wire [2:0] chain_generate_packetfifo_param_fifo_syncfifo_dout;
+reg [3:0] chain_generate_packetfifo_param_fifo_level0 = 4'd0;
+reg chain_generate_packetfifo_param_fifo_replace = 1'd0;
+reg [3:0] chain_generate_packetfifo_param_fifo_produce = 4'd0;
+reg [3:0] chain_generate_packetfifo_param_fifo_consume = 4'd0;
+reg [3:0] chain_generate_packetfifo_param_fifo_wrport_adr;
+wire [2:0] chain_generate_packetfifo_param_fifo_wrport_dat_r;
+wire chain_generate_packetfifo_param_fifo_wrport_we;
+wire [2:0] chain_generate_packetfifo_param_fifo_wrport_dat_w;
+wire chain_generate_packetfifo_param_fifo_do_read;
+wire [3:0] chain_generate_packetfifo_param_fifo_rdport_adr;
+wire [2:0] chain_generate_packetfifo_param_fifo_rdport_dat_r;
+wire chain_generate_packetfifo_param_fifo_rdport_re;
+wire [3:0] chain_generate_packetfifo_param_fifo_level1;
+wire chain_generate_packetfifo_param_fifo_fifo_in_param_dummy;
+wire chain_generate_packetfifo_param_fifo_fifo_in_first;
+wire chain_generate_packetfifo_param_fifo_fifo_in_last;
+wire chain_generate_packetfifo_param_fifo_fifo_out_param_dummy;
+wire chain_generate_packetfifo_param_fifo_fifo_out_first;
+wire chain_generate_packetfifo_param_fifo_fifo_out_last;
+wire chain_generate_tx_dp_sink_sink_valid;
+wire chain_generate_tx_dp_sink_sink_ready;
+reg chain_generate_tx_dp_sink_sink_first = 1'd0;
+wire chain_generate_tx_dp_sink_sink_last;
+wire [63:0] chain_generate_tx_dp_sink_sink_payload_data;
+wire [7:0] chain_generate_tx_dp_sink_sink_payload_keep;
+wire chain_generate_tx_dp_source_source_valid;
+reg chain_generate_tx_dp_source_source_ready;
+wire chain_generate_tx_dp_source_source_first;
+wire chain_generate_tx_dp_source_source_last;
+wire [63:0] chain_generate_tx_dp_source_source_payload_data;
+wire [7:0] chain_generate_tx_dp_source_source_payload_keep;
+wire chain_generate_tx_dp_cdc_sink_valid;
+wire chain_generate_tx_dp_cdc_sink_ready;
+wire chain_generate_tx_dp_cdc_sink_first;
+wire chain_generate_tx_dp_cdc_sink_last;
+wire [63:0] chain_generate_tx_dp_cdc_sink_payload_data;
+wire [7:0] chain_generate_tx_dp_cdc_sink_payload_keep;
+wire chain_generate_tx_dp_cdc_source_valid;
+wire chain_generate_tx_dp_cdc_source_ready;
+wire chain_generate_tx_dp_cdc_source_first;
+wire chain_generate_tx_dp_cdc_source_last;
+wire [63:0] chain_generate_tx_dp_cdc_source_payload_data;
+wire [7:0] chain_generate_tx_dp_cdc_source_payload_keep;
+wire chain_generate_tx_dp_cdc_re;
+reg chain_generate_tx_dp_cdc_readable = 1'd0;
+reg [73:0] chain_generate_tx_dp_cdc_dout = 74'd0;
+wire chain_generate_tx_dp_cdc_asyncfifo_we;
+wire chain_generate_tx_dp_cdc_asyncfifo_writable;
+wire chain_generate_tx_dp_cdc_asyncfifo_re;
+wire chain_generate_tx_dp_cdc_asyncfifo_readable;
+wire [73:0] chain_generate_tx_dp_cdc_asyncfifo_din;
+wire [73:0] chain_generate_tx_dp_cdc_asyncfifo_dout;
+wire chain_generate_tx_dp_cdc_graycounter0_ce;
+(* no_retiming = "true" *) reg [4:0] chain_generate_tx_dp_cdc_graycounter0_q = 5'd0;
+wire [4:0] chain_generate_tx_dp_cdc_graycounter0_q_next;
+reg [4:0] chain_generate_tx_dp_cdc_graycounter0_q_binary = 5'd0;
+reg [4:0] chain_generate_tx_dp_cdc_graycounter0_q_next_binary;
+wire chain_generate_tx_dp_cdc_graycounter1_ce;
+(* no_retiming = "true" *) reg [4:0] chain_generate_tx_dp_cdc_graycounter1_q = 5'd0;
+wire [4:0] chain_generate_tx_dp_cdc_graycounter1_q_next;
+reg [4:0] chain_generate_tx_dp_cdc_graycounter1_q_binary = 5'd0;
+reg [4:0] chain_generate_tx_dp_cdc_graycounter1_q_next_binary;
+wire [4:0] chain_generate_tx_dp_cdc_produce_rdomain;
+wire [4:0] chain_generate_tx_dp_cdc_consume_wdomain;
+wire [3:0] chain_generate_tx_dp_cdc_wrport_adr;
+wire chain_generate_tx_dp_cdc_wrport_we;
+wire [73:0] chain_generate_tx_dp_cdc_wrport_dat_w;
+wire [3:0] chain_generate_tx_dp_cdc_rdport_adr;
+wire [73:0] chain_generate_tx_dp_cdc_rdport_dat_r;
+wire [63:0] chain_generate_tx_dp_cdc_fifo_in_payload_data;
+wire [7:0] chain_generate_tx_dp_cdc_fifo_in_payload_keep;
+wire chain_generate_tx_dp_cdc_fifo_in_first;
+wire chain_generate_tx_dp_cdc_fifo_in_last;
+wire [63:0] chain_generate_tx_dp_cdc_fifo_out_payload_data;
+wire [7:0] chain_generate_tx_dp_cdc_fifo_out_payload_keep;
+wire chain_generate_tx_dp_cdc_fifo_out_first;
+wire chain_generate_tx_dp_cdc_fifo_out_last;
+wire [3:0] chain_generate_array_write_memory0_adr;
+wire [71:0] chain_generate_array_write_memory0_dat_r;
+wire chain_generate_array_write_memory0_we;
+wire [71:0] chain_generate_array_write_memory0_dat_w;
+wire [3:0] chain_generate_array_read_memory0_adr;
+wire [71:0] chain_generate_array_read_memory0_dat_r;
+wire [3:0] chain_generate_array_write_memory1_adr;
+wire [1:0] chain_generate_array_write_memory1_dat_r;
+wire chain_generate_array_write_memory1_we;
+wire [1:0] chain_generate_array_write_memory1_dat_w;
+wire [3:0] chain_generate_array_read_memory1_adr;
+wire [1:0] chain_generate_array_read_memory1_dat_r;
+wire chain_generate_txend;
+wire chain_add_usb_net_up_valid;
+wire chain_add_usb_net_up_ready;
+wire chain_add_usb_net_up_last;
+wire [15:0] chain_add_usb_net_up_payload_data;
+wire chain_add_usb_net_dn_valid;
+wire chain_add_usb_net_dn_ready;
+wire [15:0] chain_add_usb_net_dn_payload_data;
+wire chain_add_usb_net_usbnet_bus_alive;
+wire chain_add_usb_net_usbnet_inj_active;
+wire chain_add_usb_net_usbnet_ok;
+wire [47:0] chain_add_usb_net_usbnet_host_mac;
+wire chain_add_usb_net_usbnet_host_ok;
+wire [15:0] chain_add_usb_net_usbnet_host_state;
+wire [15:0] chain_add_usb_net_usbnet_rx_copied;
+wire [15:0] chain_add_usb_net_usbnet_rx_full;
+wire [15:0] chain_add_usb_net_usbnet_tx_passed;
+wire [15:0] chain_add_usb_net_usbnet_tx_dropped;
+wire [15:0] chain_add_usb_net_usbnet_tx_skipped;
+wire [15:0] chain_add_usb_net_usbnet_tx_injected;
+reg [15:0] chain_add_usb_net_usbnet_local_copied = 16'd0;
+reg [15:0] chain_add_usb_net_usbnet_local_full = 16'd0;
+wire [31:0] chain_add_usb_net_usbnet_local_counts_status;
+wire chain_add_usb_net_usbnet_txend_tgl;
+wire rx_verdict_valid_o;
+wire [2:0] rx_verdict_o;
+wire tx_verdict_valid_o;
+wire [2:0] tx_verdict_o;
+wire [31:0] chain_mac_lo;
+wire [15:0] chain_mac_hi;
+wire chain_ok;
+wire chain_usb_ok;
+wire [95:0] chain_add_usb_net_usbnet_counts_status;
+reg chain_txdatapath_liteethmactxlastbe_state = 1'd0;
+reg chain_txdatapath_liteethmactxlastbe_next_state;
+reg chain_txdatapath_liteethmacpaddinginserter_state = 1'd0;
+reg chain_txdatapath_liteethmacpaddinginserter_next_state;
+reg [15:0] chain_generate_tx_padding_counter_clockdomainsrenamer0_next_value;
+reg chain_generate_tx_padding_counter_clockdomainsrenamer0_next_value_ce;
+reg [1:0] chain_txdatapath_bufferizeendpoints_state = 2'd0;
+reg [1:0] chain_txdatapath_bufferizeendpoints_next_state;
+reg [31:0] chain_generate_tx_crc_crc_packet_clockdomainsrenamer1_next_value0;
+reg chain_generate_tx_crc_crc_packet_clockdomainsrenamer1_next_value_ce0;
+reg chain_generate_tx_crc_last_be_clockdomainsrenamer1_next_value1;
+reg chain_generate_tx_crc_last_be_clockdomainsrenamer1_next_value_ce1;
+reg [1:0] chain_txdatapath_liteethmacpreambleinserter_state = 2'd0;
+reg [1:0] chain_txdatapath_liteethmacpreambleinserter_next_state;
+reg [2:0] chain_generate_tx_preamble_count_clockdomainsrenamer2_next_value;
+reg chain_generate_tx_preamble_count_clockdomainsrenamer2_next_value_ce;
+reg chain_txdatapath_liteethmacgap_state = 1'd0;
+reg chain_txdatapath_liteethmacgap_next_state;
+reg [3:0] chain_generate_tx_gap_counter_clockdomainsrenamer3_next_value;
+reg chain_generate_tx_gap_counter_clockdomainsrenamer3_next_value_ce;
+reg chain_rxdatapath_liteethmacpreamblechecker_state = 1'd0;
+reg chain_rxdatapath_liteethmacpreamblechecker_next_state;
+reg [1:0] chain_rxdatapath_bufferizeendpoints_state = 2'd0;
+reg [1:0] chain_rxdatapath_bufferizeendpoints_next_state;
+reg chain_generate_liteethmaccrc32checker_last_be_next_value0;
+reg chain_generate_liteethmaccrc32checker_last_be_next_value_ce0;
+reg chain_generate_liteethmaccrc32checker_crc_error1_next_value1;
+reg chain_generate_liteethmaccrc32checker_crc_error1_next_value_ce1;
+wire [39:0] chain_slice_proxy;
+wire resync_clk;
+reg chain_simasyncresetsynchronizerimpl0_rst1 = 1'd0;
+wire resync_clk_1;
+reg chain_simasyncresetsynchronizerimpl1_rst1 = 1'd0;
+wire resync_clk_2;
+reg chain_simasyncresetsynchronizerimpl2_rst1 = 1'd0;
+wire resync_clk_3;
+reg chain_simasyncresetsynchronizerimpl3_rst1 = 1'd0;
+wire resync_clk_4;
+reg chain_simasyncresetsynchronizerimpl4_rst1 = 1'd0;
+wire resync_clk_5;
+reg chain_simasyncresetsynchronizerimpl5_rst1 = 1'd0;
+(* no_retiming = "true" *) reg [5:0] chain_multiregimpl00 = 6'd0;
+(* no_retiming = "true" *) reg [5:0] chain_multiregimpl01 = 6'd0;
+(* no_retiming = "true" *) reg [5:0] chain_multiregimpl10 = 6'd0;
+(* no_retiming = "true" *) reg [5:0] chain_multiregimpl11 = 6'd0;
+(* no_retiming = "true" *) reg chain_multiregimpl20 = 1'd0;
+(* no_retiming = "true" *) reg chain_multiregimpl21 = 1'd0;
+(* no_retiming = "true" *) reg chain_multiregimpl30 = 1'd0;
+(* no_retiming = "true" *) reg chain_multiregimpl31 = 1'd0;
+(* no_retiming = "true" *) reg [5:0] chain_multiregimpl40 = 6'd0;
+(* no_retiming = "true" *) reg [5:0] chain_multiregimpl41 = 6'd0;
+(* no_retiming = "true" *) reg [5:0] chain_multiregimpl50 = 6'd0;
+(* no_retiming = "true" *) reg [5:0] chain_multiregimpl51 = 6'd0;
+(* no_retiming = "true" *) reg [4:0] chain_multiregimpl60 = 5'd0;
+(* no_retiming = "true" *) reg [4:0] chain_multiregimpl61 = 5'd0;
+(* no_retiming = "true" *) reg [4:0] chain_multiregimpl70 = 5'd0;
+(* no_retiming = "true" *) reg [4:0] chain_multiregimpl71 = 5'd0;
+
+// synthesis translate_off
+reg dummy_s;
+initial dummy_s <= 1'd0;
+// synthesis translate_on
+
+assign eth_tx_clk_1 = eth_tx_clk;
+assign eth_rx_clk_1 = eth_rx_clk;
+assign macsys_clk = sys_clk;
+assign macdp_clk = dp_clk;
+assign maceth_tx_clk = eth_tx_clk;
+assign maceth_rx_clk = eth_rx_clk;
+assign chain_generate_tx_dp_sink_sink_payload_data = dp_tdata;
+assign chain_generate_tx_dp_sink_sink_payload_keep = dp_tkeep;
+assign chain_generate_tx_dp_sink_sink_valid = dp_tvalid;
+assign chain_generate_tx_dp_sink_sink_last = dp_tlast;
+assign dp_tready = chain_generate_tx_dp_sink_sink_ready;
+assign chain_generate_packetfifo_sink_sink_payload_data = chain_generate_tx_dp_source_source_payload_data;
+assign chain_generate_packetfifo_sink_sink_last = chain_generate_tx_dp_source_source_last;
+assign chain_generate_packetfifo_sink_sink_payload_last_be = (chain_generate_tx_dp_source_source_last ? (chain_generate_tx_dp_source_source_payload_keep & (~(chain_generate_tx_dp_source_source_payload_keep >>> 1'd1))) : 1'd0);
+
+// synthesis translate_off
+reg dummy_d;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_source_ready <= 1'd0;
+	chain_generate_packetfifo_sink_sink_valid <= 1'd0;
+	chain_generate_tx_dp_source_source_ready <= 1'd0;
+	if (loopback) begin
+		chain_generate_packetfifo_sink_sink_valid <= 1'd0;
+		chain_generate_source_ready <= 1'd0;
+	end else begin
+		chain_generate_packetfifo_sink_sink_valid <= chain_generate_tx_dp_source_source_valid;
+		chain_generate_tx_dp_source_source_ready <= chain_generate_packetfifo_sink_sink_ready;
+		chain_generate_source_ready <= 1'd1;
+	end
+// synthesis translate_off
+	dummy_d <= dummy_s;
+// synthesis translate_on
+end
+assign phy_sink_valid = chain_generate_liteethphymiitx_sink_valid;
+assign phy_sink_ready = chain_generate_liteethphymiitx_sink_ready;
+assign phy_sink_data = chain_generate_liteethphymiitx_sink_payload_data;
+assign phy_sink_last = chain_generate_liteethphymiitx_sink_last;
+assign gmii_tx_en = chain_generate_pads_tx_en;
+assign gmii_tx_data = chain_generate_pads_tx_data;
+assign gmii_tx_er = 1'd0;
+assign maceth_tx_rst = maceth_tx_rst_1;
+assign chain_add_usb_net_up_ready = 1'd1;
+assign chain_add_usb_net_usbnet_local_counts_status = {chain_add_usb_net_usbnet_local_full, chain_add_usb_net_usbnet_local_copied};
+assign chain_generate_sink_payload_error = 1'd0;
+assign chain_generate_txend = chain_add_usb_net_usbnet_txend_tgl;
+assign chain_mac_lo = chain_add_usb_net_usbnet_host_mac[31:0];
+assign chain_mac_hi = chain_add_usb_net_usbnet_host_mac[47:32];
+assign chain_ok = chain_add_usb_net_usbnet_host_ok;
+assign chain_usb_ok = chain_add_usb_net_usbnet_ok;
+assign chain_add_usb_net_usbnet_counts_status = {chain_add_usb_net_usbnet_tx_injected, chain_add_usb_net_usbnet_tx_skipped, chain_add_usb_net_usbnet_tx_dropped, chain_add_usb_net_usbnet_tx_passed, chain_add_usb_net_usbnet_rx_full, chain_add_usb_net_usbnet_rx_copied};
+assign chain_add_usb_net_dn_valid = dn_valid;
+assign dn_ready = chain_add_usb_net_dn_ready;
+assign chain_add_usb_net_dn_payload_data = dn_data;
+assign chain_add_usb_net_usbnet_bus_alive = 1'd1;
+assign active = chain_add_usb_net_usbnet_inj_active;
+assign hi_valid = chain_generate_packetfifo_source_source_valid;
+assign hi_ready = chain_generate_packetfifo_source_source_ready;
+assign chain_generate_liteethphymiitx_converter_sink_valid = chain_generate_liteethphymiitx_sink_valid;
+assign chain_generate_liteethphymiitx_converter_sink_payload_data = chain_generate_liteethphymiitx_sink_payload_data;
+assign chain_generate_liteethphymiitx_sink_ready = chain_generate_liteethphymiitx_converter_sink_ready;
+assign chain_generate_liteethphymiitx_source_source_ready = 1'd1;
+assign chain_generate_liteethphymiitx_source_source_valid = chain_generate_liteethphymiitx_converter_source_valid;
+assign chain_generate_liteethphymiitx_converter_source_ready = chain_generate_liteethphymiitx_source_source_ready;
+assign chain_generate_liteethphymiitx_source_source_first = chain_generate_liteethphymiitx_converter_source_first;
+assign chain_generate_liteethphymiitx_source_source_last = chain_generate_liteethphymiitx_converter_source_last;
+assign chain_generate_liteethphymiitx_source_source_payload_data = chain_generate_liteethphymiitx_converter_source_payload_data;
+assign chain_generate_liteethphymiitx_converter_first = (chain_generate_liteethphymiitx_converter_mux == 1'd0);
+assign chain_generate_liteethphymiitx_converter_last = (chain_generate_liteethphymiitx_converter_mux == 1'd1);
+assign chain_generate_liteethphymiitx_converter_source_valid = chain_generate_liteethphymiitx_converter_sink_valid;
+assign chain_generate_liteethphymiitx_converter_source_first = (chain_generate_liteethphymiitx_converter_sink_first & chain_generate_liteethphymiitx_converter_first);
+assign chain_generate_liteethphymiitx_converter_source_last = (chain_generate_liteethphymiitx_converter_sink_last & chain_generate_liteethphymiitx_converter_last);
+assign chain_generate_liteethphymiitx_converter_sink_ready = (chain_generate_liteethphymiitx_converter_last & chain_generate_liteethphymiitx_converter_source_ready);
+
+// synthesis translate_off
+reg dummy_d_1;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_liteethphymiitx_converter_source_payload_data <= 4'd0;
+	case (chain_generate_liteethphymiitx_converter_mux)
+		1'd0: begin
+			chain_generate_liteethphymiitx_converter_source_payload_data <= chain_generate_liteethphymiitx_converter_sink_payload_data[3:0];
+		end
+		default: begin
+			chain_generate_liteethphymiitx_converter_source_payload_data <= chain_generate_liteethphymiitx_converter_sink_payload_data[7:4];
+		end
+	endcase
+// synthesis translate_off
+	dummy_d_1 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_liteethphymiitx_converter_source_payload_valid_token_count = chain_generate_liteethphymiitx_converter_last;
+assign chain_generate_liteethphymiirx_converter_sink_last = (~chain_generate_pads_rx_dv);
+assign chain_generate_liteethphymiirx_source_valid = chain_generate_liteethphymiirx_source_source_valid;
+assign chain_generate_liteethphymiirx_source_source_ready = chain_generate_liteethphymiirx_source_ready;
+assign chain_generate_liteethphymiirx_source_first = chain_generate_liteethphymiirx_source_source_first;
+assign chain_generate_liteethphymiirx_source_last = chain_generate_liteethphymiirx_source_source_last;
+assign chain_generate_liteethphymiirx_source_payload_data = chain_generate_liteethphymiirx_source_source_payload_data;
+assign chain_generate_liteethphymiirx_source_source_valid = chain_generate_liteethphymiirx_converter_source_valid;
+assign chain_generate_liteethphymiirx_converter_source_ready = chain_generate_liteethphymiirx_source_source_ready;
+assign chain_generate_liteethphymiirx_source_source_first = chain_generate_liteethphymiirx_converter_source_first;
+assign chain_generate_liteethphymiirx_source_source_last = chain_generate_liteethphymiirx_converter_source_last;
+assign chain_generate_liteethphymiirx_source_source_payload_data = chain_generate_liteethphymiirx_converter_source_payload_data;
+assign chain_generate_liteethphymiirx_converter_sink_ready = ((~chain_generate_liteethphymiirx_converter_strobe_all) | chain_generate_liteethphymiirx_converter_source_ready);
+assign chain_generate_liteethphymiirx_converter_source_valid = chain_generate_liteethphymiirx_converter_strobe_all;
+assign chain_generate_liteethphymiirx_converter_load_part = (chain_generate_liteethphymiirx_converter_sink_valid & chain_generate_liteethphymiirx_converter_sink_ready);
+assign chain_generate_tx_cdc_cdc_sink_valid = chain_generate_tx_cdc_sink_sink_valid;
+assign chain_generate_tx_cdc_sink_sink_ready = chain_generate_tx_cdc_cdc_sink_ready;
+assign chain_generate_tx_cdc_cdc_sink_first = chain_generate_tx_cdc_sink_sink_first;
+assign chain_generate_tx_cdc_cdc_sink_last = chain_generate_tx_cdc_sink_sink_last;
+assign chain_generate_tx_cdc_cdc_sink_payload_data = chain_generate_tx_cdc_sink_sink_payload_data;
+assign chain_generate_tx_cdc_cdc_sink_payload_last_be = chain_generate_tx_cdc_sink_sink_payload_last_be;
+assign chain_generate_tx_cdc_cdc_sink_payload_error = chain_generate_tx_cdc_sink_sink_payload_error;
+assign chain_generate_tx_cdc_source_source_valid = chain_generate_tx_cdc_cdc_source_valid;
+assign chain_generate_tx_cdc_cdc_source_ready = chain_generate_tx_cdc_source_source_ready;
+assign chain_generate_tx_cdc_source_source_first = chain_generate_tx_cdc_cdc_source_first;
+assign chain_generate_tx_cdc_source_source_last = chain_generate_tx_cdc_cdc_source_last;
+assign chain_generate_tx_cdc_source_source_payload_data = chain_generate_tx_cdc_cdc_source_payload_data;
+assign chain_generate_tx_cdc_source_source_payload_last_be = chain_generate_tx_cdc_cdc_source_payload_last_be;
+assign chain_generate_tx_cdc_source_source_payload_error = chain_generate_tx_cdc_cdc_source_payload_error;
+assign chain_generate_tx_cdc_cdc_asyncfifo_din = {chain_generate_tx_cdc_cdc_fifo_in_last, chain_generate_tx_cdc_cdc_fifo_in_first, chain_generate_tx_cdc_cdc_fifo_in_payload_error, chain_generate_tx_cdc_cdc_fifo_in_payload_last_be, chain_generate_tx_cdc_cdc_fifo_in_payload_data};
+assign {chain_generate_tx_cdc_cdc_fifo_out_last, chain_generate_tx_cdc_cdc_fifo_out_first, chain_generate_tx_cdc_cdc_fifo_out_payload_error, chain_generate_tx_cdc_cdc_fifo_out_payload_last_be, chain_generate_tx_cdc_cdc_fifo_out_payload_data} = chain_generate_tx_cdc_cdc_asyncfifo_dout;
+assign chain_generate_tx_cdc_cdc_sink_ready = chain_generate_tx_cdc_cdc_asyncfifo_writable;
+assign chain_generate_tx_cdc_cdc_asyncfifo_we = chain_generate_tx_cdc_cdc_sink_valid;
+assign chain_generate_tx_cdc_cdc_fifo_in_first = chain_generate_tx_cdc_cdc_sink_first;
+assign chain_generate_tx_cdc_cdc_fifo_in_last = chain_generate_tx_cdc_cdc_sink_last;
+assign chain_generate_tx_cdc_cdc_fifo_in_payload_data = chain_generate_tx_cdc_cdc_sink_payload_data;
+assign chain_generate_tx_cdc_cdc_fifo_in_payload_last_be = chain_generate_tx_cdc_cdc_sink_payload_last_be;
+assign chain_generate_tx_cdc_cdc_fifo_in_payload_error = chain_generate_tx_cdc_cdc_sink_payload_error;
+assign chain_generate_tx_cdc_cdc_source_valid = chain_generate_tx_cdc_cdc_asyncfifo_readable;
+assign chain_generate_tx_cdc_cdc_source_first = chain_generate_tx_cdc_cdc_fifo_out_first;
+assign chain_generate_tx_cdc_cdc_source_last = chain_generate_tx_cdc_cdc_fifo_out_last;
+assign chain_generate_tx_cdc_cdc_source_payload_data = chain_generate_tx_cdc_cdc_fifo_out_payload_data;
+assign chain_generate_tx_cdc_cdc_source_payload_last_be = chain_generate_tx_cdc_cdc_fifo_out_payload_last_be;
+assign chain_generate_tx_cdc_cdc_source_payload_error = chain_generate_tx_cdc_cdc_fifo_out_payload_error;
+assign chain_generate_tx_cdc_cdc_asyncfifo_re = chain_generate_tx_cdc_cdc_source_ready;
+assign chain_generate_tx_cdc_cdc_graycounter0_ce = (chain_generate_tx_cdc_cdc_asyncfifo_writable & chain_generate_tx_cdc_cdc_asyncfifo_we);
+assign chain_generate_tx_cdc_cdc_graycounter1_ce = (chain_generate_tx_cdc_cdc_asyncfifo_readable & chain_generate_tx_cdc_cdc_asyncfifo_re);
+assign chain_generate_tx_cdc_cdc_asyncfifo_writable = (((chain_generate_tx_cdc_cdc_graycounter0_q[5] == chain_generate_tx_cdc_cdc_consume_wdomain[5]) | (chain_generate_tx_cdc_cdc_graycounter0_q[4] == chain_generate_tx_cdc_cdc_consume_wdomain[4])) | (chain_generate_tx_cdc_cdc_graycounter0_q[3:0] != chain_generate_tx_cdc_cdc_consume_wdomain[3:0]));
+assign chain_generate_tx_cdc_cdc_asyncfifo_readable = (chain_generate_tx_cdc_cdc_graycounter1_q != chain_generate_tx_cdc_cdc_produce_rdomain);
+assign chain_generate_tx_cdc_cdc_wrport_adr = chain_generate_tx_cdc_cdc_graycounter0_q_binary[4:0];
+assign chain_generate_tx_cdc_cdc_wrport_dat_w = chain_generate_tx_cdc_cdc_asyncfifo_din;
+assign chain_generate_tx_cdc_cdc_wrport_we = chain_generate_tx_cdc_cdc_graycounter0_ce;
+assign chain_generate_tx_cdc_cdc_rdport_adr = chain_generate_tx_cdc_cdc_graycounter1_q_next_binary[4:0];
+assign chain_generate_tx_cdc_cdc_asyncfifo_dout = chain_generate_tx_cdc_cdc_rdport_dat_r;
+
+// synthesis translate_off
+reg dummy_d_2;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_tx_cdc_cdc_graycounter0_q_next_binary <= 6'd0;
+	if (chain_generate_tx_cdc_cdc_graycounter0_ce) begin
+		chain_generate_tx_cdc_cdc_graycounter0_q_next_binary <= (chain_generate_tx_cdc_cdc_graycounter0_q_binary + 1'd1);
+	end else begin
+		chain_generate_tx_cdc_cdc_graycounter0_q_next_binary <= chain_generate_tx_cdc_cdc_graycounter0_q_binary;
+	end
+// synthesis translate_off
+	dummy_d_2 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_tx_cdc_cdc_graycounter0_q_next = (chain_generate_tx_cdc_cdc_graycounter0_q_next_binary ^ chain_generate_tx_cdc_cdc_graycounter0_q_next_binary[5:1]);
+
+// synthesis translate_off
+reg dummy_d_3;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_tx_cdc_cdc_graycounter1_q_next_binary <= 6'd0;
+	if (chain_generate_tx_cdc_cdc_graycounter1_ce) begin
+		chain_generate_tx_cdc_cdc_graycounter1_q_next_binary <= (chain_generate_tx_cdc_cdc_graycounter1_q_binary + 1'd1);
+	end else begin
+		chain_generate_tx_cdc_cdc_graycounter1_q_next_binary <= chain_generate_tx_cdc_cdc_graycounter1_q_binary;
+	end
+// synthesis translate_off
+	dummy_d_3 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_tx_cdc_cdc_graycounter1_q_next = (chain_generate_tx_cdc_cdc_graycounter1_q_next_binary ^ chain_generate_tx_cdc_cdc_graycounter1_q_next_binary[5:1]);
+assign chain_generate_tx_converter_converter_sink_valid = chain_generate_tx_converter_sink_valid;
+assign chain_generate_tx_converter_converter_sink_first = chain_generate_tx_converter_sink_first;
+assign chain_generate_tx_converter_converter_sink_last = chain_generate_tx_converter_sink_last;
+assign chain_generate_tx_converter_sink_ready = chain_generate_tx_converter_converter_sink_ready;
+
+// synthesis translate_off
+reg dummy_d_4;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_tx_converter_converter_sink_payload_data <= 80'd0;
+	chain_generate_tx_converter_converter_sink_payload_data[7:0] <= chain_generate_tx_converter_sink_payload_data[7:0];
+	chain_generate_tx_converter_converter_sink_payload_data[8] <= chain_generate_tx_converter_sink_payload_last_be[0];
+	chain_generate_tx_converter_converter_sink_payload_data[9] <= chain_generate_tx_converter_sink_payload_error[0];
+	chain_generate_tx_converter_converter_sink_payload_data[17:10] <= chain_generate_tx_converter_sink_payload_data[15:8];
+	chain_generate_tx_converter_converter_sink_payload_data[18] <= chain_generate_tx_converter_sink_payload_last_be[1];
+	chain_generate_tx_converter_converter_sink_payload_data[19] <= chain_generate_tx_converter_sink_payload_error[1];
+	chain_generate_tx_converter_converter_sink_payload_data[27:20] <= chain_generate_tx_converter_sink_payload_data[23:16];
+	chain_generate_tx_converter_converter_sink_payload_data[28] <= chain_generate_tx_converter_sink_payload_last_be[2];
+	chain_generate_tx_converter_converter_sink_payload_data[29] <= chain_generate_tx_converter_sink_payload_error[2];
+	chain_generate_tx_converter_converter_sink_payload_data[37:30] <= chain_generate_tx_converter_sink_payload_data[31:24];
+	chain_generate_tx_converter_converter_sink_payload_data[38] <= chain_generate_tx_converter_sink_payload_last_be[3];
+	chain_generate_tx_converter_converter_sink_payload_data[39] <= chain_generate_tx_converter_sink_payload_error[3];
+	chain_generate_tx_converter_converter_sink_payload_data[47:40] <= chain_generate_tx_converter_sink_payload_data[39:32];
+	chain_generate_tx_converter_converter_sink_payload_data[48] <= chain_generate_tx_converter_sink_payload_last_be[4];
+	chain_generate_tx_converter_converter_sink_payload_data[49] <= chain_generate_tx_converter_sink_payload_error[4];
+	chain_generate_tx_converter_converter_sink_payload_data[57:50] <= chain_generate_tx_converter_sink_payload_data[47:40];
+	chain_generate_tx_converter_converter_sink_payload_data[58] <= chain_generate_tx_converter_sink_payload_last_be[5];
+	chain_generate_tx_converter_converter_sink_payload_data[59] <= chain_generate_tx_converter_sink_payload_error[5];
+	chain_generate_tx_converter_converter_sink_payload_data[67:60] <= chain_generate_tx_converter_sink_payload_data[55:48];
+	chain_generate_tx_converter_converter_sink_payload_data[68] <= chain_generate_tx_converter_sink_payload_last_be[6];
+	chain_generate_tx_converter_converter_sink_payload_data[69] <= chain_generate_tx_converter_sink_payload_error[6];
+	chain_generate_tx_converter_converter_sink_payload_data[77:70] <= chain_generate_tx_converter_sink_payload_data[63:56];
+	chain_generate_tx_converter_converter_sink_payload_data[78] <= chain_generate_tx_converter_sink_payload_last_be[7];
+	chain_generate_tx_converter_converter_sink_payload_data[79] <= chain_generate_tx_converter_sink_payload_error[7];
+// synthesis translate_off
+	dummy_d_4 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_tx_converter_last_be_packet_end = (chain_generate_tx_converter_sink_last & (chain_generate_tx_converter_source_payload_last_be != 1'd0));
+assign chain_generate_tx_converter_source_valid = (chain_generate_tx_converter_source_source_valid & (~chain_generate_tx_converter_last_be_drop));
+assign chain_generate_tx_converter_source_first = (chain_generate_tx_converter_source_source_first & (~chain_generate_tx_converter_last_be_drop));
+assign chain_generate_tx_converter_source_last = (chain_generate_tx_converter_source_source_last | chain_generate_tx_converter_last_be_packet_end);
+assign chain_generate_tx_converter_source_source_ready = (chain_generate_tx_converter_source_ready | chain_generate_tx_converter_last_be_drop);
+assign {chain_generate_tx_converter_source_payload_error, chain_generate_tx_converter_source_payload_last_be, chain_generate_tx_converter_source_payload_data} = chain_generate_tx_converter_source_source_payload_data;
+assign chain_generate_tx_converter_source_source_valid = chain_generate_tx_converter_converter_source_valid;
+assign chain_generate_tx_converter_converter_source_ready = chain_generate_tx_converter_source_source_ready;
+assign chain_generate_tx_converter_source_source_first = chain_generate_tx_converter_converter_source_first;
+assign chain_generate_tx_converter_source_source_last = chain_generate_tx_converter_converter_source_last;
+assign chain_generate_tx_converter_source_source_payload_data = chain_generate_tx_converter_converter_source_payload_data;
+assign chain_generate_tx_converter_converter_first = (chain_generate_tx_converter_converter_mux == 1'd0);
+assign chain_generate_tx_converter_converter_last = (chain_generate_tx_converter_converter_mux == 3'd7);
+assign chain_generate_tx_converter_converter_source_valid = chain_generate_tx_converter_converter_sink_valid;
+assign chain_generate_tx_converter_converter_source_first = (chain_generate_tx_converter_converter_sink_first & chain_generate_tx_converter_converter_first);
+assign chain_generate_tx_converter_converter_source_last = (chain_generate_tx_converter_converter_sink_last & chain_generate_tx_converter_converter_last);
+assign chain_generate_tx_converter_converter_sink_ready = (chain_generate_tx_converter_converter_last & chain_generate_tx_converter_converter_source_ready);
+
+// synthesis translate_off
+reg dummy_d_5;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_tx_converter_converter_source_payload_data <= 10'd0;
+	case (chain_generate_tx_converter_converter_mux)
+		1'd0: begin
+			chain_generate_tx_converter_converter_source_payload_data <= chain_generate_tx_converter_converter_sink_payload_data[9:0];
+		end
+		1'd1: begin
+			chain_generate_tx_converter_converter_source_payload_data <= chain_generate_tx_converter_converter_sink_payload_data[19:10];
+		end
+		2'd2: begin
+			chain_generate_tx_converter_converter_source_payload_data <= chain_generate_tx_converter_converter_sink_payload_data[29:20];
+		end
+		2'd3: begin
+			chain_generate_tx_converter_converter_source_payload_data <= chain_generate_tx_converter_converter_sink_payload_data[39:30];
+		end
+		3'd4: begin
+			chain_generate_tx_converter_converter_source_payload_data <= chain_generate_tx_converter_converter_sink_payload_data[49:40];
+		end
+		3'd5: begin
+			chain_generate_tx_converter_converter_source_payload_data <= chain_generate_tx_converter_converter_sink_payload_data[59:50];
+		end
+		3'd6: begin
+			chain_generate_tx_converter_converter_source_payload_data <= chain_generate_tx_converter_converter_sink_payload_data[69:60];
+		end
+		default: begin
+			chain_generate_tx_converter_converter_source_payload_data <= chain_generate_tx_converter_converter_sink_payload_data[79:70];
+		end
+	endcase
+// synthesis translate_off
+	dummy_d_5 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_tx_converter_converter_source_payload_valid_token_count = chain_generate_tx_converter_converter_last;
+assign chain_generate_tx_last_be_last_handler_sink_valid = chain_generate_tx_last_be_sink_sink_valid;
+assign chain_generate_tx_last_be_sink_sink_ready = chain_generate_tx_last_be_last_handler_sink_ready;
+assign chain_generate_tx_last_be_last_handler_sink_first = chain_generate_tx_last_be_sink_sink_first;
+assign chain_generate_tx_last_be_last_handler_sink_last = chain_generate_tx_last_be_sink_sink_last;
+assign chain_generate_tx_last_be_last_handler_sink_payload_data = chain_generate_tx_last_be_sink_sink_payload_data;
+assign chain_generate_tx_last_be_last_handler_sink_payload_last_be = chain_generate_tx_last_be_sink_sink_payload_last_be;
+assign chain_generate_tx_last_be_last_handler_sink_payload_error = chain_generate_tx_last_be_sink_sink_payload_error;
+assign chain_generate_tx_last_be_source_source_valid = chain_generate_tx_last_be_last_handler_source_valid;
+assign chain_generate_tx_last_be_last_handler_source_ready = chain_generate_tx_last_be_source_source_ready;
+assign chain_generate_tx_last_be_source_source_first = chain_generate_tx_last_be_last_handler_source_first;
+assign chain_generate_tx_last_be_source_source_last = chain_generate_tx_last_be_last_handler_source_last;
+assign chain_generate_tx_last_be_source_source_payload_data = chain_generate_tx_last_be_last_handler_source_payload_data;
+assign chain_generate_tx_last_be_source_source_payload_last_be = chain_generate_tx_last_be_last_handler_source_payload_last_be;
+assign chain_generate_tx_last_be_source_source_payload_error = chain_generate_tx_last_be_last_handler_source_payload_error;
+
+// synthesis translate_off
+reg dummy_d_6;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_tx_last_be_last_handler_sink_ready <= 1'd0;
+	chain_generate_tx_last_be_last_handler_source_valid <= 1'd0;
+	chain_generate_tx_last_be_last_handler_source_first <= 1'd0;
+	chain_generate_tx_last_be_last_handler_source_last <= 1'd0;
+	chain_generate_tx_last_be_last_handler_source_payload_data <= 8'd0;
+	chain_generate_tx_last_be_last_handler_source_payload_last_be <= 1'd0;
+	chain_generate_tx_last_be_last_handler_source_payload_error <= 1'd0;
+	chain_txdatapath_liteethmactxlastbe_next_state <= 1'd0;
+	chain_txdatapath_liteethmactxlastbe_next_state <= chain_txdatapath_liteethmactxlastbe_state;
+	case (chain_txdatapath_liteethmactxlastbe_state)
+		1'd1: begin
+			chain_generate_tx_last_be_last_handler_sink_ready <= 1'd1;
+			if ((chain_generate_tx_last_be_last_handler_sink_valid & chain_generate_tx_last_be_last_handler_sink_last)) begin
+				chain_txdatapath_liteethmactxlastbe_next_state <= 1'd0;
+			end
+		end
+		default: begin
+			chain_generate_tx_last_be_last_handler_source_valid <= chain_generate_tx_last_be_last_handler_sink_valid;
+			chain_generate_tx_last_be_last_handler_sink_ready <= chain_generate_tx_last_be_last_handler_source_ready;
+			chain_generate_tx_last_be_last_handler_source_first <= chain_generate_tx_last_be_last_handler_sink_first;
+			chain_generate_tx_last_be_last_handler_source_last <= chain_generate_tx_last_be_last_handler_sink_last;
+			chain_generate_tx_last_be_last_handler_source_payload_data <= chain_generate_tx_last_be_last_handler_sink_payload_data;
+			chain_generate_tx_last_be_last_handler_source_payload_last_be <= chain_generate_tx_last_be_last_handler_sink_payload_last_be;
+			chain_generate_tx_last_be_last_handler_source_payload_error <= chain_generate_tx_last_be_last_handler_sink_payload_error;
+			chain_generate_tx_last_be_last_handler_source_last <= (chain_generate_tx_last_be_last_handler_sink_payload_last_be != 1'd0);
+			if ((chain_generate_tx_last_be_last_handler_sink_valid & chain_generate_tx_last_be_last_handler_sink_ready)) begin
+				if ((chain_generate_tx_last_be_last_handler_source_last & (~chain_generate_tx_last_be_last_handler_sink_last))) begin
+					chain_txdatapath_liteethmactxlastbe_next_state <= 1'd1;
+				end
+			end
+		end
+	endcase
+// synthesis translate_off
+	dummy_d_6 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_tx_padding_counter_done = (chain_generate_tx_padding_counter >= 6'd59);
+
+// synthesis translate_off
+reg dummy_d_7;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_tx_padding_sink_ready <= 1'd0;
+	chain_generate_tx_padding_source_valid <= 1'd0;
+	chain_generate_tx_padding_source_first <= 1'd0;
+	chain_generate_tx_padding_source_last <= 1'd0;
+	chain_generate_tx_padding_source_payload_data <= 8'd0;
+	chain_generate_tx_padding_source_payload_last_be <= 1'd0;
+	chain_generate_tx_padding_source_payload_error <= 1'd0;
+	chain_txdatapath_liteethmacpaddinginserter_next_state <= 1'd0;
+	chain_generate_tx_padding_counter_clockdomainsrenamer0_next_value <= 16'd0;
+	chain_generate_tx_padding_counter_clockdomainsrenamer0_next_value_ce <= 1'd0;
+	chain_txdatapath_liteethmacpaddinginserter_next_state <= chain_txdatapath_liteethmacpaddinginserter_state;
+	case (chain_txdatapath_liteethmacpaddinginserter_state)
+		1'd1: begin
+			chain_generate_tx_padding_source_valid <= 1'd1;
+			if (chain_generate_tx_padding_counter_done) begin
+				chain_generate_tx_padding_source_payload_last_be <= 1'd1;
+				chain_generate_tx_padding_source_last <= 1'd1;
+			end
+			chain_generate_tx_padding_source_payload_data <= 1'd0;
+			if ((chain_generate_tx_padding_source_valid & chain_generate_tx_padding_source_ready)) begin
+				chain_generate_tx_padding_counter_clockdomainsrenamer0_next_value <= (chain_generate_tx_padding_counter + 1'd1);
+				chain_generate_tx_padding_counter_clockdomainsrenamer0_next_value_ce <= 1'd1;
+				if (chain_generate_tx_padding_counter_done) begin
+					chain_generate_tx_padding_counter_clockdomainsrenamer0_next_value <= 1'd0;
+					chain_generate_tx_padding_counter_clockdomainsrenamer0_next_value_ce <= 1'd1;
+					chain_txdatapath_liteethmacpaddinginserter_next_state <= 1'd0;
+				end
+			end
+		end
+		default: begin
+			chain_generate_tx_padding_source_valid <= chain_generate_tx_padding_sink_valid;
+			chain_generate_tx_padding_sink_ready <= chain_generate_tx_padding_source_ready;
+			chain_generate_tx_padding_source_first <= chain_generate_tx_padding_sink_first;
+			chain_generate_tx_padding_source_last <= chain_generate_tx_padding_sink_last;
+			chain_generate_tx_padding_source_payload_data <= chain_generate_tx_padding_sink_payload_data;
+			chain_generate_tx_padding_source_payload_last_be <= chain_generate_tx_padding_sink_payload_last_be;
+			chain_generate_tx_padding_source_payload_error <= chain_generate_tx_padding_sink_payload_error;
+			if ((chain_generate_tx_padding_source_valid & chain_generate_tx_padding_source_ready)) begin
+				chain_generate_tx_padding_counter_clockdomainsrenamer0_next_value <= (chain_generate_tx_padding_counter + 1'd1);
+				chain_generate_tx_padding_counter_clockdomainsrenamer0_next_value_ce <= 1'd1;
+				if (chain_generate_tx_padding_sink_last) begin
+					if ((~chain_generate_tx_padding_counter_done)) begin
+						chain_generate_tx_padding_source_last <= 1'd0;
+						chain_generate_tx_padding_source_payload_last_be <= 1'd0;
+						chain_txdatapath_liteethmacpaddinginserter_next_state <= 1'd1;
+					end else begin
+						if (((chain_generate_tx_padding_counter == 6'd59) & (chain_generate_tx_padding_sink_payload_last_be < 1'd1))) begin
+							chain_generate_tx_padding_source_payload_last_be <= 1'd1;
+						end else begin
+							chain_generate_tx_padding_counter_clockdomainsrenamer0_next_value <= 1'd0;
+							chain_generate_tx_padding_counter_clockdomainsrenamer0_next_value_ce <= 1'd1;
+						end
+					end
+				end
+			end
+		end
+	endcase
+// synthesis translate_off
+	dummy_d_7 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_tx_crc_data0 = chain_generate_tx_crc_sink_payload_data;
+assign chain_generate_tx_crc_be = chain_generate_tx_crc_sink_payload_last_be;
+assign chain_generate_tx_crc_cnt_done = (chain_generate_tx_crc_cnt == 1'd0);
+assign chain_generate_tx_crc_sink_valid = chain_generate_tx_crc_source_source_valid;
+assign chain_generate_tx_crc_source_source_ready = chain_generate_tx_crc_sink_ready;
+assign chain_generate_tx_crc_sink_first = chain_generate_tx_crc_source_source_first;
+assign chain_generate_tx_crc_sink_last = chain_generate_tx_crc_source_source_last;
+assign chain_generate_tx_crc_sink_payload_data = chain_generate_tx_crc_source_source_payload_data;
+assign chain_generate_tx_crc_sink_payload_last_be = chain_generate_tx_crc_source_source_payload_last_be;
+assign chain_generate_tx_crc_sink_payload_error = chain_generate_tx_crc_source_source_payload_error;
+assign chain_generate_tx_crc_data1 = chain_generate_tx_crc_data0;
+assign chain_generate_tx_crc_crc_prev = chain_generate_tx_crc_reg;
+
+// synthesis translate_off
+reg dummy_d_8;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_tx_crc_value <= 32'd0;
+	chain_generate_tx_crc_error <= 1'd0;
+	if (chain_generate_tx_crc_be) begin
+		chain_generate_tx_crc_value <= ({chain_generate_tx_crc_crc_next[0], chain_generate_tx_crc_crc_next[1], chain_generate_tx_crc_crc_next[2], chain_generate_tx_crc_crc_next[3], chain_generate_tx_crc_crc_next[4], chain_generate_tx_crc_crc_next[5], chain_generate_tx_crc_crc_next[6], chain_generate_tx_crc_crc_next[7], chain_generate_tx_crc_crc_next[8], chain_generate_tx_crc_crc_next[9], chain_generate_tx_crc_crc_next[10], chain_generate_tx_crc_crc_next[11], chain_generate_tx_crc_crc_next[12], chain_generate_tx_crc_crc_next[13], chain_generate_tx_crc_crc_next[14], chain_generate_tx_crc_crc_next[15], chain_generate_tx_crc_crc_next[16], chain_generate_tx_crc_crc_next[17], chain_generate_tx_crc_crc_next[18], chain_generate_tx_crc_crc_next[19], chain_generate_tx_crc_crc_next[20], chain_generate_tx_crc_crc_next[21], chain_generate_tx_crc_crc_next[22], chain_generate_tx_crc_crc_next[23], chain_generate_tx_crc_crc_next[24], chain_generate_tx_crc_crc_next[25], chain_generate_tx_crc_crc_next[26], chain_generate_tx_crc_crc_next[27], chain_generate_tx_crc_crc_next[28], chain_generate_tx_crc_crc_next[29], chain_generate_tx_crc_crc_next[30], chain_generate_tx_crc_crc_next[31]} ^ 32'd4294967295);
+		chain_generate_tx_crc_error <= (chain_generate_tx_crc_crc_next != 32'd3338984827);
+	end
+// synthesis translate_off
+	dummy_d_8 <= dummy_s;
+// synthesis translate_on
+end
+
+// synthesis translate_off
+reg dummy_d_9;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_tx_crc_crc_next <= 32'd0;
+	chain_generate_tx_crc_crc_next[0] <= (((chain_generate_tx_crc_crc_prev[24] ^ chain_generate_tx_crc_crc_prev[30]) ^ chain_generate_tx_crc_data1[1]) ^ chain_generate_tx_crc_data1[7]);
+	chain_generate_tx_crc_crc_next[1] <= (((((((chain_generate_tx_crc_crc_prev[25] ^ chain_generate_tx_crc_crc_prev[31]) ^ chain_generate_tx_crc_data1[0]) ^ chain_generate_tx_crc_data1[6]) ^ chain_generate_tx_crc_crc_prev[24]) ^ chain_generate_tx_crc_crc_prev[30]) ^ chain_generate_tx_crc_data1[1]) ^ chain_generate_tx_crc_data1[7]);
+	chain_generate_tx_crc_crc_next[2] <= (((((((((chain_generate_tx_crc_crc_prev[26] ^ chain_generate_tx_crc_data1[5]) ^ chain_generate_tx_crc_crc_prev[25]) ^ chain_generate_tx_crc_crc_prev[31]) ^ chain_generate_tx_crc_data1[0]) ^ chain_generate_tx_crc_data1[6]) ^ chain_generate_tx_crc_crc_prev[24]) ^ chain_generate_tx_crc_crc_prev[30]) ^ chain_generate_tx_crc_data1[1]) ^ chain_generate_tx_crc_data1[7]);
+	chain_generate_tx_crc_crc_next[3] <= (((((((chain_generate_tx_crc_crc_prev[27] ^ chain_generate_tx_crc_data1[4]) ^ chain_generate_tx_crc_crc_prev[26]) ^ chain_generate_tx_crc_data1[5]) ^ chain_generate_tx_crc_crc_prev[25]) ^ chain_generate_tx_crc_crc_prev[31]) ^ chain_generate_tx_crc_data1[0]) ^ chain_generate_tx_crc_data1[6]);
+	chain_generate_tx_crc_crc_next[4] <= (((((((((chain_generate_tx_crc_crc_prev[28] ^ chain_generate_tx_crc_data1[3]) ^ chain_generate_tx_crc_crc_prev[27]) ^ chain_generate_tx_crc_data1[4]) ^ chain_generate_tx_crc_crc_prev[26]) ^ chain_generate_tx_crc_data1[5]) ^ chain_generate_tx_crc_crc_prev[24]) ^ chain_generate_tx_crc_crc_prev[30]) ^ chain_generate_tx_crc_data1[1]) ^ chain_generate_tx_crc_data1[7]);
+	chain_generate_tx_crc_crc_next[5] <= (((((((((((((chain_generate_tx_crc_crc_prev[29] ^ chain_generate_tx_crc_data1[2]) ^ chain_generate_tx_crc_crc_prev[28]) ^ chain_generate_tx_crc_data1[3]) ^ chain_generate_tx_crc_crc_prev[27]) ^ chain_generate_tx_crc_data1[4]) ^ chain_generate_tx_crc_crc_prev[25]) ^ chain_generate_tx_crc_crc_prev[31]) ^ chain_generate_tx_crc_data1[0]) ^ chain_generate_tx_crc_data1[6]) ^ chain_generate_tx_crc_crc_prev[24]) ^ chain_generate_tx_crc_crc_prev[30]) ^ chain_generate_tx_crc_data1[1]) ^ chain_generate_tx_crc_data1[7]);
+	chain_generate_tx_crc_crc_next[6] <= (((((((((((chain_generate_tx_crc_crc_prev[30] ^ chain_generate_tx_crc_data1[1]) ^ chain_generate_tx_crc_crc_prev[29]) ^ chain_generate_tx_crc_data1[2]) ^ chain_generate_tx_crc_crc_prev[28]) ^ chain_generate_tx_crc_data1[3]) ^ chain_generate_tx_crc_crc_prev[26]) ^ chain_generate_tx_crc_data1[5]) ^ chain_generate_tx_crc_crc_prev[25]) ^ chain_generate_tx_crc_crc_prev[31]) ^ chain_generate_tx_crc_data1[0]) ^ chain_generate_tx_crc_data1[6]);
+	chain_generate_tx_crc_crc_next[7] <= (((((((((chain_generate_tx_crc_crc_prev[31] ^ chain_generate_tx_crc_data1[0]) ^ chain_generate_tx_crc_crc_prev[29]) ^ chain_generate_tx_crc_data1[2]) ^ chain_generate_tx_crc_crc_prev[27]) ^ chain_generate_tx_crc_data1[4]) ^ chain_generate_tx_crc_crc_prev[26]) ^ chain_generate_tx_crc_data1[5]) ^ chain_generate_tx_crc_crc_prev[24]) ^ chain_generate_tx_crc_data1[7]);
+	chain_generate_tx_crc_crc_next[8] <= ((((((((chain_generate_tx_crc_crc_prev[0] ^ chain_generate_tx_crc_crc_prev[28]) ^ chain_generate_tx_crc_data1[3]) ^ chain_generate_tx_crc_crc_prev[27]) ^ chain_generate_tx_crc_data1[4]) ^ chain_generate_tx_crc_crc_prev[25]) ^ chain_generate_tx_crc_data1[6]) ^ chain_generate_tx_crc_crc_prev[24]) ^ chain_generate_tx_crc_data1[7]);
+	chain_generate_tx_crc_crc_next[9] <= ((((((((chain_generate_tx_crc_crc_prev[1] ^ chain_generate_tx_crc_crc_prev[29]) ^ chain_generate_tx_crc_data1[2]) ^ chain_generate_tx_crc_crc_prev[28]) ^ chain_generate_tx_crc_data1[3]) ^ chain_generate_tx_crc_crc_prev[26]) ^ chain_generate_tx_crc_data1[5]) ^ chain_generate_tx_crc_crc_prev[25]) ^ chain_generate_tx_crc_data1[6]);
+	chain_generate_tx_crc_crc_next[10] <= ((((((((chain_generate_tx_crc_crc_prev[2] ^ chain_generate_tx_crc_crc_prev[29]) ^ chain_generate_tx_crc_data1[2]) ^ chain_generate_tx_crc_crc_prev[27]) ^ chain_generate_tx_crc_data1[4]) ^ chain_generate_tx_crc_crc_prev[26]) ^ chain_generate_tx_crc_data1[5]) ^ chain_generate_tx_crc_crc_prev[24]) ^ chain_generate_tx_crc_data1[7]);
+	chain_generate_tx_crc_crc_next[11] <= ((((((((chain_generate_tx_crc_crc_prev[3] ^ chain_generate_tx_crc_crc_prev[28]) ^ chain_generate_tx_crc_data1[3]) ^ chain_generate_tx_crc_crc_prev[27]) ^ chain_generate_tx_crc_data1[4]) ^ chain_generate_tx_crc_crc_prev[25]) ^ chain_generate_tx_crc_data1[6]) ^ chain_generate_tx_crc_crc_prev[24]) ^ chain_generate_tx_crc_data1[7]);
+	chain_generate_tx_crc_crc_next[12] <= ((((((((((((chain_generate_tx_crc_crc_prev[4] ^ chain_generate_tx_crc_crc_prev[29]) ^ chain_generate_tx_crc_data1[2]) ^ chain_generate_tx_crc_crc_prev[28]) ^ chain_generate_tx_crc_data1[3]) ^ chain_generate_tx_crc_crc_prev[26]) ^ chain_generate_tx_crc_data1[5]) ^ chain_generate_tx_crc_crc_prev[25]) ^ chain_generate_tx_crc_data1[6]) ^ chain_generate_tx_crc_crc_prev[24]) ^ chain_generate_tx_crc_crc_prev[30]) ^ chain_generate_tx_crc_data1[1]) ^ chain_generate_tx_crc_data1[7]);
+	chain_generate_tx_crc_crc_next[13] <= ((((((((((((chain_generate_tx_crc_crc_prev[5] ^ chain_generate_tx_crc_crc_prev[30]) ^ chain_generate_tx_crc_data1[1]) ^ chain_generate_tx_crc_crc_prev[29]) ^ chain_generate_tx_crc_data1[2]) ^ chain_generate_tx_crc_crc_prev[27]) ^ chain_generate_tx_crc_data1[4]) ^ chain_generate_tx_crc_crc_prev[26]) ^ chain_generate_tx_crc_data1[5]) ^ chain_generate_tx_crc_crc_prev[25]) ^ chain_generate_tx_crc_crc_prev[31]) ^ chain_generate_tx_crc_data1[0]) ^ chain_generate_tx_crc_data1[6]);
+	chain_generate_tx_crc_crc_next[14] <= ((((((((((chain_generate_tx_crc_crc_prev[6] ^ chain_generate_tx_crc_crc_prev[31]) ^ chain_generate_tx_crc_data1[0]) ^ chain_generate_tx_crc_crc_prev[30]) ^ chain_generate_tx_crc_data1[1]) ^ chain_generate_tx_crc_crc_prev[28]) ^ chain_generate_tx_crc_data1[3]) ^ chain_generate_tx_crc_crc_prev[27]) ^ chain_generate_tx_crc_data1[4]) ^ chain_generate_tx_crc_crc_prev[26]) ^ chain_generate_tx_crc_data1[5]);
+	chain_generate_tx_crc_crc_next[15] <= ((((((((chain_generate_tx_crc_crc_prev[7] ^ chain_generate_tx_crc_crc_prev[31]) ^ chain_generate_tx_crc_data1[0]) ^ chain_generate_tx_crc_crc_prev[29]) ^ chain_generate_tx_crc_data1[2]) ^ chain_generate_tx_crc_crc_prev[28]) ^ chain_generate_tx_crc_data1[3]) ^ chain_generate_tx_crc_crc_prev[27]) ^ chain_generate_tx_crc_data1[4]);
+	chain_generate_tx_crc_crc_next[16] <= ((((((chain_generate_tx_crc_crc_prev[8] ^ chain_generate_tx_crc_crc_prev[29]) ^ chain_generate_tx_crc_data1[2]) ^ chain_generate_tx_crc_crc_prev[28]) ^ chain_generate_tx_crc_data1[3]) ^ chain_generate_tx_crc_crc_prev[24]) ^ chain_generate_tx_crc_data1[7]);
+	chain_generate_tx_crc_crc_next[17] <= ((((((chain_generate_tx_crc_crc_prev[9] ^ chain_generate_tx_crc_crc_prev[30]) ^ chain_generate_tx_crc_data1[1]) ^ chain_generate_tx_crc_crc_prev[29]) ^ chain_generate_tx_crc_data1[2]) ^ chain_generate_tx_crc_crc_prev[25]) ^ chain_generate_tx_crc_data1[6]);
+	chain_generate_tx_crc_crc_next[18] <= ((((((chain_generate_tx_crc_crc_prev[10] ^ chain_generate_tx_crc_crc_prev[31]) ^ chain_generate_tx_crc_data1[0]) ^ chain_generate_tx_crc_crc_prev[30]) ^ chain_generate_tx_crc_data1[1]) ^ chain_generate_tx_crc_crc_prev[26]) ^ chain_generate_tx_crc_data1[5]);
+	chain_generate_tx_crc_crc_next[19] <= ((((chain_generate_tx_crc_crc_prev[11] ^ chain_generate_tx_crc_crc_prev[31]) ^ chain_generate_tx_crc_data1[0]) ^ chain_generate_tx_crc_crc_prev[27]) ^ chain_generate_tx_crc_data1[4]);
+	chain_generate_tx_crc_crc_next[20] <= ((chain_generate_tx_crc_crc_prev[12] ^ chain_generate_tx_crc_crc_prev[28]) ^ chain_generate_tx_crc_data1[3]);
+	chain_generate_tx_crc_crc_next[21] <= ((chain_generate_tx_crc_crc_prev[13] ^ chain_generate_tx_crc_crc_prev[29]) ^ chain_generate_tx_crc_data1[2]);
+	chain_generate_tx_crc_crc_next[22] <= ((chain_generate_tx_crc_crc_prev[14] ^ chain_generate_tx_crc_crc_prev[24]) ^ chain_generate_tx_crc_data1[7]);
+	chain_generate_tx_crc_crc_next[23] <= ((((((chain_generate_tx_crc_crc_prev[15] ^ chain_generate_tx_crc_crc_prev[25]) ^ chain_generate_tx_crc_data1[6]) ^ chain_generate_tx_crc_crc_prev[24]) ^ chain_generate_tx_crc_crc_prev[30]) ^ chain_generate_tx_crc_data1[1]) ^ chain_generate_tx_crc_data1[7]);
+	chain_generate_tx_crc_crc_next[24] <= ((((((chain_generate_tx_crc_crc_prev[16] ^ chain_generate_tx_crc_crc_prev[26]) ^ chain_generate_tx_crc_data1[5]) ^ chain_generate_tx_crc_crc_prev[25]) ^ chain_generate_tx_crc_crc_prev[31]) ^ chain_generate_tx_crc_data1[0]) ^ chain_generate_tx_crc_data1[6]);
+	chain_generate_tx_crc_crc_next[25] <= ((((chain_generate_tx_crc_crc_prev[17] ^ chain_generate_tx_crc_crc_prev[27]) ^ chain_generate_tx_crc_data1[4]) ^ chain_generate_tx_crc_crc_prev[26]) ^ chain_generate_tx_crc_data1[5]);
+	chain_generate_tx_crc_crc_next[26] <= ((((((((chain_generate_tx_crc_crc_prev[18] ^ chain_generate_tx_crc_crc_prev[28]) ^ chain_generate_tx_crc_data1[3]) ^ chain_generate_tx_crc_crc_prev[27]) ^ chain_generate_tx_crc_data1[4]) ^ chain_generate_tx_crc_crc_prev[24]) ^ chain_generate_tx_crc_crc_prev[30]) ^ chain_generate_tx_crc_data1[1]) ^ chain_generate_tx_crc_data1[7]);
+	chain_generate_tx_crc_crc_next[27] <= ((((((((chain_generate_tx_crc_crc_prev[19] ^ chain_generate_tx_crc_crc_prev[29]) ^ chain_generate_tx_crc_data1[2]) ^ chain_generate_tx_crc_crc_prev[28]) ^ chain_generate_tx_crc_data1[3]) ^ chain_generate_tx_crc_crc_prev[25]) ^ chain_generate_tx_crc_crc_prev[31]) ^ chain_generate_tx_crc_data1[0]) ^ chain_generate_tx_crc_data1[6]);
+	chain_generate_tx_crc_crc_next[28] <= ((((((chain_generate_tx_crc_crc_prev[20] ^ chain_generate_tx_crc_crc_prev[30]) ^ chain_generate_tx_crc_data1[1]) ^ chain_generate_tx_crc_crc_prev[29]) ^ chain_generate_tx_crc_data1[2]) ^ chain_generate_tx_crc_crc_prev[26]) ^ chain_generate_tx_crc_data1[5]);
+	chain_generate_tx_crc_crc_next[29] <= ((((((chain_generate_tx_crc_crc_prev[21] ^ chain_generate_tx_crc_crc_prev[31]) ^ chain_generate_tx_crc_data1[0]) ^ chain_generate_tx_crc_crc_prev[30]) ^ chain_generate_tx_crc_data1[1]) ^ chain_generate_tx_crc_crc_prev[27]) ^ chain_generate_tx_crc_data1[4]);
+	chain_generate_tx_crc_crc_next[30] <= ((((chain_generate_tx_crc_crc_prev[22] ^ chain_generate_tx_crc_crc_prev[31]) ^ chain_generate_tx_crc_data1[0]) ^ chain_generate_tx_crc_crc_prev[28]) ^ chain_generate_tx_crc_data1[3]);
+	chain_generate_tx_crc_crc_next[31] <= ((chain_generate_tx_crc_crc_prev[23] ^ chain_generate_tx_crc_crc_prev[29]) ^ chain_generate_tx_crc_data1[2]);
+// synthesis translate_off
+	dummy_d_9 <= dummy_s;
+// synthesis translate_on
+end
+
+// synthesis translate_off
+reg dummy_d_10;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_tx_crc_sink_ready <= 1'd0;
+	chain_generate_tx_crc_source_valid <= 1'd0;
+	chain_generate_tx_crc_source_first <= 1'd0;
+	chain_generate_tx_crc_source_last <= 1'd0;
+	chain_generate_tx_crc_source_payload_data <= 8'd0;
+	chain_generate_tx_crc_source_payload_last_be <= 1'd0;
+	chain_generate_tx_crc_source_payload_error <= 1'd0;
+	chain_generate_tx_crc_ce <= 1'd0;
+	chain_generate_tx_crc_reset <= 1'd0;
+	chain_generate_tx_crc_is_ongoing0 <= 1'd0;
+	chain_generate_tx_crc_is_ongoing1 <= 1'd0;
+	chain_txdatapath_bufferizeendpoints_next_state <= 2'd0;
+	chain_generate_tx_crc_crc_packet_clockdomainsrenamer1_next_value0 <= 32'd0;
+	chain_generate_tx_crc_crc_packet_clockdomainsrenamer1_next_value_ce0 <= 1'd0;
+	chain_generate_tx_crc_last_be_clockdomainsrenamer1_next_value1 <= 1'd0;
+	chain_generate_tx_crc_last_be_clockdomainsrenamer1_next_value_ce1 <= 1'd0;
+	chain_txdatapath_bufferizeendpoints_next_state <= chain_txdatapath_bufferizeendpoints_state;
+	case (chain_txdatapath_bufferizeendpoints_state)
+		1'd1: begin
+			chain_generate_tx_crc_ce <= (chain_generate_tx_crc_sink_valid & chain_generate_tx_crc_source_ready);
+			chain_generate_tx_crc_source_valid <= chain_generate_tx_crc_sink_valid;
+			chain_generate_tx_crc_sink_ready <= chain_generate_tx_crc_source_ready;
+			chain_generate_tx_crc_source_first <= chain_generate_tx_crc_sink_first;
+			chain_generate_tx_crc_source_last <= chain_generate_tx_crc_sink_last;
+			chain_generate_tx_crc_source_payload_data <= chain_generate_tx_crc_sink_payload_data;
+			chain_generate_tx_crc_source_payload_last_be <= chain_generate_tx_crc_sink_payload_last_be;
+			chain_generate_tx_crc_source_payload_error <= chain_generate_tx_crc_sink_payload_error;
+			chain_generate_tx_crc_source_last <= 1'd0;
+			chain_generate_tx_crc_source_payload_last_be <= 1'd0;
+			if (chain_generate_tx_crc_sink_last) begin
+				if (chain_generate_tx_crc_sink_payload_last_be) begin
+					chain_generate_tx_crc_source_payload_data <= chain_slice_proxy[7:0];
+				end
+				if ((1'd0 & (chain_generate_tx_crc_sink_payload_last_be <= 4'd15))) begin
+					chain_generate_tx_crc_source_last <= 1'd1;
+					chain_generate_tx_crc_source_payload_last_be <= (chain_generate_tx_crc_sink_payload_last_be <<< 3'sd5);
+				end
+			end
+			if (((chain_generate_tx_crc_sink_valid & chain_generate_tx_crc_sink_last) & chain_generate_tx_crc_source_ready)) begin
+				if ((1'd0 & (chain_generate_tx_crc_sink_payload_last_be <= 4'd15))) begin
+					chain_txdatapath_bufferizeendpoints_next_state <= 1'd0;
+				end else begin
+					chain_generate_tx_crc_crc_packet_clockdomainsrenamer1_next_value0 <= chain_generate_tx_crc_value;
+					chain_generate_tx_crc_crc_packet_clockdomainsrenamer1_next_value_ce0 <= 1'd1;
+					if (1'd0) begin
+						chain_generate_tx_crc_last_be_clockdomainsrenamer1_next_value1 <= (chain_generate_tx_crc_sink_payload_last_be >>> 3'd4);
+						chain_generate_tx_crc_last_be_clockdomainsrenamer1_next_value_ce1 <= 1'd1;
+					end else begin
+						chain_generate_tx_crc_last_be_clockdomainsrenamer1_next_value1 <= chain_generate_tx_crc_sink_payload_last_be;
+						chain_generate_tx_crc_last_be_clockdomainsrenamer1_next_value_ce1 <= 1'd1;
+					end
+					chain_txdatapath_bufferizeendpoints_next_state <= 2'd2;
+				end
+			end
+		end
+		2'd2: begin
+			chain_generate_tx_crc_source_valid <= 1'd1;
+			case (chain_generate_tx_crc_cnt)
+				1'd0: begin
+					chain_generate_tx_crc_source_payload_data <= chain_generate_tx_crc_crc_packet[31:24];
+				end
+				1'd1: begin
+					chain_generate_tx_crc_source_payload_data <= chain_generate_tx_crc_crc_packet[23:16];
+				end
+				2'd2: begin
+					chain_generate_tx_crc_source_payload_data <= chain_generate_tx_crc_crc_packet[15:8];
+				end
+				default: begin
+					chain_generate_tx_crc_source_payload_data <= chain_generate_tx_crc_crc_packet[7:0];
+				end
+			endcase
+			if (chain_generate_tx_crc_cnt_done) begin
+				chain_generate_tx_crc_source_last <= 1'd1;
+				if (chain_generate_tx_crc_source_ready) begin
+					chain_txdatapath_bufferizeendpoints_next_state <= 1'd0;
+				end
+			end
+			chain_generate_tx_crc_is_ongoing1 <= 1'd1;
+		end
+		default: begin
+			chain_generate_tx_crc_reset <= 1'd1;
+			chain_generate_tx_crc_sink_ready <= 1'd1;
+			if (chain_generate_tx_crc_sink_valid) begin
+				chain_generate_tx_crc_sink_ready <= 1'd0;
+				chain_txdatapath_bufferizeendpoints_next_state <= 1'd1;
+			end
+			chain_generate_tx_crc_is_ongoing0 <= 1'd1;
+		end
+	endcase
+// synthesis translate_off
+	dummy_d_10 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_tx_crc_pipe_valid_sink_ready = ((~chain_generate_tx_crc_pipe_valid_source_valid) | chain_generate_tx_crc_pipe_valid_source_ready);
+assign chain_generate_tx_crc_pipe_valid_sink_valid = chain_generate_tx_crc_sink_sink_valid;
+assign chain_generate_tx_crc_sink_sink_ready = chain_generate_tx_crc_pipe_valid_sink_ready;
+assign chain_generate_tx_crc_pipe_valid_sink_first = chain_generate_tx_crc_sink_sink_first;
+assign chain_generate_tx_crc_pipe_valid_sink_last = chain_generate_tx_crc_sink_sink_last;
+assign chain_generate_tx_crc_pipe_valid_sink_payload_data = chain_generate_tx_crc_sink_sink_payload_data;
+assign chain_generate_tx_crc_pipe_valid_sink_payload_last_be = chain_generate_tx_crc_sink_sink_payload_last_be;
+assign chain_generate_tx_crc_pipe_valid_sink_payload_error = chain_generate_tx_crc_sink_sink_payload_error;
+assign chain_generate_tx_crc_source_source_valid = chain_generate_tx_crc_pipe_valid_source_valid;
+assign chain_generate_tx_crc_pipe_valid_source_ready = chain_generate_tx_crc_source_source_ready;
+assign chain_generate_tx_crc_source_source_first = chain_generate_tx_crc_pipe_valid_source_first;
+assign chain_generate_tx_crc_source_source_last = chain_generate_tx_crc_pipe_valid_source_last;
+assign chain_generate_tx_crc_source_source_payload_data = chain_generate_tx_crc_pipe_valid_source_payload_data;
+assign chain_generate_tx_crc_source_source_payload_last_be = chain_generate_tx_crc_pipe_valid_source_payload_last_be;
+assign chain_generate_tx_crc_source_source_payload_error = chain_generate_tx_crc_pipe_valid_source_payload_error;
+assign chain_generate_tx_preamble_source_payload_last_be = chain_generate_tx_preamble_sink_payload_last_be;
+
+// synthesis translate_off
+reg dummy_d_11;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_tx_preamble_sink_ready <= 1'd0;
+	chain_generate_tx_preamble_source_valid <= 1'd0;
+	chain_generate_tx_preamble_source_first <= 1'd0;
+	chain_generate_tx_preamble_source_last <= 1'd0;
+	chain_generate_tx_preamble_source_payload_data <= 8'd0;
+	chain_generate_tx_preamble_source_payload_error <= 1'd0;
+	chain_txdatapath_liteethmacpreambleinserter_next_state <= 2'd0;
+	chain_generate_tx_preamble_count_clockdomainsrenamer2_next_value <= 3'd0;
+	chain_generate_tx_preamble_count_clockdomainsrenamer2_next_value_ce <= 1'd0;
+	chain_generate_tx_preamble_source_payload_data <= chain_generate_tx_preamble_sink_payload_data;
+	chain_txdatapath_liteethmacpreambleinserter_next_state <= chain_txdatapath_liteethmacpreambleinserter_state;
+	case (chain_txdatapath_liteethmacpreambleinserter_state)
+		1'd1: begin
+			chain_generate_tx_preamble_source_valid <= 1'd1;
+			case (chain_generate_tx_preamble_count)
+				1'd0: begin
+					chain_generate_tx_preamble_source_payload_data <= chain_generate_tx_preamble_preamble[7:0];
+				end
+				1'd1: begin
+					chain_generate_tx_preamble_source_payload_data <= chain_generate_tx_preamble_preamble[15:8];
+				end
+				2'd2: begin
+					chain_generate_tx_preamble_source_payload_data <= chain_generate_tx_preamble_preamble[23:16];
+				end
+				2'd3: begin
+					chain_generate_tx_preamble_source_payload_data <= chain_generate_tx_preamble_preamble[31:24];
+				end
+				3'd4: begin
+					chain_generate_tx_preamble_source_payload_data <= chain_generate_tx_preamble_preamble[39:32];
+				end
+				3'd5: begin
+					chain_generate_tx_preamble_source_payload_data <= chain_generate_tx_preamble_preamble[47:40];
+				end
+				3'd6: begin
+					chain_generate_tx_preamble_source_payload_data <= chain_generate_tx_preamble_preamble[55:48];
+				end
+				default: begin
+					chain_generate_tx_preamble_source_payload_data <= chain_generate_tx_preamble_preamble[63:56];
+				end
+			endcase
+			if (chain_generate_tx_preamble_source_ready) begin
+				if ((chain_generate_tx_preamble_count == 3'd7)) begin
+					chain_txdatapath_liteethmacpreambleinserter_next_state <= 2'd2;
+				end else begin
+					chain_generate_tx_preamble_count_clockdomainsrenamer2_next_value <= (chain_generate_tx_preamble_count + 1'd1);
+					chain_generate_tx_preamble_count_clockdomainsrenamer2_next_value_ce <= 1'd1;
+				end
+			end
+		end
+		2'd2: begin
+			chain_generate_tx_preamble_source_valid <= chain_generate_tx_preamble_sink_valid;
+			chain_generate_tx_preamble_sink_ready <= chain_generate_tx_preamble_source_ready;
+			chain_generate_tx_preamble_source_first <= chain_generate_tx_preamble_sink_first;
+			chain_generate_tx_preamble_source_last <= chain_generate_tx_preamble_sink_last;
+			chain_generate_tx_preamble_source_payload_error <= chain_generate_tx_preamble_sink_payload_error;
+			if (((chain_generate_tx_preamble_sink_valid & chain_generate_tx_preamble_sink_last) & chain_generate_tx_preamble_source_ready)) begin
+				chain_txdatapath_liteethmacpreambleinserter_next_state <= 1'd0;
+			end
+		end
+		default: begin
+			chain_generate_tx_preamble_sink_ready <= 1'd1;
+			chain_generate_tx_preamble_count_clockdomainsrenamer2_next_value <= 1'd0;
+			chain_generate_tx_preamble_count_clockdomainsrenamer2_next_value_ce <= 1'd1;
+			if (chain_generate_tx_preamble_sink_valid) begin
+				chain_generate_tx_preamble_sink_ready <= 1'd0;
+				chain_txdatapath_liteethmacpreambleinserter_next_state <= 1'd1;
+			end
+		end
+	endcase
+// synthesis translate_off
+	dummy_d_11 <= dummy_s;
+// synthesis translate_on
+end
+
+// synthesis translate_off
+reg dummy_d_12;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_tx_gap_sink_ready <= 1'd0;
+	chain_generate_tx_gap_source_valid <= 1'd0;
+	chain_generate_tx_gap_source_first <= 1'd0;
+	chain_generate_tx_gap_source_last <= 1'd0;
+	chain_generate_tx_gap_source_payload_data <= 8'd0;
+	chain_generate_tx_gap_source_payload_last_be <= 1'd0;
+	chain_generate_tx_gap_source_payload_error <= 1'd0;
+	chain_txdatapath_liteethmacgap_next_state <= 1'd0;
+	chain_generate_tx_gap_counter_clockdomainsrenamer3_next_value <= 4'd0;
+	chain_generate_tx_gap_counter_clockdomainsrenamer3_next_value_ce <= 1'd0;
+	chain_txdatapath_liteethmacgap_next_state <= chain_txdatapath_liteethmacgap_state;
+	case (chain_txdatapath_liteethmacgap_state)
+		1'd1: begin
+			chain_generate_tx_gap_counter_clockdomainsrenamer3_next_value <= (chain_generate_tx_gap_counter - 1'd1);
+			chain_generate_tx_gap_counter_clockdomainsrenamer3_next_value_ce <= 1'd1;
+			if ((chain_generate_tx_gap_counter == 1'd1)) begin
+				chain_txdatapath_liteethmacgap_next_state <= 1'd0;
+			end
+		end
+		default: begin
+			chain_generate_tx_gap_source_valid <= chain_generate_tx_gap_sink_valid;
+			chain_generate_tx_gap_sink_ready <= chain_generate_tx_gap_source_ready;
+			chain_generate_tx_gap_source_first <= chain_generate_tx_gap_sink_first;
+			chain_generate_tx_gap_source_last <= chain_generate_tx_gap_sink_last;
+			chain_generate_tx_gap_source_payload_data <= chain_generate_tx_gap_sink_payload_data;
+			chain_generate_tx_gap_source_payload_last_be <= chain_generate_tx_gap_sink_payload_last_be;
+			chain_generate_tx_gap_source_payload_error <= chain_generate_tx_gap_sink_payload_error;
+			if (((chain_generate_tx_gap_sink_valid & chain_generate_tx_gap_sink_last) & chain_generate_tx_gap_sink_ready)) begin
+				chain_generate_tx_gap_counter_clockdomainsrenamer3_next_value <= 4'd12;
+				chain_generate_tx_gap_counter_clockdomainsrenamer3_next_value_ce <= 1'd1;
+				chain_txdatapath_liteethmacgap_next_state <= 1'd1;
+			end
+		end
+	endcase
+// synthesis translate_off
+	dummy_d_12 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_tx_cdc_sink_sink_valid = chain_generate_sink_valid;
+assign chain_generate_sink_ready = chain_generate_tx_cdc_sink_sink_ready;
+assign chain_generate_tx_cdc_sink_sink_first = chain_generate_sink_first;
+assign chain_generate_tx_cdc_sink_sink_last = chain_generate_sink_last;
+assign chain_generate_tx_cdc_sink_sink_payload_data = chain_generate_sink_payload_data;
+assign chain_generate_tx_cdc_sink_sink_payload_last_be = chain_generate_sink_payload_last_be;
+assign chain_generate_tx_cdc_sink_sink_payload_error = chain_generate_sink_payload_error;
+assign chain_generate_tx_converter_sink_valid = chain_generate_tx_cdc_source_source_valid;
+assign chain_generate_tx_cdc_source_source_ready = chain_generate_tx_converter_sink_ready;
+assign chain_generate_tx_converter_sink_first = chain_generate_tx_cdc_source_source_first;
+assign chain_generate_tx_converter_sink_last = chain_generate_tx_cdc_source_source_last;
+assign chain_generate_tx_converter_sink_payload_data = chain_generate_tx_cdc_source_source_payload_data;
+assign chain_generate_tx_converter_sink_payload_last_be = chain_generate_tx_cdc_source_source_payload_last_be;
+assign chain_generate_tx_converter_sink_payload_error = chain_generate_tx_cdc_source_source_payload_error;
+assign chain_generate_tx_last_be_sink_sink_valid = chain_generate_tx_converter_source_valid;
+assign chain_generate_tx_converter_source_ready = chain_generate_tx_last_be_sink_sink_ready;
+assign chain_generate_tx_last_be_sink_sink_first = chain_generate_tx_converter_source_first;
+assign chain_generate_tx_last_be_sink_sink_last = chain_generate_tx_converter_source_last;
+assign chain_generate_tx_last_be_sink_sink_payload_data = chain_generate_tx_converter_source_payload_data;
+assign chain_generate_tx_last_be_sink_sink_payload_last_be = chain_generate_tx_converter_source_payload_last_be;
+assign chain_generate_tx_last_be_sink_sink_payload_error = chain_generate_tx_converter_source_payload_error;
+assign chain_generate_tx_padding_sink_valid = chain_generate_tx_last_be_source_source_valid;
+assign chain_generate_tx_last_be_source_source_ready = chain_generate_tx_padding_sink_ready;
+assign chain_generate_tx_padding_sink_first = chain_generate_tx_last_be_source_source_first;
+assign chain_generate_tx_padding_sink_last = chain_generate_tx_last_be_source_source_last;
+assign chain_generate_tx_padding_sink_payload_data = chain_generate_tx_last_be_source_source_payload_data;
+assign chain_generate_tx_padding_sink_payload_last_be = chain_generate_tx_last_be_source_source_payload_last_be;
+assign chain_generate_tx_padding_sink_payload_error = chain_generate_tx_last_be_source_source_payload_error;
+assign chain_generate_tx_crc_sink_sink_valid = chain_generate_tx_padding_source_valid;
+assign chain_generate_tx_padding_source_ready = chain_generate_tx_crc_sink_sink_ready;
+assign chain_generate_tx_crc_sink_sink_first = chain_generate_tx_padding_source_first;
+assign chain_generate_tx_crc_sink_sink_last = chain_generate_tx_padding_source_last;
+assign chain_generate_tx_crc_sink_sink_payload_data = chain_generate_tx_padding_source_payload_data;
+assign chain_generate_tx_crc_sink_sink_payload_last_be = chain_generate_tx_padding_source_payload_last_be;
+assign chain_generate_tx_crc_sink_sink_payload_error = chain_generate_tx_padding_source_payload_error;
+assign chain_generate_tx_preamble_sink_valid = chain_generate_tx_crc_source_valid;
+assign chain_generate_tx_crc_source_ready = chain_generate_tx_preamble_sink_ready;
+assign chain_generate_tx_preamble_sink_first = chain_generate_tx_crc_source_first;
+assign chain_generate_tx_preamble_sink_last = chain_generate_tx_crc_source_last;
+assign chain_generate_tx_preamble_sink_payload_data = chain_generate_tx_crc_source_payload_data;
+assign chain_generate_tx_preamble_sink_payload_last_be = chain_generate_tx_crc_source_payload_last_be;
+assign chain_generate_tx_preamble_sink_payload_error = chain_generate_tx_crc_source_payload_error;
+assign chain_generate_tx_gap_sink_valid = chain_generate_tx_preamble_source_valid;
+assign chain_generate_tx_preamble_source_ready = chain_generate_tx_gap_sink_ready;
+assign chain_generate_tx_gap_sink_first = chain_generate_tx_preamble_source_first;
+assign chain_generate_tx_gap_sink_last = chain_generate_tx_preamble_source_last;
+assign chain_generate_tx_gap_sink_payload_data = chain_generate_tx_preamble_source_payload_data;
+assign chain_generate_tx_gap_sink_payload_last_be = chain_generate_tx_preamble_source_payload_last_be;
+assign chain_generate_tx_gap_sink_payload_error = chain_generate_tx_preamble_source_payload_error;
+assign chain_generate_liteethphymiitx_sink_valid = chain_generate_tx_gap_source_valid;
+assign chain_generate_tx_gap_source_ready = chain_generate_liteethphymiitx_sink_ready;
+assign chain_generate_liteethphymiitx_sink_first = chain_generate_tx_gap_source_first;
+assign chain_generate_liteethphymiitx_sink_last = chain_generate_tx_gap_source_last;
+assign chain_generate_liteethphymiitx_sink_payload_data = chain_generate_tx_gap_source_payload_data;
+assign chain_generate_liteethphymiitx_sink_payload_last_be = chain_generate_tx_gap_source_payload_last_be;
+assign chain_generate_liteethphymiitx_sink_payload_error = chain_generate_tx_gap_source_payload_error;
+assign chain_generate_pulsesynchronizer0_i = chain_generate_rx_preamble_error;
+assign chain_generate_pulsesynchronizer1_i = chain_generate_liteethmaccrc32checker_error;
+assign chain_generate_rx_preamble_source_payload_data = chain_generate_rx_preamble_sink_payload_data;
+assign chain_generate_rx_preamble_source_payload_last_be = chain_generate_rx_preamble_sink_payload_last_be;
+
+// synthesis translate_off
+reg dummy_d_13;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_rx_preamble_sink_ready <= 1'd0;
+	chain_generate_rx_preamble_source_valid <= 1'd0;
+	chain_generate_rx_preamble_source_first <= 1'd0;
+	chain_generate_rx_preamble_source_last <= 1'd0;
+	chain_generate_rx_preamble_source_payload_error <= 1'd0;
+	chain_generate_rx_preamble_error <= 1'd0;
+	chain_rxdatapath_liteethmacpreamblechecker_next_state <= 1'd0;
+	chain_rxdatapath_liteethmacpreamblechecker_next_state <= chain_rxdatapath_liteethmacpreamblechecker_state;
+	case (chain_rxdatapath_liteethmacpreamblechecker_state)
+		1'd1: begin
+			chain_generate_rx_preamble_source_valid <= chain_generate_rx_preamble_sink_valid;
+			chain_generate_rx_preamble_sink_ready <= chain_generate_rx_preamble_source_ready;
+			chain_generate_rx_preamble_source_first <= chain_generate_rx_preamble_sink_first;
+			chain_generate_rx_preamble_source_last <= chain_generate_rx_preamble_sink_last;
+			chain_generate_rx_preamble_source_payload_error <= chain_generate_rx_preamble_sink_payload_error;
+			if (((chain_generate_rx_preamble_source_valid & chain_generate_rx_preamble_source_last) & chain_generate_rx_preamble_source_ready)) begin
+				chain_rxdatapath_liteethmacpreamblechecker_next_state <= 1'd0;
+			end
+		end
+		default: begin
+			chain_generate_rx_preamble_sink_ready <= 1'd1;
+			if (((chain_generate_rx_preamble_sink_valid & (~chain_generate_rx_preamble_sink_last)) & (chain_generate_rx_preamble_sink_payload_data == chain_generate_rx_preamble_preamble[63:56]))) begin
+				chain_rxdatapath_liteethmacpreamblechecker_next_state <= 1'd1;
+			end
+			if ((chain_generate_rx_preamble_sink_valid & chain_generate_rx_preamble_sink_last)) begin
+				chain_generate_rx_preamble_error <= 1'd1;
+			end
+		end
+	endcase
+// synthesis translate_off
+	dummy_d_13 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_pulsesynchronizer0_o = (chain_generate_pulsesynchronizer0_toggle_o ^ chain_generate_pulsesynchronizer0_toggle_o_r);
+assign chain_generate_liteethmaccrc32checker_fifo_full = (chain_generate_liteethmaccrc32checker_syncfifo_level == 3'd4);
+assign chain_generate_liteethmaccrc32checker_fifo_in = (chain_generate_liteethmaccrc32checker_sink_sink_valid & ((~chain_generate_liteethmaccrc32checker_fifo_full) | chain_generate_liteethmaccrc32checker_fifo_out));
+assign chain_generate_liteethmaccrc32checker_fifo_out = (chain_generate_liteethmaccrc32checker_source_source_valid & chain_generate_liteethmaccrc32checker_source_source_ready);
+assign chain_generate_liteethmaccrc32checker_syncfifo_sink_first = chain_generate_liteethmaccrc32checker_sink_sink_first;
+assign chain_generate_liteethmaccrc32checker_syncfifo_sink_last = chain_generate_liteethmaccrc32checker_sink_sink_last;
+assign chain_generate_liteethmaccrc32checker_syncfifo_sink_payload_data = chain_generate_liteethmaccrc32checker_sink_sink_payload_data;
+assign chain_generate_liteethmaccrc32checker_syncfifo_sink_payload_last_be = chain_generate_liteethmaccrc32checker_sink_sink_payload_last_be;
+assign chain_generate_liteethmaccrc32checker_syncfifo_sink_payload_error = chain_generate_liteethmaccrc32checker_sink_sink_payload_error;
+
+// synthesis translate_off
+reg dummy_d_14;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_liteethmaccrc32checker_syncfifo_sink_valid <= 1'd0;
+	chain_generate_liteethmaccrc32checker_syncfifo_sink_valid <= chain_generate_liteethmaccrc32checker_sink_sink_valid;
+	chain_generate_liteethmaccrc32checker_syncfifo_sink_valid <= chain_generate_liteethmaccrc32checker_fifo_in;
+// synthesis translate_off
+	dummy_d_14 <= dummy_s;
+// synthesis translate_on
+end
+
+// synthesis translate_off
+reg dummy_d_15;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_liteethmaccrc32checker_sink_sink_ready <= 1'd0;
+	chain_generate_liteethmaccrc32checker_sink_sink_ready <= chain_generate_liteethmaccrc32checker_syncfifo_sink_ready;
+	chain_generate_liteethmaccrc32checker_sink_sink_ready <= chain_generate_liteethmaccrc32checker_fifo_in;
+// synthesis translate_off
+	dummy_d_15 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_liteethmaccrc32checker_crc_data0 = chain_generate_liteethmaccrc32checker_sink_sink_payload_data;
+assign chain_generate_liteethmaccrc32checker_crc_be = chain_generate_liteethmaccrc32checker_sink_sink_payload_last_be;
+assign chain_generate_liteethmaccrc32checker_source_source_first = chain_generate_liteethmaccrc32checker_syncfifo_source_first;
+assign chain_generate_liteethmaccrc32checker_source_source_payload_data = chain_generate_liteethmaccrc32checker_syncfifo_source_payload_data;
+assign chain_generate_liteethmaccrc32checker_sink_sink_valid = chain_generate_bufferizeendpoints_source_source_valid;
+assign chain_generate_bufferizeendpoints_source_source_ready = chain_generate_liteethmaccrc32checker_sink_sink_ready;
+assign chain_generate_liteethmaccrc32checker_sink_sink_first = chain_generate_bufferizeendpoints_source_source_first;
+assign chain_generate_liteethmaccrc32checker_sink_sink_last = chain_generate_bufferizeendpoints_source_source_last;
+assign chain_generate_liteethmaccrc32checker_sink_sink_payload_data = chain_generate_bufferizeendpoints_source_source_payload_data;
+assign chain_generate_liteethmaccrc32checker_sink_sink_payload_last_be = chain_generate_bufferizeendpoints_source_source_payload_last_be;
+assign chain_generate_liteethmaccrc32checker_sink_sink_payload_error = chain_generate_bufferizeendpoints_source_source_payload_error;
+assign chain_generate_liteethmaccrc32checker_crc_crc_prev = chain_generate_liteethmaccrc32checker_crc_reg;
+
+// synthesis translate_off
+reg dummy_d_16;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_liteethmaccrc32checker_crc_error0 <= 1'd0;
+	chain_generate_liteethmaccrc32checker_crc_data1 <= 8'd0;
+	chain_generate_liteethmaccrc32checker_crc_data1 <= chain_generate_liteethmaccrc32checker_crc_data0;
+	if (chain_generate_liteethmaccrc32checker_crc_be) begin
+		chain_generate_liteethmaccrc32checker_crc_data1 <= (chain_generate_liteethmaccrc32checker_crc_data0 & 8'd255);
+		chain_generate_liteethmaccrc32checker_crc_error0 <= (chain_generate_liteethmaccrc32checker_crc_crc_next != 32'd3338984827);
+	end
+// synthesis translate_off
+	dummy_d_16 <= dummy_s;
+// synthesis translate_on
+end
+
+// synthesis translate_off
+reg dummy_d_17;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_liteethmaccrc32checker_crc_crc_next <= 32'd0;
+	chain_generate_liteethmaccrc32checker_crc_crc_next[0] <= (((chain_generate_liteethmaccrc32checker_crc_crc_prev[24] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[30]) ^ chain_generate_liteethmaccrc32checker_crc_data1[1]) ^ chain_generate_liteethmaccrc32checker_crc_data1[7]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[1] <= (((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[25] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[31]) ^ chain_generate_liteethmaccrc32checker_crc_data1[0]) ^ chain_generate_liteethmaccrc32checker_crc_data1[6]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[24]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[30]) ^ chain_generate_liteethmaccrc32checker_crc_data1[1]) ^ chain_generate_liteethmaccrc32checker_crc_data1[7]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[2] <= (((((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[26] ^ chain_generate_liteethmaccrc32checker_crc_data1[5]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[25]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[31]) ^ chain_generate_liteethmaccrc32checker_crc_data1[0]) ^ chain_generate_liteethmaccrc32checker_crc_data1[6]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[24]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[30]) ^ chain_generate_liteethmaccrc32checker_crc_data1[1]) ^ chain_generate_liteethmaccrc32checker_crc_data1[7]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[3] <= (((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[27] ^ chain_generate_liteethmaccrc32checker_crc_data1[4]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[26]) ^ chain_generate_liteethmaccrc32checker_crc_data1[5]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[25]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[31]) ^ chain_generate_liteethmaccrc32checker_crc_data1[0]) ^ chain_generate_liteethmaccrc32checker_crc_data1[6]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[4] <= (((((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[28] ^ chain_generate_liteethmaccrc32checker_crc_data1[3]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[27]) ^ chain_generate_liteethmaccrc32checker_crc_data1[4]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[26]) ^ chain_generate_liteethmaccrc32checker_crc_data1[5]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[24]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[30]) ^ chain_generate_liteethmaccrc32checker_crc_data1[1]) ^ chain_generate_liteethmaccrc32checker_crc_data1[7]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[5] <= (((((((((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[29] ^ chain_generate_liteethmaccrc32checker_crc_data1[2]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[28]) ^ chain_generate_liteethmaccrc32checker_crc_data1[3]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[27]) ^ chain_generate_liteethmaccrc32checker_crc_data1[4]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[25]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[31]) ^ chain_generate_liteethmaccrc32checker_crc_data1[0]) ^ chain_generate_liteethmaccrc32checker_crc_data1[6]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[24]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[30]) ^ chain_generate_liteethmaccrc32checker_crc_data1[1]) ^ chain_generate_liteethmaccrc32checker_crc_data1[7]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[6] <= (((((((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[30] ^ chain_generate_liteethmaccrc32checker_crc_data1[1]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[29]) ^ chain_generate_liteethmaccrc32checker_crc_data1[2]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[28]) ^ chain_generate_liteethmaccrc32checker_crc_data1[3]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[26]) ^ chain_generate_liteethmaccrc32checker_crc_data1[5]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[25]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[31]) ^ chain_generate_liteethmaccrc32checker_crc_data1[0]) ^ chain_generate_liteethmaccrc32checker_crc_data1[6]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[7] <= (((((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[31] ^ chain_generate_liteethmaccrc32checker_crc_data1[0]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[29]) ^ chain_generate_liteethmaccrc32checker_crc_data1[2]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[27]) ^ chain_generate_liteethmaccrc32checker_crc_data1[4]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[26]) ^ chain_generate_liteethmaccrc32checker_crc_data1[5]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[24]) ^ chain_generate_liteethmaccrc32checker_crc_data1[7]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[8] <= ((((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[0] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[28]) ^ chain_generate_liteethmaccrc32checker_crc_data1[3]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[27]) ^ chain_generate_liteethmaccrc32checker_crc_data1[4]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[25]) ^ chain_generate_liteethmaccrc32checker_crc_data1[6]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[24]) ^ chain_generate_liteethmaccrc32checker_crc_data1[7]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[9] <= ((((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[1] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[29]) ^ chain_generate_liteethmaccrc32checker_crc_data1[2]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[28]) ^ chain_generate_liteethmaccrc32checker_crc_data1[3]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[26]) ^ chain_generate_liteethmaccrc32checker_crc_data1[5]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[25]) ^ chain_generate_liteethmaccrc32checker_crc_data1[6]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[10] <= ((((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[2] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[29]) ^ chain_generate_liteethmaccrc32checker_crc_data1[2]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[27]) ^ chain_generate_liteethmaccrc32checker_crc_data1[4]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[26]) ^ chain_generate_liteethmaccrc32checker_crc_data1[5]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[24]) ^ chain_generate_liteethmaccrc32checker_crc_data1[7]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[11] <= ((((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[3] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[28]) ^ chain_generate_liteethmaccrc32checker_crc_data1[3]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[27]) ^ chain_generate_liteethmaccrc32checker_crc_data1[4]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[25]) ^ chain_generate_liteethmaccrc32checker_crc_data1[6]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[24]) ^ chain_generate_liteethmaccrc32checker_crc_data1[7]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[12] <= ((((((((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[4] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[29]) ^ chain_generate_liteethmaccrc32checker_crc_data1[2]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[28]) ^ chain_generate_liteethmaccrc32checker_crc_data1[3]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[26]) ^ chain_generate_liteethmaccrc32checker_crc_data1[5]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[25]) ^ chain_generate_liteethmaccrc32checker_crc_data1[6]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[24]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[30]) ^ chain_generate_liteethmaccrc32checker_crc_data1[1]) ^ chain_generate_liteethmaccrc32checker_crc_data1[7]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[13] <= ((((((((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[5] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[30]) ^ chain_generate_liteethmaccrc32checker_crc_data1[1]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[29]) ^ chain_generate_liteethmaccrc32checker_crc_data1[2]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[27]) ^ chain_generate_liteethmaccrc32checker_crc_data1[4]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[26]) ^ chain_generate_liteethmaccrc32checker_crc_data1[5]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[25]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[31]) ^ chain_generate_liteethmaccrc32checker_crc_data1[0]) ^ chain_generate_liteethmaccrc32checker_crc_data1[6]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[14] <= ((((((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[6] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[31]) ^ chain_generate_liteethmaccrc32checker_crc_data1[0]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[30]) ^ chain_generate_liteethmaccrc32checker_crc_data1[1]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[28]) ^ chain_generate_liteethmaccrc32checker_crc_data1[3]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[27]) ^ chain_generate_liteethmaccrc32checker_crc_data1[4]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[26]) ^ chain_generate_liteethmaccrc32checker_crc_data1[5]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[15] <= ((((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[7] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[31]) ^ chain_generate_liteethmaccrc32checker_crc_data1[0]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[29]) ^ chain_generate_liteethmaccrc32checker_crc_data1[2]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[28]) ^ chain_generate_liteethmaccrc32checker_crc_data1[3]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[27]) ^ chain_generate_liteethmaccrc32checker_crc_data1[4]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[16] <= ((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[8] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[29]) ^ chain_generate_liteethmaccrc32checker_crc_data1[2]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[28]) ^ chain_generate_liteethmaccrc32checker_crc_data1[3]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[24]) ^ chain_generate_liteethmaccrc32checker_crc_data1[7]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[17] <= ((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[9] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[30]) ^ chain_generate_liteethmaccrc32checker_crc_data1[1]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[29]) ^ chain_generate_liteethmaccrc32checker_crc_data1[2]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[25]) ^ chain_generate_liteethmaccrc32checker_crc_data1[6]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[18] <= ((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[10] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[31]) ^ chain_generate_liteethmaccrc32checker_crc_data1[0]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[30]) ^ chain_generate_liteethmaccrc32checker_crc_data1[1]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[26]) ^ chain_generate_liteethmaccrc32checker_crc_data1[5]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[19] <= ((((chain_generate_liteethmaccrc32checker_crc_crc_prev[11] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[31]) ^ chain_generate_liteethmaccrc32checker_crc_data1[0]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[27]) ^ chain_generate_liteethmaccrc32checker_crc_data1[4]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[20] <= ((chain_generate_liteethmaccrc32checker_crc_crc_prev[12] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[28]) ^ chain_generate_liteethmaccrc32checker_crc_data1[3]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[21] <= ((chain_generate_liteethmaccrc32checker_crc_crc_prev[13] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[29]) ^ chain_generate_liteethmaccrc32checker_crc_data1[2]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[22] <= ((chain_generate_liteethmaccrc32checker_crc_crc_prev[14] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[24]) ^ chain_generate_liteethmaccrc32checker_crc_data1[7]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[23] <= ((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[15] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[25]) ^ chain_generate_liteethmaccrc32checker_crc_data1[6]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[24]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[30]) ^ chain_generate_liteethmaccrc32checker_crc_data1[1]) ^ chain_generate_liteethmaccrc32checker_crc_data1[7]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[24] <= ((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[16] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[26]) ^ chain_generate_liteethmaccrc32checker_crc_data1[5]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[25]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[31]) ^ chain_generate_liteethmaccrc32checker_crc_data1[0]) ^ chain_generate_liteethmaccrc32checker_crc_data1[6]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[25] <= ((((chain_generate_liteethmaccrc32checker_crc_crc_prev[17] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[27]) ^ chain_generate_liteethmaccrc32checker_crc_data1[4]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[26]) ^ chain_generate_liteethmaccrc32checker_crc_data1[5]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[26] <= ((((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[18] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[28]) ^ chain_generate_liteethmaccrc32checker_crc_data1[3]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[27]) ^ chain_generate_liteethmaccrc32checker_crc_data1[4]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[24]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[30]) ^ chain_generate_liteethmaccrc32checker_crc_data1[1]) ^ chain_generate_liteethmaccrc32checker_crc_data1[7]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[27] <= ((((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[19] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[29]) ^ chain_generate_liteethmaccrc32checker_crc_data1[2]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[28]) ^ chain_generate_liteethmaccrc32checker_crc_data1[3]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[25]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[31]) ^ chain_generate_liteethmaccrc32checker_crc_data1[0]) ^ chain_generate_liteethmaccrc32checker_crc_data1[6]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[28] <= ((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[20] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[30]) ^ chain_generate_liteethmaccrc32checker_crc_data1[1]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[29]) ^ chain_generate_liteethmaccrc32checker_crc_data1[2]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[26]) ^ chain_generate_liteethmaccrc32checker_crc_data1[5]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[29] <= ((((((chain_generate_liteethmaccrc32checker_crc_crc_prev[21] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[31]) ^ chain_generate_liteethmaccrc32checker_crc_data1[0]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[30]) ^ chain_generate_liteethmaccrc32checker_crc_data1[1]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[27]) ^ chain_generate_liteethmaccrc32checker_crc_data1[4]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[30] <= ((((chain_generate_liteethmaccrc32checker_crc_crc_prev[22] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[31]) ^ chain_generate_liteethmaccrc32checker_crc_data1[0]) ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[28]) ^ chain_generate_liteethmaccrc32checker_crc_data1[3]);
+	chain_generate_liteethmaccrc32checker_crc_crc_next[31] <= ((chain_generate_liteethmaccrc32checker_crc_crc_prev[23] ^ chain_generate_liteethmaccrc32checker_crc_crc_prev[29]) ^ chain_generate_liteethmaccrc32checker_crc_data1[2]);
+// synthesis translate_off
+	dummy_d_17 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_din = {chain_generate_liteethmaccrc32checker_syncfifo_fifo_in_last, chain_generate_liteethmaccrc32checker_syncfifo_fifo_in_first, chain_generate_liteethmaccrc32checker_syncfifo_fifo_in_payload_error, chain_generate_liteethmaccrc32checker_syncfifo_fifo_in_payload_last_be, chain_generate_liteethmaccrc32checker_syncfifo_fifo_in_payload_data};
+assign {chain_generate_liteethmaccrc32checker_syncfifo_fifo_out_last, chain_generate_liteethmaccrc32checker_syncfifo_fifo_out_first, chain_generate_liteethmaccrc32checker_syncfifo_fifo_out_payload_error, chain_generate_liteethmaccrc32checker_syncfifo_fifo_out_payload_last_be, chain_generate_liteethmaccrc32checker_syncfifo_fifo_out_payload_data} = chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_dout;
+assign chain_generate_liteethmaccrc32checker_syncfifo_sink_ready = chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_writable;
+assign chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_we = chain_generate_liteethmaccrc32checker_syncfifo_sink_valid;
+assign chain_generate_liteethmaccrc32checker_syncfifo_fifo_in_first = chain_generate_liteethmaccrc32checker_syncfifo_sink_first;
+assign chain_generate_liteethmaccrc32checker_syncfifo_fifo_in_last = chain_generate_liteethmaccrc32checker_syncfifo_sink_last;
+assign chain_generate_liteethmaccrc32checker_syncfifo_fifo_in_payload_data = chain_generate_liteethmaccrc32checker_syncfifo_sink_payload_data;
+assign chain_generate_liteethmaccrc32checker_syncfifo_fifo_in_payload_last_be = chain_generate_liteethmaccrc32checker_syncfifo_sink_payload_last_be;
+assign chain_generate_liteethmaccrc32checker_syncfifo_fifo_in_payload_error = chain_generate_liteethmaccrc32checker_syncfifo_sink_payload_error;
+assign chain_generate_liteethmaccrc32checker_syncfifo_source_valid = chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_readable;
+assign chain_generate_liteethmaccrc32checker_syncfifo_source_first = chain_generate_liteethmaccrc32checker_syncfifo_fifo_out_first;
+assign chain_generate_liteethmaccrc32checker_syncfifo_source_last = chain_generate_liteethmaccrc32checker_syncfifo_fifo_out_last;
+assign chain_generate_liteethmaccrc32checker_syncfifo_source_payload_data = chain_generate_liteethmaccrc32checker_syncfifo_fifo_out_payload_data;
+assign chain_generate_liteethmaccrc32checker_syncfifo_source_payload_last_be = chain_generate_liteethmaccrc32checker_syncfifo_fifo_out_payload_last_be;
+assign chain_generate_liteethmaccrc32checker_syncfifo_source_payload_error = chain_generate_liteethmaccrc32checker_syncfifo_fifo_out_payload_error;
+assign chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_re = chain_generate_liteethmaccrc32checker_syncfifo_source_ready;
+
+// synthesis translate_off
+reg dummy_d_18;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_liteethmaccrc32checker_syncfifo_wrport_adr <= 3'd0;
+	if (chain_generate_liteethmaccrc32checker_syncfifo_replace) begin
+		chain_generate_liteethmaccrc32checker_syncfifo_wrport_adr <= (chain_generate_liteethmaccrc32checker_syncfifo_produce - 1'd1);
+	end else begin
+		chain_generate_liteethmaccrc32checker_syncfifo_wrport_adr <= chain_generate_liteethmaccrc32checker_syncfifo_produce;
+	end
+// synthesis translate_off
+	dummy_d_18 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_liteethmaccrc32checker_syncfifo_wrport_dat_w = chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_din;
+assign chain_generate_liteethmaccrc32checker_syncfifo_wrport_we = (chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_we & (chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_writable | chain_generate_liteethmaccrc32checker_syncfifo_replace));
+assign chain_generate_liteethmaccrc32checker_syncfifo_do_read = (chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_readable & chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_re);
+assign chain_generate_liteethmaccrc32checker_syncfifo_rdport_adr = chain_generate_liteethmaccrc32checker_syncfifo_consume;
+assign chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_dout = chain_generate_liteethmaccrc32checker_syncfifo_rdport_dat_r;
+assign chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_writable = (chain_generate_liteethmaccrc32checker_syncfifo_level != 3'd5);
+assign chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_readable = (chain_generate_liteethmaccrc32checker_syncfifo_level != 1'd0);
+
+// synthesis translate_off
+reg dummy_d_19;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_liteethmaccrc32checker_source_source_valid <= 1'd0;
+	chain_generate_liteethmaccrc32checker_source_source_last <= 1'd0;
+	chain_generate_liteethmaccrc32checker_source_source_payload_last_be <= 1'd0;
+	chain_generate_liteethmaccrc32checker_source_source_payload_error <= 1'd0;
+	chain_generate_liteethmaccrc32checker_error <= 1'd0;
+	chain_generate_liteethmaccrc32checker_crc_ce <= 1'd0;
+	chain_generate_liteethmaccrc32checker_crc_reset <= 1'd0;
+	chain_generate_liteethmaccrc32checker_syncfifo_source_ready <= 1'd0;
+	chain_generate_liteethmaccrc32checker_fifo_reset <= 1'd0;
+	chain_rxdatapath_bufferizeendpoints_next_state <= 2'd0;
+	chain_generate_liteethmaccrc32checker_last_be_next_value0 <= 1'd0;
+	chain_generate_liteethmaccrc32checker_last_be_next_value_ce0 <= 1'd0;
+	chain_generate_liteethmaccrc32checker_crc_error1_next_value1 <= 1'd0;
+	chain_generate_liteethmaccrc32checker_crc_error1_next_value_ce1 <= 1'd0;
+	chain_generate_liteethmaccrc32checker_source_source_payload_error <= chain_generate_liteethmaccrc32checker_syncfifo_source_payload_error;
+	chain_rxdatapath_bufferizeendpoints_next_state <= chain_rxdatapath_bufferizeendpoints_state;
+	case (chain_rxdatapath_bufferizeendpoints_state)
+		1'd1: begin
+			if ((chain_generate_liteethmaccrc32checker_sink_sink_valid & chain_generate_liteethmaccrc32checker_sink_sink_ready)) begin
+				chain_generate_liteethmaccrc32checker_crc_ce <= 1'd1;
+				chain_rxdatapath_bufferizeendpoints_next_state <= 2'd2;
+			end
+		end
+		2'd2: begin
+			chain_generate_liteethmaccrc32checker_syncfifo_source_ready <= chain_generate_liteethmaccrc32checker_fifo_out;
+			chain_generate_liteethmaccrc32checker_source_source_valid <= (chain_generate_liteethmaccrc32checker_sink_sink_valid & chain_generate_liteethmaccrc32checker_fifo_full);
+			if (1'd1) begin
+				chain_generate_liteethmaccrc32checker_source_source_last <= chain_generate_liteethmaccrc32checker_sink_sink_last;
+				chain_generate_liteethmaccrc32checker_source_source_payload_last_be <= chain_generate_liteethmaccrc32checker_sink_sink_payload_last_be;
+			end else begin
+				if ((chain_generate_liteethmaccrc32checker_sink_sink_payload_last_be & 4'd15)) begin
+					chain_generate_liteethmaccrc32checker_source_source_last <= chain_generate_liteethmaccrc32checker_sink_sink_last;
+					chain_generate_liteethmaccrc32checker_source_source_payload_last_be <= (chain_generate_liteethmaccrc32checker_sink_sink_payload_last_be <<< 3'sd5);
+				end else begin
+					chain_generate_liteethmaccrc32checker_last_be_next_value0 <= (chain_generate_liteethmaccrc32checker_sink_sink_payload_last_be >>> 3'd4);
+					chain_generate_liteethmaccrc32checker_last_be_next_value_ce0 <= 1'd1;
+					chain_generate_liteethmaccrc32checker_crc_error1_next_value1 <= chain_generate_liteethmaccrc32checker_crc_error0;
+					chain_generate_liteethmaccrc32checker_crc_error1_next_value_ce1 <= 1'd1;
+				end
+			end
+			chain_generate_liteethmaccrc32checker_source_source_payload_error <= (chain_generate_liteethmaccrc32checker_sink_sink_payload_error | {1{(chain_generate_liteethmaccrc32checker_crc_error0 & chain_generate_liteethmaccrc32checker_sink_sink_last)}});
+			chain_generate_liteethmaccrc32checker_error <= ((chain_generate_liteethmaccrc32checker_sink_sink_valid & chain_generate_liteethmaccrc32checker_sink_sink_last) & chain_generate_liteethmaccrc32checker_crc_error0);
+			if ((chain_generate_liteethmaccrc32checker_sink_sink_valid & chain_generate_liteethmaccrc32checker_sink_sink_ready)) begin
+				chain_generate_liteethmaccrc32checker_crc_ce <= 1'd1;
+				if ((chain_generate_liteethmaccrc32checker_sink_sink_last & (chain_generate_liteethmaccrc32checker_sink_sink_payload_last_be > 4'd15))) begin
+					chain_rxdatapath_bufferizeendpoints_next_state <= 2'd3;
+				end else begin
+					if (chain_generate_liteethmaccrc32checker_sink_sink_last) begin
+						chain_rxdatapath_bufferizeendpoints_next_state <= 1'd0;
+					end
+				end
+			end
+		end
+		2'd3: begin
+			chain_generate_liteethmaccrc32checker_source_source_valid <= chain_generate_liteethmaccrc32checker_syncfifo_source_valid;
+			chain_generate_liteethmaccrc32checker_syncfifo_source_ready <= chain_generate_liteethmaccrc32checker_source_source_ready;
+			chain_generate_liteethmaccrc32checker_source_source_last <= chain_generate_liteethmaccrc32checker_syncfifo_source_last;
+			chain_generate_liteethmaccrc32checker_source_source_payload_error <= (chain_generate_liteethmaccrc32checker_syncfifo_source_payload_error | {1{chain_generate_liteethmaccrc32checker_crc_error1}});
+			chain_generate_liteethmaccrc32checker_source_source_payload_last_be <= chain_generate_liteethmaccrc32checker_last_be;
+			if ((chain_generate_liteethmaccrc32checker_source_source_valid & chain_generate_liteethmaccrc32checker_source_source_ready)) begin
+				chain_rxdatapath_bufferizeendpoints_next_state <= 1'd0;
+			end
+		end
+		default: begin
+			chain_generate_liteethmaccrc32checker_crc_reset <= 1'd1;
+			chain_generate_liteethmaccrc32checker_fifo_reset <= 1'd1;
+			chain_rxdatapath_bufferizeendpoints_next_state <= 1'd1;
+		end
+	endcase
+// synthesis translate_off
+	dummy_d_19 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_bufferizeendpoints_pipe_valid_sink_ready = ((~chain_generate_bufferizeendpoints_pipe_valid_source_valid) | chain_generate_bufferizeendpoints_pipe_valid_source_ready);
+assign chain_generate_bufferizeendpoints_pipe_valid_sink_valid = chain_generate_bufferizeendpoints_sink_sink_valid;
+assign chain_generate_bufferizeendpoints_sink_sink_ready = chain_generate_bufferizeendpoints_pipe_valid_sink_ready;
+assign chain_generate_bufferizeendpoints_pipe_valid_sink_first = chain_generate_bufferizeendpoints_sink_sink_first;
+assign chain_generate_bufferizeendpoints_pipe_valid_sink_last = chain_generate_bufferizeendpoints_sink_sink_last;
+assign chain_generate_bufferizeendpoints_pipe_valid_sink_payload_data = chain_generate_bufferizeendpoints_sink_sink_payload_data;
+assign chain_generate_bufferizeendpoints_pipe_valid_sink_payload_last_be = chain_generate_bufferizeendpoints_sink_sink_payload_last_be;
+assign chain_generate_bufferizeendpoints_pipe_valid_sink_payload_error = chain_generate_bufferizeendpoints_sink_sink_payload_error;
+assign chain_generate_bufferizeendpoints_source_source_valid = chain_generate_bufferizeendpoints_pipe_valid_source_valid;
+assign chain_generate_bufferizeendpoints_pipe_valid_source_ready = chain_generate_bufferizeendpoints_source_source_ready;
+assign chain_generate_bufferizeendpoints_source_source_first = chain_generate_bufferizeendpoints_pipe_valid_source_first;
+assign chain_generate_bufferizeendpoints_source_source_last = chain_generate_bufferizeendpoints_pipe_valid_source_last;
+assign chain_generate_bufferizeendpoints_source_source_payload_data = chain_generate_bufferizeendpoints_pipe_valid_source_payload_data;
+assign chain_generate_bufferizeendpoints_source_source_payload_last_be = chain_generate_bufferizeendpoints_pipe_valid_source_payload_last_be;
+assign chain_generate_bufferizeendpoints_source_source_payload_error = chain_generate_bufferizeendpoints_pipe_valid_source_payload_error;
+assign chain_generate_pulsesynchronizer1_o = (chain_generate_pulsesynchronizer1_toggle_o ^ chain_generate_pulsesynchronizer1_toggle_o_r);
+
+// synthesis translate_off
+reg dummy_d_20;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_rx_padding_length_inc <= 4'd0;
+	case (chain_generate_rx_padding_sink_payload_last_be)
+		1'd1: begin
+			chain_generate_rx_padding_length_inc <= 1'd1;
+		end
+		2'd2: begin
+			chain_generate_rx_padding_length_inc <= 2'd2;
+		end
+		3'd4: begin
+			chain_generate_rx_padding_length_inc <= 2'd3;
+		end
+		4'd8: begin
+			chain_generate_rx_padding_length_inc <= 3'd4;
+		end
+		5'd16: begin
+			chain_generate_rx_padding_length_inc <= 3'd5;
+		end
+		6'd32: begin
+			chain_generate_rx_padding_length_inc <= 3'd6;
+		end
+		7'd64: begin
+			chain_generate_rx_padding_length_inc <= 3'd7;
+		end
+		default: begin
+			chain_generate_rx_padding_length_inc <= 1'd1;
+		end
+	endcase
+// synthesis translate_off
+	dummy_d_20 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_rx_padding_source_valid = chain_generate_rx_padding_sink_valid;
+assign chain_generate_rx_padding_sink_ready = chain_generate_rx_padding_source_ready;
+assign chain_generate_rx_padding_source_first = chain_generate_rx_padding_sink_first;
+assign chain_generate_rx_padding_source_last = chain_generate_rx_padding_sink_last;
+assign chain_generate_rx_padding_source_payload_data = chain_generate_rx_padding_sink_payload_data;
+assign chain_generate_rx_padding_source_payload_last_be = chain_generate_rx_padding_sink_payload_last_be;
+
+// synthesis translate_off
+reg dummy_d_21;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_rx_padding_source_payload_error <= 1'd0;
+	if (((chain_generate_rx_padding_sink_valid & chain_generate_rx_padding_sink_last) & ((chain_generate_rx_padding_length + chain_generate_rx_padding_length_inc) < 6'd60))) begin
+		chain_generate_rx_padding_source_payload_error <= {1{1'd1}};
+	end else begin
+		chain_generate_rx_padding_source_payload_error <= chain_generate_rx_padding_sink_payload_error;
+	end
+// synthesis translate_off
+	dummy_d_21 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_rx_last_be_source_valid = chain_generate_rx_last_be_sink_valid;
+assign chain_generate_rx_last_be_sink_ready = chain_generate_rx_last_be_source_ready;
+assign chain_generate_rx_last_be_source_first = chain_generate_rx_last_be_sink_first;
+assign chain_generate_rx_last_be_source_last = chain_generate_rx_last_be_sink_last;
+assign chain_generate_rx_last_be_source_payload_data = chain_generate_rx_last_be_sink_payload_data;
+assign chain_generate_rx_last_be_source_payload_error = chain_generate_rx_last_be_sink_payload_error;
+
+// synthesis translate_off
+reg dummy_d_22;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_rx_last_be_source_payload_last_be <= 1'd0;
+	chain_generate_rx_last_be_source_payload_last_be <= chain_generate_rx_last_be_sink_payload_last_be;
+	if (1'd1) begin
+		chain_generate_rx_last_be_source_payload_last_be <= chain_generate_rx_last_be_sink_last;
+	end
+// synthesis translate_off
+	dummy_d_22 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_rx_converter_converter_sink_valid = chain_generate_rx_converter_sink_valid;
+assign chain_generate_rx_converter_converter_sink_first = chain_generate_rx_converter_sink_first;
+assign chain_generate_rx_converter_converter_sink_last = chain_generate_rx_converter_sink_last;
+assign chain_generate_rx_converter_sink_ready = chain_generate_rx_converter_converter_sink_ready;
+assign chain_generate_rx_converter_converter_sink_payload_data = {chain_generate_rx_converter_sink_payload_error, chain_generate_rx_converter_sink_payload_last_be, chain_generate_rx_converter_sink_payload_data};
+assign chain_generate_rx_converter_source_valid = chain_generate_rx_converter_source_source_valid;
+assign chain_generate_rx_converter_source_first = chain_generate_rx_converter_source_source_first;
+assign chain_generate_rx_converter_source_last = chain_generate_rx_converter_source_source_last;
+assign chain_generate_rx_converter_source_source_ready = chain_generate_rx_converter_source_ready;
+
+// synthesis translate_off
+reg dummy_d_23;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_rx_converter_source_payload_data <= 64'd0;
+	chain_generate_rx_converter_source_payload_data[7:0] <= chain_generate_rx_converter_source_source_payload_data[7:0];
+	chain_generate_rx_converter_source_payload_data[15:8] <= chain_generate_rx_converter_source_source_payload_data[17:10];
+	chain_generate_rx_converter_source_payload_data[23:16] <= chain_generate_rx_converter_source_source_payload_data[27:20];
+	chain_generate_rx_converter_source_payload_data[31:24] <= chain_generate_rx_converter_source_source_payload_data[37:30];
+	chain_generate_rx_converter_source_payload_data[39:32] <= chain_generate_rx_converter_source_source_payload_data[47:40];
+	chain_generate_rx_converter_source_payload_data[47:40] <= chain_generate_rx_converter_source_source_payload_data[57:50];
+	chain_generate_rx_converter_source_payload_data[55:48] <= chain_generate_rx_converter_source_source_payload_data[67:60];
+	chain_generate_rx_converter_source_payload_data[63:56] <= chain_generate_rx_converter_source_source_payload_data[77:70];
+// synthesis translate_off
+	dummy_d_23 <= dummy_s;
+// synthesis translate_on
+end
+
+// synthesis translate_off
+reg dummy_d_24;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_rx_converter_source_payload_last_be <= 8'd0;
+	chain_generate_rx_converter_source_payload_last_be[0] <= chain_generate_rx_converter_source_source_payload_data[8];
+	chain_generate_rx_converter_source_payload_last_be[1] <= chain_generate_rx_converter_source_source_payload_data[18];
+	chain_generate_rx_converter_source_payload_last_be[2] <= chain_generate_rx_converter_source_source_payload_data[28];
+	chain_generate_rx_converter_source_payload_last_be[3] <= chain_generate_rx_converter_source_source_payload_data[38];
+	chain_generate_rx_converter_source_payload_last_be[4] <= chain_generate_rx_converter_source_source_payload_data[48];
+	chain_generate_rx_converter_source_payload_last_be[5] <= chain_generate_rx_converter_source_source_payload_data[58];
+	chain_generate_rx_converter_source_payload_last_be[6] <= chain_generate_rx_converter_source_source_payload_data[68];
+	chain_generate_rx_converter_source_payload_last_be[7] <= chain_generate_rx_converter_source_source_payload_data[78];
+// synthesis translate_off
+	dummy_d_24 <= dummy_s;
+// synthesis translate_on
+end
+
+// synthesis translate_off
+reg dummy_d_25;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_rx_converter_source_payload_error <= 8'd0;
+	chain_generate_rx_converter_source_payload_error[0] <= chain_generate_rx_converter_source_source_payload_data[9];
+	chain_generate_rx_converter_source_payload_error[1] <= chain_generate_rx_converter_source_source_payload_data[19];
+	chain_generate_rx_converter_source_payload_error[2] <= chain_generate_rx_converter_source_source_payload_data[29];
+	chain_generate_rx_converter_source_payload_error[3] <= chain_generate_rx_converter_source_source_payload_data[39];
+	chain_generate_rx_converter_source_payload_error[4] <= chain_generate_rx_converter_source_source_payload_data[49];
+	chain_generate_rx_converter_source_payload_error[5] <= chain_generate_rx_converter_source_source_payload_data[59];
+	chain_generate_rx_converter_source_payload_error[6] <= chain_generate_rx_converter_source_source_payload_data[69];
+	chain_generate_rx_converter_source_payload_error[7] <= chain_generate_rx_converter_source_source_payload_data[79];
+// synthesis translate_off
+	dummy_d_25 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_rx_converter_source_source_valid = chain_generate_rx_converter_converter_source_valid;
+assign chain_generate_rx_converter_converter_source_ready = chain_generate_rx_converter_source_source_ready;
+assign chain_generate_rx_converter_source_source_first = chain_generate_rx_converter_converter_source_first;
+assign chain_generate_rx_converter_source_source_last = chain_generate_rx_converter_converter_source_last;
+assign chain_generate_rx_converter_source_source_payload_data = chain_generate_rx_converter_converter_source_payload_data;
+assign chain_generate_rx_converter_converter_sink_ready = ((~chain_generate_rx_converter_converter_strobe_all) | chain_generate_rx_converter_converter_source_ready);
+assign chain_generate_rx_converter_converter_source_valid = chain_generate_rx_converter_converter_strobe_all;
+assign chain_generate_rx_converter_converter_load_part = (chain_generate_rx_converter_converter_sink_valid & chain_generate_rx_converter_converter_sink_ready);
+assign chain_generate_rx_cdc_cdc_sink_valid = chain_generate_rx_cdc_sink_sink_valid;
+assign chain_generate_rx_cdc_sink_sink_ready = chain_generate_rx_cdc_cdc_sink_ready;
+assign chain_generate_rx_cdc_cdc_sink_first = chain_generate_rx_cdc_sink_sink_first;
+assign chain_generate_rx_cdc_cdc_sink_last = chain_generate_rx_cdc_sink_sink_last;
+assign chain_generate_rx_cdc_cdc_sink_payload_data = chain_generate_rx_cdc_sink_sink_payload_data;
+assign chain_generate_rx_cdc_cdc_sink_payload_last_be = chain_generate_rx_cdc_sink_sink_payload_last_be;
+assign chain_generate_rx_cdc_cdc_sink_payload_error = chain_generate_rx_cdc_sink_sink_payload_error;
+assign chain_generate_rx_cdc_source_source_valid = chain_generate_rx_cdc_cdc_source_valid;
+assign chain_generate_rx_cdc_cdc_source_ready = chain_generate_rx_cdc_source_source_ready;
+assign chain_generate_rx_cdc_source_source_first = chain_generate_rx_cdc_cdc_source_first;
+assign chain_generate_rx_cdc_source_source_last = chain_generate_rx_cdc_cdc_source_last;
+assign chain_generate_rx_cdc_source_source_payload_data = chain_generate_rx_cdc_cdc_source_payload_data;
+assign chain_generate_rx_cdc_source_source_payload_last_be = chain_generate_rx_cdc_cdc_source_payload_last_be;
+assign chain_generate_rx_cdc_source_source_payload_error = chain_generate_rx_cdc_cdc_source_payload_error;
+assign chain_generate_rx_cdc_cdc_asyncfifo_din = {chain_generate_rx_cdc_cdc_fifo_in_last, chain_generate_rx_cdc_cdc_fifo_in_first, chain_generate_rx_cdc_cdc_fifo_in_payload_error, chain_generate_rx_cdc_cdc_fifo_in_payload_last_be, chain_generate_rx_cdc_cdc_fifo_in_payload_data};
+assign {chain_generate_rx_cdc_cdc_fifo_out_last, chain_generate_rx_cdc_cdc_fifo_out_first, chain_generate_rx_cdc_cdc_fifo_out_payload_error, chain_generate_rx_cdc_cdc_fifo_out_payload_last_be, chain_generate_rx_cdc_cdc_fifo_out_payload_data} = chain_generate_rx_cdc_cdc_asyncfifo_dout;
+assign chain_generate_rx_cdc_cdc_sink_ready = chain_generate_rx_cdc_cdc_asyncfifo_writable;
+assign chain_generate_rx_cdc_cdc_asyncfifo_we = chain_generate_rx_cdc_cdc_sink_valid;
+assign chain_generate_rx_cdc_cdc_fifo_in_first = chain_generate_rx_cdc_cdc_sink_first;
+assign chain_generate_rx_cdc_cdc_fifo_in_last = chain_generate_rx_cdc_cdc_sink_last;
+assign chain_generate_rx_cdc_cdc_fifo_in_payload_data = chain_generate_rx_cdc_cdc_sink_payload_data;
+assign chain_generate_rx_cdc_cdc_fifo_in_payload_last_be = chain_generate_rx_cdc_cdc_sink_payload_last_be;
+assign chain_generate_rx_cdc_cdc_fifo_in_payload_error = chain_generate_rx_cdc_cdc_sink_payload_error;
+assign chain_generate_rx_cdc_cdc_source_valid = chain_generate_rx_cdc_cdc_asyncfifo_readable;
+assign chain_generate_rx_cdc_cdc_source_first = chain_generate_rx_cdc_cdc_fifo_out_first;
+assign chain_generate_rx_cdc_cdc_source_last = chain_generate_rx_cdc_cdc_fifo_out_last;
+assign chain_generate_rx_cdc_cdc_source_payload_data = chain_generate_rx_cdc_cdc_fifo_out_payload_data;
+assign chain_generate_rx_cdc_cdc_source_payload_last_be = chain_generate_rx_cdc_cdc_fifo_out_payload_last_be;
+assign chain_generate_rx_cdc_cdc_source_payload_error = chain_generate_rx_cdc_cdc_fifo_out_payload_error;
+assign chain_generate_rx_cdc_cdc_asyncfifo_re = chain_generate_rx_cdc_cdc_source_ready;
+assign chain_generate_rx_cdc_cdc_graycounter0_ce = (chain_generate_rx_cdc_cdc_asyncfifo_writable & chain_generate_rx_cdc_cdc_asyncfifo_we);
+assign chain_generate_rx_cdc_cdc_graycounter1_ce = (chain_generate_rx_cdc_cdc_asyncfifo_readable & chain_generate_rx_cdc_cdc_asyncfifo_re);
+assign chain_generate_rx_cdc_cdc_asyncfifo_writable = (((chain_generate_rx_cdc_cdc_graycounter0_q[5] == chain_generate_rx_cdc_cdc_consume_wdomain[5]) | (chain_generate_rx_cdc_cdc_graycounter0_q[4] == chain_generate_rx_cdc_cdc_consume_wdomain[4])) | (chain_generate_rx_cdc_cdc_graycounter0_q[3:0] != chain_generate_rx_cdc_cdc_consume_wdomain[3:0]));
+assign chain_generate_rx_cdc_cdc_asyncfifo_readable = (chain_generate_rx_cdc_cdc_graycounter1_q != chain_generate_rx_cdc_cdc_produce_rdomain);
+assign chain_generate_rx_cdc_cdc_wrport_adr = chain_generate_rx_cdc_cdc_graycounter0_q_binary[4:0];
+assign chain_generate_rx_cdc_cdc_wrport_dat_w = chain_generate_rx_cdc_cdc_asyncfifo_din;
+assign chain_generate_rx_cdc_cdc_wrport_we = chain_generate_rx_cdc_cdc_graycounter0_ce;
+assign chain_generate_rx_cdc_cdc_rdport_adr = chain_generate_rx_cdc_cdc_graycounter1_q_next_binary[4:0];
+assign chain_generate_rx_cdc_cdc_asyncfifo_dout = chain_generate_rx_cdc_cdc_rdport_dat_r;
+
+// synthesis translate_off
+reg dummy_d_26;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_rx_cdc_cdc_graycounter0_q_next_binary <= 6'd0;
+	if (chain_generate_rx_cdc_cdc_graycounter0_ce) begin
+		chain_generate_rx_cdc_cdc_graycounter0_q_next_binary <= (chain_generate_rx_cdc_cdc_graycounter0_q_binary + 1'd1);
+	end else begin
+		chain_generate_rx_cdc_cdc_graycounter0_q_next_binary <= chain_generate_rx_cdc_cdc_graycounter0_q_binary;
+	end
+// synthesis translate_off
+	dummy_d_26 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_rx_cdc_cdc_graycounter0_q_next = (chain_generate_rx_cdc_cdc_graycounter0_q_next_binary ^ chain_generate_rx_cdc_cdc_graycounter0_q_next_binary[5:1]);
+
+// synthesis translate_off
+reg dummy_d_27;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_rx_cdc_cdc_graycounter1_q_next_binary <= 6'd0;
+	if (chain_generate_rx_cdc_cdc_graycounter1_ce) begin
+		chain_generate_rx_cdc_cdc_graycounter1_q_next_binary <= (chain_generate_rx_cdc_cdc_graycounter1_q_binary + 1'd1);
+	end else begin
+		chain_generate_rx_cdc_cdc_graycounter1_q_next_binary <= chain_generate_rx_cdc_cdc_graycounter1_q_binary;
+	end
+// synthesis translate_off
+	dummy_d_27 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_rx_cdc_cdc_graycounter1_q_next = (chain_generate_rx_cdc_cdc_graycounter1_q_next_binary ^ chain_generate_rx_cdc_cdc_graycounter1_q_next_binary[5:1]);
+assign chain_generate_rx_preamble_sink_valid = chain_generate_liteethphymiirx_source_valid;
+assign chain_generate_liteethphymiirx_source_ready = chain_generate_rx_preamble_sink_ready;
+assign chain_generate_rx_preamble_sink_first = chain_generate_liteethphymiirx_source_first;
+assign chain_generate_rx_preamble_sink_last = chain_generate_liteethphymiirx_source_last;
+assign chain_generate_rx_preamble_sink_payload_data = chain_generate_liteethphymiirx_source_payload_data;
+assign chain_generate_rx_preamble_sink_payload_last_be = chain_generate_liteethphymiirx_source_payload_last_be;
+assign chain_generate_rx_preamble_sink_payload_error = chain_generate_liteethphymiirx_source_payload_error;
+assign chain_generate_bufferizeendpoints_sink_sink_valid = chain_generate_rx_preamble_source_valid;
+assign chain_generate_rx_preamble_source_ready = chain_generate_bufferizeendpoints_sink_sink_ready;
+assign chain_generate_bufferizeendpoints_sink_sink_first = chain_generate_rx_preamble_source_first;
+assign chain_generate_bufferizeendpoints_sink_sink_last = chain_generate_rx_preamble_source_last;
+assign chain_generate_bufferizeendpoints_sink_sink_payload_data = chain_generate_rx_preamble_source_payload_data;
+assign chain_generate_bufferizeendpoints_sink_sink_payload_last_be = chain_generate_rx_preamble_source_payload_last_be;
+assign chain_generate_bufferizeendpoints_sink_sink_payload_error = chain_generate_rx_preamble_source_payload_error;
+assign chain_generate_rx_padding_sink_valid = chain_generate_liteethmaccrc32checker_source_source_valid;
+assign chain_generate_liteethmaccrc32checker_source_source_ready = chain_generate_rx_padding_sink_ready;
+assign chain_generate_rx_padding_sink_first = chain_generate_liteethmaccrc32checker_source_source_first;
+assign chain_generate_rx_padding_sink_last = chain_generate_liteethmaccrc32checker_source_source_last;
+assign chain_generate_rx_padding_sink_payload_data = chain_generate_liteethmaccrc32checker_source_source_payload_data;
+assign chain_generate_rx_padding_sink_payload_last_be = chain_generate_liteethmaccrc32checker_source_source_payload_last_be;
+assign chain_generate_rx_padding_sink_payload_error = chain_generate_liteethmaccrc32checker_source_source_payload_error;
+assign chain_generate_rx_last_be_sink_valid = chain_generate_rx_padding_source_valid;
+assign chain_generate_rx_padding_source_ready = chain_generate_rx_last_be_sink_ready;
+assign chain_generate_rx_last_be_sink_first = chain_generate_rx_padding_source_first;
+assign chain_generate_rx_last_be_sink_last = chain_generate_rx_padding_source_last;
+assign chain_generate_rx_last_be_sink_payload_data = chain_generate_rx_padding_source_payload_data;
+assign chain_generate_rx_last_be_sink_payload_last_be = chain_generate_rx_padding_source_payload_last_be;
+assign chain_generate_rx_last_be_sink_payload_error = chain_generate_rx_padding_source_payload_error;
+assign chain_generate_rx_converter_sink_valid = chain_generate_rx_last_be_source_valid;
+assign chain_generate_rx_last_be_source_ready = chain_generate_rx_converter_sink_ready;
+assign chain_generate_rx_converter_sink_first = chain_generate_rx_last_be_source_first;
+assign chain_generate_rx_converter_sink_last = chain_generate_rx_last_be_source_last;
+assign chain_generate_rx_converter_sink_payload_data = chain_generate_rx_last_be_source_payload_data;
+assign chain_generate_rx_converter_sink_payload_last_be = chain_generate_rx_last_be_source_payload_last_be;
+assign chain_generate_rx_converter_sink_payload_error = chain_generate_rx_last_be_source_payload_error;
+assign chain_generate_rx_cdc_sink_sink_valid = chain_generate_rx_converter_source_valid;
+assign chain_generate_rx_converter_source_ready = chain_generate_rx_cdc_sink_sink_ready;
+assign chain_generate_rx_cdc_sink_sink_first = chain_generate_rx_converter_source_first;
+assign chain_generate_rx_cdc_sink_sink_last = chain_generate_rx_converter_source_last;
+assign chain_generate_rx_cdc_sink_sink_payload_data = chain_generate_rx_converter_source_payload_data;
+assign chain_generate_rx_cdc_sink_sink_payload_last_be = chain_generate_rx_converter_source_payload_last_be;
+assign chain_generate_rx_cdc_sink_sink_payload_error = chain_generate_rx_converter_source_payload_error;
+assign chain_generate_source_valid = chain_generate_rx_cdc_source_source_valid;
+assign chain_generate_rx_cdc_source_source_ready = chain_generate_source_ready;
+assign chain_generate_source_first = chain_generate_rx_cdc_source_source_first;
+assign chain_generate_source_last = chain_generate_rx_cdc_source_source_last;
+assign chain_generate_source_payload_data = chain_generate_rx_cdc_source_source_payload_data;
+assign chain_generate_source_payload_last_be = chain_generate_rx_cdc_source_source_payload_last_be;
+assign chain_generate_source_payload_error = chain_generate_rx_cdc_source_source_payload_error;
+assign chain_generate_packetfifo_payload_fifo_sink_first = chain_generate_packetfifo_sink_sink_first;
+assign chain_generate_packetfifo_payload_fifo_sink_last = chain_generate_packetfifo_sink_sink_last;
+assign chain_generate_packetfifo_payload_fifo_sink_payload_data = chain_generate_packetfifo_sink_sink_payload_data;
+assign chain_generate_packetfifo_payload_fifo_sink_payload_last_be = chain_generate_packetfifo_sink_sink_payload_last_be;
+assign chain_generate_packetfifo_payload_fifo_sink_payload_error = chain_generate_packetfifo_sink_sink_payload_error;
+assign chain_generate_packetfifo_param_fifo_sink_valid = ((chain_generate_packetfifo_sink_sink_valid & chain_generate_packetfifo_sink_sink_last) & chain_generate_packetfifo_payload_fifo_sink_ready);
+assign chain_generate_packetfifo_payload_fifo_sink_valid = (chain_generate_packetfifo_sink_sink_valid & chain_generate_packetfifo_param_fifo_sink_ready);
+assign chain_generate_packetfifo_sink_sink_ready = (chain_generate_packetfifo_param_fifo_sink_ready & chain_generate_packetfifo_payload_fifo_sink_ready);
+assign chain_generate_packetfifo_source_source_valid = chain_generate_packetfifo_param_fifo_source_valid;
+
+// synthesis translate_off
+reg dummy_d_28;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_packetfifo_source_source_first <= 1'd0;
+	chain_generate_packetfifo_source_source_first <= chain_generate_packetfifo_param_fifo_source_first;
+	chain_generate_packetfifo_source_source_first <= chain_generate_packetfifo_payload_fifo_source_first;
+// synthesis translate_off
+	dummy_d_28 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_packetfifo_source_source_last = chain_generate_packetfifo_payload_fifo_source_last;
+assign chain_generate_packetfifo_source_source_payload_data = chain_generate_packetfifo_payload_fifo_source_payload_data;
+assign chain_generate_packetfifo_source_source_payload_last_be = chain_generate_packetfifo_payload_fifo_source_payload_last_be;
+assign chain_generate_packetfifo_source_source_payload_error = chain_generate_packetfifo_payload_fifo_source_payload_error;
+assign chain_generate_packetfifo_param_fifo_source_ready = ((chain_generate_packetfifo_source_source_valid & chain_generate_packetfifo_source_source_last) & chain_generate_packetfifo_source_source_ready);
+assign chain_generate_packetfifo_payload_fifo_source_ready = (chain_generate_packetfifo_source_source_valid & chain_generate_packetfifo_source_source_ready);
+assign chain_generate_packetfifo_payload_fifo_syncfifo_din = {chain_generate_packetfifo_payload_fifo_fifo_in_last, chain_generate_packetfifo_payload_fifo_fifo_in_first, chain_generate_packetfifo_payload_fifo_fifo_in_payload_error, chain_generate_packetfifo_payload_fifo_fifo_in_payload_last_be, chain_generate_packetfifo_payload_fifo_fifo_in_payload_data};
+assign {chain_generate_packetfifo_payload_fifo_fifo_out_last, chain_generate_packetfifo_payload_fifo_fifo_out_first, chain_generate_packetfifo_payload_fifo_fifo_out_payload_error, chain_generate_packetfifo_payload_fifo_fifo_out_payload_last_be, chain_generate_packetfifo_payload_fifo_fifo_out_payload_data} = chain_generate_packetfifo_payload_fifo_syncfifo_dout;
+assign chain_generate_packetfifo_payload_fifo_sink_ready = chain_generate_packetfifo_payload_fifo_syncfifo_writable;
+assign chain_generate_packetfifo_payload_fifo_syncfifo_we = chain_generate_packetfifo_payload_fifo_sink_valid;
+assign chain_generate_packetfifo_payload_fifo_fifo_in_first = chain_generate_packetfifo_payload_fifo_sink_first;
+assign chain_generate_packetfifo_payload_fifo_fifo_in_last = chain_generate_packetfifo_payload_fifo_sink_last;
+assign chain_generate_packetfifo_payload_fifo_fifo_in_payload_data = chain_generate_packetfifo_payload_fifo_sink_payload_data;
+assign chain_generate_packetfifo_payload_fifo_fifo_in_payload_last_be = chain_generate_packetfifo_payload_fifo_sink_payload_last_be;
+assign chain_generate_packetfifo_payload_fifo_fifo_in_payload_error = chain_generate_packetfifo_payload_fifo_sink_payload_error;
+assign chain_generate_packetfifo_payload_fifo_source_valid = chain_generate_packetfifo_payload_fifo_readable;
+assign chain_generate_packetfifo_payload_fifo_source_first = chain_generate_packetfifo_payload_fifo_fifo_out_first;
+assign chain_generate_packetfifo_payload_fifo_source_last = chain_generate_packetfifo_payload_fifo_fifo_out_last;
+assign chain_generate_packetfifo_payload_fifo_source_payload_data = chain_generate_packetfifo_payload_fifo_fifo_out_payload_data;
+assign chain_generate_packetfifo_payload_fifo_source_payload_last_be = chain_generate_packetfifo_payload_fifo_fifo_out_payload_last_be;
+assign chain_generate_packetfifo_payload_fifo_source_payload_error = chain_generate_packetfifo_payload_fifo_fifo_out_payload_error;
+assign chain_generate_packetfifo_payload_fifo_re = chain_generate_packetfifo_payload_fifo_source_ready;
+assign chain_generate_packetfifo_payload_fifo_syncfifo_re = (chain_generate_packetfifo_payload_fifo_syncfifo_readable & ((~chain_generate_packetfifo_payload_fifo_readable) | chain_generate_packetfifo_payload_fifo_re));
+assign chain_generate_packetfifo_payload_fifo_level1 = (chain_generate_packetfifo_payload_fifo_level0 + chain_generate_packetfifo_payload_fifo_readable);
+
+// synthesis translate_off
+reg dummy_d_29;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_packetfifo_payload_fifo_wrport_adr <= 9'd0;
+	if (chain_generate_packetfifo_payload_fifo_replace) begin
+		chain_generate_packetfifo_payload_fifo_wrport_adr <= (chain_generate_packetfifo_payload_fifo_produce - 1'd1);
+	end else begin
+		chain_generate_packetfifo_payload_fifo_wrport_adr <= chain_generate_packetfifo_payload_fifo_produce;
+	end
+// synthesis translate_off
+	dummy_d_29 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_packetfifo_payload_fifo_wrport_dat_w = chain_generate_packetfifo_payload_fifo_syncfifo_din;
+assign chain_generate_packetfifo_payload_fifo_wrport_we = (chain_generate_packetfifo_payload_fifo_syncfifo_we & (chain_generate_packetfifo_payload_fifo_syncfifo_writable | chain_generate_packetfifo_payload_fifo_replace));
+assign chain_generate_packetfifo_payload_fifo_do_read = (chain_generate_packetfifo_payload_fifo_syncfifo_readable & chain_generate_packetfifo_payload_fifo_syncfifo_re);
+assign chain_generate_packetfifo_payload_fifo_rdport_adr = chain_generate_packetfifo_payload_fifo_consume;
+assign chain_generate_packetfifo_payload_fifo_syncfifo_dout = chain_generate_packetfifo_payload_fifo_rdport_dat_r;
+assign chain_generate_packetfifo_payload_fifo_rdport_re = chain_generate_packetfifo_payload_fifo_do_read;
+assign chain_generate_packetfifo_payload_fifo_syncfifo_writable = (chain_generate_packetfifo_payload_fifo_level0 != 10'd512);
+assign chain_generate_packetfifo_payload_fifo_syncfifo_readable = (chain_generate_packetfifo_payload_fifo_level0 != 1'd0);
+assign chain_generate_packetfifo_param_fifo_syncfifo_din = {chain_generate_packetfifo_param_fifo_fifo_in_last, chain_generate_packetfifo_param_fifo_fifo_in_first, chain_generate_packetfifo_param_fifo_fifo_in_param_dummy};
+assign {chain_generate_packetfifo_param_fifo_fifo_out_last, chain_generate_packetfifo_param_fifo_fifo_out_first, chain_generate_packetfifo_param_fifo_fifo_out_param_dummy} = chain_generate_packetfifo_param_fifo_syncfifo_dout;
+assign chain_generate_packetfifo_param_fifo_sink_ready = chain_generate_packetfifo_param_fifo_syncfifo_writable;
+assign chain_generate_packetfifo_param_fifo_syncfifo_we = chain_generate_packetfifo_param_fifo_sink_valid;
+assign chain_generate_packetfifo_param_fifo_fifo_in_first = chain_generate_packetfifo_param_fifo_sink_first;
+assign chain_generate_packetfifo_param_fifo_fifo_in_last = chain_generate_packetfifo_param_fifo_sink_last;
+assign chain_generate_packetfifo_param_fifo_fifo_in_param_dummy = chain_generate_packetfifo_param_fifo_sink_param_dummy;
+assign chain_generate_packetfifo_param_fifo_source_valid = chain_generate_packetfifo_param_fifo_readable;
+assign chain_generate_packetfifo_param_fifo_source_first = chain_generate_packetfifo_param_fifo_fifo_out_first;
+assign chain_generate_packetfifo_param_fifo_source_last = chain_generate_packetfifo_param_fifo_fifo_out_last;
+assign chain_generate_packetfifo_param_fifo_source_param_dummy = chain_generate_packetfifo_param_fifo_fifo_out_param_dummy;
+assign chain_generate_packetfifo_param_fifo_re = chain_generate_packetfifo_param_fifo_source_ready;
+assign chain_generate_packetfifo_param_fifo_syncfifo_re = (chain_generate_packetfifo_param_fifo_syncfifo_readable & ((~chain_generate_packetfifo_param_fifo_readable) | chain_generate_packetfifo_param_fifo_re));
+assign chain_generate_packetfifo_param_fifo_level1 = (chain_generate_packetfifo_param_fifo_level0 + chain_generate_packetfifo_param_fifo_readable);
+
+// synthesis translate_off
+reg dummy_d_30;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_packetfifo_param_fifo_wrport_adr <= 4'd0;
+	if (chain_generate_packetfifo_param_fifo_replace) begin
+		chain_generate_packetfifo_param_fifo_wrport_adr <= (chain_generate_packetfifo_param_fifo_produce - 1'd1);
+	end else begin
+		chain_generate_packetfifo_param_fifo_wrport_adr <= chain_generate_packetfifo_param_fifo_produce;
+	end
+// synthesis translate_off
+	dummy_d_30 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_packetfifo_param_fifo_wrport_dat_w = chain_generate_packetfifo_param_fifo_syncfifo_din;
+assign chain_generate_packetfifo_param_fifo_wrport_we = (chain_generate_packetfifo_param_fifo_syncfifo_we & (chain_generate_packetfifo_param_fifo_syncfifo_writable | chain_generate_packetfifo_param_fifo_replace));
+assign chain_generate_packetfifo_param_fifo_do_read = (chain_generate_packetfifo_param_fifo_syncfifo_readable & chain_generate_packetfifo_param_fifo_syncfifo_re);
+assign chain_generate_packetfifo_param_fifo_rdport_adr = chain_generate_packetfifo_param_fifo_consume;
+assign chain_generate_packetfifo_param_fifo_syncfifo_dout = chain_generate_packetfifo_param_fifo_rdport_dat_r;
+assign chain_generate_packetfifo_param_fifo_rdport_re = chain_generate_packetfifo_param_fifo_do_read;
+assign chain_generate_packetfifo_param_fifo_syncfifo_writable = (chain_generate_packetfifo_param_fifo_level0 != 4'd9);
+assign chain_generate_packetfifo_param_fifo_syncfifo_readable = (chain_generate_packetfifo_param_fifo_level0 != 1'd0);
+assign chain_generate_tx_dp_cdc_sink_valid = chain_generate_tx_dp_sink_sink_valid;
+assign chain_generate_tx_dp_sink_sink_ready = chain_generate_tx_dp_cdc_sink_ready;
+assign chain_generate_tx_dp_cdc_sink_first = chain_generate_tx_dp_sink_sink_first;
+assign chain_generate_tx_dp_cdc_sink_last = chain_generate_tx_dp_sink_sink_last;
+assign chain_generate_tx_dp_cdc_sink_payload_data = chain_generate_tx_dp_sink_sink_payload_data;
+assign chain_generate_tx_dp_cdc_sink_payload_keep = chain_generate_tx_dp_sink_sink_payload_keep;
+assign chain_generate_tx_dp_source_source_valid = chain_generate_tx_dp_cdc_source_valid;
+assign chain_generate_tx_dp_cdc_source_ready = chain_generate_tx_dp_source_source_ready;
+assign chain_generate_tx_dp_source_source_first = chain_generate_tx_dp_cdc_source_first;
+assign chain_generate_tx_dp_source_source_last = chain_generate_tx_dp_cdc_source_last;
+assign chain_generate_tx_dp_source_source_payload_data = chain_generate_tx_dp_cdc_source_payload_data;
+assign chain_generate_tx_dp_source_source_payload_keep = chain_generate_tx_dp_cdc_source_payload_keep;
+assign chain_generate_tx_dp_cdc_asyncfifo_din = {chain_generate_tx_dp_cdc_fifo_in_last, chain_generate_tx_dp_cdc_fifo_in_first, chain_generate_tx_dp_cdc_fifo_in_payload_keep, chain_generate_tx_dp_cdc_fifo_in_payload_data};
+assign {chain_generate_tx_dp_cdc_fifo_out_last, chain_generate_tx_dp_cdc_fifo_out_first, chain_generate_tx_dp_cdc_fifo_out_payload_keep, chain_generate_tx_dp_cdc_fifo_out_payload_data} = chain_generate_tx_dp_cdc_dout;
+assign chain_generate_tx_dp_cdc_sink_ready = chain_generate_tx_dp_cdc_asyncfifo_writable;
+assign chain_generate_tx_dp_cdc_asyncfifo_we = chain_generate_tx_dp_cdc_sink_valid;
+assign chain_generate_tx_dp_cdc_fifo_in_first = chain_generate_tx_dp_cdc_sink_first;
+assign chain_generate_tx_dp_cdc_fifo_in_last = chain_generate_tx_dp_cdc_sink_last;
+assign chain_generate_tx_dp_cdc_fifo_in_payload_data = chain_generate_tx_dp_cdc_sink_payload_data;
+assign chain_generate_tx_dp_cdc_fifo_in_payload_keep = chain_generate_tx_dp_cdc_sink_payload_keep;
+assign chain_generate_tx_dp_cdc_source_valid = chain_generate_tx_dp_cdc_readable;
+assign chain_generate_tx_dp_cdc_source_first = chain_generate_tx_dp_cdc_fifo_out_first;
+assign chain_generate_tx_dp_cdc_source_last = chain_generate_tx_dp_cdc_fifo_out_last;
+assign chain_generate_tx_dp_cdc_source_payload_data = chain_generate_tx_dp_cdc_fifo_out_payload_data;
+assign chain_generate_tx_dp_cdc_source_payload_keep = chain_generate_tx_dp_cdc_fifo_out_payload_keep;
+assign chain_generate_tx_dp_cdc_re = chain_generate_tx_dp_cdc_source_ready;
+assign chain_generate_tx_dp_cdc_asyncfifo_re = (chain_generate_tx_dp_cdc_re | (~chain_generate_tx_dp_cdc_readable));
+assign chain_generate_tx_dp_cdc_graycounter0_ce = (chain_generate_tx_dp_cdc_asyncfifo_writable & chain_generate_tx_dp_cdc_asyncfifo_we);
+assign chain_generate_tx_dp_cdc_graycounter1_ce = (chain_generate_tx_dp_cdc_asyncfifo_readable & chain_generate_tx_dp_cdc_asyncfifo_re);
+assign chain_generate_tx_dp_cdc_asyncfifo_writable = (((chain_generate_tx_dp_cdc_graycounter0_q[4] == chain_generate_tx_dp_cdc_consume_wdomain[4]) | (chain_generate_tx_dp_cdc_graycounter0_q[3] == chain_generate_tx_dp_cdc_consume_wdomain[3])) | (chain_generate_tx_dp_cdc_graycounter0_q[2:0] != chain_generate_tx_dp_cdc_consume_wdomain[2:0]));
+assign chain_generate_tx_dp_cdc_asyncfifo_readable = (chain_generate_tx_dp_cdc_graycounter1_q != chain_generate_tx_dp_cdc_produce_rdomain);
+assign chain_generate_tx_dp_cdc_wrport_adr = chain_generate_tx_dp_cdc_graycounter0_q_binary[3:0];
+assign chain_generate_tx_dp_cdc_wrport_dat_w = chain_generate_tx_dp_cdc_asyncfifo_din;
+assign chain_generate_tx_dp_cdc_wrport_we = chain_generate_tx_dp_cdc_graycounter0_ce;
+assign chain_generate_tx_dp_cdc_rdport_adr = chain_generate_tx_dp_cdc_graycounter1_q_next_binary[3:0];
+assign chain_generate_tx_dp_cdc_asyncfifo_dout = chain_generate_tx_dp_cdc_rdport_dat_r;
+assign chain_generate_array_write_memory0_adr = chain_generate_tx_dp_cdc_wrport_adr;
+assign chain_generate_array_write_memory0_we = chain_generate_tx_dp_cdc_wrport_we;
+assign chain_generate_array_write_memory0_dat_w = chain_generate_tx_dp_cdc_wrport_dat_w[71:0];
+assign chain_generate_array_read_memory0_adr = chain_generate_tx_dp_cdc_rdport_adr;
+assign chain_generate_array_write_memory1_adr = chain_generate_tx_dp_cdc_wrport_adr;
+assign chain_generate_array_write_memory1_we = chain_generate_tx_dp_cdc_wrport_we;
+assign chain_generate_array_write_memory1_dat_w = chain_generate_tx_dp_cdc_wrport_dat_w[73:72];
+assign chain_generate_array_read_memory1_adr = chain_generate_tx_dp_cdc_rdport_adr;
+assign chain_generate_tx_dp_cdc_rdport_dat_r = {chain_generate_array_read_memory1_dat_r, chain_generate_array_read_memory0_dat_r};
+
+// synthesis translate_off
+reg dummy_d_31;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_tx_dp_cdc_graycounter0_q_next_binary <= 5'd0;
+	if (chain_generate_tx_dp_cdc_graycounter0_ce) begin
+		chain_generate_tx_dp_cdc_graycounter0_q_next_binary <= (chain_generate_tx_dp_cdc_graycounter0_q_binary + 1'd1);
+	end else begin
+		chain_generate_tx_dp_cdc_graycounter0_q_next_binary <= chain_generate_tx_dp_cdc_graycounter0_q_binary;
+	end
+// synthesis translate_off
+	dummy_d_31 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_tx_dp_cdc_graycounter0_q_next = (chain_generate_tx_dp_cdc_graycounter0_q_next_binary ^ chain_generate_tx_dp_cdc_graycounter0_q_next_binary[4:1]);
+
+// synthesis translate_off
+reg dummy_d_32;
+// synthesis translate_on
+always @(*) begin
+	chain_generate_tx_dp_cdc_graycounter1_q_next_binary <= 5'd0;
+	if (chain_generate_tx_dp_cdc_graycounter1_ce) begin
+		chain_generate_tx_dp_cdc_graycounter1_q_next_binary <= (chain_generate_tx_dp_cdc_graycounter1_q_binary + 1'd1);
+	end else begin
+		chain_generate_tx_dp_cdc_graycounter1_q_next_binary <= chain_generate_tx_dp_cdc_graycounter1_q_binary;
+	end
+// synthesis translate_off
+	dummy_d_32 <= dummy_s;
+// synthesis translate_on
+end
+assign chain_generate_tx_dp_cdc_graycounter1_q_next = (chain_generate_tx_dp_cdc_graycounter1_q_next_binary ^ chain_generate_tx_dp_cdc_graycounter1_q_next_binary[4:1]);
+assign chain_slice_proxy = {chain_generate_tx_crc_value, chain_generate_tx_crc_sink_payload_data[7:0]};
+assign resync_clk = eth_tx_clk_1;
+assign resync_clk_1 = eth_rx_clk_1;
+assign resync_clk_2 = macsys_clk;
+assign resync_clk_3 = macdp_clk;
+assign resync_clk_4 = maceth_tx_clk;
+assign resync_clk_5 = maceth_rx_clk;
+assign chain_generate_tx_cdc_cdc_produce_rdomain = chain_multiregimpl01;
+assign chain_generate_tx_cdc_cdc_consume_wdomain = chain_multiregimpl11;
+assign chain_generate_pulsesynchronizer0_toggle_o = chain_multiregimpl21;
+assign chain_generate_pulsesynchronizer1_toggle_o = chain_multiregimpl31;
+assign chain_generate_rx_cdc_cdc_produce_rdomain = chain_multiregimpl41;
+assign chain_generate_rx_cdc_cdc_consume_wdomain = chain_multiregimpl51;
+assign chain_generate_tx_dp_cdc_produce_rdomain = chain_multiregimpl61;
+assign chain_generate_tx_dp_cdc_consume_wdomain = chain_multiregimpl71;
+
+always @(posedge eth_rx_clk_1) begin
+	chain_generate_liteethphymiirx_reset <= (~chain_generate_pads_rx_dv);
+	chain_generate_liteethphymiirx_converter_sink_valid <= 1'd1;
+	chain_generate_liteethphymiirx_converter_sink_payload_data <= chain_generate_pads_rx_data;
+	if (chain_generate_liteethphymiirx_converter_source_ready) begin
+		chain_generate_liteethphymiirx_converter_strobe_all <= 1'd0;
+	end
+	if (chain_generate_liteethphymiirx_converter_load_part) begin
+		if (((chain_generate_liteethphymiirx_converter_demux == 1'd1) | chain_generate_liteethphymiirx_converter_sink_last)) begin
+			chain_generate_liteethphymiirx_converter_demux <= 1'd0;
+			chain_generate_liteethphymiirx_converter_strobe_all <= 1'd1;
+		end else begin
+			chain_generate_liteethphymiirx_converter_demux <= (chain_generate_liteethphymiirx_converter_demux + 1'd1);
+		end
+	end
+	if ((chain_generate_liteethphymiirx_converter_source_valid & chain_generate_liteethphymiirx_converter_source_ready)) begin
+		if ((chain_generate_liteethphymiirx_converter_sink_valid & chain_generate_liteethphymiirx_converter_sink_ready)) begin
+			chain_generate_liteethphymiirx_converter_source_first <= chain_generate_liteethphymiirx_converter_sink_first;
+			chain_generate_liteethphymiirx_converter_source_last <= chain_generate_liteethphymiirx_converter_sink_last;
+		end else begin
+			chain_generate_liteethphymiirx_converter_source_first <= 1'd0;
+			chain_generate_liteethphymiirx_converter_source_last <= 1'd0;
+		end
+	end else begin
+		if ((chain_generate_liteethphymiirx_converter_sink_valid & chain_generate_liteethphymiirx_converter_sink_ready)) begin
+			chain_generate_liteethphymiirx_converter_source_first <= (chain_generate_liteethphymiirx_converter_sink_first | chain_generate_liteethphymiirx_converter_source_first);
+			chain_generate_liteethphymiirx_converter_source_last <= (chain_generate_liteethphymiirx_converter_sink_last | chain_generate_liteethphymiirx_converter_source_last);
+		end
+	end
+	if (chain_generate_liteethphymiirx_converter_load_part) begin
+		case (chain_generate_liteethphymiirx_converter_demux)
+			1'd0: begin
+				chain_generate_liteethphymiirx_converter_source_payload_data[3:0] <= chain_generate_liteethphymiirx_converter_sink_payload_data;
+			end
+			1'd1: begin
+				chain_generate_liteethphymiirx_converter_source_payload_data[7:4] <= chain_generate_liteethphymiirx_converter_sink_payload_data;
+			end
+		endcase
+	end
+	if (chain_generate_liteethphymiirx_converter_load_part) begin
+		chain_generate_liteethphymiirx_converter_source_payload_valid_token_count <= (chain_generate_liteethphymiirx_converter_demux + 1'd1);
+	end
+	if (chain_generate_liteethphymiirx_reset) begin
+		chain_generate_liteethphymiirx_converter_source_payload_data <= 8'd0;
+		chain_generate_liteethphymiirx_converter_source_payload_valid_token_count <= 2'd0;
+		chain_generate_liteethphymiirx_converter_demux <= 1'd0;
+		chain_generate_liteethphymiirx_converter_strobe_all <= 1'd0;
+	end
+	if (eth_rx_rst) begin
+		chain_generate_liteethphymiirx_converter_sink_valid <= 1'd0;
+		chain_generate_liteethphymiirx_converter_sink_payload_data <= 4'd0;
+		chain_generate_liteethphymiirx_converter_source_payload_data <= 8'd0;
+		chain_generate_liteethphymiirx_converter_source_payload_valid_token_count <= 2'd0;
+		chain_generate_liteethphymiirx_converter_demux <= 1'd0;
+		chain_generate_liteethphymiirx_converter_strobe_all <= 1'd0;
+		chain_generate_liteethphymiirx_reset <= 1'd0;
+	end
+end
+
+always @(posedge eth_tx_clk_1) begin
+	chain_generate_pads_tx_en <= chain_generate_liteethphymiitx_source_source_valid;
+	chain_generate_pads_tx_data <= chain_generate_liteethphymiitx_source_source_payload_data;
+	if ((chain_generate_liteethphymiitx_converter_source_valid & chain_generate_liteethphymiitx_converter_source_ready)) begin
+		if (chain_generate_liteethphymiitx_converter_last) begin
+			chain_generate_liteethphymiitx_converter_mux <= 1'd0;
+		end else begin
+			chain_generate_liteethphymiitx_converter_mux <= (chain_generate_liteethphymiitx_converter_mux + 1'd1);
+		end
+	end
+	if (eth_tx_rst) begin
+		chain_generate_liteethphymiitx_converter_mux <= 1'd0;
+	end
+end
+
+always @(posedge macdp_clk) begin
+	chain_generate_tx_dp_cdc_graycounter0_q_binary <= chain_generate_tx_dp_cdc_graycounter0_q_next_binary;
+	chain_generate_tx_dp_cdc_graycounter0_q <= chain_generate_tx_dp_cdc_graycounter0_q_next;
+	if (macdp_rst) begin
+		chain_generate_tx_dp_cdc_graycounter0_q <= 5'd0;
+		chain_generate_tx_dp_cdc_graycounter0_q_binary <= 5'd0;
+	end
+	chain_multiregimpl70 <= chain_generate_tx_dp_cdc_graycounter1_q;
+	chain_multiregimpl71 <= chain_multiregimpl70;
+end
+
+always @(posedge maceth_rx_clk) begin
+	chain_rxdatapath_liteethmacpreamblechecker_state <= chain_rxdatapath_liteethmacpreamblechecker_next_state;
+	if (chain_generate_pulsesynchronizer0_i) begin
+		chain_generate_pulsesynchronizer0_toggle_i <= (~chain_generate_pulsesynchronizer0_toggle_i);
+	end
+	if (chain_generate_liteethmaccrc32checker_crc_ce) begin
+		chain_generate_liteethmaccrc32checker_crc_reg <= chain_generate_liteethmaccrc32checker_crc_crc_next;
+	end
+	if (chain_generate_liteethmaccrc32checker_crc_reset) begin
+		chain_generate_liteethmaccrc32checker_crc_reg <= 32'd4294967295;
+	end
+	if (((chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_we & chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_writable) & (~chain_generate_liteethmaccrc32checker_syncfifo_replace))) begin
+		if ((chain_generate_liteethmaccrc32checker_syncfifo_produce == 3'd4)) begin
+			chain_generate_liteethmaccrc32checker_syncfifo_produce <= 1'd0;
+		end else begin
+			chain_generate_liteethmaccrc32checker_syncfifo_produce <= (chain_generate_liteethmaccrc32checker_syncfifo_produce + 1'd1);
+		end
+	end
+	if (chain_generate_liteethmaccrc32checker_syncfifo_do_read) begin
+		if ((chain_generate_liteethmaccrc32checker_syncfifo_consume == 3'd4)) begin
+			chain_generate_liteethmaccrc32checker_syncfifo_consume <= 1'd0;
+		end else begin
+			chain_generate_liteethmaccrc32checker_syncfifo_consume <= (chain_generate_liteethmaccrc32checker_syncfifo_consume + 1'd1);
+		end
+	end
+	if (((chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_we & chain_generate_liteethmaccrc32checker_syncfifo_syncfifo_writable) & (~chain_generate_liteethmaccrc32checker_syncfifo_replace))) begin
+		if ((~chain_generate_liteethmaccrc32checker_syncfifo_do_read)) begin
+			chain_generate_liteethmaccrc32checker_syncfifo_level <= (chain_generate_liteethmaccrc32checker_syncfifo_level + 1'd1);
+		end
+	end else begin
+		if (chain_generate_liteethmaccrc32checker_syncfifo_do_read) begin
+			chain_generate_liteethmaccrc32checker_syncfifo_level <= (chain_generate_liteethmaccrc32checker_syncfifo_level - 1'd1);
+		end
+	end
+	if (chain_generate_liteethmaccrc32checker_fifo_reset) begin
+		chain_generate_liteethmaccrc32checker_syncfifo_level <= 3'd0;
+		chain_generate_liteethmaccrc32checker_syncfifo_produce <= 3'd0;
+		chain_generate_liteethmaccrc32checker_syncfifo_consume <= 3'd0;
+	end
+	chain_rxdatapath_bufferizeendpoints_state <= chain_rxdatapath_bufferizeendpoints_next_state;
+	if (chain_generate_liteethmaccrc32checker_last_be_next_value_ce0) begin
+		chain_generate_liteethmaccrc32checker_last_be <= chain_generate_liteethmaccrc32checker_last_be_next_value0;
+	end
+	if (chain_generate_liteethmaccrc32checker_crc_error1_next_value_ce1) begin
+		chain_generate_liteethmaccrc32checker_crc_error1 <= chain_generate_liteethmaccrc32checker_crc_error1_next_value1;
+	end
+	if (((~chain_generate_bufferizeendpoints_pipe_valid_source_valid) | chain_generate_bufferizeendpoints_pipe_valid_source_ready)) begin
+		chain_generate_bufferizeendpoints_pipe_valid_source_valid <= chain_generate_bufferizeendpoints_pipe_valid_sink_valid;
+		chain_generate_bufferizeendpoints_pipe_valid_source_first <= chain_generate_bufferizeendpoints_pipe_valid_sink_first;
+		chain_generate_bufferizeendpoints_pipe_valid_source_last <= chain_generate_bufferizeendpoints_pipe_valid_sink_last;
+		chain_generate_bufferizeendpoints_pipe_valid_source_payload_data <= chain_generate_bufferizeendpoints_pipe_valid_sink_payload_data;
+		chain_generate_bufferizeendpoints_pipe_valid_source_payload_last_be <= chain_generate_bufferizeendpoints_pipe_valid_sink_payload_last_be;
+		chain_generate_bufferizeendpoints_pipe_valid_source_payload_error <= chain_generate_bufferizeendpoints_pipe_valid_sink_payload_error;
+	end
+	if (chain_generate_pulsesynchronizer1_i) begin
+		chain_generate_pulsesynchronizer1_toggle_i <= (~chain_generate_pulsesynchronizer1_toggle_i);
+	end
+	if ((chain_generate_rx_padding_sink_valid & chain_generate_rx_padding_sink_ready)) begin
+		if (chain_generate_rx_padding_sink_last) begin
+			chain_generate_rx_padding_length <= 1'd0;
+		end else begin
+			chain_generate_rx_padding_length <= (chain_generate_rx_padding_length + chain_generate_rx_padding_length_inc);
+		end
+	end
+	if ((chain_generate_rx_converter_converter_sink_valid & chain_generate_rx_converter_converter_sink_ready)) begin
+	end
+	if (chain_generate_rx_converter_converter_source_ready) begin
+		chain_generate_rx_converter_converter_strobe_all <= 1'd0;
+	end
+	if (chain_generate_rx_converter_converter_load_part) begin
+		if (((chain_generate_rx_converter_converter_demux == 3'd7) | chain_generate_rx_converter_converter_sink_last)) begin
+			chain_generate_rx_converter_converter_demux <= 1'd0;
+			chain_generate_rx_converter_converter_strobe_all <= 1'd1;
+		end else begin
+			chain_generate_rx_converter_converter_demux <= (chain_generate_rx_converter_converter_demux + 1'd1);
+		end
+	end
+	if ((chain_generate_rx_converter_converter_source_valid & chain_generate_rx_converter_converter_source_ready)) begin
+		if ((chain_generate_rx_converter_converter_sink_valid & chain_generate_rx_converter_converter_sink_ready)) begin
+			chain_generate_rx_converter_converter_source_first <= chain_generate_rx_converter_converter_sink_first;
+			chain_generate_rx_converter_converter_source_last <= chain_generate_rx_converter_converter_sink_last;
+		end else begin
+			chain_generate_rx_converter_converter_source_first <= 1'd0;
+			chain_generate_rx_converter_converter_source_last <= 1'd0;
+		end
+	end else begin
+		if ((chain_generate_rx_converter_converter_sink_valid & chain_generate_rx_converter_converter_sink_ready)) begin
+			chain_generate_rx_converter_converter_source_first <= (chain_generate_rx_converter_converter_sink_first | chain_generate_rx_converter_converter_source_first);
+			chain_generate_rx_converter_converter_source_last <= (chain_generate_rx_converter_converter_sink_last | chain_generate_rx_converter_converter_source_last);
+		end
+	end
+	if (chain_generate_rx_converter_converter_load_part) begin
+		case (chain_generate_rx_converter_converter_demux)
+			1'd0: begin
+				chain_generate_rx_converter_converter_source_payload_data[9:0] <= chain_generate_rx_converter_converter_sink_payload_data;
+			end
+			1'd1: begin
+				chain_generate_rx_converter_converter_source_payload_data[19:10] <= chain_generate_rx_converter_converter_sink_payload_data;
+			end
+			2'd2: begin
+				chain_generate_rx_converter_converter_source_payload_data[29:20] <= chain_generate_rx_converter_converter_sink_payload_data;
+			end
+			2'd3: begin
+				chain_generate_rx_converter_converter_source_payload_data[39:30] <= chain_generate_rx_converter_converter_sink_payload_data;
+			end
+			3'd4: begin
+				chain_generate_rx_converter_converter_source_payload_data[49:40] <= chain_generate_rx_converter_converter_sink_payload_data;
+			end
+			3'd5: begin
+				chain_generate_rx_converter_converter_source_payload_data[59:50] <= chain_generate_rx_converter_converter_sink_payload_data;
+			end
+			3'd6: begin
+				chain_generate_rx_converter_converter_source_payload_data[69:60] <= chain_generate_rx_converter_converter_sink_payload_data;
+			end
+			3'd7: begin
+				chain_generate_rx_converter_converter_source_payload_data[79:70] <= chain_generate_rx_converter_converter_sink_payload_data;
+			end
+		endcase
+	end
+	if (chain_generate_rx_converter_converter_load_part) begin
+		chain_generate_rx_converter_converter_source_payload_valid_token_count <= (chain_generate_rx_converter_converter_demux + 1'd1);
+	end
+	chain_generate_rx_cdc_cdc_graycounter0_q_binary <= chain_generate_rx_cdc_cdc_graycounter0_q_next_binary;
+	chain_generate_rx_cdc_cdc_graycounter0_q <= chain_generate_rx_cdc_cdc_graycounter0_q_next;
+	if (maceth_rx_rst) begin
+		chain_generate_liteethmaccrc32checker_crc_reg <= 32'd4294967295;
+		chain_generate_liteethmaccrc32checker_syncfifo_level <= 3'd0;
+		chain_generate_liteethmaccrc32checker_syncfifo_produce <= 3'd0;
+		chain_generate_liteethmaccrc32checker_syncfifo_consume <= 3'd0;
+		chain_generate_liteethmaccrc32checker_last_be <= 1'd0;
+		chain_generate_liteethmaccrc32checker_crc_error1 <= 1'd0;
+		chain_generate_bufferizeendpoints_pipe_valid_source_valid <= 1'd0;
+		chain_generate_bufferizeendpoints_pipe_valid_source_payload_data <= 8'd0;
+		chain_generate_bufferizeendpoints_pipe_valid_source_payload_last_be <= 1'd0;
+		chain_generate_bufferizeendpoints_pipe_valid_source_payload_error <= 1'd0;
+		chain_generate_rx_padding_length <= 11'd0;
+		chain_generate_rx_converter_converter_source_payload_data <= 80'd0;
+		chain_generate_rx_converter_converter_source_payload_valid_token_count <= 4'd0;
+		chain_generate_rx_converter_converter_demux <= 3'd0;
+		chain_generate_rx_converter_converter_strobe_all <= 1'd0;
+		chain_generate_rx_cdc_cdc_graycounter0_q <= 6'd0;
+		chain_generate_rx_cdc_cdc_graycounter0_q_binary <= 6'd0;
+		chain_rxdatapath_liteethmacpreamblechecker_state <= 1'd0;
+		chain_rxdatapath_bufferizeendpoints_state <= 2'd0;
+	end
+	chain_multiregimpl50 <= chain_generate_rx_cdc_cdc_graycounter1_q;
+	chain_multiregimpl51 <= chain_multiregimpl50;
+end
+
+always @(posedge maceth_tx_clk) begin
+	chain_generate_tx_cdc_cdc_graycounter1_q_binary <= chain_generate_tx_cdc_cdc_graycounter1_q_next_binary;
+	chain_generate_tx_cdc_cdc_graycounter1_q <= chain_generate_tx_cdc_cdc_graycounter1_q_next;
+	if ((chain_generate_tx_converter_source_source_valid & chain_generate_tx_converter_source_source_ready)) begin
+		if (chain_generate_tx_converter_last_be_drop) begin
+			if (chain_generate_tx_converter_source_source_last) begin
+				chain_generate_tx_converter_last_be_drop <= 1'd0;
+			end
+		end else begin
+			if ((chain_generate_tx_converter_last_be_packet_end & (~chain_generate_tx_converter_source_source_last))) begin
+				chain_generate_tx_converter_last_be_drop <= 1'd1;
+			end
+		end
+	end
+	if ((chain_generate_tx_converter_converter_source_valid & chain_generate_tx_converter_converter_source_ready)) begin
+		if (chain_generate_tx_converter_converter_last) begin
+			chain_generate_tx_converter_converter_mux <= 1'd0;
+		end else begin
+			chain_generate_tx_converter_converter_mux <= (chain_generate_tx_converter_converter_mux + 1'd1);
+		end
+	end
+	chain_txdatapath_liteethmactxlastbe_state <= chain_txdatapath_liteethmactxlastbe_next_state;
+	chain_txdatapath_liteethmacpaddinginserter_state <= chain_txdatapath_liteethmacpaddinginserter_next_state;
+	if (chain_generate_tx_padding_counter_clockdomainsrenamer0_next_value_ce) begin
+		chain_generate_tx_padding_counter <= chain_generate_tx_padding_counter_clockdomainsrenamer0_next_value;
+	end
+	if (chain_generate_tx_crc_is_ongoing0) begin
+		chain_generate_tx_crc_cnt <= 2'd3;
+	end else begin
+		if ((chain_generate_tx_crc_is_ongoing1 & (~chain_generate_tx_crc_cnt_done))) begin
+			chain_generate_tx_crc_cnt <= (chain_generate_tx_crc_cnt - chain_generate_tx_crc_source_ready);
+		end
+	end
+	if (chain_generate_tx_crc_ce) begin
+		chain_generate_tx_crc_reg <= chain_generate_tx_crc_crc_next;
+	end
+	if (chain_generate_tx_crc_reset) begin
+		chain_generate_tx_crc_reg <= 32'd4294967295;
+	end
+	chain_txdatapath_bufferizeendpoints_state <= chain_txdatapath_bufferizeendpoints_next_state;
+	if (chain_generate_tx_crc_crc_packet_clockdomainsrenamer1_next_value_ce0) begin
+		chain_generate_tx_crc_crc_packet <= chain_generate_tx_crc_crc_packet_clockdomainsrenamer1_next_value0;
+	end
+	if (chain_generate_tx_crc_last_be_clockdomainsrenamer1_next_value_ce1) begin
+		chain_generate_tx_crc_last_be <= chain_generate_tx_crc_last_be_clockdomainsrenamer1_next_value1;
+	end
+	if (((~chain_generate_tx_crc_pipe_valid_source_valid) | chain_generate_tx_crc_pipe_valid_source_ready)) begin
+		chain_generate_tx_crc_pipe_valid_source_valid <= chain_generate_tx_crc_pipe_valid_sink_valid;
+		chain_generate_tx_crc_pipe_valid_source_first <= chain_generate_tx_crc_pipe_valid_sink_first;
+		chain_generate_tx_crc_pipe_valid_source_last <= chain_generate_tx_crc_pipe_valid_sink_last;
+		chain_generate_tx_crc_pipe_valid_source_payload_data <= chain_generate_tx_crc_pipe_valid_sink_payload_data;
+		chain_generate_tx_crc_pipe_valid_source_payload_last_be <= chain_generate_tx_crc_pipe_valid_sink_payload_last_be;
+		chain_generate_tx_crc_pipe_valid_source_payload_error <= chain_generate_tx_crc_pipe_valid_sink_payload_error;
+	end
+	chain_txdatapath_liteethmacpreambleinserter_state <= chain_txdatapath_liteethmacpreambleinserter_next_state;
+	if (chain_generate_tx_preamble_count_clockdomainsrenamer2_next_value_ce) begin
+		chain_generate_tx_preamble_count <= chain_generate_tx_preamble_count_clockdomainsrenamer2_next_value;
+	end
+	chain_txdatapath_liteethmacgap_state <= chain_txdatapath_liteethmacgap_next_state;
+	if (chain_generate_tx_gap_counter_clockdomainsrenamer3_next_value_ce) begin
+		chain_generate_tx_gap_counter <= chain_generate_tx_gap_counter_clockdomainsrenamer3_next_value;
+	end
+	if (maceth_tx_rst_1) begin
+		chain_generate_tx_cdc_cdc_graycounter1_q <= 6'd0;
+		chain_generate_tx_cdc_cdc_graycounter1_q_binary <= 6'd0;
+		chain_generate_tx_converter_converter_mux <= 3'd0;
+		chain_generate_tx_converter_last_be_drop <= 1'd0;
+		chain_generate_tx_padding_counter <= 16'd0;
+		chain_generate_tx_crc_reg <= 32'd4294967295;
+		chain_generate_tx_crc_cnt <= 2'd3;
+		chain_generate_tx_crc_pipe_valid_source_valid <= 1'd0;
+		chain_generate_tx_crc_pipe_valid_source_payload_data <= 8'd0;
+		chain_generate_tx_crc_pipe_valid_source_payload_last_be <= 1'd0;
+		chain_generate_tx_crc_pipe_valid_source_payload_error <= 1'd0;
+		chain_txdatapath_liteethmactxlastbe_state <= 1'd0;
+		chain_txdatapath_liteethmacpaddinginserter_state <= 1'd0;
+		chain_txdatapath_bufferizeendpoints_state <= 2'd0;
+		chain_txdatapath_liteethmacpreambleinserter_state <= 2'd0;
+		chain_txdatapath_liteethmacgap_state <= 1'd0;
+	end
+	chain_multiregimpl00 <= chain_generate_tx_cdc_cdc_graycounter0_q;
+	chain_multiregimpl01 <= chain_multiregimpl00;
+end
+
+always @(posedge macsys_clk) begin
+	chain_generate_tx_cdc_cdc_graycounter0_q_binary <= chain_generate_tx_cdc_cdc_graycounter0_q_next_binary;
+	chain_generate_tx_cdc_cdc_graycounter0_q <= chain_generate_tx_cdc_cdc_graycounter0_q_next;
+	if (chain_generate_pulsesynchronizer0_o) begin
+		chain_generate_preamble_errors_status <= (chain_generate_preamble_errors_status + 1'd1);
+	end
+	if (chain_generate_pulsesynchronizer1_o) begin
+		chain_generate_crc_errors_status <= (chain_generate_crc_errors_status + 1'd1);
+	end
+	chain_generate_pulsesynchronizer0_toggle_o_r <= chain_generate_pulsesynchronizer0_toggle_o;
+	chain_generate_pulsesynchronizer1_toggle_o_r <= chain_generate_pulsesynchronizer1_toggle_o;
+	chain_generate_rx_cdc_cdc_graycounter1_q_binary <= chain_generate_rx_cdc_cdc_graycounter1_q_next_binary;
+	chain_generate_rx_cdc_cdc_graycounter1_q <= chain_generate_rx_cdc_cdc_graycounter1_q_next;
+	if (chain_generate_packetfifo_payload_fifo_syncfifo_re) begin
+		chain_generate_packetfifo_payload_fifo_readable <= 1'd1;
+	end else begin
+		if (chain_generate_packetfifo_payload_fifo_re) begin
+			chain_generate_packetfifo_payload_fifo_readable <= 1'd0;
+		end
+	end
+	if (((chain_generate_packetfifo_payload_fifo_syncfifo_we & chain_generate_packetfifo_payload_fifo_syncfifo_writable) & (~chain_generate_packetfifo_payload_fifo_replace))) begin
+		chain_generate_packetfifo_payload_fifo_produce <= (chain_generate_packetfifo_payload_fifo_produce + 1'd1);
+	end
+	if (chain_generate_packetfifo_payload_fifo_do_read) begin
+		chain_generate_packetfifo_payload_fifo_consume <= (chain_generate_packetfifo_payload_fifo_consume + 1'd1);
+	end
+	if (((chain_generate_packetfifo_payload_fifo_syncfifo_we & chain_generate_packetfifo_payload_fifo_syncfifo_writable) & (~chain_generate_packetfifo_payload_fifo_replace))) begin
+		if ((~chain_generate_packetfifo_payload_fifo_do_read)) begin
+			chain_generate_packetfifo_payload_fifo_level0 <= (chain_generate_packetfifo_payload_fifo_level0 + 1'd1);
+		end
+	end else begin
+		if (chain_generate_packetfifo_payload_fifo_do_read) begin
+			chain_generate_packetfifo_payload_fifo_level0 <= (chain_generate_packetfifo_payload_fifo_level0 - 1'd1);
+		end
+	end
+	if (chain_generate_packetfifo_param_fifo_syncfifo_re) begin
+		chain_generate_packetfifo_param_fifo_readable <= 1'd1;
+	end else begin
+		if (chain_generate_packetfifo_param_fifo_re) begin
+			chain_generate_packetfifo_param_fifo_readable <= 1'd0;
+		end
+	end
+	if (((chain_generate_packetfifo_param_fifo_syncfifo_we & chain_generate_packetfifo_param_fifo_syncfifo_writable) & (~chain_generate_packetfifo_param_fifo_replace))) begin
+		if ((chain_generate_packetfifo_param_fifo_produce == 4'd8)) begin
+			chain_generate_packetfifo_param_fifo_produce <= 1'd0;
+		end else begin
+			chain_generate_packetfifo_param_fifo_produce <= (chain_generate_packetfifo_param_fifo_produce + 1'd1);
+		end
+	end
+	if (chain_generate_packetfifo_param_fifo_do_read) begin
+		if ((chain_generate_packetfifo_param_fifo_consume == 4'd8)) begin
+			chain_generate_packetfifo_param_fifo_consume <= 1'd0;
+		end else begin
+			chain_generate_packetfifo_param_fifo_consume <= (chain_generate_packetfifo_param_fifo_consume + 1'd1);
+		end
+	end
+	if (((chain_generate_packetfifo_param_fifo_syncfifo_we & chain_generate_packetfifo_param_fifo_syncfifo_writable) & (~chain_generate_packetfifo_param_fifo_replace))) begin
+		if ((~chain_generate_packetfifo_param_fifo_do_read)) begin
+			chain_generate_packetfifo_param_fifo_level0 <= (chain_generate_packetfifo_param_fifo_level0 + 1'd1);
+		end
+	end else begin
+		if (chain_generate_packetfifo_param_fifo_do_read) begin
+			chain_generate_packetfifo_param_fifo_level0 <= (chain_generate_packetfifo_param_fifo_level0 - 1'd1);
+		end
+	end
+	if ((chain_generate_tx_dp_cdc_re | (~chain_generate_tx_dp_cdc_readable))) begin
+		chain_generate_tx_dp_cdc_dout <= chain_generate_tx_dp_cdc_asyncfifo_dout;
+		chain_generate_tx_dp_cdc_readable <= chain_generate_tx_dp_cdc_asyncfifo_readable;
+	end
+	chain_generate_tx_dp_cdc_graycounter1_q_binary <= chain_generate_tx_dp_cdc_graycounter1_q_next_binary;
+	chain_generate_tx_dp_cdc_graycounter1_q <= chain_generate_tx_dp_cdc_graycounter1_q_next;
+	if (macsys_rst) begin
+		chain_generate_tx_cdc_cdc_graycounter0_q <= 6'd0;
+		chain_generate_tx_cdc_cdc_graycounter0_q_binary <= 6'd0;
+		chain_generate_preamble_errors_status <= 32'd0;
+		chain_generate_crc_errors_status <= 32'd0;
+		chain_generate_rx_cdc_cdc_graycounter1_q <= 6'd0;
+		chain_generate_rx_cdc_cdc_graycounter1_q_binary <= 6'd0;
+		chain_generate_packetfifo_payload_fifo_readable <= 1'd0;
+		chain_generate_packetfifo_payload_fifo_level0 <= 10'd0;
+		chain_generate_packetfifo_payload_fifo_produce <= 9'd0;
+		chain_generate_packetfifo_payload_fifo_consume <= 9'd0;
+		chain_generate_packetfifo_param_fifo_readable <= 1'd0;
+		chain_generate_packetfifo_param_fifo_level0 <= 4'd0;
+		chain_generate_packetfifo_param_fifo_produce <= 4'd0;
+		chain_generate_packetfifo_param_fifo_consume <= 4'd0;
+		chain_generate_tx_dp_cdc_readable <= 1'd0;
+		chain_generate_tx_dp_cdc_graycounter1_q <= 5'd0;
+		chain_generate_tx_dp_cdc_graycounter1_q_binary <= 5'd0;
+	end
+	chain_multiregimpl10 <= chain_generate_tx_cdc_cdc_graycounter1_q;
+	chain_multiregimpl11 <= chain_multiregimpl10;
+	chain_multiregimpl20 <= chain_generate_pulsesynchronizer0_toggle_i;
+	chain_multiregimpl21 <= chain_multiregimpl20;
+	chain_multiregimpl30 <= chain_generate_pulsesynchronizer1_toggle_i;
+	chain_multiregimpl31 <= chain_multiregimpl30;
+	chain_multiregimpl40 <= chain_generate_rx_cdc_cdc_graycounter0_q;
+	chain_multiregimpl41 <= chain_multiregimpl40;
+	chain_multiregimpl60 <= chain_generate_tx_dp_cdc_graycounter0_q;
+	chain_multiregimpl61 <= chain_multiregimpl60;
+end
+
+always @(posedge resync_clk) begin
+	chain_simasyncresetsynchronizerimpl0_rst1 <= eth_phy_rst;
+	eth_tx_rst <= (eth_phy_rst | chain_simasyncresetsynchronizerimpl0_rst1);
+	chain_simasyncresetsynchronizerimpl1_rst1 <= eth_phy_rst;
+	eth_rx_rst <= (eth_phy_rst | chain_simasyncresetsynchronizerimpl1_rst1);
+	chain_simasyncresetsynchronizerimpl2_rst1 <= (sys_rst | reinit);
+	macsys_rst <= ((sys_rst | reinit) | chain_simasyncresetsynchronizerimpl2_rst1);
+	chain_simasyncresetsynchronizerimpl3_rst1 <= (dp_rst | reinit);
+	macdp_rst <= ((dp_rst | reinit) | chain_simasyncresetsynchronizerimpl3_rst1);
+	chain_simasyncresetsynchronizerimpl4_rst1 <= (eth_tx_rst | eth_rst);
+	maceth_tx_rst_1 <= ((eth_tx_rst | eth_rst) | chain_simasyncresetsynchronizerimpl4_rst1);
+	chain_simasyncresetsynchronizerimpl5_rst1 <= (eth_rx_rst | eth_rst);
+	maceth_rx_rst <= ((eth_rx_rst | eth_rst) | chain_simasyncresetsynchronizerimpl5_rst1);
+end
+
+reg [81:0] storage[0:31];
+reg [4:0] memadr;
+reg [4:0] memadr_1;
+always @(posedge macsys_clk) begin
+	if (chain_generate_tx_cdc_cdc_wrport_we)
+		storage[chain_generate_tx_cdc_cdc_wrport_adr] <= chain_generate_tx_cdc_cdc_wrport_dat_w;
+	memadr <= chain_generate_tx_cdc_cdc_wrport_adr;
+end
+
+always @(posedge maceth_tx_clk) begin
+	memadr_1 <= chain_generate_tx_cdc_cdc_rdport_adr;
+end
+
+assign chain_generate_tx_cdc_cdc_wrport_dat_r = storage[memadr];
+assign chain_generate_tx_cdc_cdc_rdport_dat_r = storage[memadr_1];
+
+reg [11:0] storage_1[0:4];
+reg [11:0] memdat;
+always @(posedge maceth_rx_clk) begin
+	if (chain_generate_liteethmaccrc32checker_syncfifo_wrport_we)
+		storage_1[chain_generate_liteethmaccrc32checker_syncfifo_wrport_adr] <= chain_generate_liteethmaccrc32checker_syncfifo_wrport_dat_w;
+	memdat <= storage_1[chain_generate_liteethmaccrc32checker_syncfifo_wrport_adr];
+end
+
+always @(posedge maceth_rx_clk) begin
+end
+
+assign chain_generate_liteethmaccrc32checker_syncfifo_wrport_dat_r = memdat;
+assign chain_generate_liteethmaccrc32checker_syncfifo_rdport_dat_r = storage_1[chain_generate_liteethmaccrc32checker_syncfifo_rdport_adr];
+
+reg [81:0] storage_2[0:31];
+reg [4:0] memadr_2;
+reg [4:0] memadr_3;
+always @(posedge maceth_rx_clk) begin
+	if (chain_generate_rx_cdc_cdc_wrport_we)
+		storage_2[chain_generate_rx_cdc_cdc_wrport_adr] <= chain_generate_rx_cdc_cdc_wrport_dat_w;
+	memadr_2 <= chain_generate_rx_cdc_cdc_wrport_adr;
+end
+
+always @(posedge macsys_clk) begin
+	memadr_3 <= chain_generate_rx_cdc_cdc_rdport_adr;
+end
+
+assign chain_generate_rx_cdc_cdc_wrport_dat_r = storage_2[memadr_2];
+assign chain_generate_rx_cdc_cdc_rdport_dat_r = storage_2[memadr_3];
+
+reg [81:0] storage_3[0:511];
+reg [81:0] memdat_1;
+reg [81:0] memdat_2;
+always @(posedge macsys_clk) begin
+	if (chain_generate_packetfifo_payload_fifo_wrport_we)
+		storage_3[chain_generate_packetfifo_payload_fifo_wrport_adr] <= chain_generate_packetfifo_payload_fifo_wrport_dat_w;
+	memdat_1 <= storage_3[chain_generate_packetfifo_payload_fifo_wrport_adr];
+end
+
+always @(posedge macsys_clk) begin
+	if (chain_generate_packetfifo_payload_fifo_rdport_re)
+		memdat_2 <= storage_3[chain_generate_packetfifo_payload_fifo_rdport_adr];
+end
+
+assign chain_generate_packetfifo_payload_fifo_wrport_dat_r = memdat_1;
+assign chain_generate_packetfifo_payload_fifo_rdport_dat_r = memdat_2;
+
+reg [2:0] storage_4[0:8];
+reg [2:0] memdat_3;
+reg [2:0] memdat_4;
+always @(posedge macsys_clk) begin
+	if (chain_generate_packetfifo_param_fifo_wrport_we)
+		storage_4[chain_generate_packetfifo_param_fifo_wrport_adr] <= chain_generate_packetfifo_param_fifo_wrport_dat_w;
+	memdat_3 <= storage_4[chain_generate_packetfifo_param_fifo_wrport_adr];
+end
+
+always @(posedge macsys_clk) begin
+	if (chain_generate_packetfifo_param_fifo_rdport_re)
+		memdat_4 <= storage_4[chain_generate_packetfifo_param_fifo_rdport_adr];
+end
+
+assign chain_generate_packetfifo_param_fifo_wrport_dat_r = memdat_3;
+assign chain_generate_packetfifo_param_fifo_rdport_dat_r = memdat_4;
+
+(* ram_style = "block" *) reg [71:0] storage_5[0:15];
+reg [3:0] memadr_4;
+reg [71:0] memdat_5;
+always @(posedge macdp_clk) begin
+	if (chain_generate_array_write_memory0_we)
+		storage_5[chain_generate_array_write_memory0_adr] <= chain_generate_array_write_memory0_dat_w;
+	memadr_4 <= chain_generate_array_write_memory0_adr;
+end
+
+always @(posedge macsys_clk) begin
+	memdat_5 <= storage_5[chain_generate_array_read_memory0_adr];
+end
+
+assign chain_generate_array_write_memory0_dat_r = storage_5[memadr_4];
+assign chain_generate_array_read_memory0_dat_r = memdat_5;
+
+(* ram_style = "distributed" *) reg [1:0] storage_6[0:15];
+reg [3:0] memadr_5;
+reg [1:0] memdat_6;
+always @(posedge macdp_clk) begin
+	if (chain_generate_array_write_memory1_we)
+		storage_6[chain_generate_array_write_memory1_adr] <= chain_generate_array_write_memory1_dat_w;
+	memadr_5 <= chain_generate_array_write_memory1_adr;
+end
+
+always @(posedge macsys_clk) begin
+	memdat_6 <= storage_6[chain_generate_array_read_memory1_adr];
+end
+
+assign chain_generate_array_write_memory1_dat_r = storage_6[memadr_5];
+assign chain_generate_array_read_memory1_dat_r = memdat_6;
+
+(* DONT_TOUCH = "TRUE" *) KL_usbnet_tap #(
+	.BURST_OCTETS_P(12'd3200),
+	.CLK_HZ_P(27'd80000000),
+	.RATE_BPS_P(24'd10000000)
+) usbnet_tap (
+	.bus_alive_i(chain_add_usb_net_usbnet_bus_alive),
+	.clk_i(macsys_clk),
+	.dn_data_i(chain_add_usb_net_dn_payload_data),
+	.dn_valid_i(chain_add_usb_net_dn_valid),
+	.eth_clk_i(eth_tx_clk_1),
+	.eth_end_i(((chain_generate_liteethphymiitx_sink_valid & chain_generate_liteethphymiitx_sink_ready) & chain_generate_liteethphymiitx_sink_last)),
+	.eth_rst_ni((~maceth_tx_rst_1)),
+	.hi_be_i(chain_generate_packetfifo_source_source_payload_last_be),
+	.hi_data_i(chain_generate_packetfifo_source_source_payload_data),
+	.hi_last_i(chain_generate_packetfifo_source_source_last),
+	.hi_valid_i(chain_generate_packetfifo_source_source_valid),
+	.inject_en_i(inject_enable),
+	.m_ready_i(chain_generate_sink_ready),
+	.rst_ni((~macsys_rst)),
+	.rx_data_i(1'd0),
+	.rx_keep_i(1'd0),
+	.rx_last_i(1'd0),
+	.rx_valid_i(1'd0),
+	.up_ready_i(chain_add_usb_net_up_ready),
+	.dn_ready_o(chain_add_usb_net_dn_ready),
+	.hi_ready_o(chain_generate_packetfifo_source_source_ready),
+	.host_mac_o(chain_add_usb_net_usbnet_host_mac),
+	.host_ok_o(chain_add_usb_net_usbnet_host_ok),
+	.host_state_o(chain_add_usb_net_usbnet_host_state),
+	.inj_active_o(chain_add_usb_net_usbnet_inj_active),
+	.m_be_o(chain_generate_sink_payload_last_be),
+	.m_data_o(chain_generate_sink_payload_data),
+	.m_last_o(chain_generate_sink_last),
+	.m_valid_o(chain_generate_sink_valid),
+	.rx_copied_o(chain_add_usb_net_usbnet_rx_copied),
+	.rx_full_o(chain_add_usb_net_usbnet_rx_full),
+	.rx_verdict_o(rx_verdict_o),
+	.rx_verdict_valid_o(rx_verdict_valid_o),
+	.tx_dropped_o(chain_add_usb_net_usbnet_tx_dropped),
+	.tx_injected_o(chain_add_usb_net_usbnet_tx_injected),
+	.tx_passed_o(chain_add_usb_net_usbnet_tx_passed),
+	.tx_skipped_o(chain_add_usb_net_usbnet_tx_skipped),
+	.tx_verdict_o(tx_verdict_o),
+	.tx_verdict_valid_o(tx_verdict_valid_o),
+	.txend_tgl_o(chain_add_usb_net_usbnet_txend_tgl),
+	.up_data_o(chain_add_usb_net_up_payload_data),
+	.up_last_o(chain_add_usb_net_up_last),
+	.up_valid_o(chain_add_usb_net_up_valid),
+	.usb_ok_o(chain_add_usb_net_usbnet_ok)
+);
+
+endmodule
+

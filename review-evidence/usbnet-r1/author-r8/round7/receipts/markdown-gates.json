@@ -1,0 +1,39 @@
+[
+  {
+    "command": [
+      "$VALIDATION_STORAGE/usbnet-a855/round6/markdown-venv/bin/python3",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "log": "markdown-0.log"
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/usbnet-a855/round6/markdown-venv/bin/python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "log": "markdown-1.log"
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/usbnet-a855/round6/markdown-venv/bin/python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "log": "markdown-2.log"
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/usbnet-a855/round6/markdown-venv/bin/python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "91252ecf7457287079d5d2f794b8544f0d9d34c4"
+    ],
+    "rc": 0,
+    "log": "markdown-3.log"
+  }
+]
