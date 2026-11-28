@@ -545,8 +545,8 @@ run before it is lowered.
 
 `scripts/suite_shards.py` assigns the longest measured pieces first. It pins
 `tsn_fuzz` to worker 1 and `chmap_capture` to worker 3 for their specialized
-installs. Worker 25 owns only media-clock leg A, whose continuous history is
-indivisible under #737's ruling. Twenty-five workers project at most 1275 seconds
+installs. Worker 27 owns only media-clock leg A, whose continuous history is
+indivisible under #737's ruling. Twenty-seven regular workers project at most 1275 seconds
 including a conservative 122-second setup allowance. Leg A projects to 1408
 seconds before setup and 1530 seconds with it, its largest window in #998's
 hosted runs (#799's was 988 seconds); #737's round-one projection was 1910 and

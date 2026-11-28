@@ -10,8 +10,10 @@ direction. This page states the FPGA side: the filter rules, the injection
 point, the bus records the USB device exchanges with it, and the four status
 LEDs of the Arty A7 build.
 
-It is built for the Arty only (`milan_soc.py --usb-net`, `sw/litex/usbnet_soc.py`).
-No other board's build carries a line of it.
+The USB network path is built for the Arty only (`milan_soc.py --usb-net`,
+`sw/litex/usbnet_soc.py`). The status LEDs are on every Arty build with the MAC;
+without `--usb-net`, LD1 stays dark. Other boards carry only the datapath's
+unconnected `o_led_*` level outputs.
 
 ## Contents
 
@@ -75,8 +77,9 @@ classification, drain and verdict states; ring capacity and token availability
 decide admission, rather than waiting for firmware to release `ready`.
 The production mailbox test exercises full rings and empty token buckets.
 Its longest observed wait is 1707 clocks (21.3375 us).
-Adding the conservative bound to #1004's 29.77 ms ACMP row gives
-29.808075 ms, below 30 ms by 191.925 us.
+Adding the conservative bound to the
+[installed ACMP row](SPLIT_CONTROL_MEMORY.md#15-arty-split-at-80-mhz),
+29.84 ms, gives 29.878075 ms, below 30 ms by 121.925 us.
 The mailbox's channel limits and held-record refill allowances still apply.
 This is the merger's additional wait, not a claim that every local copy is admitted.
 
@@ -143,7 +146,7 @@ every SR class frame and every frame of the device's own control plane.
 - **What a datapath frame can wait for.** At most the one injected frame
   already granted. That is the lower-priority interference IEEE 802.1Q-2018
   Annex L and IEEE 802.1BA-2011 6.5 already budget. On the Arty's 100 Mb/s link,
-  the longest injected frame is 1539 octets on the wire, 123.2 us.
+  the longest injected frame is 1539 octets on the wire, 123.12 us, charged as 123.2 us (rounded up).
 - **No second injected frame ahead.** None can be queued in front of a datapath
   frame, because the next grant again needs the MAC empty of datapath frames.
 - **No added latency otherwise.** With no injection, the datapath passes
@@ -415,16 +418,27 @@ run with the fabric benches. No firmware LED observer is linked into an image.
 - **Production LED attachment.** The real attachment is generated with
   independent source and system clocks. Its 258 checks cover the complete
   predicates, source registration, both synchronizer stages and colour wiring.
+- **Datapath LED sources.** The real datapath and receive monitor run at one
+  and four input streams. The stored clock-source index and media producers
+  drive the production decoder, monitor export, all six LED levels and the
+  registered predicates. Every AAF index, CRF lock and output gate is checked,
+  including unrelated active streams, reset and clock-lock loss. Named defects
+  in `datapath_leds.py` must fail their corresponding assertions.
 - **Clock commands.** Real `SET_CLOCK_SOURCE` commands select internal,
   flowing stream, stopped stream and external sources in the unchanged AECP
-  fixture, then exercise the fabric predicate with explicit lock inputs.
-  This is a command-to-predicate seam test; it does not simulate the processor
-  bus or media-clock acquisition.
+  fixture. The stored descriptor index also drives the real datapath for
+  internal, CRF and every AAF input, both flowing and stopped. Media-state
+  producers are explicit. The external-source predicate keeps its separate
+  seam test; these checks do not simulate processor bus transport or media
+  acquisition.
 - **Mailbox wait.** The local receiver drives the production mailbox byte
   input with even, odd and maximum lengths, full rings and empty buckets.
   A planted grant-release defect must fail the named wait check.
 - **The stand-alone shaper suites** (`tb/verilator/cbs`, `shaper_core`,
-  `queues`) are unchanged by this path and pass.
+  `queues`) are unchanged by this path and pass. Together with the tap
+  harness's rate-saturated priority and bounded-wait checks, these are the
+  desk evidence for #1011 AC1d. They do not claim a physical concurrent-stream
+  observation or a combined shaper-and-injector simulation.
 - **MII egress.** `make egress` measures the production injection handshake.
   `make egress-plants` also checks early release and delayed acknowledgement.
   Arithmetic controls plant missing or wrongly repeated interference.

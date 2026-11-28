@@ -18,6 +18,10 @@ A new reader is debt until review classifies it here.
 """
 
 DUT_READER_DISPOSITIONS = {
+    "tb/verilator/usbnet/datapath_leds.py": ("production datapath LED fixture and mutation campaign; reads the generated "
+        "descriptor header for output geometry, and copies one source for each named plant. Expected source kinds, "
+        "indexed locks and LED predicates are asserted independently in sim_datapath.cpp; no expected LED value "
+        "is read from RTL text"),
     "tb/verilator/usbnet/egress_measure.py":
         "mutation campaign; substitutes early release and delayed acknowledgement in isolated arbiters; "
         "the first must fail the named waiting assertion, the second must complete every phase and "

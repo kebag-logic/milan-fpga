@@ -213,7 +213,7 @@ jobs:
     needs: full-ci-gate
     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: ${{ matrix.shard == 26 && 60 || 45 }}
+    timeout-minutes: ${{ matrix.shard == 27 && 60 || 45 }}
     strategy:
       fail-fast: true
       matrix:
@@ -245,8 +245,9 @@ jobs:
           - 24
           - 25
           - 26
-        total:
           - 27
+        total:
+          - 28
     steps:
       - uses: actions/checkout@v4
         id: ci_step_0
@@ -730,7 +731,7 @@ jobs:
         run: |
           shopt -s nullglob
           roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)
-          python3 scripts/ci_events.py --require-target-sha --expect 27 \
+          python3 scripts/ci_events.py --require-target-sha --expect 28 \
             --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" \
             --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"
         id: ci_step_5
@@ -1871,24 +1872,24 @@ jobs:
           EXPECTED_JOBS: '["Collect CI manifest","full-ci-gate","Physical gPTP (nightly and manual)","Union
             capture_coherence","Union follow_ring","Union maap","Union media_phase","Union milan_dp","Union
             milan_dp_mclk","Union milan_dp_render","Union pp_shadow","Verilator preflight","Verilator
-            shard 0/27","Verilator shard 1/27","Verilator shard 2/27","Verilator shard 3/27","Verilator
-            shard 4/27","Verilator shard 5/27","Verilator shard 6/27","Verilator shard 7/27","Verilator
-            shard 8/27","Verilator shard 9/27","Verilator shard 10/27","Verilator shard 11/27","Verilator
-            shard 12/27","Verilator shard 13/27","Verilator shard 14/27","Verilator shard 15/27","Verilator
-            shard 16/27","Verilator shard 17/27","Verilator shard 18/27","Verilator shard 19/27","Verilator
-            shard 20/27","Verilator shard 21/27","Verilator shard 22/27","Verilator shard 23/27","Verilator
-            shard 24/27","Verilator shard 25/27","Verilator shard 26/27","verilator-suites","yosys-portability","Yosys
+            shard 0/28","Verilator shard 1/28","Verilator shard 2/28","Verilator shard 3/28","Verilator
+            shard 4/28","Verilator shard 5/28","Verilator shard 6/28","Verilator shard 7/28","Verilator
+            shard 8/28","Verilator shard 9/28","Verilator shard 10/28","Verilator shard 11/28","Verilator
+            shard 12/28","Verilator shard 13/28","Verilator shard 14/28","Verilator shard 15/28","Verilator
+            shard 16/28","Verilator shard 17/28","Verilator shard 18/28","Verilator shard 19/28","Verilator
+            shard 20/28","Verilator shard 21/28","Verilator shard 22/28","Verilator shard 23/28","Verilator
+            shard 24/28","Verilator shard 25/28","Verilator shard 26/28","Verilator shard 27/28","verilator-suites","yosys-portability","Yosys
             shard 0/4","Yosys shard 1/4","Yosys shard 2/4","Yosys shard 3/4","Prepare pinned Yosys"]'
           SKIPPED_MATRICES: '{"Verilator shard ${{ matrix.shard }}/${{ matrix.total }}":["Verilator shard
-            0/27","Verilator shard 1/27","Verilator shard 2/27","Verilator shard 3/27","Verilator shard
-            4/27","Verilator shard 5/27","Verilator shard 6/27","Verilator shard 7/27","Verilator shard
-            8/27","Verilator shard 9/27","Verilator shard 10/27","Verilator shard 11/27","Verilator shard
-            12/27","Verilator shard 13/27","Verilator shard 14/27","Verilator shard 15/27","Verilator
-            shard 16/27","Verilator shard 17/27","Verilator shard 18/27","Verilator shard 19/27","Verilator
-            shard 20/27","Verilator shard 21/27","Verilator shard 22/27","Verilator shard 23/27","Verilator
-            shard 24/27","Verilator shard 25/27","Verilator shard 26/27"],"Yosys shard ${{ matrix.shard
-            }}/${{ matrix.total }}":["Yosys shard 0/4","Yosys shard 1/4","Yosys shard 2/4","Yosys shard
-            3/4"]}'
+            0/28","Verilator shard 1/28","Verilator shard 2/28","Verilator shard 3/28","Verilator shard
+            4/28","Verilator shard 5/28","Verilator shard 6/28","Verilator shard 7/28","Verilator shard
+            8/28","Verilator shard 9/28","Verilator shard 10/28","Verilator shard 11/28","Verilator shard
+            12/28","Verilator shard 13/28","Verilator shard 14/28","Verilator shard 15/28","Verilator
+            shard 16/28","Verilator shard 17/28","Verilator shard 18/28","Verilator shard 19/28","Verilator
+            shard 20/28","Verilator shard 21/28","Verilator shard 22/28","Verilator shard 23/28","Verilator
+            shard 24/28","Verilator shard 25/28","Verilator shard 26/28","Verilator shard 27/28"],"Yosys
+            shard ${{ matrix.shard }}/${{ matrix.total }}":["Yosys shard 0/4","Yosys shard 1/4","Yosys
+            shard 2/4","Yosys shard 3/4"]}'
         run: |
           python3 scripts/ci_fail_fast.py watch
       - name: Cancel this run and sibling workflows

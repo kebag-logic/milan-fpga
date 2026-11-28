@@ -22,6 +22,7 @@ def main() -> int:
     """Use the firmware's compiler and generated Arty descriptor model."""
     out = Path(sys.argv[1]).resolve()
     rtl = Path(sys.argv[2]).resolve()
+    datapath = Path(sys.argv[3]).resolve()
     stack_pin(STACK)
     runtime = Path(subprocess.check_output(["verilator", "-getenv", "VERILATOR_ROOT"], text=True).strip())
     compile_tests, link = fw_gtest.compile_tests, fw_gtest.link
@@ -35,18 +36,19 @@ def main() -> int:
         combined = directory / "clock_fixture.cpp"
         combined.write_text((CTRL / "test/test_aecp.cpp").read_text() + "\n" +
                             (HERE / "test_clock.cpp").read_text())
-        return compile_tests(build, [*includes, f"-I{CTRL / 'test'}", f"-I{HERE}", f"-I{rtl}",
+        return compile_tests(build, [*includes, f"-I{CTRL / 'test'}", f"-I{HERE}", f"-I{rtl}", f"-I{datapath}",
                                     "-isystem", str(runtime / "include")],
                              [combined], directory, **kwargs)
 
     def linked(build: fw_gtest.Build, objects: list[Path], executable: Path) -> Path:
         """Link the fabric model into the test executable only."""
         extra = [rtl / name for name in ("VKL_status_led_truth__ALL.a", "verilated.o", "verilated_threads.o")]
+        extra.append(datapath / "Vled_datapath__ALL.a")
         return link(build, [*objects, *extra], executable)
 
     fw_gtest.compile_tests, fw_gtest.link = tests, linked
     result = aecp_arms.core_arm(Tree(CTRL, out, out / "reuse", fw_gtest.Build(jobs=4), STACK),
-                              ROOT / "configs/endstation_arty_split.yaml", selected="FabricClock.*")
+                              ROOT / "configs/endstation_arty_4x4.yaml", selected="FabricClock.*:DatapathClock.*")
     print(result.log)
     return result.rc
 
