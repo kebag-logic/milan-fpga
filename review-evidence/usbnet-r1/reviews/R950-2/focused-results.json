@@ -1,0 +1,59 @@
+[
+  {
+    "name": "rtl-focused",
+    "command": [
+      "make",
+      "-j16",
+      "-C",
+      "tb/verilator/usbnet",
+      "JOBS=2",
+      "tap",
+      "leds",
+      "truth",
+      "local",
+      "wait",
+      "VERILATOR=$SCOPED_COMPILER/verilator",
+      "OBJ=$REVIEW_PACKET/scratch/rtl"
+    ],
+    "returncode": 0
+  },
+  {
+    "name": "ledger-controls",
+    "command": [
+      "python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/egress_ledger.py",
+      "--selftest"
+    ],
+    "returncode": 0
+  },
+  {
+    "name": "injection-controls",
+    "command": [
+      "python3",
+      "-B",
+      "tb/verilator/usbnet/egress_controls.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "name": "inventory-check",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_inventory.py",
+      "--check"
+    ],
+    "returncode": 0
+  },
+  {
+    "name": "suite-registration",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/suite_shards.py",
+      "--selftest"
+    ],
+    "returncode": 1
+  }
+]

@@ -1,0 +1,537 @@
+{
+  "dependency_files": [
+    {
+      "path": "docs/design/SPLIT_CONTROL_MEMORY.md",
+      "match": true
+    },
+    {
+      "path": "docs/reference/FR_NFR.md",
+      "match": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/README.md",
+      "match": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/bind_save.py",
+      "match": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/build.py",
+      "match": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/census_extract.py",
+      "match": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/egress_fixed.py",
+      "match": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/egress_fixed_main.cpp",
+      "match": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/egress_mii.py",
+      "match": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/egress_queue.hpp",
+      "match": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/grade.py",
+      "match": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/selftest_bind.py",
+      "match": true
+    },
+    {
+      "path": "tb/verilator/ctrl_service_budget/sim_main.cpp",
+      "match": true
+    }
+  ],
+  "firmware_source_delta": [],
+  "gitlink_delta": [],
+  "firmware": [
+    {
+      "recipe": "ax7101",
+      "side": "candidate",
+      "published_elf_sha256": "6e0a54124483adfadd04e8e6f62d296bdf884794b197d0ed9dc24c71de49fd56",
+      "elf_bytes_published": false,
+      "map_header_matches": true
+    },
+    {
+      "recipe": "ax7101",
+      "side": "baseline",
+      "published_elf_sha256": "6e0a54124483adfadd04e8e6f62d296bdf884794b197d0ed9dc24c71de49fd56",
+      "elf_bytes_published": false,
+      "map_header_matches": true
+    },
+    {
+      "recipe": "ax8x8",
+      "side": "candidate",
+      "published_elf_sha256": "0f1450acefdd7fa0173d1de3221f8c5a6456e59d96fc99611b5121b1c26a2c3f",
+      "elf_bytes_published": false,
+      "map_header_matches": true
+    },
+    {
+      "recipe": "ax8x8",
+      "side": "baseline",
+      "published_elf_sha256": "0f1450acefdd7fa0173d1de3221f8c5a6456e59d96fc99611b5121b1c26a2c3f",
+      "elf_bytes_published": false,
+      "map_header_matches": true
+    },
+    {
+      "recipe": "arty",
+      "side": "candidate",
+      "published_elf_sha256": "f17d1a9da8ba6e50a1e8cf0af9b77ed434288a1d0a689a357a0c6a57ecda92cf",
+      "elf_bytes_published": false,
+      "map_header_matches": true
+    },
+    {
+      "recipe": "arty",
+      "side": "baseline",
+      "published_elf_sha256": "f17d1a9da8ba6e50a1e8cf0af9b77ed434288a1d0a689a357a0c6a57ecda92cf",
+      "elf_bytes_published": false,
+      "map_header_matches": true
+    }
+  ],
+  "shipping_chain": {
+    "source_matches": {
+      "sw/litex/gen_mac_tx_model.py": true,
+      "sw/litex/milan_soc.py": true,
+      "sw/litex/usbnet_soc.py": true,
+      "tb/verilator/usbnet/egress_chain.py": true,
+      "hdl/usbnet/KL_usbnet_pkg.sv": true,
+      "hdl/usbnet/KL_usbnet_rx_copy.sv": true,
+      "hdl/usbnet/KL_usbnet_tx_inject.sv": true,
+      "hdl/usbnet/KL_usbnet_tx_arb.sv": true,
+      "hdl/usbnet/KL_usbnet_tap.sv": true,
+      "hdl/usbnet/KL_usbnet_local_rx.sv": true
+    },
+    "generated_rtl_matches": true
+  },
+  "handshake": {
+    "cases": 512,
+    "complete": true,
+    "maximum_ps": 257500
+  },
+  "wire_sources": {
+    "tb/verilator/usbnet/egress_usb.py": true,
+    "tb/verilator/usbnet/egress_grade.py": true,
+    "tb/verilator/ctrl_service_budget/egress_mii.py": true,
+    "tb/verilator/ctrl_service_budget/grade.py": true
+  },
+  "wire": {
+    "cases": 159,
+    "images": 8,
+    "archive_cases": 159,
+    "completed_cases": 159,
+    "binding_errors": [],
+    "verdict": true,
+    "lines": [
+      "EGRESS100 wait 558.835 us + gPTP 54.88 us, x 1.05, + fixed 0.32 us = 644.721 us, bound 1000 us; most records queued at once 27",
+      "USB EGRESS 644.981 us including separate 260 ns handshake; bound 1000 us"
+    ],
+    "largest_wait_ps": 558835000,
+    "raw_traces_published": 0,
+    "departure_disagreements": 0
+  },
+  "ledger": {
+    "original": {
+      "backlog.owed.if0": 62.94,
+      "backlog.owed_behind0.if0": 63.08,
+      "backlog.owed_behind1.if0": 63.22,
+      "backlog.owed_behind2.if0": 63.36,
+      "backlog.owed_behind3.if0": 63.51,
+      "backlog-owed.service.acmp.last.if0": 62.21,
+      "backlog-owed.service.aecp.last.if0": 61.99
+    },
+    "usb": {
+      "backlog.owed.if0": 62.94,
+      "backlog.owed_behind0.if0": 63.08,
+      "backlog.owed_behind1.if0": 63.22,
+      "backlog.owed_behind2.if0": 63.36,
+      "backlog.owed_behind3.if0": 63.51,
+      "backlog-owed.service.acmp.last.if0": 62.21,
+      "backlog-owed.service.aecp.last.if0": 62.14
+    },
+    "arty-usbnet-1x1_returncode": 0,
+    "arty-1x1_returncode": 1
+  },
+  "plants": [
+    {
+      "name": "local_rx_wait_never_releases",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "local_rx_abort_ignored",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "local_rx_abort_flushes_committed",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "local_rx_copy_missing",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "local_rx_wrong_station",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "local_rx_ignores_lock",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "rx_header_length_ignored",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "tx_header_length_ignored",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "rx_maximum_ignored",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "record_terminator_missing",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "record_terminator_early",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "pending_credit_refilled",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "reset_flush_not_requested",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "rx_host_unicast_kept",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "rx_other_unicast_copied",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "rx_group_not_copied",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "rx_link_local_copied",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "mrp_block_not_reserved",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "link_local_block_too_wide",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "rx_tagged_stream_copied",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "stream_is_only_aaf",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "stream_includes_control",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "rx_stream_before_host_order",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "rx_no_host_still_copies",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "rx_double_tag_read",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "rx_full_overwrites",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "rx_odd_pad_stale",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "rx_rollback_missing",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "tx_source_unchecked",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "tx_link_local_passes",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "tx_stream_passes",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "tx_priority_unchecked",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "tx_background_refused",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "tx_double_tag_passes",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "tx_too_long_passes",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "tx_unknown_record_not_skipped",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "host_universal_accepted",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "host_timeout_ignored",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "usb_ok_ignores_superspeed",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "usb_ok_ignores_bus",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "station_mac_valid_ignored",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "station_configured_ignored",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "station_zero_heartbeat",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "station_sequence_ignored",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "station_mac_byte_order",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "rx_kind_missing",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "local_tx_copy_missing",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "local_tx_copy_wrong_last_keep",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "rate_four_times",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "rate_cost_without_overhead",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "rate_too_slow",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "arb_injection_outranks",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "arb_mac_not_empty",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "arb_no_wait_for_end",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "arb_end_not_masked",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "arb_inject_enable_ignored",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "inject_gap_in_frame",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "ld2_ignores_inputs",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "ld2_ignores_outputs",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "ld2_requires_both",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "ld3_internal_needs_lock",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "ld3_stream_ignores_flow",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "ld3_stream_ignores_clock_lock",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "ld3_external_requires_stream",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "led_truth_reset_ignored",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "ld0_ignores_link",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "ld0_no_blink",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "ld0_no_hold",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "ld0_blinks_link_down",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "ld1_from_wrong_input",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "ld2_ld3_swapped",
+      "named_failure": true,
+      "current_anchor_count": 1
+    },
+    {
+      "name": "led_full_duty",
+      "named_failure": true,
+      "current_anchor_count": 1
+    }
+  ],
+  "acmp_composition": {
+    "current_service_ms": 29.84,
+    "additional_us": 38.075,
+    "total_ms": 29.878075,
+    "margin_us": 121.92500000000014,
+    "published_old_service_ms": 29.77,
+    "published_old_total_ms": 29.808075,
+    "published_old_margin_us": 191.925
+  },
+  "wire_parameters_match_current_sources": true
+}

@@ -1,0 +1,47 @@
+R950-2 execution receipt
+
+All commands ran in the foreground. No bank, physical build or detached job was started.
+Set REVIEW_ROOT to the exact-head detached clone and REVIEW_PACKET to this directory.
+Set REVIEW_VERILATOR to the authorised scoped 5.050 executable.
+Prefix shell invocations with the repository-required command proxy.
+
+python3 -B "$REVIEW_PACKET/run_focused.py" "$REVIEW_ROOT"
+  Concurrent bounded checks; at most ten C++ compilation jobs.
+  Initial execution used the assigned compiler path as the script default;
+  the portable copy now requires REVIEW_VERILATOR explicitly.
+  RTL focused: 0; ledger controls: 0; injection controls: 0; inventory: 0;
+  suite registration self-test: 1 (actual head budget failure).
+  Aggregate script exit 1 is therefore expected for this reviewed head.
+
+python3 -B "$REVIEW_PACKET/probe_shard_budget.py" "$REVIEW_ROOT"
+  Exit 0; dependency assignment clean, head worker 25 exceeds cap by 23 s.
+  This evaluates the scheduling arithmetic only, without running suites.
+
+python3 -B "$REVIEW_PACKET/audit_receipts.py" "$REVIEW_ROOT"
+  Exit 0; uses the public evidence extracted to scratch/public.
+  Retained USB ledger exit 0; original Arty ledger exit 1 as expected.
+  159 replay receipts checked; 72 named plant assertions found.
+  No raw trace regrade or native census run.
+
+python3 -B "$REVIEW_PACKET/verify_tree.py" "$REVIEW_ROOT"
+  Exit 0 after all checks and transient bytecode cleanup.
+  All tracked bytes, modes, index entries and required gitlinks match.
+
+python3 -B scripts/suite_shards.py --suite-root tb/verilator --ci-pieces --shard 0/27
+  Exit 0; suite selection itself is repaired.
+
+The suite_tally.scan API reads rtl-focused.log: 92497 checks, 0 failures,
+no unparsed tally, no NOCOUNT. The full sweep was not invoked.
+
+Public source and evidence were fetched read-only from the named repository
+and pinned publication. No review directory was extracted. The interface
+document was read at da91f5999a31d0965872ff153194ee817d1106d1.
+GitHub issue/PR metadata and exact-head check contexts were read only.
+
+Paths in public diagnostics are replaced with role placeholders. This
+includes the compiler runtime's installation prefix; measurement values,
+assertions, status codes and counts are unchanged. Scratch contains the
+downloaded evidence and build outputs and is excluded from publication.
+
+The publication commit has no signature header. Published SHA-256 bindings
+were verified; cryptographic signature verification is not claimed.
