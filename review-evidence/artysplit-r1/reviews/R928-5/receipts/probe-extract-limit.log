@@ -1,0 +1,14 @@
+exact: parts [14000000] (expected [14000000]); reads back under READ_LIMIT=14000001: True; refused under the exclusive limit 14000000: True (part integrity failure: observations.log)
+first-exact: parts [14000000, 5] (expected [14000000, 5]); reads back under READ_LIMIT=14000001: True; refused under the exclusive limit 14000000: True (part integrity failure: observations.log.part0001.txt)
+overlong: refused (observations.log: a line at byte 0 is longer than a part (14000000 bytes)); files left: []
+overlong-later: refused (observations.log: a line at byte 14000000 is longer than a part (14000000 bytes)); files left: ['observations.log.part0001.txt']
+SHIPPED LIMIT PAIRING: PASS
+--- mutant: READ_LIMIT = PART_LIMIT (the round-3 defect) in the loaded module, then --selftest
+PASS a part of exactly the limit is one part and reads back
+PASS the reader refuses that part at a limit of its size
+PASS a first part of exactly the limit, then another, read back whole
+PASS overlong-first: a line longer than a part is refused, after at most one part
+PASS overlong-later: a line longer than a part is refused, after at most one part
+PASS no-newline: a line longer than a part is refused, after at most one part
+census_extract selftest: 6 of 6 passed
+MUTANT read-limit-exclusive: selftest exit 0: SURVIVES (not detected)

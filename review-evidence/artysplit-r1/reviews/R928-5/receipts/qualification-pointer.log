@@ -1,0 +1,25 @@
+README names SHA256 076e7cc7c4f560605b3421be531a044dacafb17e7e99251ef5bbf4b65eb9a09e
+README says: It records PASS over 147 measured cases
+round-7 published-qualification.json SHA256 076e7cc7c4f560605b3421be531a044dacafb17e7e99251ef5bbf4b65eb9a09e
+round-10 published-qualification.json SHA256 3075a3ebb67295a312160e131d26cd40f5e8d6a96b93fe56f39ed5e9c8fd77db
+MODEL DIFFERS /load: round-7 0.5004771140350878 round-10 0.5013971140350877
+MODEL DIFFERS /load_terms/item.aecp: round-7 0.04388 round-10 0.0442
+MODEL DIFFERS /load_terms/rec.adp: round-7 0.012 round-10 0.0125
+MODEL DIFFERS /load_terms/timers: round-7 0.017541499999999998 round-10 0.0176415
+MODEL DIFFERS /rows_ms/ACMP: round-7 29.77 round-10 29.84
+MODEL DIFFERS /rows_ms/ADP: round-7 27.77 round-10 27.83
+MODEL DIFFERS /rows_ms/MAAP: round-7 27.88 round-10 27.95
+MODEL DIFFERS /rows_ms/R4: round-7 14.54 round-10 14.57
+MODEL DIFFERS /rows_ms/R4L: round-7 218.8 round-10 218.83
+MODEL DIFFERS /rows_ms/R5: round-7 68.92 round-10 69.07
+MODEL DIFFERS /rows_ms/R6: round-7 67.0 round-10 67.09
+MODEL DIFFERS /rows_ms/first: round-7 14.85 round-10 14.89
+MODEL DIFFERS /rows_ms/last: round-7 117.47 round-10 117.58
+MODEL DIFFERS /rows_ms/tx: round-7 34.81 round-10 34.89
+MODEL DIFFERS /rows_ms/txL: round-7 48.82 round-10 48.9
+MODEL DIFFERS /slice_margin: round-7 0.003673469387755096 round-10 0.002040816326530641
+worst_pass round-7 {'variant': 'answering-every-port', 'group': 'notice-every-4', 'native_status': 0, 'trace_sha256': '6be378bd56875ec28aaaa769325c8d484a6d5b7ab74c4991277b5809e83bd3c2', 'refusals': [], 'misses': [], 'share': [], 'late': [], 'forbidden': [], 'stated': [], 'reused_from_step1': True, 'worst_pass_cycles': 142775} round-10 {'variant': 'answering-every-port', 'group': 'notice-burst-7', 'native_status': 0, 'trace_sha256': '7e5ff25fc5ca6351dbbdb5523aded5748767234e52259f031e9ba6d4aaa23eb6', 'refusals': [], 'misses': [], 'share': [], 'late': [], 'forbidden': [], 'stated': [], 'seconds': 866.2346515655518, 'worst_pass_cycles': 143181}
+checks round-10 {"owner-model": "PASS", "share": "PASS", "record-classes": "PASS", "retry-costs": "PASS", "transmit-costs": "PASS", "egress-ledger": "PASS", "egress-100": "PASS"}
+head arty_grade model equals round-10 qualification model: True
+head arty_grade model equals round-7 qualification model (the one README names): False
+arty_grade findings: []

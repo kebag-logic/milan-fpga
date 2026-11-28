@@ -1,0 +1,18 @@
+PASS an isolated frame leaves its wire time after its last beat
+PASS the grade runs the testbench's queue and agrees with it
+PASS a departure one datapath cycle off the replay fails
+PASS two frames enter the FIFO a gasket apart
+PASS the FIFO holds its frames to their last octet
+PASS the SR stream is in the queue
+PASS a held egress is the ledger's, not the row's
+PASS a wait just past the bound less its margin and gPTP fails
+CAUGHT wire-twice-as-fast: an isolated frame leaves its wire time after its last beat; the SR stream is in the queue
+CAUGHT no-gasket: two frames enter the FIFO a gasket apart
+CAUGHT nine-frame-fifo: the FIFO holds its frames to their last octet
+CAUGHT no-sr-stream: the SR stream is in the queue
+CAUGHT grade-drifted: the grade runs the testbench's queue and agrees with it; a held egress is the ledger's, not the row's
+CAUGHT held-counted: a held egress is the ledger's, not the row's
+CAUGHT no-margin: a wait just past the bound less its margin and gPTP fails
+CAUGHT no-gptp: a wait just past the bound less its margin and gPTP fails
+CAUGHT agreement-loose: a departure one datapath cycle off the replay fails
+egress_mii selftest: 17 of 17 passed

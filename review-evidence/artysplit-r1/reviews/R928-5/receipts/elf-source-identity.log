@@ -1,0 +1,45 @@
+== files changed 640699e6866602b2a5de5d404c43f3bd4df8037c..c0b625d1792e61b8e99944daea65b842e6b9dcde
+M	docs/design/SPLIT_CONTROL_MEMORY.md
+M	docs/diagrams/regmap/rtl_fingerprint.txt
+M	docs/reference/REGISTER_MAP.md
+M	scripts/measure_test_evidence_readers.py
+M	scripts/register_descriptions.json
+M	sw/firmware/ctrl/loop/ctrl_loop.h
+M	sw/firmware/gtest/README.md
+M	sw/firmware/gtest/coverage.ratchet
+M	tb/verilator/ctrl_service_budget/README.md
+M	tb/verilator/ctrl_service_budget/arty_grade.py
+M	tb/verilator/ctrl_service_budget/egress_ledger.py
+== gitlinks at both heads
+640699e6866602b2a5de5d404c43f3bd4df8037c efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+640699e6866602b2a5de5d404c43f3bd4df8037c 3ce71b768a2f6f6a5274c127080146e755d02275 gptp-processor
+640699e6866602b2a5de5d404c43f3bd4df8037c 801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor
+640699e6866602b2a5de5d404c43f3bd4df8037c d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b third_party/lwSRP
+640699e6866602b2a5de5d404c43f3bd4df8037c c3bff8f3dea03870ea7ae62965db360b509ee3b3 third_party/tsn-c-stack
+640699e6866602b2a5de5d404c43f3bd4df8037c 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+c0b625d1792e61b8e99944daea65b842e6b9dcde efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+c0b625d1792e61b8e99944daea65b842e6b9dcde 3ce71b768a2f6f6a5274c127080146e755d02275 gptp-processor
+c0b625d1792e61b8e99944daea65b842e6b9dcde 801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor
+c0b625d1792e61b8e99944daea65b842e6b9dcde d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b third_party/lwSRP
+c0b625d1792e61b8e99944daea65b842e6b9dcde c3bff8f3dea03870ea7ae62965db360b509ee3b3 third_party/tsn-c-stack
+c0b625d1792e61b8e99944daea65b842e6b9dcde 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+== ctrl_loop.h, raw and comment-stripped (gcc -fpreprocessed -dD -E -P)
+640699e6866602b2a5de5d404c43f3bd4df8037c lines=667 raw=b899537e038218e42ab6bf887787262a0b52b56d67b88a0e9619f0cacc6d94b1 stripped=26be07bcb8213e5899bd664c2fa8cf6dec0c73efac8f2d58b21a71310aab214d stripped-lines=193
+c0b625d1792e61b8e99944daea65b842e6b9dcde lines=667 raw=bc7a20adc126d2255732dface92422ad750db0d8626927d7369ebdd0e6cab483 stripped=26be07bcb8213e5899bd664c2fa8cf6dec0c73efac8f2d58b21a71310aab214d stripped-lines=193
+== raw diff of ctrl_loop.h
+354,355c354,355
+< // the defaults below remain the existing AX7101 statements. This is not
+< // a Linux-host scheduling profile. Section 15 of SPLIT_CONTROL_MEMORY.md
+---
+> // the defaults below remain the existing AX7101 statements. It is this
+> // FPGA point's own row, no host's scheduling profile. Section 15 of SPLIT_CONTROL_MEMORY.md
+== author receipt hashes
+26be07bcb8213e5899bd664c2fa8cf6dec0c73efac8f2d58b21a71310aab214d  author-r11/receipts/identity/ctrl_loop.640699e68.nocomment
+26be07bcb8213e5899bd664c2fa8cf6dec0c73efac8f2d58b21a71310aab214d  author-r11/receipts/identity/ctrl_loop.HEAD.nocomment
+6f323259d4ec8d611f574cac467a368d2d5f1386de56b0671f65f4636a5ee050  author-r11/receipts/identity/product-identity.json
+== author product identity
+endstation_arty_split identical ['f17d1a9da8ba6e50a1e8cf0af9b77ed434288a1d0a689a357a0c6a57ecda92cf']
+endstation_ax7101_8x8 identical ['0f1450acefdd7fa0173d1de3221f8c5a6456e59d96fc99611b5121b1c26a2c3f']
+endstation_ax7101_1x1_tdm8 identical ['6e0a54124483adfadd04e8e6f62d296bdf884794b197d0ed9dc24c71de49fd56']
+heads ['640699e6866602b2a5de5d404c43f3bd4df8037c', 'c0b625d1792e61b8e99944daea65b842e6b9dcde'] identical True
+gcc (GCC) 16.2.1 20260810
