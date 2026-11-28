@@ -1,0 +1,31 @@
+scripts/act_ci.py: STRUCTURE-IDENTICAL; string constants base 6875 head 6875, changed 1
+    - base sha256:aa7637446af80d5e (literal)
+    + head '192.0.2.1'
+scripts/check_baremetal_only.py: STRUCTURE-IDENTICAL; string constants base 1424 head 1424, changed 1
+    - base sha256:a0f8ca3f68c3b79b (literal)
+    + head 'ssh -p 2222 root@192.0.2.2 reboot\n'
+tb/tools/avtp_wire_truth.py: STRUCTURE-IDENTICAL; string constants base 60 head 60, changed 2
+    - base sha256:01aa429274d7fe50 (docstring/comment-like)
+    + head 'avtp_wire_truth.py - decode AVTP off a capture and check the invariants that\ndeclarations cannot see.\n\n    # CLI over an'
+    - base sha256:8a405bf62193ccd6 (literal)
+    + head 'the capture came from an inline capture tap: a 28-octet record header before every frame AND the FCS present. Every ethe'
+tb/tools/avtp_wire_truth_selftest.py: STRUCTURE-IDENTICAL; string constants base 212 head 212, changed 2
+    - base sha256:c4530b31e3a7ab3a (docstring/comment-like)
+    + head 'The capture itself: the 28-octet capture-tap record header and the\n    pcap round trip.'
+    - base sha256:b116751f09d900c1 (docstring/comment-like)
+    + head 'The inline capture tap prepends a 28-octet record header, so\n        EVERY ether offset shifts by +28: in a BPF filter t'
+tb/tools/avtp_wire_truth_wire.py: STRUCTURE-IDENTICAL; string constants base 144 head 144, changed 1
+    - base sha256:2ebd958ca5d45e27 (docstring/comment-like)
+    + head 'Every frame of a pcap/pcapng as (timestamp, ethernet bytes).\n\n    `tap_header` strips a fixed per-record prefix.  An inl'
+tb/tools/torture_campaign.py: STRUCTURE-IDENTICAL; string constants base 6946 head 6946, changed 3
+    - base sha256:c1b4667073adc16b (docstring/comment-like)
+    + head 'The powerstrip-driven physical family - LAST, always, and never faked.\n\n    USER AUTHORIZATION (2026-08-02): the bench p'
+    - base sha256:e4c698ced677a692 (literal)
+    + head 'capture-tap'
+    - base sha256:e3a6e3e919488335 (literal)
+    + head 'Power off the AVB switch at the powerstrip for ~20 s, then power it back on and wait for links and gPTP to recover. AUTO'
+tests/steps/milan_streaming_licence_steps.py: STRUCTURE-IDENTICAL; string constants base 163 head 163, changed 0
+tests/steps/torture_plan_steps.py: STRUCTURE-IDENTICAL; string constants base 421 head 421, changed 0
+tests/steps/wire_truth_steps.py: STRUCTURE-IDENTICAL; string constants base 279 head 279, changed 1
+    - base sha256:a9e2cb74472e0566 (docstring/comment-like)
+    + head 'Writes a real pcap of inline-tap records: a per-record\n    header plus the kept FCS, which only decode once the reader i'

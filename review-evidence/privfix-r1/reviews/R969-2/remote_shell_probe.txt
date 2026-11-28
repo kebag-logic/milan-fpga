@@ -1,0 +1,5 @@
+OK  match=True  expected=True  ssh -p 2222 root@192.0.2.2 reboot
+OK  match=True  expected=True  ssh -p 2222 root@203.0.113.9 reboot
+OK  match=True  expected=True  ssh -p 2222 root@board reboot
+OK  match=False expected=False ssh build-host make lint
+OK  match=False expected=False ssh -p 2222 admin@192.0.2.2 reboot
