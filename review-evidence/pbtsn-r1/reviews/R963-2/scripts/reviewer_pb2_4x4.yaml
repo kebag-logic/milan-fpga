@@ -1,0 +1,65 @@
+# Reviewer-written end-station configuration for the PocketBeagle 2 USB bridge, built only from the
+# facts stated in tsn-c-stack docs/POCKETBEAGLE.md at 40c3111: four AAF streams each way (8, 8, 4, 4
+# channels), one CRF stream each way, 24 USB channels each way, six clock sources, locale en-US.
+schema: kebag-logic/milan-endstation-config
+schema_version: "1.3.0"
+
+entity:
+  name: "PocketBeagle 2 bridge"
+  entity_model_id: hash-derived
+  entity_id: mac-derived
+  vendor_name: "Kebag Logic"
+  serial_number: ""
+  group_name: ""
+  locale: "en-US"
+
+board:
+  target: host
+  gptp_owner: host-phc
+  constraints:
+    link_mbps: 100
+
+platform:
+  mac_address: "02:00:00:00:00:01"
+
+control:
+  placement: split
+
+gptp:
+  priority1: 248
+  priority2: 248
+  clock_class: 248
+  clock_accuracy: 0xFE
+  offset_scaled_log_variance: 0xFFFF
+  domain: 0
+  log_sync_interval: -3
+  log_announce_interval: 0
+  log_pdelay_interval: 0
+  port_number: 1
+
+clocking:
+  sampling_rate_hz: 48000
+  audio_unit_rates_hz: [48000]
+  media_clock_sources: [internal, crf, input_stream]
+  default_source: internal
+  crf_sink: true
+  crf_output:
+    enabled: true
+    format: "0x041060010000BB80"
+
+audio_interface:
+  kind: usb_audio
+  channels: 24
+  word_length_bits: 32
+
+streams:
+  listeners:
+    - { name: "Stream In 0", channels: 8 }
+    - { name: "Stream In 1", channels: 8 }
+    - { name: "Stream In 2", channels: 4 }
+    - { name: "Stream In 3", channels: 4 }
+  talkers:
+    - { name: "Stream Out 0", channels: 8 }
+    - { name: "Stream Out 1", channels: 8 }
+    - { name: "Stream Out 2", channels: 4 }
+    - { name: "Stream Out 3", channels: 4 }

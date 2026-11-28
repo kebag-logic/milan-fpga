@@ -1,0 +1,16 @@
+format-field probes at 40c3111a060fc7b430112dc51222da77837169af (scripts/field_probes.sh, then scripts/head_refusals.c): each probe drops one field from the comparison in src/pbaem.c:54 and runs pbaem_tests and entity_tests
+baseline (unmodified): rc 0 (0 = all pass)
+ignore-bit-depth: KILLED
+ignore-ut-and-reserved-nibble: KILLED
+ignore-ut-bit-only: KILLED
+ignore-reserved-53-55: SURVIVED (rc 0)
+ignore-reserved-high-low-bits: SURVIVED (rc 0)
+probe tree restored to head bytes
+stream 0 0x0205022002006000 8 ch base (accept)           accepted
+stream 0 0x0225022002006000 reserved bit 53 set          refused
+stream 0 0x0245022002006000 reserved bit 54 set          refused
+stream 0 0x0285022002006000 reserved bit 55 set          refused
+stream 0 0x0205022002006800 reserved bit 11 set          refused
+stream 0 0x0205022002006002 reserved bit 1 set           refused
+stream 0 0x0205021802006000 bit_depth 24                 refused
+stream 0 0x0215022002006000 ut bit set (family entry)    refused

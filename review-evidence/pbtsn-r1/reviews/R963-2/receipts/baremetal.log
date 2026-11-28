@@ -1,0 +1,61 @@
+[
+  {
+    "configuration": "Debug",
+    "rc": 0,
+    "elf_sha256": "425d396fcc328fe8505ccd0b9d9364fab05269aa4898f2c7b649e30e7a71d4bd",
+    "elf_bytes": 178208,
+    "core_objects": {
+      "adp.c": "1da4b2b0866a085d8b6ccf95550b173ca2cec363a6457a0e74a897f3f4de0207",
+      "acmp.c": "a03f86685cdeb07518b37dee7608e7b8459ef9f0321e5562eb9ff8764d11de0f",
+      "maap.c": "2e90237aa8e08e1212374d7b3bea86ef4ee815e1550af8eadac56246fa0e8bb2",
+      "pbaem.c": "7a2fb091c6a431e15341f6d121e32aa17269d8800eeadd7bcf6fe4afc189718d"
+    },
+    "core_imports": [
+      "__mulsi3",
+      "__udivsi3",
+      "__umodsi3",
+      "ctrl_reentry_assert",
+      "memcpy",
+      "memset",
+      "port_assert_failed"
+    ],
+    "generated_objects": {
+      "listener": "d063edb509a651589f74dc001ad1319b5cf4c1a42f2680152ba0643bde34824a",
+      "talker": "540994c9085106b39656c2b3a1c7eba6fa47f27ebc60db9c812a126b89bfb552",
+      "duplex": "e8db8847dfe8df540946f3c2b427952ad2211867704a2bd9edd8ce76ace44117",
+      "ax7101": "b0f45a0851b4829eb74c992953650ab7e6d5b6299fa7e4d7e767885238291e18",
+      "pocketbeagle": "25cdb1e16d333cf090cc505bbe3d89ff76dbc218224f496ddb9ed70ef0ff64c9"
+    },
+    "unresolved_final": [],
+    "smoke": "ADP discovery and backpressure; ACMP restore and rollback; MAAP timers and range bounds; five generated entity round trips; the PocketBeagle AEM image"
+  },
+  {
+    "configuration": "Release",
+    "rc": 0,
+    "elf_sha256": "3b056f78322108199ef16c3b71fc422a197c35cd5a4e8acf8af2be3ab0f3ea4c",
+    "elf_bytes": 59684,
+    "core_objects": {
+      "adp.c": "147214113a2a80030230ea55a080b2daff53cdadca5dd4985325eb49575c5a63",
+      "acmp.c": "7d9c4981054420241f81481ded9a87b3bb6338f47fbd43c19c66dc1d4548f4b7",
+      "maap.c": "e2067b00e7b5e889ce207301c5f4943bc0cd26e4c445b155e7ede8a4f9ffa1b7",
+      "pbaem.c": "4549fe4cd1861d5439e42a422df8894ae5b94a306165ee80edf9977c1392a9ab"
+    },
+    "core_imports": [
+      "__mulsi3",
+      "__udivsi3",
+      "__umodsi3",
+      "ctrl_reentry_assert",
+      "memcpy",
+      "memset"
+    ],
+    "generated_objects": {
+      "listener": "a8275748d4583651d15835ccec7945d4d0859bead95a52f09714c64649227d3e",
+      "talker": "76bd8d2e03e85a94eab57583eb3be01d349cf1725ec4123164f2f88162c8ee85",
+      "duplex": "27e56e63d8b10694af9983596be3604378e610218e0817b4fe601ad03006bac5",
+      "ax7101": "ccded8c820175eecdc69226469cffc29bdb570815861fd2a0a60bd781a5dff95",
+      "pocketbeagle": "e68ea594272d3035b23f1f2f730f7f03eec3233a3124c479f9aa71b54fdd8d62"
+    },
+    "unresolved_final": [],
+    "smoke": "ADP discovery and backpressure; ACMP restore and rollback; MAAP timers and range bounds; five generated entity round trips; the PocketBeagle AEM image"
+  }
+]
