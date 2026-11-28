@@ -1,0 +1,15 @@
+CAUGHT M1 sr_frames drops the CRF frame (return aaf) rc=1 
+CAUGHT M2 CRF_AVTPDU = 0 rc=1 
+CAUGHT M3 crf = () rc=1 
+CAUGHT M4 CRF frame 86 octets (six timestamps a PDU) rc=1 
+CAUGHT M5 point_name maps the 4x4 config to arty-1x1 rc=2 
+CAUGHT M6 ARTY_CLOCKS arty-4x4 at 80 MHz rc=2 
+CAUGHT M7 poll_grade reads arty-1x1 record.acmp at (1,5,5) rc=2 
+CAUGHT M8 egress_ledger CLOCK_KHZ arty-4x4 at 80 MHz rc=1 
+CAUGHT M9 egress_fixed whole-ps check removed rc=1 
+CAUGHT M10 egress_fixed over() never over rc=1 
+CAUGHT M11 STREAM_LOAD restated without the CRF frame rc=1 
+BASELINE egress_fixed.py --selftest rc=0
+BASELINE egress_ledger.py --selftest rc=0
+BASELINE egress_mii.py --selftest rc=0
+BASELINE record_classes.py --selftest rc=2

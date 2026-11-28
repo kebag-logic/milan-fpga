@@ -1,0 +1,35 @@
+{
+ "head": "47f2a3d7ffdf7ef701c69267a91ac92892a1c99e",
+ "baseline": {
+  "record_classes.py --selftest": {
+   "rc": 0,
+   "tail": "record classes: 26 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's\nArty record checks: 26 of 26 passed\n"
+  }
+ },
+ "mutants": [
+  {
+   "mutant": "M5 point_name maps the 4x4 config to arty-1x1",
+   "applied": true,
+   "command": "record_classes.py --selftest",
+   "rc": 1,
+   "caught": true,
+   "tail": "ESCAPED endstation_arty_split_4x4 is named to arty-4x4\nrecord classes: 25 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's\nArty record checks: 25 of 26 passed\n"
+  },
+  {
+   "mutant": "M6 ARTY_CLOCKS arty-4x4 at 80 MHz",
+   "applied": true,
+   "command": "record_classes.py --selftest",
+   "rc": 1,
+   "caught": true,
+   "tail": "ESCAPED arty-4x4 record classes accept their complete 100 MHz fixture\nrecord classes: 25 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's\nArty record checks: 25 of 26 passed\n"
+  },
+  {
+   "mutant": "M7 poll_grade reads arty-1x1 record.acmp at (1,5,5)",
+   "applied": true,
+   "command": "record_classes.py --selftest",
+   "rc": 1,
+   "caught": true,
+   "tail": "ESCAPED endstation_arty_split_4x4: its shape (1, 5, 5) reads arty-4x4's ACMP record cost, 210 us\nrecord classes: 25 of 26 planted controls refused; the answering-ports arm's path port is arm_path.py's\nArty record checks: 25 of 26 passed\n"
+  }
+ ]
+}

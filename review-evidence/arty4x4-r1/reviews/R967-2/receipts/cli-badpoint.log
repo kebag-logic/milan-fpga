@@ -1,0 +1,33 @@
+THE 100 Mb/s EGRESS: the census's commits through the shipping transmit queue at the link rate.
+
+PR #1020's 100 Mb/s ruling (comment 7216971645) makes FR_NFR 3.4.1's `T_egress` a held row at 100 Mb/s, and #1004
+carries its items 2(a) and 2(b) as a merge gate (comment 7216972073):
+
+(a) every commit's free-space test keeps its census outcome. The firmware reads TX_TAIL in three places, not only the
+    free-space test: `mbx_tx_begin` (sw/firmware/ctrl/mbx/mbx.c), AECP's completions in its poll
+    (sw/firmware/ctrl/aecp/aecp_mbx.c: a counter notice's next time and an accepted REBOOT's last cookie) and REBOOT's
+    drain (sw/firmware/ctrl/plat/ctrl_plat.c, `drained`). A replay of the instant-egress census through this queue
+    changes the free-space outcome in 11 of its 159 cases, so by the ruling's item 3 the census runs with egress
+    drained at link rate through the queue (egress_queue.hpp decides the mailbox's ready), and every one of the three
+    reads is the firmware's own against the link-rate tail. The grade checks the testbench's queue against this one:
+    the replay of each case's commits, each record anchored to its last mailbox byte (WIRE), reproduces every
+    departure the testbench printed (EGRESS) exactly.
+(b) the largest commit-to-last-octet wait plus 5 %, plus the fixed path measured on the shipping chain at the MII rate,
+    is at most BOUND_US. The wait is each record's own, from its TX_HEAD commit (TXC) to its last octet; a record
+    whose wait meets a held egress (a `txready 0` window, the held-egress rows' ledger, egress_ledger.py) and every
+    record queued behind it until the queue empties are left to that ledger. The shape's SR stream is swept over
+    PHASES phases of its period by the replay; the testbench runs phase 0. Its gPTP frames are a burst every
+    GPTP_PERIOD_PS, and the grade adds the burst's whole wire time to the largest wait, so a burst at any phase is
+    bounded. The fixed path, the converted MII chain's own latency from its boundary to its last octet less the
+    frame's wire time, is MII_FIXED_NS (egress_fixed.py measures it again).
+
+Every queue parameter is read from its source (`params`). `--selftest` runs its controls at every 100 Mb/s point
+(POINTS) and plants each defect the grade must catch, among them a stream load short of its CRF output's frame.
+`--structural` prints the AECP admission burst's figures: a notice's 16 registrations at the largest frame.
+
+`--packet DIR` grades a census packet or compact extract (receipt_regrade.py's): every case's observations as published.
+`--point` names the point whose queue `--packet` and `--structural` hold, arty-1x1 unless given; a case whose
+testbench ran another point's queue is refused, never graded at this one's.
+
+usage: python3 -I egress_mii.py BUILD... | --packet DIR [--point P] | --selftest | --structural [--point P]
+

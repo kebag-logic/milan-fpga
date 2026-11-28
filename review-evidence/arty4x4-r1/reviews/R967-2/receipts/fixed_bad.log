@@ -1,0 +1,16 @@
+Measure the 100 Mb/s egress row's fixed path on the converted MII chain, and hold egress_mii.MII_FIXED_NS to it.
+
+egress_fixed_main.cpp sends one frame at a time through tb/verilator/gptp_txts/generated/mac_tx_chain_mii.v, the
+shipping MAC transmit chain on the board's MII stages as sw/litex/gen_mac_tx_model.py converts it, and prints for
+each length and each of 8 x 8 clock phases the chain's latency from its boundary's last beat to the last nibble at
+its pads, less the frame's wire time. The stated figure is the largest, rounded up to 10 ns; the run exits 1 unless
+MII_FIXED_NS is exactly that.
+
+With SYS_HZ the bench's sys clock is that frequency instead of the Arty 1x1's 80 MHz, its period a whole number of
+ps, and the run reports the most against the stated figure: exit 1 when it is over, 0 when it is within. The
+datapath (50 MHz) and MII (25 MHz) clocks are unchanged. A SYS_HZ that is not a positive whole number of Hz with a
+whole-ps period is refused with this usage, exit 2. `--selftest` plants each defect of the argument, build and report
+paths with a stub in place of the simulator, so it needs no Verilator.
+
+usage: python3 -I egress_fixed.py BUILD_DIR [SYS_HZ] | --selftest
+

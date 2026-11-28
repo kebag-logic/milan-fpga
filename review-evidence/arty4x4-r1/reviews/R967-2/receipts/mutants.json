@@ -1,0 +1,111 @@
+{
+ "head": "47f2a3d7ffdf7ef701c69267a91ac92892a1c99e",
+ "baseline": {
+  "egress_fixed.py --selftest": {
+   "rc": 0,
+   "tail": "it 2\nCAUGHT the bench built at the default period whatever SYS_HZ: SYS_HZ 100000000 builds the bench at a 10000 ps sys period\nCAUGHT a report over the stated figure read as within: a fixed path 1 ps over the stated figure is reported OVER, exit 1\negress_fixed selftest: PASS, 3 mutants, 0 failure(s)\n"
+  },
+  "egress_ledger.py --selftest": {
+   "rc": 0,
+   "tail": "ement is the one the ledger derives from\ncaught mutant \"a run's refusals not read\": 8x8-1if: a results directory whose run refused a group fails\ncaught mutant \"a ledger row's name taken in any group\": 8x8-1if: a ledger row's name in another group is a new miss\nRESULT: PASS: 26 mutants, 0 failure(s)\n"
+  },
+  "egress_mii.py --selftest": {
+   "rc": 0,
+   "tail": " the bound less its margin and gPTP fails; [arty-4x4] a wait just past the bound less its margin and gPTP fails\nCAUGHT agreement-loose: [arty-1x1] a departure one datapath cycle off the replay fails; [arty-4x4] a departure one datapath cycle off the replay fails\negress_mii selftest: 35 of 35 passed\n"
+  },
+  "record_classes.py --selftest": {
+   "rc": 2,
+   "tail": "gen_aemi_image: the protocol-processor submodule is not checked out (no protocol-processor/hdl/aecp/desc).\n  git submodule update --init protocol-processor\n"
+  }
+ },
+ "mutants": [
+  {
+   "mutant": "M1 sr_frames drops the CRF frame (return aaf)",
+   "applied": true,
+   "command": "egress_mii.py --selftest",
+   "rc": 1,
+   "caught": true,
+   "tail": "utput's, (90, 90, 90, 90, 46); [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval\nCAUGHT held-counted: [arty-1x1] a held egress is the ledger's, not the row's; [arty-4x4] a held egress is the ledger's, not the row's; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46); [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval\nCAUGHT no-margin: [arty-1x1] a wait just past the bound less its margin and gPTP fails; [arty-4x4] a wait just past the bound less its margin and gPTP fails; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46); [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval\nCAUGHT no-gptp: [arty-1x1] a wait just past the bound less its margin and gPTP fails; [arty-4x4] a wait just past the bound less its margin and gPTP fails; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46); [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval\nCAUGHT agreement-loose: [arty-1x1] a departure one datapath cycle off the replay fails; [arty-4x4] a departure one datapath cycle off the replay fails; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46); [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval\negress_mii selftest: 33 of 35 passed\n"
+  },
+  {
+   "mutant": "M2 CRF_AVTPDU = 0",
+   "applied": true,
+   "command": "egress_mii.py --selftest",
+   "rc": 1,
+   "caught": true,
+   "tail": "eam load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46)\nCAUGHT grade-drifted: [arty-1x1] the grade runs the testbench's queue and agrees with it; [arty-1x1] a held egress is the ledger's, not the row's; [arty-4x4] the grade runs the testbench's queue and agrees with it; [arty-4x4] a held egress is the ledger's, not the row's; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46)\nCAUGHT held-counted: [arty-1x1] a held egress is the ledger's, not the row's; [arty-4x4] a held egress is the ledger's, not the row's; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46)\nCAUGHT no-margin: [arty-1x1] a wait just past the bound less its margin and gPTP fails; [arty-4x4] a wait just past the bound less its margin and gPTP fails; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46)\nCAUGHT no-gptp: [arty-1x1] a wait just past the bound less its margin and gPTP fails; [arty-4x4] a wait just past the bound less its margin and gPTP fails; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46)\nCAUGHT agreement-loose: [arty-1x1] a departure one datapath cycle off the replay fails; [arty-4x4] a departure one datapath cycle off the replay fails; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46)\negress_mii selftest: 34 of 35 passed\n"
+  },
+  {
+   "mutant": "M3 crf = ()",
+   "applied": true,
+   "command": "egress_mii.py --selftest",
+   "rc": 1,
+   "caught": true,
+   "tail": "utput's, (90, 90, 90, 90, 46); [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval\nCAUGHT held-counted: [arty-1x1] a held egress is the ledger's, not the row's; [arty-4x4] a held egress is the ledger's, not the row's; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46); [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval\nCAUGHT no-margin: [arty-1x1] a wait just past the bound less its margin and gPTP fails; [arty-4x4] a wait just past the bound less its margin and gPTP fails; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46); [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval\nCAUGHT no-gptp: [arty-1x1] a wait just past the bound less its margin and gPTP fails; [arty-4x4] a wait just past the bound less its margin and gPTP fails; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46); [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval\nCAUGHT agreement-loose: [arty-1x1] a departure one datapath cycle off the replay fails; [arty-4x4] a departure one datapath cycle off the replay fails; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46); [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval\negress_mii selftest: 33 of 35 passed\n"
+  },
+  {
+   "mutant": "M4 CRF frame 86 octets (six timestamps a PDU)",
+   "applied": true,
+   "command": "egress_mii.py --selftest",
+   "rc": 1,
+   "caught": true,
+   "tail": "eam load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46)\nCAUGHT grade-drifted: [arty-1x1] the grade runs the testbench's queue and agrees with it; [arty-1x1] a held egress is the ledger's, not the row's; [arty-4x4] the grade runs the testbench's queue and agrees with it; [arty-4x4] a held egress is the ledger's, not the row's; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46)\nCAUGHT held-counted: [arty-1x1] a held egress is the ledger's, not the row's; [arty-4x4] a held egress is the ledger's, not the row's; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46)\nCAUGHT no-margin: [arty-1x1] a wait just past the bound less its margin and gPTP fails; [arty-4x4] a wait just past the bound less its margin and gPTP fails; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46)\nCAUGHT no-gptp: [arty-1x1] a wait just past the bound less its margin and gPTP fails; [arty-4x4] a wait just past the bound less its margin and gPTP fails; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46)\nCAUGHT agreement-loose: [arty-1x1] a departure one datapath cycle off the replay fails; [arty-4x4] a departure one datapath cycle off the replay fails; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46)\negress_mii selftest: 34 of 35 passed\n"
+  },
+  {
+   "mutant": "M5 point_name maps the 4x4 config to arty-1x1",
+   "applied": true,
+   "command": "record_classes.py --selftest",
+   "rc": 2,
+   "caught": true,
+   "tail": "gen_aemi_image: the protocol-processor submodule is not checked out (no protocol-processor/hdl/aecp/desc).\n  git submodule update --init protocol-processor\n"
+  },
+  {
+   "mutant": "M6 ARTY_CLOCKS arty-4x4 at 80 MHz",
+   "applied": true,
+   "command": "record_classes.py --selftest",
+   "rc": 2,
+   "caught": true,
+   "tail": "gen_aemi_image: the protocol-processor submodule is not checked out (no protocol-processor/hdl/aecp/desc).\n  git submodule update --init protocol-processor\n"
+  },
+  {
+   "mutant": "M7 poll_grade reads arty-1x1 record.acmp at (1,5,5)",
+   "applied": true,
+   "command": "record_classes.py --selftest",
+   "rc": 2,
+   "caught": true,
+   "tail": "gen_aemi_image: the protocol-processor submodule is not checked out (no protocol-processor/hdl/aecp/desc).\n  git submodule update --init protocol-processor\n"
+  },
+  {
+   "mutant": "M8 egress_ledger CLOCK_KHZ arty-4x4 at 80 MHz",
+   "applied": true,
+   "command": "egress_ledger.py --selftest",
+   "rc": 1,
+   "caught": true,
+   "tail": " for figure\ncaught mutant 'the 5 % on the whole row, the hold too': 8x8-1if: the ledger is section 13's table, row for row and figure for figure\ncaught mutant \"the hold not the scenario's\": 8x8-1if: each figure is the hold plus the service behind it plus 5 %, rounded up to 0.01 ms\ncaught mutant 'a measurement the ledger does not derive from': 8x8-1if: section 13's measurement is the one the ledger derives from\ncaught mutant \"a figure at the merged image's measurement where the composed one is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from\ncaught mutant \"a figure at the composed image's measurement where the Listener copies' is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from\ncaught mutant \"a figure at the earlier images' measurements where the train's and the pin merge's are larger\": 8x8-1if: section 13's measurement is the one the ledger derives from\ncaught mutant \"a figure at the train's measurement where the pin merge's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from\ncaught mutant \"service.aecp.last at the pin merge's measurement where the train's is larger\": 8x8-1if: section 13's measurement is the one the ledger derives from\ncaught mutant \"a run's refusals not read\": 8x8-1if: a results directory whose run refused a group fails\ncaught mutant \"a ledger row's name taken in any group\": 8x8-1if: a ledger row's name in another group is a new miss\nRESULT: FAIL: 26 mutants, 2 failure(s)\n"
+  },
+  {
+   "mutant": "M9 egress_fixed whole-ps check removed",
+   "applied": true,
+   "command": "egress_fixed.py --selftest",
+   "rc": 1,
+   "caught": true,
+   "tail": "PASS SYS_HZ '0' is refused with the usage, exit 2\nPASS SYS_HZ '-1' is refused with the usage, exit 2\nPASS SYS_HZ 'abc' is refused with the usage, exit 2\nFAIL SYS_HZ '3' is refused with the usage, exit 2\nPASS SYS_HZ '1e8' is refused with the usage, exit 2\nPASS SYS_HZ 100000000 builds the bench at a 10000 ps sys period\nPASS 300.0 ns at 100 MHz is reported within the stated figure, exit 0\nPASS a fixed path 1 ps over the stated figure is reported OVER, exit 1\nPASS no SYS_HZ builds the bench at the Arty 1x1's 12500 ps\nPASS 312.5 ns, stated 320 ns, passes the default run\nPASS a measurement that rounds to another stated figure fails the default run\nCAUGHT SYS_HZ read without its whole-ps check: SYS_HZ '0' is refused with the usage, exit 2\nCAUGHT the bench built at the default period whatever SYS_HZ: SYS_HZ '3' is refused with the usage, exit 2\nCAUGHT a report over the stated figure read as within: SYS_HZ '3' is refused with the usage, exit 2\negress_fixed selftest: FAIL, 3 mutants, 1 failure(s)\n"
+  },
+  {
+   "mutant": "M10 egress_fixed over() never over",
+   "applied": true,
+   "command": "egress_fixed.py --selftest",
+   "rc": 1,
+   "caught": true,
+   "tail": "PASS SYS_HZ '0' is refused with the usage, exit 2\nPASS SYS_HZ '-1' is refused with the usage, exit 2\nPASS SYS_HZ 'abc' is refused with the usage, exit 2\nPASS SYS_HZ '3' is refused with the usage, exit 2\nPASS SYS_HZ '1e8' is refused with the usage, exit 2\nPASS SYS_HZ 100000000 builds the bench at a 10000 ps sys period\nPASS 300.0 ns at 100 MHz is reported within the stated figure, exit 0\nFAIL a fixed path 1 ps over the stated figure is reported OVER, exit 1\nPASS no SYS_HZ builds the bench at the Arty 1x1's 12500 ps\nPASS 312.5 ns, stated 320 ns, passes the default run\nPASS a measurement that rounds to another stated figure fails the default run\nCAUGHT SYS_HZ read without its whole-ps check: SYS_HZ '0' is refused with the usage, exit 2\nCAUGHT the bench built at the default period whatever SYS_HZ: SYS_HZ 100000000 builds the bench at a 10000 ps sys period\nCAUGHT a report over the stated figure read as within: a fixed path 1 ps over the stated figure is reported OVER, exit 1\negress_fixed selftest: FAIL, 3 mutants, 1 failure(s)\n"
+  },
+  {
+   "mutant": "M11 STREAM_LOAD restated without the CRF frame",
+   "applied": true,
+   "command": "egress_mii.py --selftest",
+   "rc": 1,
+   "caught": true,
+   "tail": "y-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90)\nCAUGHT grade-drifted: [arty-1x1] the grade runs the testbench's queue and agrees with it; [arty-1x1] a held egress is the ledger's, not the row's; [arty-4x4] the grade runs the testbench's queue and agrees with it; [arty-4x4] a held egress is the ledger's, not the row's; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90)\nCAUGHT held-counted: [arty-1x1] a held egress is the ledger's, not the row's; [arty-4x4] a held egress is the ledger's, not the row's; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90)\nCAUGHT no-margin: [arty-1x1] a wait just past the bound less its margin and gPTP fails; [arty-4x4] a wait just past the bound less its margin and gPTP fails; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90)\nCAUGHT no-gptp: [arty-1x1] a wait just past the bound less its margin and gPTP fails; [arty-4x4] a wait just past the bound less its margin and gPTP fails; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90)\nCAUGHT agreement-loose: [arty-1x1] a departure one datapath cycle off the replay fails; [arty-4x4] a departure one datapath cycle off the replay fails; [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90)\negress_mii selftest: 33 of 35 passed\n"
+  }
+ ]
+}

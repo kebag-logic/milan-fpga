@@ -1,0 +1,10 @@
+gen_toc --check rc=0
+gen_toc --verify-anchors rc=0
+gen_toc --selftest rc=0
+em_dash aa30d77f75cd97b3a29878ca0ed68010a7629266 rc=0
+em_dash 12ab4b189f rc=0
+docs_check rc=0
+check_doc_style rc=0
+diff-check clean
+check_py_idiom rc=0
+check_doc_paths rc=0
