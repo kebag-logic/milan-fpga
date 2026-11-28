@@ -508,6 +508,9 @@ The two fabric allowances are bounds the design gives, not yet measurements:
   A replay of the instant-egress census through that queue changed the free-space test's outcome in 11 of 159 cases, so by the ruling's item 3 the census itself drains at link rate, and every TX_TAIL read the firmware makes sees the link-rate tail.
   `egress_mii.py` holds each record's wait, from its commit to its last octet, over eight phases of the SR stream, with 5 % and one whole gPTP burst (54.88 us) added and the fixed path measured on the converted MII chain (320 ns, `egress_fixed.py`), to 1 ms. Held egress stays the held-egress ledger's.
   At the Arty, over the 159 cases of that census, the largest wait is 426.47 us (`aecp-largest-notice`'s 550-byte notice frames), so the row is 505.74 us, within its 1 ms; the census derives the installed scheduler row again unchanged.
+  At the Arty's 4x4/1if point (`arty-4x4`, sys at 100 MHz), the SR stream is four 90-byte AAF frames and the CRF output's 46-byte frame each 125 us, the CRF counted every interval rather than every 2 ms.
+  There a replay of the instant-egress census through the queue overran AECP's 512-word ring in notice bursts, so its census too drains at link rate.
+  Over its 159 cases the largest wait is 446.76 us (`answering-every-port/notice-every-1`), so the row is 527.04 us, within its 1 ms; the fixed path measured at that sys clock is 300.0 ns, within the stated 320.
   The structural maximum is AECP's admission burst, a notice's 16 registrations at the 1,514-byte largest frame: the AECP ring holds one such record at a time, so each waits at most 391.5 us, and the burst leaves in 2.18 ms.
   The gasket spaces control frames at least 10.26 us apart. All five rings at their capacity of the least record, 254 records committed together, would leave their last octet 2.65 ms after the commit; no census case queues more than 19 records at once.
 
