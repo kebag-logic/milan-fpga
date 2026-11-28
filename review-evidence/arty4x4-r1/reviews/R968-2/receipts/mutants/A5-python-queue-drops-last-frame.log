@@ -1,0 +1,36 @@
+PASS [arty-1x1] an isolated frame leaves its wire time after its last beat
+PASS [arty-1x1] the grade runs the testbench's queue and agrees with it
+PASS [arty-1x1] a departure one datapath cycle off the replay fails
+PASS [arty-1x1] two frames enter the FIFO a gasket apart
+PASS [arty-1x1] the FIFO holds its frames to their last octet
+PASS [arty-1x1] the SR stream is in the queue
+PASS [arty-1x1] a held egress is the ledger's, not the row's
+PASS [arty-1x1] a wait just past the bound less its margin and gPTP fails
+PASS [arty-1x1] arty-1x1: the stream load is its talkers' frames and its CRF output's, (90,)
+PASS [arty-1x1] arty-1x1: every frame of the stream load is on the wire in its interval
+PASS [arty-1x1] arty-1x1: a log of arty-4x4's queue is refused
+PASS [arty-4x4] an isolated frame leaves its wire time after its last beat
+PASS [arty-4x4] the grade runs the testbench's queue and agrees with it
+PASS [arty-4x4] a departure one datapath cycle off the replay fails
+PASS [arty-4x4] two frames enter the FIFO a gasket apart
+PASS [arty-4x4] the FIFO holds its frames to their last octet
+PASS [arty-4x4] the SR stream is in the queue
+PASS [arty-4x4] a held egress is the ledger's, not the row's
+PASS [arty-4x4] a wait just past the bound less its margin and gPTP fails
+PASS [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46)
+FAIL [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval
+PASS [arty-4x4] arty-4x4: a log of arty-1x1's queue is refused
+CAUGHT wire-twice-as-fast: [arty-1x1] an isolated frame leaves its wire time after its last beat; [arty-1x1] the SR stream is in the queue; [arty-1x1] arty-1x1: every frame of the stream load is on the wire in its interval; [arty-4x4] an isolated frame leaves its wire time after its last beat; [arty-4x4] the SR stream is in the queue; [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval
+CAUGHT no-gasket: [arty-1x1] two frames enter the FIFO a gasket apart; [arty-4x4] two frames enter the FIFO a gasket apart; [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval
+CAUGHT nine-frame-fifo: [arty-1x1] the FIFO holds its frames to their last octet; [arty-4x4] the FIFO holds its frames to their last octet; [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval
+CAUGHT no-sr-stream: [arty-1x1] the SR stream is in the queue; [arty-1x1] arty-1x1: every frame of the stream load is on the wire in its interval; [arty-4x4] the SR stream is in the queue; [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval
+CAUGHT crf-frame-not-queued: [arty-1x1] the SR stream is in the queue; [arty-1x1] arty-1x1: every frame of the stream load is on the wire in its interval; [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval
+CAUGHT crf-frame-left-out: [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46); [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval
+CAUGHT crf-frame-zero-length: [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46); [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval
+CAUGHT crf-frame-short: [arty-4x4] arty-4x4: the stream load is its talkers' frames and its CRF output's, (90, 90, 90, 90, 46); [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval
+CAUGHT grade-drifted: [arty-1x1] the grade runs the testbench's queue and agrees with it; [arty-1x1] a held egress is the ledger's, not the row's; [arty-4x4] the grade runs the testbench's queue and agrees with it; [arty-4x4] a held egress is the ledger's, not the row's; [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval
+CAUGHT held-counted: [arty-1x1] a held egress is the ledger's, not the row's; [arty-4x4] a held egress is the ledger's, not the row's; [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval
+CAUGHT no-margin: [arty-1x1] a wait just past the bound less its margin and gPTP fails; [arty-4x4] a wait just past the bound less its margin and gPTP fails; [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval
+CAUGHT no-gptp: [arty-1x1] a wait just past the bound less its margin and gPTP fails; [arty-4x4] a wait just past the bound less its margin and gPTP fails; [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval
+CAUGHT agreement-loose: [arty-1x1] a departure one datapath cycle off the replay fails; [arty-4x4] a departure one datapath cycle off the replay fails; [arty-4x4] arty-4x4: every frame of the stream load is on the wire in its interval
+egress_mii selftest: 34 of 35 passed

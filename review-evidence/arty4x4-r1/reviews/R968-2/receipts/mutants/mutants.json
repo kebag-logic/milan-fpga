@@ -1,0 +1,252 @@
+[
+ {
+  "name": "clean-mii",
+  "file": null,
+  "plant": "unchanged tree",
+  "old": "",
+  "new": "",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_mii.py --selftest",
+  "rc": 0,
+  "verdict": "PASS"
+ },
+ {
+  "name": "clean-rec",
+  "file": null,
+  "plant": "unchanged tree",
+  "old": "",
+  "new": "",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/record_classes.py --selftest",
+  "rc": 0,
+  "verdict": "PASS"
+ },
+ {
+  "name": "clean-led",
+  "file": null,
+  "plant": "unchanged tree",
+  "old": "",
+  "new": "",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_ledger.py --selftest",
+  "rc": 0,
+  "verdict": "PASS"
+ },
+ {
+  "name": "clean-fix",
+  "file": null,
+  "plant": "unchanged tree",
+  "old": "",
+  "new": "",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_fixed.py --selftest",
+  "rc": 0,
+  "verdict": "PASS"
+ },
+ {
+  "name": "A1-crf-not-in-sources",
+  "file": "tb/verilator/ctrl_service_budget/egress_mii.py",
+  "plant": "sr_frames leaves the CRF output's frame out",
+  "old": "    return aaf + crf\n",
+  "new": "    return aaf\n",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_mii.py --selftest",
+  "rc": 1,
+  "verdict": "CAUGHT"
+ },
+ {
+  "name": "A2-crf-octet-short",
+  "file": "tb/verilator/ctrl_service_budget/egress_mii.py",
+  "plant": "the CRF AVTPDU an octet short",
+  "old": "CRF_AVTPDU = 28\n",
+  "new": "CRF_AVTPDU = 27\n",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_mii.py --selftest",
+  "rc": 1,
+  "verdict": "CAUGHT"
+ },
+ {
+  "name": "A4-4x4-point-reads-1x1-config",
+  "file": "tb/verilator/ctrl_service_budget/egress_mii.py",
+  "plant": "the 4x4 point's queue read from the 1x1 product configuration",
+  "old": "'arty-4x4': 'endstation_arty_split_4x4'}\n#: Each point",
+  "new": "'arty-4x4': 'endstation_arty_split'}\n#: Each point",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_mii.py --selftest",
+  "rc": 1,
+  "verdict": "CAUGHT"
+ },
+ {
+  "name": "A5-python-queue-drops-last-frame",
+  "file": "tb/verilator/ctrl_service_budget/egress_mii.py",
+  "plant": "the grade's queue model carries only four SR frames",
+  "old": "self.others.extend(p.sr_bytes)",
+  "new": "self.others.extend(p.sr_bytes[:4])",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_mii.py --selftest",
+  "rc": 1,
+  "verdict": "CAUGHT"
+ },
+ {
+  "name": "A6-testbench-queue-drops-last-frame",
+  "file": "tb/verilator/ctrl_service_budget/egress_queue.hpp",
+  "plant": "the testbench's queue carries only four SR frames",
+  "old": "for (const unsigned bytes : p_.sr_bytes) others_.push_back(bytes);",
+  "new": "for (std::size_t i = 0; i < p_.sr_bytes.size() && i < 4; ++i) others_.push_back(p_.sr_bytes[i]);",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_mii.py --selftest",
+  "rc": 0,
+  "verdict": "ESCAPED"
+ },
+ {
+  "name": "A8-structural-ignores-point",
+  "file": "tb/verilator/ctrl_service_budget/egress_mii.py",
+  "plant": "--structural --point prints the 1x1 queue under the named point",
+  "old": "print('\\n'.join(structural(params(point_spec(point)))))",
+  "new": "print('\\n'.join(structural(params(arty_spec()))))",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_mii.py --selftest",
+  "rc": 0,
+  "verdict": "ESCAPED"
+ },
+ {
+  "name": "A9-packet-ignores-point",
+  "file": "tb/verilator/ctrl_service_budget/egress_mii.py",
+  "plant": "--packet --point grades at the 1x1 queue",
+  "old": "        p = params(point_spec(point))\n        ok, lines = verdict(",
+  "new": "        p = params(arty_spec())\n        ok, lines = verdict(",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_mii.py --selftest",
+  "rc": 0,
+  "verdict": "ESCAPED"
+ },
+ {
+  "name": "B1-4x4-clock-80",
+  "file": "tb/verilator/ctrl_service_budget/record_classes.py",
+  "plant": "the 4x4 point held at 80 MHz",
+  "old": "'arty-4x4': 100_000_000}\nARTY_POINTS",
+  "new": "'arty-4x4': 80_000_000}\nARTY_POINTS",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/record_classes.py --selftest",
+  "rc": 1,
+  "verdict": "CAUGHT"
+ },
+ {
+  "name": "B2-4x4-config-named-1x1",
+  "file": "tb/verilator/ctrl_service_budget/record_classes.py",
+  "plant": "the 4x4 configuration named to the 1x1 point",
+  "old": "'endstation_arty_split_4x4': 'arty-4x4'}",
+  "new": "'endstation_arty_split_4x4': 'arty-1x1'}",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/record_classes.py --selftest",
+  "rc": 1,
+  "verdict": "CAUGHT"
+ },
+ {
+  "name": "B3-4x4-no-reboot-path",
+  "file": "tb/verilator/ctrl_service_budget/record_classes.py",
+  "plant": "the 4x4 point not held to its REBOOTs and GET_AS_PATH",
+  "old": "REBOOT_PATH_POINTS = ('1x1/1if', 'arty-1x1', 'arty-4x4')",
+  "new": "REBOOT_PATH_POINTS = ('1x1/1if', 'arty-1x1')",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/record_classes.py --selftest",
+  "rc": 1,
+  "verdict": "CAUGHT"
+ },
+ {
+  "name": "B4-4x4-not-complete",
+  "file": "tb/verilator/ctrl_service_budget/record_classes.py",
+  "plant": "the 4x4 point not among the points a pass is held complete at",
+  "old": "COMPLETE = ('1x1/1if', '8x8/1if', 'arty-1x1', 'arty-4x4')",
+  "new": "COMPLETE = ('1x1/1if', '8x8/1if', 'arty-1x1')",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/record_classes.py --selftest",
+  "rc": 1,
+  "verdict": "CAUGHT"
+ },
+ {
+  "name": "B5-4x4-label-1x1",
+  "file": "tb/verilator/ctrl_service_budget/record_classes.py",
+  "plant": "the 4x4 point's run label the 1x1's",
+  "old": "'arty-1x1': 'arty-1x1', 'arty-4x4': 'arty-4x4'}",
+  "new": "'arty-1x1': 'arty-1x1', 'arty-4x4': 'arty-1x1'}",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/record_classes.py --selftest",
+  "rc": 0,
+  "verdict": "ESCAPED"
+ },
+ {
+  "name": "B6-poll-shape-155-named-1x1",
+  "file": "tb/verilator/ctrl_service_budget/poll_grade.py",
+  "plant": "the (1,5,5) shape's kept-record cost read at the 1x1 point",
+  "old": "shape_costs.Shape(1, 5, 5): 'arty-4x4'}",
+  "new": "shape_costs.Shape(1, 5, 5): 'arty-1x1'}",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/record_classes.py --selftest",
+  "rc": 1,
+  "verdict": "CAUGHT"
+ },
+ {
+  "name": "B8-4x4-clock-not-checked",
+  "file": "tb/verilator/ctrl_service_budget/record_classes.py",
+  "plant": "a 4x4 leg's clock never checked",
+  "old": "if leg.point in ARTY_POINTS and (leg.cpu_hz, leg.sys_hz) !=",
+  "new": "if leg.point == 'arty-1x1' and (leg.cpu_hz, leg.sys_hz) !=",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/record_classes.py --selftest",
+  "rc": 1,
+  "verdict": "CAUGHT"
+ },
+ {
+  "name": "C1-ledger-4x4-cycle-80",
+  "file": "tb/verilator/ctrl_service_budget/egress_ledger.py",
+  "plant": "the 4x4's planted cycle the 80 MHz one",
+  "old": "'arty-1x1': 80_000, 'arty-4x4': 100_000}",
+  "new": "'arty-1x1': 80_000, 'arty-4x4': 80_000}",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_ledger.py --selftest",
+  "rc": 1,
+  "verdict": "CAUGHT"
+ },
+ {
+  "name": "C3-ledger-plant-ignores-table",
+  "file": "tb/verilator/ctrl_service_budget/egress_ledger.py",
+  "plant": "the plant uses a 12.5 ns cycle at every point, whatever the table",
+  "old": "cycle_ms = 1 / CLOCK_KHZ[point]",
+  "new": "cycle_ms = 1 / 80_000",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_ledger.py --selftest",
+  "rc": 0,
+  "verdict": "ESCAPED"
+ },
+ {
+  "name": "D1-build-flag-fixed",
+  "file": "tb/verilator/ctrl_service_budget/egress_fixed.py",
+  "plant": "build() passes the default period whatever it is given",
+  "old": "-DEGRESS_FIXED_SYS_PS={sys_ps}",
+  "new": "-DEGRESS_FIXED_SYS_PS=12500",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_fixed.py --selftest",
+  "rc": 1,
+  "verdict": "CAUGHT"
+ },
+ {
+  "name": "D3-no-whole-ps",
+  "file": "tb/verilator/ctrl_service_budget/egress_fixed.py",
+  "plant": "a SYS_HZ with a fractional-ps period accepted",
+  "old": " or 10**12 % int(text):",
+  "new": ":",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_fixed.py --selftest",
+  "rc": 1,
+  "verdict": "CAUGHT"
+ },
+ {
+  "name": "D2-bench-ignores-define-selftest",
+  "file": "tb/verilator/ctrl_service_budget/egress_fixed_main.cpp",
+  "plant": "the bench ignores the sys period the build names (self-test)",
+  "old": "constexpr std::uint64_t kSysPs = EGRESS_FIXED_SYS_PS;",
+  "new": "constexpr std::uint64_t kSysPs = 12500;",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_fixed.py --selftest",
+  "rc": 0,
+  "verdict": "ESCAPED"
+ },
+ {
+  "name": "D2-bench-ignores-define-run100",
+  "file": "tb/verilator/ctrl_service_budget/egress_fixed_main.cpp",
+  "plant": "the bench ignores the sys period the build names (documented 100 MHz run)",
+  "old": "constexpr std::uint64_t kSysPs = EGRESS_FIXED_SYS_PS;",
+  "new": "constexpr std::uint64_t kSysPs = 12500;",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_fixed.py BUILD_DIR 100000000",
+  "rc": 0,
+  "verdict": "ESCAPED"
+ },
+ {
+  "name": "A8-structural-ignores-point-print",
+  "file": "tb/verilator/ctrl_service_budget/egress_mii.py",
+  "plant": "what --structural --point arty-4x4 prints under that mutant",
+  "old": "print('\\n'.join(structural(params(point_spec(point)))))",
+  "new": "print('\\n'.join(structural(params(arty_spec()))))",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_mii.py --structural --point arty-4x4",
+  "rc": 0,
+  "verdict": "ESCAPED"
+ }
+]

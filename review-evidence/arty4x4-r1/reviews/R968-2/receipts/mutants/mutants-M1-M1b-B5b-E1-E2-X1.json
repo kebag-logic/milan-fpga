@@ -1,0 +1,62 @@
+[
+ {
+  "name": "M1-crf-empty-tuple",
+  "file": "tb/verilator/ctrl_service_budget/egress_mii.py",
+  "plant": "round 1's M1: the CRF output's frame never added",
+  "old": "    crf = (SR_HEADER + CRF_AVTPDU,) if ",
+  "new": "    crf = () if ",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_mii.py --selftest",
+  "rc": 1,
+  "verdict": "CAUGHT"
+ },
+ {
+  "name": "M1b-crf-zero-length",
+  "file": "tb/verilator/ctrl_service_budget/egress_mii.py",
+  "plant": "the CRF AVTPDU at zero length",
+  "old": "CRF_AVTPDU = 28\n",
+  "new": "CRF_AVTPDU = 0\n",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_mii.py --selftest",
+  "rc": 1,
+  "verdict": "CAUGHT"
+ },
+ {
+  "name": "B5b-1x1-label-ax",
+  "file": "tb/verilator/ctrl_service_budget/record_classes.py",
+  "plant": "the same label defect at the 1x1 point, for comparison",
+  "old": "'arty-1x1': 'arty-1x1', 'arty-4x4': 'arty-4x4'}",
+  "new": "'arty-1x1': '1x1', 'arty-4x4': 'arty-4x4'}",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/record_classes.py --selftest",
+  "rc": 0,
+  "verdict": "ESCAPED"
+ },
+ {
+  "name": "E1-census-regrade-without-crf",
+  "file": "tb/verilator/ctrl_service_budget/egress_mii.py",
+  "plant": "the published census-4 extract regraded by a model with no CRF frame",
+  "old": "    return aaf + crf\n",
+  "new": "    return aaf\n",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_mii.py EXTRACT_BUILDS",
+  "rc": 1,
+  "verdict": "CAUGHT"
+ },
+ {
+  "name": "E2-census-regrade-crf-octet-short",
+  "file": "tb/verilator/ctrl_service_budget/egress_mii.py",
+  "plant": "the published census-4 extract regraded with the CRF frame an octet short",
+  "old": "CRF_AVTPDU = 28\n",
+  "new": "CRF_AVTPDU = 27\n",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_mii.py EXTRACT_BUILDS",
+  "rc": 0,
+  "verdict": "ESCAPED"
+ },
+ {
+  "name": "X1-fixed-superscript-digit",
+  "file": null,
+  "plant": "unchanged tree, SYS_HZ a superscript digit (U+00B2)",
+  "old": "",
+  "new": "",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_fixed.py BUILD_DIR \u00b2",
+  "rc": 1,
+  "verdict": "FAIL"
+ }
+]

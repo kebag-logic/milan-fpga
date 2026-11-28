@@ -1,0 +1,15 @@
+egress_mii.py --packet /nonexistent --point bogus -> rc=2; last line: usage: python3 -I egress_mii.py BUILD... | --packet DIR [--point P] | --selftest | --structural [--point P]
+egress_mii.py --structural --point bogus -> rc=2; last line: usage: python3 -I egress_mii.py BUILD... | --packet DIR [--point P] | --selftest | --structural [--point P]
+egress_mii.py --structural --point -> rc=1; last line: FileNotFoundError: [Errno 2] No such file or directory: '--structural/build.json'
+egress_mii.py --packet --point arty-4x4 -> rc=1; last line: FileNotFoundError: [Errno 2] No such file or directory: '--packet/build.json'
+egress_mii.py --selftest --point arty-4x4 -> rc=1; last line: FileNotFoundError: [Errno 2] No such file or directory: '--selftest/build.json'
+egress_mii.py --point arty-4x4 -> rc=1; last line: FileNotFoundError: [Errno 2] No such file or directory: '--point/build.json'
+egress_mii.py --structural extra -> rc=1; last line: FileNotFoundError: [Errno 2] No such file or directory: '--structural/build.json'
+egress_fixed.py  -> rc=2; last line: usage: python3 -I egress_fixed.py BUILD_DIR [SYS_HZ] | --selftest
+egress_fixed.py --selftest extra -> rc=2; last line: usage: python3 -I egress_fixed.py BUILD_DIR [SYS_HZ] | --selftest
+egress_fixed.py DIR 100000000 extra -> rc=2; last line: usage: python3 -I egress_fixed.py BUILD_DIR [SYS_HZ] | --selftest
+egress_fixed.py -x -> rc=2; last line: usage: python3 -I egress_fixed.py BUILD_DIR [SYS_HZ] | --selftest
+egress_fixed.py DIR 0 -> rc=2; last line: usage: python3 -I egress_fixed.py BUILD_DIR [SYS_HZ] | --selftest
+egress_fixed.py DIR 80000000.0 -> rc=2; last line: usage: python3 -I egress_fixed.py BUILD_DIR [SYS_HZ] | --selftest
+egress_fixed.py DIR +100000000 -> rc=2; last line: usage: python3 -I egress_fixed.py BUILD_DIR [SYS_HZ] | --selftest
+egress_fixed.py DIR  100000000  -> rc=0; last line: REPORT at sys 100000000 Hz: the most is 300.0 ns, within the stated 320 ns

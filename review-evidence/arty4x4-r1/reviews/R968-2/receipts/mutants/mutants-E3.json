@@ -1,0 +1,12 @@
+[
+ {
+  "name": "E3-census-regrade-queue-drops-crf",
+  "file": "tb/verilator/ctrl_service_budget/egress_mii.py",
+  "plant": "the published extract regraded by a queue that states five frames and carries four",
+  "old": "self.others.extend(p.sr_bytes)",
+  "new": "self.others.extend(p.sr_bytes[:4])",
+  "command": "python3 -I -B tb/verilator/ctrl_service_budget/egress_mii.py EXTRACT_BUILDS",
+  "rc": 1,
+  "verdict": "CAUGHT"
+ }
+]

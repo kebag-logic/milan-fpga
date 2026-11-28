@@ -1,0 +1,11 @@
+# arty-4x4: the rows the egress decides against their ledger; 1655 instance(s) read (1655 measured) from 8 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 62.64658 | 62.78 | -0.13342 | yes |
+| `backlog.owed_behind0.if0` | 62.82023 | 62.97 | -0.14977 | yes |
+| `backlog.owed_behind1.if0` | 62.98813 | 63.14 | -0.15187 | yes |
+| `backlog.owed_behind2.if0` | 63.15874 | 63.32 | -0.16126 | yes |
+| `backlog.owed_behind3.if0` | 63.32736 | 63.5 | -0.17264 | yes |
+| `backlog-owed.service.acmp.last.if0` | 61.81513 | 61.91 | -0.09487 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.56471 | 61.65 | -0.08529 | yes |
+RESULT: PASS: no ledger row over its figure, every one measured, no new budget miss
