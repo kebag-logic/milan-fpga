@@ -241,7 +241,7 @@ def step_wt_fed_stream(context: Context, sid: str) -> None:
 @given("a written pcap of {n:d} tap records with a {hdr:d} octet header and "
        "an FCS")
 def step_wt_pcap(context: Context, n: int, hdr: int) -> None:
-    """Writes a real pcap of ProfiShark-shaped tap records: a per-record
+    """Writes a real pcap of inline-tap records: a per-record
     header plus the kept FCS, which only decode once the reader is told
     the offset."""
     _reset(context)
