@@ -124,14 +124,6 @@ static bool legal(struct aecp *a, const struct geometry *g, const struct aecp_ma
 	return cluster != NULL && cluster->length >= 86u && r->cluster_channel < wire_be16(cluster->value + 84);
 }
 
-// The check a legal mapping of an output port reads its port for, after every
-// other of its own: its stream must not be running, observed briefly as a running check (#943).
-static bool idle(struct aecp *a, const struct aecp_descriptor *port, const struct aecp_mapping *r)
-{
-	struct aecp_stream_info info = {.brief = true};
-	return port->type == 14u || (aecp_stream_read(a, 6u, r->stream, &info) && !info.running);
-}
-
 static bool valid(struct aecp *a, const struct aecp_descriptor *port, const struct aecp_mapping *r)
 {
 	struct geometry g = geometry(port);
@@ -184,6 +176,7 @@ static bool valid(struct aecp *a, const struct aecp_descriptor *port, const stru
 #define MAP_DOMAIN (MAP_FIRSTS * MAP_CHANNELS)
 #define MAP_FLOOR 256u
 #define MAP_SLOTS MAP_MOST(MAP_DOMAIN, MAP_FLOOR)
+#define MAP_IDLE_WORDS MAP_MOST((MAP_FIRSTS + 31u) / 32u, 1u)
 _Static_assert(AECP_MAP_PAGE < 256u, "a slot holds a mapping's index plus one");
 // The work an edit does, counted where a test asks for it (AECP_MAP_WORK,
 // test_aecp.cpp): each slot and each held mapping a lookup visits. No image
@@ -260,6 +253,39 @@ static size_t place(const struct edit *e, const union held *x)
 	size_t channel = k >> 16;
 	VISIT();
 	return first < MAP_FIRSTS && channel < MAP_CHANNELS ? first * MAP_CHANNELS + channel : MAP_SLOTS;
+}
+
+// The check a legal mapping of an output port reads its port for, after every
+// other of its own: its stream must not be running, observed briefly as a
+// running check (#943). Each stream is observed once an edit, at the first of
+// its mappings to reach the check (#963): one found running or unanswered
+// refuses the edit at that mapping, as before, and its table with it, so a
+// later mapping of a stream the table holds is only ever checked after the
+// stream was found idle in the same record, which nothing else runs beside. So
+// an edit observes each stream it maps once, not each mapping: a REMOVE or ADD
+// of 63 of 8x8/1if's output map made 63 observations, most of its pass, which
+// was over THE SHARE (Milan v1.2 5.4.2.27, 5.4.2.28: the condition is the
+// Stream Output's). The observation is aecp_stream_read's, which zeroes all
+// but brief, so it is zeroed once (#963: the record zeroed it twice, at every
+// mapping, an input port's too). A mapping that reaches the check has its key
+// in the domain (place), so its stream is below MAP_FIRSTS, and the word is
+// reduced to the table's so no index leaves it. The per-edit table is kept
+// separately from the map's slots, and the input mode is already known. This
+// keeps the edit's bookkeeping small without moving any budget (#963).
+static bool idle(struct aecp *a, uint32_t *observed, bool input, const struct aecp_mapping *r)
+{
+	if (input) {
+		return true;
+	}
+	uint32_t *word = &observed[r->stream / 32u % MAP_IDLE_WORDS];
+	const uint32_t bit = 1u << (r->stream % 32u);
+	if ((*word & bit) != 0u) {
+		return true;
+	}
+	*word |= bit;
+	struct aecp_stream_info info;
+	info.brief = true;
+	return aecp_stream_read(a, 6u, r->stream, &info) && !info.running;
 }
 
 // A mapping copied a coordinate at a time. A whole one is a call of memcpy on
@@ -452,10 +478,11 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
 	stale(&e);
 #endif
 	// What the edit reads before it writes is cleared, and only that (#894):
-	// the slots place() forms, MAP_DOMAIN of them, here, and each mapping's
-	// link, marks and occurrences at its turn in the table, which no read
-	// reaches past.
+	// the slots place() forms, MAP_DOMAIN of them, and the zero-initialized
+	// observation table (#963), here, and each mapping's link, marks and
+	// occurrences at its turn in the table, which no read reaches past.
 	memset(e.slot, 0, MAP_DOMAIN);
+	uint32_t observed[MAP_IDLE_WORDS] = {0};
 	e.input = type == 14u;
 	// The mappings in order: the first held equal to each is its own, and a held
 	// one of its key that differs is an earlier conflict. A mapping its port's
@@ -499,11 +526,12 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
 			mark(&e, v, BARRED, BARRED);
 		}
 	}
-	// Each mapping's checks in its turn, so the port is read as each was before.
+	// Each mapping's checks stay in command order; idle reuses only a stream's
+	// successful observation from this edit (#963).
 	size_t additions = 0;
 	for (size_t n = 0; n < steps; ++n) {
 		unsigned held = e.flags[e.rep[n]];
-		if ((e.flags[n] & ILLEGAL) != 0u || !idle(a, port, &e.rows[n].r) || (held & BARRED) != 0u ||
+		if ((e.flags[n] & ILLEGAL) != 0u || !idle(a, observed, e.input, &e.rows[n].r) || (held & BARRED) != 0u ||
 		    (adding ? (e.flags[n] & EARLIER) != 0u : (held & FOUND) == 0u)) {
 			return AECP_BAD_ARGUMENTS;
 		}
