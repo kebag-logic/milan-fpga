@@ -1,0 +1,10 @@
+[ok] a queued triple yields three distinct commits
+[ok] the transmit alias is excluded
+[ok] the later window's excess is observed (shares [0.0, 500.0, 1250.0])
+[ok] a record with no tagged commit is refused (srp.register_burst.t0.r2.if0: no tagged receive commit, and its start is no other record's)
+[ok] a record with two tagged commits is refused (srp.register_burst.t0.r2.if0: 2 tagged receive commits, ambiguous)
+[ok] a record committed on another channel is refused (srp.register_burst.t0.r2.if0: its tagged commit is on channel 1, not SRP's 4)
+[ok] a commit the harness puts elsewhere is refused (srp.register_burst.t0.r1.if0: its tagged commit 20000 is not the harness's start 21000)
+[ok] the earlier first-commit-after-the-mark rule takes 10000 three times (the defect)
+deliv13 selftest: 8 of 8 controls hold
+Packet, ELF receipt, extraction, synthetic fault, model, delta and reverse-apply checks PASS

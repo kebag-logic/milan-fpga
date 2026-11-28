@@ -1,0 +1,25 @@
+{
+  "commits": [
+    10000,
+    20000,
+    30000
+  ],
+  "shares": [
+    0.0,
+    500.0,
+    1250.0
+  ],
+  "old_rule_shares": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "refusals": {
+    "missing": "srp.register_burst.t0.r2.if0: no tagged receive commit, and its start is no other record's",
+    "duplicate": "srp.register_burst.t0.r1.if0: 2 tagged receive commits, ambiguous",
+    "wrong channel": "srp.register_burst.t0.r2.if0: its tagged commit is on channel 1, not SRP's 4",
+    "mismatched start": "srp.register_burst.t0.r1.if0: its tagged commit 20000 is not the harness's start 21000"
+  },
+  "truncated_window": "unmeasured",
+  "result": "PASS"
+}
