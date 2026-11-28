@@ -1,0 +1,50 @@
+{
+  "head": "75d1fcbfe6e450dfd04dae5a69ef20bca9a17979",
+  "results": [
+    {
+      "command": [
+        "python3",
+        "tb/verilator/ctrl_service_budget/run.py",
+        "--point",
+        "8x8-1if",
+        "--groups",
+        "backlog-owed",
+        "--record-budget-findings",
+        "--build-dir",
+        "$VALIDATION_STORAGE/977-candidate-0923/egress/egress-build",
+        "--jobs",
+        "8"
+      ],
+      "cwd": "$LANES/977-cand-egress",
+      "exit_code": 0,
+      "seconds": 645.956,
+      "log": "$VALIDATION_STORAGE/977-candidate-0923/egress/01.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "egress_ledger.py",
+        "--selftest"
+      ],
+      "cwd": "$LANES/977-cand-egress/tb/verilator/ctrl_service_budget",
+      "exit_code": 0,
+      "seconds": 3.304,
+      "log": "$VALIDATION_STORAGE/977-candidate-0923/egress/02.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "egress_ledger.py",
+        "--point",
+        "8x8-1if",
+        "$VALIDATION_STORAGE/977-candidate-0923/egress/egress-build/results"
+      ],
+      "cwd": "$LANES/977-cand-egress/tb/verilator/ctrl_service_budget",
+      "exit_code": 0,
+      "seconds": 0.093,
+      "log": "$VALIDATION_STORAGE/977-candidate-0923/egress/03.log"
+    }
+  ]
+}

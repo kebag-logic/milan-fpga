@@ -1,0 +1,2 @@
+Vsim_VexiiRiscvLitex_9fdf25696b8f525f981b84f78b4a1952__5.o: \
+ Vsim_VexiiRiscvLitex_9fdf25696b8f525f981b84f78b4a1952__5.cpp Vsim__pch.h
