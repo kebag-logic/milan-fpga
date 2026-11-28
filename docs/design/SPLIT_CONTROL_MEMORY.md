@@ -3658,9 +3658,26 @@ put the load at 0.82 and no last-notice row is finite.
 | 100 Mb/s egress, wait with gPTP x 1.05 + fixed path | 527.04 us | 1000 us |
 
 The qualification of the link-rate census passes over all 159 cases and eight variants.
-The seven `backlog-owed` held-egress rows measure 61.56 to 63.33 ms at this point; no ledger is stated for them here.
 The bind groups' in-flight bound and burst saves are the 1x1's rule applied to this census's `save-bind` group,
 550 ms and 4 saves.
+
+The seven `backlog-owed` held-egress rows are this point's own ledger, by the 1x1's rule above, as
+[#1020's ruling](https://github.com/kebag-logic/milan-fpga/pull/1020#issuecomment-7234489667) (item 3) makes the
+USB-network Arty its own ledger point.
+Each figure is the 60 ms hold plus the service measured at exactly 100 MHz on the link-rate census of the image the
+row qualifies, with 5 percent on the service only, rounded up to 0.01 ms.
+They remain misses against the 20 ms budget, and a new or larger miss fails.
+The 1x1's and 8x8/1if's figures are unchanged.
+
+| Arty 4x4 held-egress row | Measured at 100 MHz, ms | Ledger, ms |
+|---|---:|---:|
+| `backlog.owed.if0` | 62.64658 | 62.78 |
+| `backlog.owed_behind0.if0` | 62.82023 | 62.97 |
+| `backlog.owed_behind1.if0` | 62.98813 | 63.14 |
+| `backlog.owed_behind2.if0` | 63.15874 | 63.32 |
+| `backlog.owed_behind3.if0` | 63.32736 | 63.50 |
+| `backlog-owed.service.acmp.last.if0` | 61.81513 | 61.91 |
+| `backlog-owed.service.aecp.last.if0` | 61.56471 | 61.65 |
 
 The product firmware for this shape links within the same 56 RAMB36 budget.
 

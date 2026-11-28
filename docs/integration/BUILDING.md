@@ -354,6 +354,7 @@ The same recipe takes the 4x4/1if shape from `configs/endstation_arty_split_4x4.
 through `BUILD_CFG`: four AAF streams and the CRF each way, the scheduler shape (1,5,5),
 measured as its own `arty-4x4` service-budget point with sys and the CPU at 100 MHz.
 That is the same 800 MHz VCO divided by eight, so the exact-divider contract holds; the datapath stays at 50 MHz.
+Its seven held-egress rows have their own ledger, from its own 100 MHz measurement by the same rule.
 As for every recipe, the entity-shape gate launches it only once the tracked entity
 definition is that configuration's.
 

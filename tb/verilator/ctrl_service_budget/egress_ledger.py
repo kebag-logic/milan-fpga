@@ -10,7 +10,7 @@ backpressure to the service budget. A new or larger miss fails the leg (#894's h
 - a ledger row with no measured instance fails, and so does any instance not measured, or never released or answered;
 - a budget miss of any other row is new, and fails.
 
-The ledgers are derived at 8x8/1if (#894) and at Arty's own 80 MHz point (#878),
+The ledgers are derived at 8x8/1if (#894), at Arty's own 80 MHz point and at the Arty 4x4's own 100 MHz point (#878),
 by #894's ledger ruling, items 2 and 3: each row's figure is the scenario's egress hold
 (HOLD_MS, read from scenario.py's backlog-owed group) plus the
 service behind it at its measurement (MEASURED at each point's own clock) plus 5 %, rounded up to 0.01 ms (figure).
@@ -44,8 +44,8 @@ DOC = ROOT / 'docs/design/SPLIT_CONTROL_MEMORY.md'
 #: The group whose rows the egress decides (scenario.py, backlog-owed).
 GROUP = 'backlog-owed'
 #: Units of a figure: 10 ns, the resolution of a grade's ms (grade.py rounds it to 5 places), and half a log's
-#: printed microsecond in those units. Arty's 80 MHz bus cycle is 12.5 ns; one cycle over a ledger figure still
-#: exceeds it after that rounding, which controls() checks at each point's own cycle length.
+#: printed microsecond in those units. Arty's 80 MHz bus cycle is 12.5 ns, the 4x4's 100 MHz one 10 ns; one cycle
+#: over a ledger figure still exceeds it after that rounding, which controls() checks at each point's own cycle length.
 PER_MS, LOG_HALF = 100_000, 50
 SCENARIO = HERE / 'scenario.py'
 #: The hold the egress decides the rows by: backlog-owed's wait with the egress held before it is released
@@ -98,6 +98,16 @@ ARTY = {'backlog.owed.if0': 62.79239, 'backlog.owed_behind0.if0': 62.92862,
         'backlog.owed_behind3.if0': 63.33355, 'backlog-owed.service.acmp.last.if0': 62.10374,
         'backlog-owed.service.aecp.last.if0': 61.88720}
 MEASURED['arty-1x1'] = ARTY
+#: #878's Arty 4x4 (1,5,5) point, CPU and system clock exactly 100 MHz: its own backlog-owed measurements, on the
+#: link-rate census of the image it qualifies, its own ledger point as #1020's ruling (comment 7234489667, item 3)
+#: makes the USB-network Arty's.
+ARTY_4X4 = {'backlog.owed.if0': 62.64658, 'backlog.owed_behind0.if0': 62.82023,
+            'backlog.owed_behind1.if0': 62.98813, 'backlog.owed_behind2.if0': 63.15874,
+            'backlog.owed_behind3.if0': 63.32736, 'backlog-owed.service.acmp.last.if0': 61.81513,
+            'backlog-owed.service.aecp.last.if0': 61.56471}
+MEASURED['arty-4x4'] = ARTY_4X4
+#: Each point's bus clock in kHz: the cycles per ms one cycle over a figure is planted at.
+CLOCK_KHZ = {'8x8-1if': 100_000, 'arty-1x1': 80_000, 'arty-4x4': 100_000}
 
 
 def figure(measured_ms: float, hold: int = HOLD_MS) -> float:
@@ -359,9 +369,14 @@ def failing(rc: int, text: str, name: str) -> bool:
     return rc != 0 and any(line.startswith((f'- {name} ', f'- {name}:')) for line in text.splitlines())
 
 
-def arty_doc(text: str) -> tuple[dict[str, float], dict[str, float]]:
-    """The Arty table's ledger and measured values, independent of the executable constants."""
-    block = text.split('| Arty held-egress row | Measured at 80 MHz, ms | Ledger, ms |', 1)[1].split('\n\n', 1)[0]
+#: Section 15's table head of each Arty point's held-egress rows.
+ARTY_HEAD = {'arty-1x1': '| Arty held-egress row | Measured at 80 MHz, ms | Ledger, ms |',
+             'arty-4x4': '| Arty 4x4 held-egress row | Measured at 100 MHz, ms | Ledger, ms |'}
+
+
+def arty_doc(text: str, point: str = 'arty-1x1') -> tuple[dict[str, float], dict[str, float]]:
+    """An Arty point's table's ledger and measured values, independent of the executable constants."""
+    block = text.split(ARTY_HEAD[point], 1)[1].split('\n\n', 1)[0]
     rows = re.findall(r'^\| `([^`]+)` \| ([\d.]+) \| ([\d.]+) \|$', block, re.M)
     return {n: float(f) for n, _, f in rows}, {n: float(m) for n, m, _ in rows}
 
@@ -371,8 +386,8 @@ def controls(base: Path, run: Callable[[list[str]], tuple[int, str]],
     """Each control and whether it held: (name, held, detail)."""
     ledger = LEDGER[point]
     section = 13 if point == '8x8-1if' else 15
-    cycle_ms = 1 / (80_000 if point == 'arty-1x1' else PER_MS)
-    doc_figures, measured = doc_ledger(DOC.read_text()) if point == '8x8-1if' else arty_doc(DOC.read_text())
+    cycle_ms = 1 / CLOCK_KHZ[point]
+    doc_figures, measured = doc_ledger(DOC.read_text()) if point == '8x8-1if' else arty_doc(DOC.read_text(), point)
     from decimal import ROUND_CEILING, Decimal
     rule = {row: float(HOLD_MS + ((Decimal(str(ms)) - HOLD_MS) * Decimal('1.05')).quantize(Decimal('0.01'),
                                                                                          ROUND_CEILING))
@@ -452,6 +467,11 @@ MUTANTS = {
     'Arty figure has no service margin': lambda m: patch.dict(m.LEDGER['arty-1x1'], {
         row: m.HOLD_MS + -(-(round(ms * m.PER_MS) - m.HOLD_MS * m.PER_MS) // 1000) / 100
         for row, ms in m.MEASURED['arty-1x1'].items()}),
+    'Arty 4x4 uses the Arty 1x1 ledger': lambda m: patch.dict(m.LEDGER, {'arty-4x4': m.LEDGER['arty-1x1']}),
+    'Arty 4x4 measurement is changed without rederiving its figure': lambda m: patch.dict(
+        m.MEASURED['arty-4x4'], {'backlog.owed_behind3.if0': 63.33355}),
+    'Arty 4x4 figure a hundredth under the rule': lambda m: patch.dict(m.LEDGER['arty-4x4'], {
+        'backlog.owed_behind3.if0': round(m.LEDGER['arty-4x4']['backlog.owed_behind3.if0'] - 0.01, 2)}),
     'a ledger row waived by its name whatever its size': lambda m: patch.object(
         m, 'over', lambda p, figure: False),
     "a grade's figure read at its log's microsecond": lambda m: patch.object(
