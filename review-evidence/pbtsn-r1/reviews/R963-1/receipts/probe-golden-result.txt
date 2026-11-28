@@ -1,0 +1,12 @@
+Probe: src/pbaem.c STRINGS string 1 "48 kHz" -> "44 kHz" (see probe-golden.diff), in a disposable copy
+hosted ctest -R 'entity|pbaem' rc 8
+<packet>/scratch/probe-golden/tests/test_entity.cpp:32: Failure
+    Which is: 92
+[  FAILED  ] EntityYaml.AemImageRoundTrip (0 ms)
+[  PASSED  ] 4 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] EntityYaml.AemImageRoundTrip
+50% tests passed, 1 tests failed out of 2
+baremetal.py rc 1
+    raise RuntimeError('command failed: ' + ' '.join(map(str, argv)) + '\n' + result.stdout)
+RuntimeError: command failed: qemu-system-riscv32 -machine virt -nographic -bios none -kernel <packet>/scratch/probe-golden-rv32/debug/rv32_smoke.elf -no-reboot

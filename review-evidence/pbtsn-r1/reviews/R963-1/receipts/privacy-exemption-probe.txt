@@ -1,0 +1,5 @@
+d7e6a2a1 base rule: pass | head rule: pass
+5a07d9b7 base rule: ['5a07d9b7d87298f04b15aa28f0304ec88b0aef81: commit message must be one line'] | head rule: pass
+near-miss hash with the same message, head rule: ['5a07d9b7d87298f04b15aa28f0304ec88b0aef80: commit message must be one line']
+exempt hash with a foreign identity, head rule: ['5a07d9b7d87298f04b15aa28f0304ec88b0aef81: unexpected identity']
+content scan of the exempt message, head rule: clean
