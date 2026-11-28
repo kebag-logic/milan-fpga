@@ -16,6 +16,9 @@ extern "C" {
 #endif
 #include "shish_lan/msrp.h"
 #include "shish_lan/mvrp.h"
+// The lanes of an interface's sink index (srp_interface, lane_first): a sink's lane is its StreamID's last byte modulo
+// this, so the StreamIDs of one talker, which differ in their unique ID, fall in lanes of their own (#977).
+#define SRP_SINK_LANES 16u
 struct srp_source {
     struct msrp_talker_adv value;
     bool allocated;
@@ -79,6 +82,18 @@ struct srp_interface {
     // Registrar change owes none, each such change of what the walk copies
     // coming with an indication (#930).
     bool stale;
+    // The sinks, bit k sink k, whose registered kinds a Talker's indication changed since the receive filter last
+    // took them (srp_mbx.c, talker_changed and interested_msrp; #977).
+    uint32_t touched;
+    // The bound sinks by their StreamID's last byte, in SRP_SINK_LANES lanes: a lane's first sink plus one (0 none),
+    // and each sink's next in its lane plus one, each lane ascending, rebuilt by every binding (srp_mbx.c,
+    // index_sinks). A Talker's indication, the receive filter and the walk visit only the sinks of its StreamID's
+    // lane, where each visited every sink (#977, its ruling of 2026-11-23, item 5).
+    uint8_t lane_first[SRP_SINK_LANES];
+    uint8_t lane_next[CTRL_SRP_SINKS];
+    // The interface's bound sinks, counted where index_sinks rebuilds the index: the Talker values a record can register
+    // for its bindings, beside the kept ones (keep_talker, SRP_RECORD_VALUES; #977).
+    uint8_t bound_sinks;
     // A participant may hold an attribute mrp_reclaim frees: poll reclaims
     // only then (#665). It is set where one may arise: an attribute's change
     // into a state mrp_reclaim frees, or one a receive created and left in the
@@ -143,6 +158,18 @@ struct srp_mbx_config {
 // default VID's, at most four while a Domain is adopted (srp_mbx.c change_domain: the old and the new of each), so
 // up to 12 kept leave the rest the pool held before.
 #define SRP_KEPT_TALKERS CTRL_SRP_SINKS
+// V, the Talker values one SRP record may register on an interface (#977, its ruling of 2026-11-27 on the population
+// bound, item 2): 4 at 1x1/1if and 9 at 8x8/1if. The receive filter keeps at most min(SRP_KEPT_TALKERS, V - bound
+// sinks) Talkers beside the bound ones (keep_talker), so a record registers at most V, and THE DRAIN charges each
+// Talker vector at most V (rx_charge). At the shapes whose registration THE DRAIN does not charge, V is the whole
+// population and bounds none.
+#if CTRL_LOOP_SHAPE(1u, 2u, 2u)
+#define SRP_RECORD_VALUES 4u
+#elif CTRL_LOOP_SHAPE(1u, 9u, 9u)
+#define SRP_RECORD_VALUES 9u
+#else
+#define SRP_RECORD_VALUES (CTRL_SRP_SINKS + SRP_KEPT_TALKERS)
+#endif
 #define SRP_POOL_FIXED_BLOCKS 16u
 #define SRP_POOL_DOMAIN_BLOCKS 4u
 struct srp_kept {
@@ -209,6 +236,10 @@ struct srp_mbx {
     uint16_t held_cs[CTRL_SRP_SOURCES];
     // The StreamIDs held, the first held_count of held (#925, srp_held).
     uint8_t held_count;
+    // THE TRANSMIT's declarations a call made that re-declared a Listener or joined a VLAN, and whether the last call
+    // ended on them, its build owed to the next (srp_mbx.c, transmit; CTRL_LOOP_DECLARE_ALONE, #977).
+    uint8_t declarations;
+    bool declared_alone;
     // The two frame buffers last, so every other field sits within a load's
     // reach of the adapter's address (#665: the retry's code fits the ledger).
     // lwSRP builds each MRPDU at owed_frame + 14 and the adapter writes the
@@ -226,6 +257,11 @@ struct srp_mbx {
     uint8_t kept_count[MBX_N_IF];
     uint8_t kept_due[MBX_N_IF];
     struct srp_kept kept[MBX_N_IF][SRP_KEPT_TALKERS];
+    // The last octets of the StreamIDs each interface's kept list lists and of those held, bit b of word b / 32 for an
+    // octet b, which each list's search reads first (#977, srp_mbx.c keep_talker, held_stream): a bit is set with each
+    // one listed or held; the kept list's are zeroed with its count, the held table's once it holds none.
+    uint32_t kept_octets[MBX_N_IF][8];
+    uint32_t held_octets[8];
     // After them, as it is read only through a scan from its start (#925).
     struct srp_held held[SRP_HELD_STREAMS];
 };

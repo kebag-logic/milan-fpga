@@ -17,9 +17,15 @@ ITEMS = {'withdraw': ('srp_mbx:reset_interface', None), 'rebuild': ('srp_mbx:ope
 #: on_frame, a record of the ring the loop or THE KEPT COMMAND's redelivery took) or by the redelivery's re-offer of
 #: the kept record (redeliver). An ACMP item is its owed frame's send, less the offers nested in it (poll_grade).
 OFFER, HANDLER = 'acmp_rx', 'acmp_mbx:on_frame'
+#: SRP's record handler (srp_mbx.c receive): the k-th call takes the k-th record SRP's channel committed, which names
+#: the frame a record's apply is held to the charge of (poll_grade.RECORD, #977).
+RECEIVE = 'srp_mbx:receive'
+#: THE SETTLE's client (ctrl_app_srp.c settle, #977): ACMP's completion a record's pass owed, run as the next ordinary
+#: pass starts, a part of that pass the registration's cost counts.
+SETTLE = 'ctrl_app_srp:settle'
 #: build.SPAN_SYMBOLS' entries for them: a global by its symbol, a static function as (module, function).
 SPANS = tuple(tuple(label.split(':')) if ':' in label else label
-              for label in (FIRST, LAST, *(label for label, _ in ITEMS.values()), OFFER))
+              for label in (FIRST, LAST, *(label for label, _ in ITEMS.values()), OFFER, SETTLE))
 #: A pass's parts (#665: the cuts' stated costs): each channel's record and event handler, each module's
 #: poll and the centisecond's dispatch as build.SPAN_SYMBOLS' entries, and each event taken and record dispatched as
 #: build.CALL_SYMBOLS', which cut a pass into them; the load gate's stated costs are measured from them (load_grade.py).

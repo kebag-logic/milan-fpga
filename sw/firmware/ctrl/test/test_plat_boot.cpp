@@ -973,7 +973,12 @@ TEST_F(Boot, B17NothingIsTakenOrSentOnceTheResetPortFired) {
     const unsigned erases = nvm_fmodel_count()->erases, commits = nvm_store_status()->commits_ok;
     bind_rx();
     // the PHY hold's 3,500 ms, past the store's debounce and a write's
-    for (unsigned k = 0; k < 350; ++k) pass_ms(10);
+    for (unsigned k = 0; k < 350; ++k) {
+        pass_ms(10);
+        // A second opportunity between ticks: a wrongly running loop must
+        // reach its SRP build after dispatching the posted centisecond.
+        pass_ms(0);
+    }
     EXPECT_EQ(ring_writes(at, mailbox.size(), MBX_CH_REG_RX_TAIL, true), 0u)
         << "B17 a bind after the reset port fired is not taken";
     EXPECT_TRUE(std::none_of(frames.begin() + static_cast<std::ptrdiff_t>(from), frames.end(),
@@ -1075,7 +1080,12 @@ TEST_F(Boot, B20NoOtherChannelTransmitsAfterTheDeparting) {
     hold_adp = true;
     for (unsigned k = 0; k < 500 && hold_adp; ++k) pass_ms();
     ASSERT_FALSE(hold_adp) << "B20 the mailbox holds ENTITY_DEPARTING";
-    for (unsigned k = 0; k < 500; ++k) pass_ms(10);
+    for (unsigned k = 0; k < 500; ++k) {
+        pass_ms(10);
+        // Do not mask a forbidden SRP build by posting another tick before
+        // every opportunity to run it. The five-second window is unchanged.
+        pass_ms(0);
+    }
     EXPECT_TRUE(reboot_writes().empty()) << "B20 no reset while the mailbox holds ENTITY_DEPARTING";
     mbx_model_tx_pause(&fabric, false);
     take_frames();
@@ -1340,7 +1350,7 @@ struct Phy : Boot {
     }
 };
 
-// B25 the platform seeds ADP's draw from its microsecond clock, wired before ADP starts (adp_mbx.h, THE DRAW;
+// The platform seeds ADP's draw from its microsecond clock, wired before ADP starts (adp_mbx.h, THE DRAW;
 // #970): three boots alike but for a clock origin one microsecond apart leave three generator states. A clock read in
 // milliseconds or in coarser granules, or wired after ADP's startup draw (NOW_MS), leaves two alike at least.
 TEST_F(Boot, B25TheAdpDrawIsSeededFromThePlatformsClock) {
@@ -1359,7 +1369,7 @@ TEST_F(Boot, B25TheAdpDrawIsSeededFromThePlatformsClock) {
         << "B25 boots one microsecond apart in the clock's origin seed ADP's draw differently (#970)";
 }
 
-// B27 a LINK_UP after ready takes the platform clock's reading at that LINK_UP: boots alike up to it, the clock one
+// A LINK_UP after ready takes the platform clock's reading at that LINK_UP: boots alike up to it, the clock one
 // microsecond apart only from the link's loss on, draw apart on the interface that rose, and leave every other
 // interface's generator as it was (IEEE 1722.1-2021 6.2.4.2.2; Milan v1.2 5.6.3.5.3).
 TEST_F(Boot, B27ALinkUpReadsThePlatformsClockAtTheLinkUp) {
@@ -1397,7 +1407,7 @@ TEST_F(Boot, B27ALinkUpReadsThePlatformsClockAtTheLinkUp) {
 }
 
 #if MBX_N_IF > 1
-// B26 the interface is in the seed: two interfaces enabled at one clock reading are seeded apart (#970).
+// The interface is in the seed: two interfaces enabled at one clock reading are seeded apart (#970).
 std::uint64_t stopped_now_us(void*) {
     return 0;
 }

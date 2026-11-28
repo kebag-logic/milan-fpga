@@ -6,7 +6,11 @@
 The load is the work the sources bring per millisecond of a window long enough that their bursts no longer count:
 each source's arrival rate, from a contract rate (sw/mailbox/mailbox.yaml, read from the tree) or a protocol timer
 (each clause below, its value read from the tree where the tree states it), times its stated cost. A pass's own cost
-(its events' fixed part and its polls' base) is not a source, so it is not a term: it is reported beside the load.
+(its events' fixed part and its polls' base) is not a source, so it is not a term: it is reported beside the load. The
+one exception is the work a registering record defers into the polls' base of the passes after it, its binding changes
+and loss completions, which the delivery bound makes one a delivery (#977, ctrl_app_srp.c deliver): a source, the
+record, at the registration rate, so a term of its own (deliveries), stated against the ordinary passes after the
+delivery window, which carry none of that work (#977, the manager's decision of 2026-11-27 on deferred deliveries).
 At or above 1.0 no ordering of the work bounds a row; CEILING leaves room for the rows: 0.70 (#665, option D) at
 1x1/1if, which this gate holds for merge, at the pin and with tsn-c-stack#32 (COLUMNS), each named in what it finds.
 8x8/2if is held to the same 0.70 by the flip check, flip_grade.py, read at the pin, a check apart from the merge gates
@@ -73,11 +77,22 @@ The terms (per millisecond):
                  delay exchange, each at its message interval (IEEE 802.1AS-2011 10.7.2.2, initialLogAnnounceInterval
                  0: 1 s; 11.5.2.2, initialLogPdelayReqInterval 0: 1 s), and one an announce receipt timeout (10.7.3.2,
                  announceReceiptTimeout 3 intervals).
+  registrations  a peer's Talker registrations at the MRP state machines' rate (#977, its ruling of 2026-11-23,
+                 option (a)): a participant transmits at most three MRPDUs in any 1.5 x JoinTime (IEEE 802.1Q-2018
+                 10.7.11), JoinTime at least JOIN_MIN_MS (Milan v1.2 Table 4.3), and each may declare V Talkers, the
+                 bound and the kept a record may register (SRP_RECORD_VALUES; the ruling of 2026-11-27 on the
+                 population bound, item 2), in the kind that replaces the one registered (35.2.6; Milan v1.2
+                 4.2.7.2.2), so every one registers anew; each at REGISTRATION_US, a Talker's share of its record's
+                 apply past the unit and of ACMP's completion of it (THE SETTLE), where the point measures it.
+  deliveries     the binding changes and loss completions a registering record defers, one a delivery, into the polls'
+                 base of the passes after it (ctrl_app_srp.c deliver): V a record at the registrations' rate, each at
+                 DELIVERY_US, a sink's share of a record's delivering passes' base over the median of the ordinary
+                 passes after them, where the point measures it.
 
 Not terms, each with its reason: a LINK change has no arrival rate (a row's definition, R5, counts one an interface);
 THE RETRY's rounds otherwise drain a queue a datapath reset leaves, at most AECP_NOTICES_MOST, a burst and not a rate,
 and AVB_INFO_CHANGED, AS_PATH_CHANGED and AMAP_LIVE_WRITE are coalesced events with no contract rate (mailbox.yaml);
-a pass's own cost is no source.
+a pass's own cost is no source, but for the deliveries a registering record defers into it.
 
 usage: python3 -I load_grade.py [--check] [--selftest]
   --check      print the load table and exit 1 if any point is over its ceiling
@@ -116,12 +131,13 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
           '8x8/1if': dict(n_if=1, sinks_per_if=8, registrations=16, counter_descriptors=20),
           '32x32/2if': dict(n_if=2, sinks_per_if=16, registrations=16, counter_descriptors=68)}
 #: The points whose stated costs are another's, the nearest shape each is measured at in both columns (#894's shape
-#: ruling, item (b): 8x8/1if's load at most 0.75): 8x8/1if's records, events and THE STEP's pass are
-#: 8x8/2if's, the 8x8 shape's at two interfaces, measured over every group of both arms there, as #894 derived that
-#: load; THE TRANSMIT's builds and an owed MRPDU, a build of one's, are its own shape's (ctrl_loop.h, THE SHAPES), and
-#: the polls' base and items its own shape's (poll_grade.STATED_US; the held-egress ruling, item (b)(iii)),
-#: each measured on its built image on the tree that merges #902. stated() reads them so; its own measurement of the
-#: rest is owed to #872.
+#: ruling, item (b): 8x8/1if's load at most 0.75, 0.76 by #977's owner decision of 2026-11-25, 0.77 by its decision of
+#: 2026-11-27, 0.79 by its decision of 2026-11-28 on the 8x8/1if load ceiling): 8x8/1if's records,
+#: events and THE STEP's pass are 8x8/2if's, the 8x8 shape's at two interfaces, measured over every group of both arms
+#: there, as #894 derived that load; THE TRANSMIT's builds and an owed MRPDU, a build of one's, are its own shape's
+#: (ctrl_loop.h, THE SHAPES), and the polls' base and items its own shape's (poll_grade.STATED_US; the held-egress
+#: ruling, item (b)(iii)), each measured on its built image on the tree that merges #902. stated() reads them so; its
+#: own measurement of the rest is owed to #872.
 NEAREST = {'8x8/1if': '8x8/2if'}
 #: A NEAREST point's own statements, where its measurement passes its nearest point's (#894's ledger ruling, item 4):
 #: the nearest point supplies a cost only while the point's measurement is within it, so where it is not, the point
@@ -224,11 +240,15 @@ OWN_MEASURED = {'8x8/1if': {'record.adp': (12_779, 'arm A, backlog-adp-refill, u
 #: (15,976 in valid-destinations' srp-talker-held) and the AECP notice item 150 (14,084 in the declaring-outputs
 #: arm's aecp-fanout; 210 before). With a waiting SET_STREAM_FORMAT's running check made again (#950), whose code
 #: moves AECP's, measured over every arm and group, 1x1/1if's AECP record raised by the rule in both columns: 255 us
-#: (23,858 CPU cycles, the same SET_STREAM_INFO).
+#: (23,858 CPU cycles, the same SET_STREAM_INFO). With #977's drain and settlement change, over every arm at 1x1/1if
+#: (3de17804), the walk 80 (7,289 in srp-register-burst), in both columns, as poll_grade.py's ONE states it; 35 again
+#: with the sink index change, whose registering records walk no registrar of their sinks after them. With #977's ACMP
+#: completion cut the AECP notice item at 1x1/1if is 15,464 CPU cycles (the answering-ports arm), 165 us by the rule in
+#: both columns, restated by the ruling of 2026-11-26 on #977, item 1.
 STATED_US = {
     '1x1/1if': {'record.srp': 285, 'record.aecp': 255, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 55,
-                'event.GM': 40, 'centisecond': 170, 'events_none': 40, 'item.retained': 285, 'item.aecp.notice': 150,
+                'event.GM': 40, 'centisecond': 170, 'events_none': 40, 'item.retained': 285, 'item.aecp.notice': 165,
                 'item.aecp.response': 60, 'item.aecp.probe': 60},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 160,
                 'event.ADP': 120, 'event.ACMP': 350, 'event.MAAP': 225, 'event.AECP': 120, 'event.TICK': 55,
@@ -281,7 +301,7 @@ STATED_US = {
 STATED_US_DONOR = {
     '1x1/1if': {'record.srp': 285, 'record.aecp': 255, 'record.acmp': 265, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 55,
-                'event.GM': 40, 'centisecond': 170, 'events_none': 40, 'item.aecp.notice': 150,
+                'event.GM': 40, 'centisecond': 170, 'events_none': 40, 'item.aecp.notice': 165,
                 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 225, 'item.reclaim': 25, 'item.retained': 285,
                 'item.mrpdu': 735, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 735, 'step': 975},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 160,
@@ -316,6 +336,73 @@ ADP_LEAST_VALID_MS = 2000
 #: (initialLogAnnounceInterval 0, IEEE 802.1AS-2011 10.7.2.2), a peer delay exchange (initialLogPdelayReqInterval
 #: 0, 11.5.2.2) and an announce receipt timeout (announceReceiptTimeout 3 intervals, 10.7.3.2).
 GM_INTERVALS_MS = (1000, 1000, 3000)
+#: The registrations term (#977): Milan v1.2 Table 4.3's least JoinTime, the three MRPDUs IEEE 802.1Q-2018 10.7.11
+#: admits in 1.5 of them, and each point's cost of one Talker registration, all in, in microseconds: the dearest over
+#: the CPU budget harness's registering groups (register_window.py) of a Talker's share of its record's apply past
+#: the SRP unit plus its share of THE SETTLE's run after it, plus 5 %, rounded up to 5 us. The points it is measured
+#: at; the two-interface points' registrations are not measured (#977's scope), so they count none.
+JOIN_MIN_MS = 180
+TX_PER_JOIN = 3
+#: Measured at the head with #977's initial drain and settlement change over srp-register and srp-register-burst: at
+#: 8x8/1if a record of the burst replacing every input's Talker, 143,047 CPU cycles, 105,547 past the 37,500-cycle
+#: unit, and THE SETTLE after it, 46,784, over nine values, 16,926 cycles; at 1x1/1if 46,654 cycles, 18,154 past the
+#: unit, and its settle, 10,108, over two values, 14,131 cycles. Measured again over every arm on the f7d07720 image:
+#: at 8x8/1if 145,803 cycles, 108,303 past the unit, and its settle, 50,075, over nine values, 17,598 cycles, 185 us by
+#: the rule (f7d07720, the image 3de17804 links unchanged there); at 1x1/1if 48,672 cycles, 20,172 past the unit, and
+#: its settle, 9,649, over two values, 14,910 cycles, 160 us by the rule (3de17804). Measured on the 8b4a79d5 image: at
+#: 8x8/1if a record of the burst, 115,159 cycles, 77,659 past the unit, and its settle, 47,231, over nine values,
+#: 13,877 cycles, 150 us by the rule; at 1x1/1if 43,169 cycles, 14,669 past the unit, and its settle, 10,347, over two
+#: values, 12,508 cycles, 135 us, in the none arm; over both arms that run the registering groups (none,
+#: answering-ports) the dearest at 1x1/1if is the answering-ports arm's, 45,390 cycles, 16,890 past the unit, and its
+#: settle, 9,892, over two values, 13,391 cycles, 145 us by the rule (#977; 8x8/1if's dearest is the none arm's above
+#: in both). Measured on the image (7c300127: tsn-c-stack f71c8870, THE SETTLE's cut, and the hot list relearned on it)
+#: over both arms that run the registering groups: at 8x8/1if the none arm's record of the burst, 114,450 cycles,
+#: 76,950 past the unit, and its settle, 35,720, over nine values, 12,519 cycles, 135 us by the rule (the
+#: answering-ports arm's 12,508); at 1x1/1if the none arm's, 43,072 cycles, 14,572 past the unit, and its settle,
+#: 7,079, over two values, 10,826 cycles, 115 us by the rule (the answering-ports arm's 10,292). Measured on the image
+#: (fda89791: tsn-c-stack 175cf9e0, the join timer's fix, and the hot list relearned on it) over both arms: at 8x8/1if
+#: the answering-ports arm's record of the burst, 116,302 cycles, 78,802 past the unit, and its settle, 35,604, over
+#: nine values, 12,712 cycles, 135 us by the rule (the none arm's 12,468); at 1x1/1if the answering-ports arm's, 43,725
+#: cycles, 15,225 past the unit, and its settle, 7,076, over two values, 11,150 cycles, 120 us by the rule (the none
+#: arm's 10,193). Measured over every registering group of both arms with #977's delivery bound and its record's pass
+#: making no binding change (e59cf6ea's images, the hot list relearned on them): at 8x8/1if the none arm's JoinIn of
+#: both kinds in one MRPDU, 161,132 cycles, 123,632 past the unit, and its settle, 37,658, over nine values, 17,921
+#: cycles, 190 us by the rule; at 1x1/1if the none arm's, 56,210 cycles, 27,710 past the unit, and its settle, 7,446,
+#: over two values, 17,578 cycles, 185 us (#977's ruling of 2026-11-27 on the delivery bound, item 4: the cost
+#: restated by the rule).
+REGISTRATION_US = {'1x1/1if': 185, '8x8/1if': 190}
+#: The deliveries term (#977, the manager's decision of 2026-11-27 on deferred deliveries): the work a registering
+#: record defers into the polls' base of the passes after it, its binding changes and loss completions, one a delivery
+#: under the delivery bound, at a sink's share of it. Its window is the delivery bound's own, the record's pass and the
+#: 2 x n_sinks deliveries after it; its baseline is the median polls base of the ordinary passes in the 50 ms after the
+#: window, which carry none of the deferred work (a pre-record median also counts the base work of what came before
+#: the record). The window's base over that baseline, summed and divided by the sinks, the dearest record over every
+#: registering group of both arms (e59cf6ea's images; the head's byte-identical), each record from its own tagged
+#: receive commit on SRP's channel (44 at each point; a transmit probe, whose input is another record's, is none), plus
+#: 5 %, rounded up to 5 us (DELIVERY_MEASURED, the gate's floor: a cost stated under it is refused). At 8x8/1if the
+#: answering-ports arm's swap, 135,935 cycles over its after-median 12,089, 15,104 a sink, 160 us; at 1x1/1if the
+#: answering-ports arm's JoinIn of both kinds with a change owed, 18,778 a sink, 200 us. Beside it, reported and not
+#: graded, the same over the median of the 50 ms and of the 500 ms before the record (DELIVERY_BESIDE): 11,573 and
+#: 13,642 cycles at 8x8/1if, 125 and 145 us; 18,076 and 18,765 at 1x1/1if, 190 and 200 us.
+DELIVERY_US = {'1x1/1if': 200, '8x8/1if': 160}
+DELIVERY_MEASURED = {'1x1/1if': 18_778, '8x8/1if': 15_104}
+DELIVERY_BESIDE = {'1x1/1if': {'before 50 ms': 18_076, 'before 500 ms': 18_765},
+                   '8x8/1if': {'before 50 ms': 11_573, 'before 500 ms': 13_642}}
+#: V, the Talker values one SRP record may register, as srp_mbx.h states it at each point's shape (SRP_RECORD_VALUES;
+#: #977, its ruling of 2026-11-27 on the population bound, item 2): the registrations term counts V a record, the
+#: bound and the kept together.
+RECORD_SHAPES = {'1x1/1if': '1u, 2u, 2u', '8x8/1if': '1u, 9u, 9u'}
+
+
+def record_values(point: str, root: Path) -> int:
+    """SRP_RECORD_VALUES at the point's shape, read from srp_mbx.h."""
+    text = (root / 'sw/firmware/ctrl/srp/srp_mbx.h').read_text()
+    m = re.search(rf'CTRL_LOOP_SHAPE\({re.escape(RECORD_SHAPES[point])}\)\n#define SRP_RECORD_VALUES (\d+)u', text)
+    if m is None:
+        raise ValueError(f'srp_mbx.h states no SRP_RECORD_VALUES at {point}')
+    return int(m[1])
+
+
 #: The poll items the load counts (poll_grade.py's names); AECP's owed frame is the table's, by what each source sends.
 ITEMS = ('base', 'reclaim', 'retained', 'mrpdu', 'acmp', 'walk', 'acmp_declined')
 #: THE TRANSMIT's and THE STEP's stated costs (ctrl_loop.h), at a point the headers state them for.
@@ -523,6 +610,12 @@ def load(root: Path, point: str, table: dict | None = None) -> dict[str, float]:
     aecp = c['event.AECP'] * (n_if * s['registrations'] / probe + s['counter_descriptors'] / k['holdoff_ms'])
     out['timers'] = n_if * (adp + acmp + c['event.MAAP'] / maap_ms) + aecp
     out['gm'] = n_if * c['event.GM'] * sum(1 / ms for ms in GM_INTERVALS_MS)
+    if point in REGISTRATION_US:
+        # V Talkers a record, bound and kept, in each of TX_PER_JOIN MRPDUs a 1.5 x JoinTime
+        out['registrations'] = REGISTRATION_US[point] * TX_PER_JOIN * record_values(point, root) / (1.5 * JOIN_MIN_MS)
+    if point in DELIVERY_US:
+        # the V binding changes and loss completions each such record defers, one a delivery, at the same rate
+        out['deliveries'] = DELIVERY_US[point] * TX_PER_JOIN * record_values(point, root) / (1.5 * JOIN_MIN_MS)
     return {term: us / 1000 for term, us in out.items()}
 
 
@@ -576,7 +669,7 @@ def findings(root: Path, table: dict | None = None, ceiling: dict | None = None,
     needs, a term without its source (one the term list does not name, or SRP's retries where the tree states no rule
     that bounds them), a graded cost below the pin's that tsn-c-stack#32 does not move, and a column bound to another
     table than its name's (unbound)."""
-    out = unbound() + srp_unit(root, texts) + own_findings(root)
+    out = unbound() + srp_unit(root, texts) + own_findings(root) + delivery_findings(root)
     out += [f'the term srp has no source: srp_mbx.c states no {part}' for part in retry_unbounded(root, texts)]
     out += below_pin(root, table, pin)
     planted = {'at the pin': pin, 'with tsn-c-stack#32': table}
@@ -592,6 +685,23 @@ def findings(root: Path, table: dict | None = None, ceiling: dict | None = None,
             total = sum(terms.values())
             if total > top:
                 out.append(f'{point}: the load {total:.3f} {name} is over its ceiling {top:.2f}')
+    return out
+
+
+def delivery_findings(root: Path) -> list[str]:
+    """Each point whose registrations the load counts but not the deliveries each registering record defers (the
+    deliveries term at DELIVERY_US, V a record at the registrations' rate), each named; and a deliveries cost stated
+    under its measurement's by the rule (DELIVERY_MEASURED), the gate's floor."""
+    out = []
+    for point in REGISTRATION_US:
+        want = DELIVERY_US.get(point, 0) * TX_PER_JOIN * record_values(point, root) / (1.5 * JOIN_MIN_MS) / 1000
+        got = load(root, point).get('deliveries', 0.0)
+        if point not in DELIVERY_US or abs(got - want) > 1e-12:
+            out.append(f'{point}: the load counts its registrations but not the deliveries each registering record '
+                       f'defers ({got:.4f} of the CPU, not V a record at DELIVERY_US)')
+        elif DELIVERY_US[point] < rule_us(DELIVERY_MEASURED.get(point, 0)):
+            out.append(f'{point}: DELIVERY_US {DELIVERY_US[point]} us under its measurement\'s '
+                       f'{rule_us(DELIVERY_MEASURED.get(point, 0))} us by the rule')
     return out
 
 
@@ -721,7 +831,10 @@ def controls(root: Path) -> list[str]:
     if not any('8x8/2if: the graded column states record.srp' in f for f in findings(root, lowered, fit)) or \
             below_pin(root, walked) or GRADED is not STATED_US_DONOR:
         escaped.append('the graded column below the pin where tsn-c-stack#32 moves nothing')
-    return escaped + srp_unit_controls(root, base, fit) + own_controls(root, base, fit) + binding_controls(root)
+    import load_deliveries
+    return escaped + srp_unit_controls(root, base, fit) + own_controls(root, base, fit) + binding_controls(root) + \
+        load_deliveries.controls(root)
+
 
 
 def own_controls(root: Path, base: dict, fit: dict) -> list[str]:
@@ -835,7 +948,9 @@ CONTROLS = ('a cost over the ceiling', 'a held point not held', 'a rise at the p
             'a timer slot counted per pass', 'a term without a source',
             'the graded column below the pin where tsn-c-stack#32 moves nothing',
             "the SRP drain's record cost not the load gate's", "8x8/1if's own ADP record not stated",
-            "8x8/1if's own ADP record not its measurement's by the rule", "a column's name bound to the other's table")
+            "8x8/1if's own ADP record not its measurement's by the rule", "a column's name bound to the other's table",
+            'the deliveries term left out', 'the deliveries term counted at half its rate',
+            'the deliveries cost stated at none', 'the deliveries cost stated under its measurement by the rule')
 
 
 def ceiling_checks() -> list[tuple[str, bool, str]]:
@@ -846,7 +961,9 @@ def ceiling_checks() -> list[tuple[str, bool, str]]:
     escaped = controls(ROOT) + period_controls(ROOT)
     names = (*CONTROLS, *(f'the period {name} not read' for name in PERIODS))
     return [(f'the load gate refuses {name}', name not in escaped, 'escaped' if name in escaped else 'refused')
-            for name in names] + flip_grade.flip_checks() + record_classes.checks()
+            for name in names] + [(f'the load gate names every escape it returns: {name}', False, 'escaped, unnamed')
+                                  for name in escaped if name not in names] + \
+        flip_grade.flip_checks() + record_classes.checks()
 
 
 def main() -> int:

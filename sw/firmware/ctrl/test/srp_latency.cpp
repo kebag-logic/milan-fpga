@@ -158,7 +158,14 @@ TEST_F(SrpLatency, ReceiveRecoveryKeepsOriginalArrivalBudget) {
         std::vector<void*> held;
         while(void *p=ctrl_pool_alloc(&pool,1)) held.push_back(p);
         const uint64_t origin=now_ns;
-        offer(frame(3,identity(),5,2));
+        // a peer's Domain each time at another priority on the same VID first, a new attribute: its allocation is the
+        // one refused, the Leave behind it not applied, with or without MAP work at one port (LWSRP_ONE_PORT_MAP,
+        // #977); its adoption keeps the VID, so no licence moves for it
+        auto f=frame(4,{6,uint8_t(delay==1u ? 4 : 5),0,2},0);
+        f.resize(f.size()-2);
+        const auto leave=frame(3,identity(),5,2);
+        f.insert(f.end(),leave.begin()+15,leave.end());
+        offer(f);
         ASSERT_NE(adapter.pending_rx.len,0u);
         const unsigned arrival=adapter.pending_rx.arrival_ms;
         at(model.now_ms+delay);

@@ -990,11 +990,11 @@ def fixture_groups(p: Point) -> list[Group]:
 
 def all_groups(p: Point, build: dict) -> list[Group]:
     """Every group of a point's build, longest first; the shutdown-entry variant has only its own."""
-    import held, kept_window   # #917's held record and #969's kept Talkers: each imports this module
+    import held, kept_window, register_window   # #917's held record, #969's kept Talkers, #977's registering records
     if build.get('variant') == 'shutdown-entry':
         return shutdown_groups(p)
     groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build), *maap_groups(p),
               *reboot_group.groups(p, build), *srp_groups(p), *kept_window.groups(p), *backlog_groups(p),
               *control_groups(p), *save_window.groups(p, build), *datapath_window.groups(p),
-              *long_notice.groups(p, build), *held.groups(p)]
+              *long_notice.groups(p, build), *held.groups(p), *register_window.groups(p)]
     return sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])

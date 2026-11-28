@@ -1554,11 +1554,20 @@ TEST_F(Early, S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeIt
     }
 }
 
+// #969 under #977's population bound (its ruling of 2026-11-27 on that bound, item 3; #1023): a bind while
+// bound to a stream declared all along is declared within one THE TRANSMIT where its Talker was kept, the first
+// min(SRP_KEPT_TALKERS, V less the bound sinks) declared. Past that keep, as at 8x8/1if with every input bound, nothing
+// is declared before the Talker's next declaration, and then it is declared in THE TRANSMIT's next MRPDU (IEEE
+// 802.1Q-2018 Table 10-3, 10.7.8 NOTE; Milan v1.2 5.5.3.5.18 step 4).
 TEST_F(Early, S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit) {
     ASSERT_TRUE(ready());
     const auto all = every_input();
     ASSERT_FALSE(all.empty());
     const unsigned other = 0x40u;  // the streams the inputs are re-bound to: kSid + 0x40 + n
+    const unsigned room = SRP_RECORD_VALUES > all.size() ? SRP_RECORD_VALUES - static_cast<unsigned>(all.size()) : 0u;
+    const std::size_t keep = std::min<std::size_t>(std::min<unsigned>(SRP_KEPT_TALKERS, room), all.size());
+    const std::vector<unsigned> kept(all.begin(), all.begin() + static_cast<std::ptrdiff_t>(keep));
+    const std::vector<unsigned> past(all.begin() + static_cast<std::ptrdiff_t>(keep), all.end());
     for (const unsigned n : all) {
         const std::uint32_t since = fabric.tx_sent;
         ASSERT_TRUE(bind(n, true)) << "S14 input " << n << " is bound";
@@ -1580,7 +1589,64 @@ TEST_F(Early, S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTran
         ASSERT_TRUE(acmp(spec::MSG_BIND_RX_COMMAND, n, 1u)) << "S14 BIND_RX of input " << n << " while bound";
         pass(6);
     }
-    answer_every_probe(all, other, false, "S14 a BIND_RX while bound to a stream declared all along", 0x0e00u);
+    if (!kept.empty()) {
+        answer_every_probe(kept, other, false, "S14 a BIND_RX while bound to a stream declared all along", 0x0e00u);
+    }
+    std::map<unsigned, std::uint32_t> taken;
+    for (unsigned ms = 0; ms < 6000u && taken.size() < past.size(); ++ms) {
+        for (const unsigned n : past) {
+            const auto state = sink(n).state;
+            if (taken.count(n) == 0u && (state == ACMP_PRB_W_RESP || state == ACMP_PRB_W_RESP2)) {
+                std::uint32_t from = 0, at = 0;
+                ASSERT_TRUE(answer_outstanding(n, n + other, &from, &at))
+                    << "S14 past the keep: input " << n << "'s probe is answered and its binding reaches SRP";
+                taken[n] = from;
+                pass(6);
+            }
+        }
+        pass(1);
+    }
+    ASSERT_EQ(taken.size(), past.size()) << "S14 past the keep: every input probes";
+    pass(kJoinMs + 10u);
+    for (const unsigned n : past) {
+        EXPECT_FALSE(declared_by(taken[n], acmp_test::kSid + n + other, 2u, fabric.now_ms))
+            << "S14 past the keep: nothing is declared before the Talker's next declaration, input " << n;
+        const std::uint32_t mark = fabric.tx_sent;
+        const auto f = talker_declaration(n + other, false);
+        ASSERT_TRUE(mbx_model_rx(&fabric, f.data(), f.size(), 0));
+        pass(kJoinMs + 10u);
+        const auto* next = first_msrp(mark);
+        ASSERT_NE(next, nullptr) << "S14 past the keep: an MRPDU follows the Talker's next declaration, input " << n;
+        EXPECT_EQ(listener_of(next, acmp_test::kSid + n + other), 2u)
+            << "S14 past the keep: the Talker's next declaration is answered in THE TRANSMIT's next MRPDU, input "
+            << n;
+    }
+}
+
+// The same with one input left unbound (#977's ruling of 2026-11-27 on the delivery bound, item 6): the bound sinks
+// leave the keep room for the one Talker declared, so the rebind of input 0 to it is declared within one THE TRANSMIT
+// at every shape.
+TEST_F(Early, S14bWithOneInputUnboundARebindToTheOneTalkerDeclaredIsDeclaredWithinOneTransmit) {
+    ASSERT_TRUE(ready());
+    auto all = every_input();
+    ASSERT_GE(all.size(), 2u);
+    all.pop_back();  // the last input stays unbound
+    const unsigned other = 0x40u;
+    for (const unsigned n : all) {
+        const std::uint32_t since = fabric.tx_sent;
+        ASSERT_TRUE(bind(n, true)) << "S14b input " << n << " is bound";
+        ASSERT_TRUE(answer_probe(n, since, n)) << "S14b input " << n << " settles";
+        pass(12);
+        const auto f = talker_declaration(n, false);
+        ASSERT_TRUE(mbx_model_rx(&fabric, f.data(), f.size(), 0));
+        pass(kJoinMs + 10u);
+    }
+    const auto f = talker_declaration(all.front() + other, false);
+    ASSERT_TRUE(mbx_model_rx(&fabric, f.data(), f.size(), 0));
+    pass(1000);
+    ASSERT_TRUE(acmp(spec::MSG_BIND_RX_COMMAND, all.front(), 1u)) << "S14b BIND_RX of input 0 while bound";
+    answer_every_probe({all.front()}, other, false,
+                       "S14b one input unbound: a BIND_RX while bound to a stream declared all along", 0x0e40u);
 }
 
 }  // namespace

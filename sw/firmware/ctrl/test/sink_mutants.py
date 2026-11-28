@@ -67,12 +67,20 @@ T1_WORDS = ("T1 REGISTERING_FAILED while a Listener Asking Failed is registered 
 #: #969's two tests (Early), named apart from the Streams fixture's S13 and S14 above, whose numbers they share.
 EARLY_S13 = "Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled"
 EARLY_S14 = "Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit"
+EARLY_S14B = "Early.S14bWithOneInputUnboundARebindToTheOneTalkerDeclaredIsDeclaredWithinOneTransmit"
 #: srp_mbx.c's receive filter for a Talker no binding holds (#969), as it holds it.
 KEEPS = "    return keep_talker(i,type,value);\n"
 POWER_ON = ("S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE "
             "TRANSMIT's next MRPDU, input 0")
 REBOUND = ("S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next "
            "MRPDU, input 0")
+#: S14 past the keep (#977's ruling of 2026-11-27 on the population bound, item 3; #1023) and S14b, one input unbound,
+#: the keep's room for one.
+PAST = "S14 past the keep: nothing is declared before the Talker's next declaration, input 0"
+REBOUND_B = ("S14b one input unbound: a BIND_RX while bound to a stream declared all along: an MRPDU follows the "
+             "probe's answer, input 0")
+#: keep_talker's room under the population bound, as srp_mbx.c holds it.
+ROOM = "    const unsigned room = SRP_RECORD_VALUES - i->bound_sinks;\n"
 #: SET_STREAM_FORMAT's verdict test, as aecp_face.c holds it: before the open, supported alone.
 VERDICT = "((verdict & 0xFFu) | (f->ready ? 0u : 2u)) == 3u;"
 C5 = "Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores"
@@ -100,8 +108,9 @@ HI = ("\tctrl_plat_io_write32(window + (CTRL_PLAT_CSR_STRMW_FMT_HI - CTRL_PLAT_C
 
 
 def mutants(mutant: type) -> tuple:
-    """The table, built with the campaign's Mutant (ctrl_mutant.py): the contexts' rows, then the streams'."""
-    return contexts(mutant) + streams(mutant)
+    """The table, built with the campaign's Mutant (ctrl_mutant.py): the contexts' rows, the streams', then the early
+    Talkers' (#969, #977)."""
+    return contexts(mutant) + streams(mutant) + early(mutant)
 
 
 def contexts(mutant: type) -> tuple:
@@ -195,11 +204,6 @@ def contexts(mutant: type) -> tuple:
         # reads the verdict's bit 1 against it refuses the saved format
         m("restore-format-survival-read", "aecp/aecp_face.c", VERDICT, "(verdict & 0xFFu) == 3u;",
           "platsinks1", S12, "S12 input 0's narrowed format is restored after the cut"),
-        # #969: the filter before it, which ignores a Talker of a StreamID no binding holds
-        m("early-talker-ignored", "srp/srp_mbx.c", KEEPS, KEEPS.replace("return ", "return false && "), "platsinks8",
-          EARLY_S13, POWER_ON,
-          also=(("platsinks1", EARLY_S13, POWER_ON), ("platsinks8", EARLY_S14, REBOUND),
-                ("platsinks1", EARLY_S14, REBOUND))),
     )
 
 
@@ -228,4 +232,22 @@ def streams(mutant: type) -> tuple:
         m("asking-failed-of-output-zero", PLAT, ASKING,
           "\tout->asking_failed = srp->listener_present[0] && !srp->registered[0];\n",
           "platsinks8", T1, "T1 no other output carries output 0's Listener: output 1, Asking Failed"),
+    )
+
+
+def early(mutant: type) -> tuple:
+    """The rows of #969's early Talkers under #977's population bound, the Early fixture's S13, S14 and S14b."""
+    m = mutant
+    return (
+        # #969: the filter before it, which ignores a Talker of a StreamID no binding holds
+        m("early-talker-ignored", "srp/srp_mbx.c", KEEPS, KEEPS.replace("return ", "return false && "), "platsinks8",
+          EARLY_S13, POWER_ON,
+          also=(("platsinks1", EARLY_S13, POWER_ON), ("platsinks8", EARLY_S14B, REBOUND_B),
+                ("platsinks1", EARLY_S14, REBOUND))),
+        # #977's population bound past the keep: the bound sinks uncounted keep a Talker every input's binding
+        # leaves no room for; and the room one short keeps none beside the one unbound input
+        m("early-keep-bound-uncounted", "srp/srp_mbx.c", ROOM, "    const unsigned room = SRP_RECORD_VALUES;\n",
+          "platsinks8", EARLY_S14, PAST),
+        m("early-keep-room-short", "srp/srp_mbx.c", ROOM, ROOM.replace("bound_sinks;", "bound_sinks - 1u;"),
+          "platsinks8", EARLY_S14B, REBOUND_B),
     )

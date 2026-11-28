@@ -193,14 +193,13 @@ def stated_misses(results: list[dict]) -> list[str]:
     tier-2 slice longer than CTRL_LOOP_SLICE_US (slice_grade.held, THE TIERS); each join interval outside 181.0 to
     239.0 ms, Table 4.3's JoinTime less T_egress at each end; each MRP timer's run-out whose build is late past its
     participant's transmit opportunity, or absent, or whose owner the testbench did not record at the expiry
-    (join_grade.held, mrpdu_grade.resolve); and each LeaveAll timer's
-    run-out whose LeaveAll went past its first transmit opportunity, late after it, or not at all
-    (mrpdu_grade.leave_alls)."""
+    (join_grade.held, mrpdu_grade.resolve); and each LeaveAll timer's run-out whose LeaveAll went past its first
+    transmit opportunity, late after it, or not at all (mrpdu_grade.leave_alls)."""
     import join_grade
     import poll_grade
     return ([f"{g['group']}: a {o['kind']} pass of {o['cycles']:,} CPU cycles, over its stated "
-             f"{g['passes']['stated']['limits'][o['kind']]:,}"
-             for g in results for o in g['passes'].get('stated', {}).get('over', [])] +
+             f"{o['limit'] if key == 'redeclared' else g['passes'][key]['limits'][o['kind']]:,}"
+             for key in ('stated', 'redeclared') for g in results for o in g['passes'].get(key, {}).get('over', [])] +
             [f"{g['group']}: a round of {o['notices']} notice(s) and {o['refused']} refused attempt(s), "
              f"{o['cycles']:,} CPU cycles, over its stated {o['limit']:,}"
              for g in results for o in g['passes'].get('rounds', {}).get('over', [])] +
@@ -209,13 +208,14 @@ def stated_misses(results: list[dict]) -> list[str]:
                                   "a declined ACMP offer of " if o['kind'] == poll_grade.DECLINED else
                                   "a kept ACMP command's accepted offer of " if o['kind'] == poll_grade.KEPT else
                                   f"a {o['kind']} item of ")
-             + f"{o['cycles']:,} CPU cycles, over its stated {g['passes']['polls']['limits'][o['kind']]:,}"
+             + f"{o['cycles']:,} CPU cycles, over its stated "
+               f"{o.get('limit', g['passes']['polls']['limits'][o['kind']]):,}"
              for g in results for o in g['passes'].get('polls', {}).get('over', []) if o['kind'] != poll_grade.DECLINES]
             + [f"{g['group']}: {o['cycles']} declined ACMP offers, over their bound of two a sent owed frame and one "
                f"({o['sends']} sent)" for g in results for o in g['passes'].get('polls', {}).get('over', [])
                if o['kind'] == poll_grade.DECLINES] +
             [f"{g['group']}: a tier-2 slice of {SLICE_KINDS[o['kind']]} of {o['cycles']:,} CPU cycles, over the "
-             f"stated slice {g['passes']['slices']['limit']:,}"
+             f"stated {o.get('held_as', 'slice')} {o.get('held', g['passes']['slices']['limit']):,}"
              for g in results for o in g['passes'].get('slices', {}).get('over', [])] +
             [f"{g['group']}: a join interval of {o['ms']:.3f} ms ({o['who']}), outside {join_grade.LEAST_MS} to "
              f"{join_grade.MOST_MS} ms" for g in results for o in g['passes'].get('joins', {}).get('over', [])] +
@@ -271,13 +271,13 @@ SLICE_KINDS = {'srp': "SRP's records", 'build': "THE TRANSMIT's build", 'round':
 
 
 def print_slices(results: list[dict]) -> None:
-    """The SLICES line: how many tier-2 slices the groups hold and each kind's longest, against the stated slice."""
+    """The SLICES line: the groups' tier-2 slices and each kind's longest, against the stated slice and pass alone."""
     sliced = [g['passes']['slices'] for g in results if g['passes'].get('slices', {}).get('slices')]
     if sliced:
         longest = {kind: max(s['longest'][kind] for s in sliced) for kind in SLICE_KINDS}
         print(f"SLICES {sum(s['slices'] for s in sliced)} tier-2 slices; the longest "
               + ', '.join(f"{SLICE_KINDS[kind]} {cycles:,}" for kind, cycles in longest.items())
-              + f" CPU cycles, against the stated slice {sliced[0]['limit']:,} (THE TIERS)")
+              + f" CPU cycles, against the stated slice {sliced[0]['limit']:,}, alone {sliced[0]['alone']:,}")
 
 
 def print_joins(results: list[dict]) -> None:
@@ -907,7 +907,7 @@ def main() -> int:
         parser.error('use an external scratch build directory')
     os.environ.setdefault('PYTHONHASHSEED', '0')
     import build as builder
-    import kept_grade, scenario   # kept_grade: the registrations' cost owed to #977 while held (#969)
+    import kept_grade, scenario   # kept_grade: the kept and bound groups graded together, nothing owed (#969, #977)
     import share
     shape, n_if = POINTS[args.point]
     if args.reuse_build or args.regrade:

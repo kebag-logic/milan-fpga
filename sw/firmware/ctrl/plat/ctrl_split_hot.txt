@@ -11,9 +11,12 @@
 # largest legal AECP command's group, aecp-largest-notice, from its first record's
 # commit after its load's mark (aecp_long.*), its functions appended after the
 # other two windows' in the order it first ran them (#665's ruling of 2026-11-17,
-# as amended, item 1). Every function the windows ran stands where
-# they first ran it, and none is placed by hand. Each list is learned so at the
-# head it ships with; a fourth window, or a window chosen for one head, needs a
+# as amended, item 1); then a fourth, srp-register-swap, from its swap record's
+# commit (the first after its srp.register_swap mark), its functions appended
+# after the other three windows' in the order it first ran them (#977's ruling
+# of 2026-11-27 on the delivery bound, item 3). Every function the windows ran stands
+# where they first ran it, and none is placed by hand. Each list is learned so at
+# the head it ships with; a fifth window, or a window chosen for one head, needs a
 # ruling of its own.
 # The list keeps a traced entry only if its section links in every image the
 # list serves (#665's ruling of 2026-11-18, item 1);
@@ -23,39 +26,32 @@
 # each as itself and as the SoC plan's stand-in and mapped images. The target
 # platform's image (ctrl_plat_image.py) links the same script without that
 # check, and an entry it lacks places nothing there.
+# Dropped: mrp_mad find_attr; the one-interface images build lwSRP's lookup buckets, whose lookup links as find_attr,
+# and the 8x8/2if images keep find_attr.isra.0, so neither name links in every image (#977).
+# Dropped: msrp msrp_attr_key; lwSRP's bucket key (LWSRP_ATTR_KEY), which only the one-interface images build; the size
+# fixture's 8x8/2if images lack it, in every arm (#977).
+# Dropped: mvrp mvrp_attr_key; lwSRP's bucket key (LWSRP_ATTR_KEY), which only the one-interface images build; the size
+# fixture's 8x8/2if images lack it, in every arm (#977).
 # Dropped: aecp owe; the size fixture's 8x8/2if images lack it, in every arm.
 # Dropped: aecp owed_drain; the size fixture's 8x8/2if images lack it, in every arm.
-# The traces' sha256:
-#   backlog              c20af90805ec27ac1e13778ff39263ee91215b51b724bf909d233ceaccf3ec66
-#   backlog-adp          0095424351ea6b71ccfce8348e0c8eed846eb1bfe4f1054d299dc44b58494a06
-#   aecp-largest-notice  d03e4494ef4b4cb23d98f00ceb978a639f07e225a1df0d340c9d3797b9a53eee
+# The traces' sha256 (each window's PC lines, as the harness printed them):
+#   backlog              63f421364d7bbf85dc716a7fa9515ada7e2cbe9d66f73aba45327ed568e53455
+#   backlog-adp          66e63daae3207c7f0b6b52e7924b288cb03dd21e6177799e36ff48d88cf73108
+#   aecp-largest-notice  b938af2dd12e22e8431e54430522365477e4e8ec5d4ef6d0e4bd3239d687d0c1
+#   srp-register-swap    e8b316a78f02a7c01682c8176c676765219e37cbe3c9dee388b4a74e53cffa25
+# The backlog windows' traces end with their groups, at 206,393 and 274,149 PCs;
+# the third's and the fourth's at 900,000.
 #
 # sw/firmware/ctrl/test/ctrl_hot.py requires the script's list to be this one,
 # entry for entry, and every entry to name a section of the linked image.
 # One entry a line: the object, then the function's section name. A firmware
 # object is its source's stem; a runtime archive's member is <archive>:<member>.
 ctrl_loop ctrl_loop_service
-nvm_store nvm_store_clock
-nvm_store nvm_now
-nvm_flash_litespi ls_now_us
-ctrl_loop round_of
-aecp_mbx retry
-aecp aecp_retry
-aecp aecp_enter
-aecp round_waits
-aecp now
-aecp_mbx now
-mbx mbx_now_ms
-aecp scan
-aecp arm
-aecp_mbx timer
-nvm_store nvm_store_step
-ctrl_loop ctrl_loop_step
-mbx_plat_mmio mbx_hal_wait
-ctrl_loop ctrl_loop_run
 aecp_mbx retry_aged
 aecp aecp_retry_aged
+aecp aecp_enter
 srp_mbx transmit_aged
+ctrl_app_srp settle
 mbx mbx_rx_mark
 ctrl_loop dispatch_ticks
 mbx mbx_event_take
@@ -64,6 +60,9 @@ aecp_mbx ready
 aecp aecp_ready
 mbx mbx_rx_take
 acmp_mbx on_rx_ready
+nvm_store nvm_store_clock
+nvm_store nvm_now
+nvm_flash_litespi ls_now_us
 srp_mbx rx_ready
 mbx mbx_rx_waiting
 adp_mbx on_poll
@@ -85,7 +84,12 @@ maap pump
 maap_mbx declaring
 aecp_mbx poll
 aecp aecp_poll
+aecp now
+aecp_mbx now
+mbx mbx_now_ms
 aecp transmit
+aecp arm
+aecp_mbx timer
 ctrl_app_aecp deliver
 aecp_nvm aecp_nvm_poll
 ctrl_app_aecp publish_store
@@ -97,10 +101,19 @@ srp_mbx poll
 srp_mbx enter
 mbx mbx_link_up
 srp_mbx snapshot
-srp_mbx capture
 srp_mbx reclaim
 ctrl_app_srp deliver
 srp_mbx srp_mbx_gate
+ctrl_app_srp delivered.isra.0
+ctrl_loop round_of
+aecp_mbx retry
+aecp aecp_retry
+aecp round_waits
+aecp scan
+nvm_store nvm_store_step
+ctrl_loop ctrl_loop_step
+mbx_plat_mmio mbx_hal_wait
+ctrl_loop ctrl_loop_run
 srp_mbx tick
 timer shlan_timer_tick
 mrp_mad mrp_port_status
@@ -114,9 +127,7 @@ srp_mbx on_event
 nvm_store nvm_store_service
 nvm_store nvm_publish
 adp adp_gm_change
-adp enter_delay
-adp_mbx port_timer_start
-mbx mbx_timer_arm
+mbx rx_word
 aecp_mbx frame
 aecp aecp_rx
 aecp wire_be32
@@ -155,6 +166,7 @@ timer shlan_timer_remove
 shlan_port shlan_free
 ctrl_pool ctrl_pool_free
 mvrp mvrp_app_destroy
+srp_mbx capture
 mbx mbx_rx_before
 adp adp_link_change
 adp timer_stop
@@ -184,7 +196,6 @@ mrp_mad mrp_set_rx_filter
 mbx mbx_pub_domain
 mrp_mad mrp_mad_join
 mrp_mad get_or_create_attr
-mrp_mad find_attr.isra.0
 mrp_mad attr_store_len
 msrp msrp_attr_mem_len
 mrp_mad deliver_event_changed
@@ -202,6 +213,9 @@ srp_mbx hold
 mrp_mad mrp_attr_visit
 srp_mbx registrations
 mrp_mad mrp_reclaim
+acmp_mbx on_adp_frame
+adp_mbx on_frame
+adp adp_rx
 acmp_mbx on_frame
 acmp acmp_rx
 acmp wire_be64
@@ -218,42 +232,31 @@ acmp finish
 maap_mbx receive
 maap maap_rx
 maap mac_at
-acmp_mbx on_adp_frame
-adp_mbx on_frame
-adp adp_rx
-srp_mbx receive
+mbx mbx_tick_pending
 srp_mbx transmit
-ctrl_app_srp locked
-ctrl_app_aecp locked
-aecp aecp_locked
+srp_mbx rx_charge
+mbx mbx_rx_next_len
+mbx mbx_rx_next_byte
+srp_mbx receive
+maap enqueue
+maap wire_put_be
+maap_mbx send_frame
+acmp acmp_adp_rx
 acmp mark
-acmp bind_response
-acmp_mbx port_publish
-mbx mbx_pub_sink_binding
-acmp probe
-acmp send_probe
+acmp_mbx port_gptp
+mbx mbx_gm_id
 acmp now
 acmp_mbx port_now
+acmp delay
+acmp_mbx port_seed
 acmp_mbx port_timer
-acmp_mbx port_admit
-mbx mbx_filter_set_bound_talker
-acmp record_of
-ctrl_app_srp persist
-ctrl_app_aecp persist
-ctrl_aecp_image notice
+mbx mbx_timer_arm
 acmp view_of
 ctrl_app_srp changed
 ctrl_app_aecp acmp_changed
-nvm_store nvm_store_changed
-nvm_klj2 nvm_rec_id_of
-nvm_store nvm_mark
-nvm_store nvm_open_set
+ctrl_aecp_image notice
 acmp acmp_change_pending
 aecp aecp_changed
-aecp_face publish
-aecp_face current.isra.0
-mbx mbx_face_write
-mbx mbx_face_commit
 aecp_commands aecp_stream_read
 aecp_commands observe
 aecp_mbx stream
@@ -262,10 +265,24 @@ aecp_face stream
 aecp_face gsi
 mbx mbx_win_read
 mbx mbx_win_ask
-acmp acmp_adp_rx
-acmp_mbx port_gptp
-mbx mbx_gm_id
-acmp tk_departed
+srp_mbx apply_receive
+shlan_port shlan_port_pool
+mrp_mad mrp_rx
+mrp_pdu mrpdu_parse
+mrp_pdu parse_pass
+msrp msrp_attr_len
+msrp msrp_attr_has_subtype
+msrp msrp_decode_attr
+msrp increment_stream
+mrp_mad rx_on_attr
+srp_mbx interested_msrp
+srp_mbx sources_of
+srp_mbx same
+msrp msrp_join_ind
+srp_mbx listener
+msrp msrp_attr_cmp
+ctrl_mem memcmp
+acmp acmp_listener_registered
 aecp monitor
 aecp_mbx random_value
 ctrl_app_aecp random_value
@@ -289,14 +306,33 @@ aecp_mbx changed
 ctrl_app_aecp changed
 aecp_nvm aecp_nvm_changed
 aecp_nvm mark
+nvm_klj2 nvm_rec_id_of
 aecp_face changed
+aecp_face publish
+aecp_face current.isra.0
+mbx mbx_face_write
+mbx mbx_face_commit
 aecp fan_out
 nvm_store nvm_store_changed_id
 nvm_klj2 nvm_rec_id_known
-adp adp_timer_expired
-adp advertise
-adp send
-adp adp_build
-adp_mbx port_gptp
-adp wire_put_be
-adp_mbx port_send
+nvm_store nvm_mark
+nvm_store nvm_open_set
+ctrl_app_srp complete
+msrp msrp_leave_ind
+srp_mbx left
+srp_mbx talker_changed
+srp_mbx failed
+msrp msrp_declare_listener
+srp_mbx build_mrpdu
+mrp_mad mrp_transmit
+mrp_mad map_replay
+acmp acmp_tk_unregistered
+acmp srp_stop
+ctrl_app_srp request
+ctrl_app_aecp srp
+ctrl_aecp_image stream
+acmp_mbx port_publish
+mbx mbx_pub_sink
+srp_mbx srp_mbx_bind
+msrp msrp_withdraw_listener
+mrp_mad mrp_mad_leave

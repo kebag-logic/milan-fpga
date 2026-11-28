@@ -729,7 +729,7 @@ def reuse_checks() -> list[Check]:
 
 
 def build_checks() -> list[Check]:
-    """The ledgered point is named at its own point only, every labelled arm and control plant applies to the
+    """Each ledgered point is named at its own point only, every labelled arm and control plant applies to the
     checkout's sources (scratch copies, never the tree), and the split SoC argv names one image (#665)."""
     sys.path[:0] = [str(HERE.parents[2] / 'sw/litex'), str(HERE.parents[2] / 'sw/builder')]
     import ctrl_memory

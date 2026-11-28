@@ -137,7 +137,7 @@ LONG_RECORD_US = {'1x1/1if': 975, '8x8/2if': 1650, '8x8/1if': 1720}
 TIER2_TERMS = ('srp', 'item.retained', 'item.mrpdu', 'builds', 'rounds', 'item.withdraw', 'item.rebuild')
 #: Each term these models count and its source: rows_grade's list, the three datapath events, and the tier model's.
 SOURCES = {**rows_grade.SOURCES, 'records': (*rows_grade.SOURCES['records'], 'own', 'edits'), 'datapath': ('datapath',),
-           'tier 1: the first queued notice': ('notice',), 'tier 2: the slice a window opens on': ('slice',),
+           'tier 1: the first queued notice': ('notice',), 'tier 2: the slice a window opens on': ('slice', 'settle'),
            'the retry spacing': ('spacing',), "THE PACE: R4L's burst ahead of its last": ('pace',)}
 
 
@@ -410,8 +410,9 @@ def tiered(row: str, i: Inputs, w_ms: float, d: Design) -> dict[str, float]:
     notice = h['AECP_ROUND_COLD_US'] + h['AECP_NOTICE_US']
     # tier 1's first work, the first queued notice: ahead of R4 (every notice queued) and of every tier-2 row
     out['notice'] = notice
-    # the one tier-2 slice running as the row's window opens
-    out['slice'] = slice_us
+    # the tier-2 slice running as the window opens, or the pass of a record THE DRAIN takes alone where longer, and that
+    # record's SETTLE, the next ordinary pass's first work (rows_grade.costs; #977's alone-record ruling, items 1 and 3)
+    out['slice'], out['settle'] = max(slice_us, c.get('alone', 0)), c.get('settle', 0)
     cost_b, count_b = rows_grade.builds(h, s)
     srp_in = arrive('srp')
     # an ordinary pass's SRP slice ends CTRL_LOOP_SLICE_US after the pass started, its events' fixed part first, and
@@ -547,13 +548,6 @@ def findings(root: Path, model: Fix | Design, points: tuple[str, ...] = POINTS,
     return out
 
 
-def long_counted(i: Inputs, w: float, terms: dict[str, float]) -> bool:
-    """Whether a LONG_ROWS row's terms charge each of AECP's owed frames the largest legal notice (LONG_NOTICE_US)."""
-    passes = round(terms['passes'] * 1000 / (i.c['events_none'] + i.c['base']))
-    sent = min(passes, i.rate['aecp'][0] + math.floor(w / i.rate['aecp'][1]) + i.s['n_if'] * i.s['registrations'])
-    return abs(terms.get('item.aecp', 0.0) * 1000 - sent * max(i.c['item.aecp'], i.c['item.aecp.long'])) < 1e-6
-
-
 def tx_statements(root: Path, points: tuple[str, ...] = POINTS, texts: dict[str, str] | None = None) -> list[str]:
     """Each way ctrl_loop.h's statement of THE TRANSMIT's MRPDU is not the model's: its bound not the timer budget's
     (TX_BUDGET_MS), or its figure, CTRL_LOOP_TX_MS, under the built design's tx row rounded up to the ms (txL, every
@@ -629,10 +623,11 @@ def broken(root: Path, model: Fix | Design, points: tuple[str, ...] = POINTS) ->
                     out += [f'{point} {row}: a tier-1 row carries tier 2\'s {k}' for k in TIER2_TERMS if terms.get(k)]
                     if not terms.get('notice'):
                         out.append(f'{point} {row}: the first queued notice is not counted')
-                if abs(terms.get('slice', 0.0) * 1000 - model.slice_us) > 1e-6:
-                    out.append(f'{point} {row}: its one slice is not the slice\'s length')
+                if abs(terms.get('slice', 0.0) * 1000 - max(model.slice_us, i.c.get('alone', 0))) > 1e-6 or \
+                        abs(terms.get('settle', 0.0) * 1000 - i.c.get('settle', 0)) > 1e-6:
+                    out.append(f'{point} {row}: its one slice is not the slice\'s length, or not with its SETTLE')
                 paced = row == 'R4L' and i.pace_ms
-                if row in LONG_ROWS and not long_counted(paced_rows.one(i) if paced else i,
+                if row in LONG_ROWS and not paced_rows.long_counted(paced_rows.one(i) if paced else i,
                                                          (w or 2000) - terms.get('pace', 0.0), terms):
                     out.append(f'{point} {row}: an owed frame of AECP\'s not the largest legal notice')
                 ahead = (i.rate['aecp'][0] - 1) * (i.pace_ms + paced_rows.TAKE_PASSES * i.h['CTRL_LOOP_SHARE_US'] / 1e3)
@@ -812,6 +807,7 @@ PLANTS: dict[str, tuple[Fix | Design, Callable]] = {
     'a tier-2 term in a tier-1 row': (REFERENCE, lambda row, i, w, m, t: dict(
         t, srp=i.rate['srp'][0] * i.c['record.srp']) if row == 'R4' else t),
     'a row without its slice': (REFERENCE, lambda row, i, w, m, t: {k: v for k, v in t.items() if k != 'slice'}),
+    'a row without its SETTLE': (REFERENCE, lambda row, i, w, m, t: {k: v for k, v in t.items() if k != 'settle'}),
     'a slice charged at other than its length': (REFERENCE, lambda row, i, w, m, t: dict(t, slice=2000.0)),
     'a term without a source': (REFERENCE, lambda row, i, w, m, t: dict(t, margin=100.0)),
     'the first queued notice left out of R4': (REFERENCE, lambda row, i, w, m, t: {

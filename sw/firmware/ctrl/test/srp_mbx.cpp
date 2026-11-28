@@ -3,6 +3,23 @@
 #include <array>
 FW_TALLY_LABEL("ctrl SRP mailbox");
 namespace {
+TEST_F(Srp, PostedTickPrecedesANewJoinTimerEvenWithGrandmasterEvents) {
+    adapter.tx_owed = 1u;
+    mbx_model_gm_change(&model,0,0x12345678u,0);
+    EXPECT_TRUE(loop.transmit_aged(loop.transmit_ctx));
+    const auto tail = model.evt_tail;
+    mbx_model_advance_ms(&model,MBX_TICK_MS);
+    EXPECT_FALSE(loop.transmit_aged(loop.transmit_ctx))
+        << "a tick posted before the build must not shorten the new join timer";
+    EXPECT_EQ(model.evt_tail,tail) << "eligibility must not consume an event";
+    mbx_event event{};
+    while (mbx_event_take(&event)) {}
+    loop.ticks_owed = 1u;
+    EXPECT_FALSE(loop.transmit_aged(loop.transmit_ctx));
+    loop.ticks_owed = 0u;
+    EXPECT_TRUE(loop.transmit_aged(loop.transmit_ctx));
+}
+
 std::vector<uint8_t> talker_value(const msrp_stream_id &sid, const uint8_t da[6], uint16_t vid) {
     std::vector<uint8_t> value(25);
     std::copy(sid.bytes,sid.bytes+8,value.begin());
@@ -448,6 +465,235 @@ TEST_F(Srp, DomainUsesPeerPriorityAndVlan) {
         if(d.ethertype==0x88f5 && d.value==std::vector<uint8_t>({0,3})) vlan=true;
     }
     EXPECT_TRUE(domain); EXPECT_TRUE(talker); EXPECT_TRUE(vlan);
+}
+// THE DRAIN's charge of the record at the head of SRP's ring (#977, its ruling of 2026-11-23, item 4): the unit, and a
+// registration's stated cost for each Talker value its Talker Messages' vectors carry, at most V a vector
+// (SRP_RECORD_VALUES; #977, its ruling of 2026-11-27 on the population bound, items 2 and 4), read with the record left
+// in the ring: nothing for an MVRP record, a Listener's or one past the PDU's EndMark, a Message's AttributeListLength
+// bounding it, a vector of no values (a LeaveAll's) skipped by its FirstValue with the walk going on (IEEE 802.1Q-2018
+// 10.8.1.2, 10.8.2.8), and past eight Messages the rest by its length, V for each 28 octets.
+TEST_F(Srp, TheDrainChargesARecordTheTalkersItsVectorsCanRegister) {
+    settle();
+    ASSERT_TRUE(loop.drain_charge != nullptr);
+    const auto record=[](uint16_t ethertype,const std::vector<uint8_t> &messages) {
+        std::vector<uint8_t> f(14); wire_put_be(f.data(),ethertype==0x22ea ? 0x0180c200000eull : 0x0180c2000021ull,6);
+        wire_put_be(f.data()+6,0x020304059900ull,6); wire_put_be(f.data()+12,ethertype,2);
+        f.push_back(0); f.insert(f.end(),messages.begin(),messages.end());
+        if (f.size()<60u) f.resize(60u);
+        return f;
+    };
+    // a Message of `type` with one vector a VectorHeader, its LeaveAll bits above its NumberOfValues, each its FirstValue
+    // of `alen` octets, the Message's EndMark in its AttributeListLength unless `list` states another
+    const auto message=[](uint8_t type,uint8_t alen,const std::vector<unsigned> &counts,int list=-1) {
+        std::vector<uint8_t> v;
+        for (unsigned n:counts) {
+            v.push_back(uint8_t(n>>8)); v.push_back(uint8_t(n)); v.insert(v.end(),alen,0x11);
+            v.insert(v.end(),((n&0x1fffu)+2u)/3u,0);
+        }
+        v.push_back(0); v.push_back(0);
+        const unsigned length=list<0 ? unsigned(v.size()) : unsigned(list);
+        std::vector<uint8_t> m={type,alen,uint8_t(length>>8),uint8_t(length)};
+        m.insert(m.end(),v.begin(),v.end());
+        return m;
+    };
+    const auto cat=[](std::vector<std::vector<uint8_t>> parts) {
+        std::vector<uint8_t> out;
+        for (auto &p:parts) out.insert(out.end(),p.begin(),p.end());
+        return out;
+    };
+    const unsigned u=CTRL_LOOP_SRP_UNIT_US;
+    const unsigned r=CTRL_LOOP_SRP_REG_US;
+    const unsigned s=SRP_RECORD_VALUES;
+    const unsigned leave_all=0x2000u;
+    const std::vector<uint8_t> end={0,0};
+    std::vector<uint8_t> listeners;
+    for (unsigned k=0;k<9u;++k) {
+        const auto m=message(3,8,{1});
+        listeners.insert(listeners.end(),m.begin(),m.end());
+    }
+    const auto past=cat({listeners,message(1,25,{1})});
+    // the ninth Message's offset: the ProtocolVersion's and eight Listener Messages of 17 octets each
+    const unsigned rest=(unsigned(record(0x22ea,past).size())-(15u+8u*17u))/(2u+25u+1u);
+    const struct { const char *what; std::vector<uint8_t> f; unsigned charge; } cases[]={
+        {"an MVRP record",record(0x88f5,message(1,2,{1})),u},
+        {"a Listener's",record(0x22ea,cat({message(3,8,{1}),end})),u},
+        {"a Talker Advertise's two values",record(0x22ea,cat({message(1,25,{2}),end})),u+r*(2u<s?2u:s)},
+        {"a Talker Failed's values past V",record(0x22ea,cat({message(2,34,{s+3u}),end})),u+r*s},
+        {"a Talker Advertise's V values",record(0x22ea,cat({message(1,25,{s}),end})),u+r*s},
+        {"a LeaveAll of no values ahead of two Talker values",
+         record(0x22ea,cat({message(1,25,{leave_all,1u,1u}),end})),u+2u*r},
+        {"a LeaveAll vector with its values",record(0x22ea,cat({message(1,25,{leave_all|2u}),end})),u+r*(2u<s?2u:s)},
+        {"both kinds' one each",record(0x22ea,cat({message(1,25,{1}),message(2,34,{1}),end})),u+2u*r},
+        {"a Talker past the EndMark",record(0x22ea,cat({end,end,message(1,25,{1})})),u},
+        {"a Message whose length passes the record",record(0x22ea,message(1,25,{1},2000)),u+r},
+        {"a Message whose length ends at its last vector",record(0x22ea,cat({message(1,25,{1},2+25+1),end})),u+r},
+        {"past eight Messages, by its length",record(0x22ea,past),u+r*s*rest},
+    };
+    // the shortest record the filter passes, its ProtocolVersion and no Message: the unit
+    std::vector<uint8_t> shortest(15); wire_put_be(shortest.data(),0x0180c200000eull,6);
+    wire_put_be(shortest.data()+12,0x22ea,2);
+    ASSERT_TRUE(mbx_model_rx(&model,shortest.data(),shortest.size(),0));
+    EXPECT_EQ(loop.drain_charge(&adapter),u) << "a record that ends at its ProtocolVersion";
+    settle();
+    for (const auto &c:cases) {
+        mbx_model_advance_ms(&model,100); settle();   // the channel's bucket refilled
+        ASSERT_TRUE(mbx_model_rx(&model,c.f.data(),c.f.size(),0)) << c.what;
+        EXPECT_EQ(loop.drain_charge(&adapter),c.charge) << c.what;
+        EXPECT_EQ(loop.drain_charge(&adapter),c.charge) << c.what << ", the record left in the ring";
+        settle();
+    }
+    srp_mbx_destroy(&adapter);
+    EXPECT_TRUE(loop.drain_charge == nullptr) << "destroy unbinds the charge";
+}
+// The byte compares (#977): a StreamID whose last byte is a bound sink's and another byte not is no Talker of that sink,
+// in the receive filter, the indication and the walk; and a Talker of a bound StreamID at another destination touches
+// its sink with no change of its declaration, which the filter's pass over the touched sinks leaves as it was.
+TEST_F(Srp, ATalkerIsASinksOnlyForItsStreamIDByteForByte) {
+    settle();
+    const msrp_stream_id a{{2,1,2,3,4,5,6,7}};
+    const msrp_stream_id b{{3,1,2,3,4,5,6,7}};
+    const uint8_t da[]={0x91,0xe0,0xf0,0,0,9};
+    const uint8_t other[]={0x91,0xe0,0xf0,0,0,10};
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,&a,da,2));
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,1,&b,da,2));
+    // one Message of two vectors: b's Talker at another destination, then a's
+    const auto vb=talker_value(b,other,2);
+    const auto va=talker_value(a,da,2);
+    std::vector<uint8_t> f(14); wire_put_be(f.data(),0x0180c200000eull,6);
+    wire_put_be(f.data()+6,0x020304010203ull,6); wire_put_be(f.data()+12,0x22ea,2);
+    f.insert(f.end(),{0,1,25,0,2*(2+25+1)+2});
+    for (const auto *v:{&vb,&va}) {
+        f.insert(f.end(),{0,1}); f.insert(f.end(),v->begin(),v->end()); f.push_back(1*36);
+    }
+    f.insert(f.end(),{0,0,0,0});
+    offer(f); advance(200); capture();
+    EXPECT_EQ(adapter.ifs[0].sinks[0].registered_kinds,2u) << "a's Talker registers for its own sink";
+    EXPECT_EQ(adapter.ifs[0].sinks[1].registered_kinds,0u) << "b's at another destination registers for none";
+    EXPECT_EQ(adapter.ifs[0].sinks[0].declared,2u) << "a's sink declares Ready";
+    EXPECT_EQ(adapter.ifs[0].sinks[1].declared,0u) << "b's sink declares nothing";
+}
+// The sink index (#977, srp_mbx.c index_sinks): a and c share a lane, c bound first and a ahead of it in the lane once
+// bound, so c is its lane's second; each StreamID's Talker is found for its own sinks alone by the indication, the
+// receive filter, the kept count and the walk, a second binding of c is found beside the first, and a binding's end
+// leaves its lane.
+TEST_F(Srp, EveryBindingInASinkLaneTakesItsOwnStreamsTalkersAlone) {
+    settle();
+    const msrp_stream_id a{{2,1,2,3,4,5,6,0x05}};
+    const msrp_stream_id c{{2,1,2,3,4,5,6,0x15}};
+    const uint8_t da[]={0x91,0xe0,0xf0,0,0,9};
+    ASSERT_EQ(a.bytes[7]%SRP_SINK_LANES,c.bytes[7]%SRP_SINK_LANES) << "a and c share a lane";
+    auto failed=talker_value(c,da,2);
+    failed.insert(failed.end(),{0x80,0,0x0e,0x0e,0x0e,0x0e,0x0e,0x01,1});
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,1,&c,da,2));
+    settle(); advance(200);
+    offer(frame(1,talker_value(c,da,2),1)); advance(200);
+    EXPECT_EQ(adapter.ifs[0].sinks[1].registered_kinds,2u) << "c's Advertise registers for its sink";
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,&a,da,2));
+    settle(); advance(200);
+    offer(frame(1,talker_value(a,da,2),1)); advance(200);
+    EXPECT_EQ(adapter.kept_count[0],0u) << "the count before a's receive keeps no Talker of a bound StreamID";
+    EXPECT_EQ(adapter.ifs[0].sinks[0].registered_kinds,2u) << "a's Advertise registers for its sink";
+    EXPECT_EQ(adapter.ifs[0].sinks[1].registered_kinds,2u) << "the walk finds c's Advertise for its lane's second";
+    offer(frame(2,failed,1)); advance(200);
+    EXPECT_EQ(adapter.ifs[0].sinks[1].registered_kinds,1u) << "c's Failed replaces its Advertise at its lane's second";
+    EXPECT_EQ(adapter.ifs[0].sinks[0].registered_kinds,2u) << "and a's sink keeps a's Advertise";
+    EXPECT_EQ(adapter.kept_count[0],0u) << "the filter keeps no Talker of a bound StreamID";
+    EXPECT_EQ(adapter.ifs[0].sinks[1].declared,1u) << "c's sink declares Asking Failed";
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,&c,da,2));
+    settle(); advance(200);
+    offer(frame(1,talker_value(c,da,2),1)); advance(200);
+    EXPECT_EQ(adapter.ifs[0].sinks[0].registered_kinds,2u) << "c's Advertise registers for both of its bindings";
+    EXPECT_EQ(adapter.ifs[0].sinks[1].registered_kinds,2u) << "the second of them too";
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,1,nullptr,nullptr,0));
+    settle(); advance(200);
+    offer(frame(2,failed,1)); advance(200);
+    EXPECT_EQ(adapter.ifs[0].sinks[0].registered_kinds,1u) << "c's Failed registers for the binding left";
+    EXPECT_EQ(adapter.ifs[0].sinks[1].registered_kinds,0u) << "and for no ended binding";
+}
+// lwSRP's build options by shape (#977; srp_entity.py, LWSRP_OPTIONS, the shape header every unit force-includes): the
+// one-interface shapes build the lookup buckets, no MAP work at one port, the lean validation pass, no leave timer
+// event for a replaced Talker the rapid leave took to MT, no copy past what is used and no tx! an Applicant keeps,
+// 8x8/1if alone the merged Message build; every other shape lwSRP's defaults.
+#ifdef LWSRP_ONE_PORT_MAP
+#define SRP_TEST_ONE_PORT LWSRP_ONE_PORT_MAP
+#else
+#define SRP_TEST_ONE_PORT 0
+#endif
+#ifdef LWSRP_LEAN_VALIDATE
+#define SRP_TEST_LEAN LWSRP_LEAN_VALIDATE
+#else
+#define SRP_TEST_LEAN 0
+#endif
+#ifdef LWSRP_ATTR_BUCKETS
+#define SRP_TEST_BUCKETS LWSRP_ATTR_BUCKETS
+#else
+#define SRP_TEST_BUCKETS 0u
+#endif
+#ifdef LWSRP_TX_MERGE
+#define SRP_TEST_MERGE LWSRP_TX_MERGE
+#else
+#define SRP_TEST_MERGE 0
+#endif
+#ifdef LWSRP_RAPID_REPLACE
+#define SRP_TEST_RAPID LWSRP_RAPID_REPLACE
+#else
+#define SRP_TEST_RAPID 0
+#endif
+#ifdef LWSRP_LEAN_COPY
+#define SRP_TEST_COPY LWSRP_LEAN_COPY
+#else
+#define SRP_TEST_COPY 0
+#endif
+#ifdef LWSRP_LEAN_TX
+#define SRP_TEST_LEAN_TX LWSRP_LEAN_TX
+#else
+#define SRP_TEST_LEAN_TX 0
+#endif
+TEST_F(Srp, TheShapeHeaderSetsLwsrpsEndStationOptions) {
+    const bool one=MBX_N_IF==1u;
+    const bool eight=CTRL_SRP_SINKS==9u;
+    EXPECT_EQ(SRP_TEST_ONE_PORT,one ? 1 : 0) << "no MAP work at one port at a one-interface shape";
+    EXPECT_EQ(SRP_TEST_LEAN,one ? 1 : 0) << "the lean validation pass at a one-interface shape";
+    EXPECT_EQ(SRP_TEST_BUCKETS,one ? 16u : 0u) << "the lookup buckets at a one-interface shape";
+    EXPECT_EQ(SRP_TEST_MERGE,one && eight ? 1 : 0) << "the merged Message build at 8x8/1if alone";
+    EXPECT_EQ(SRP_TEST_RAPID,one ? 1 : 0) << "no leave timer event for a rapid replacement at a one-interface shape";
+    EXPECT_EQ(SRP_TEST_COPY,one ? 1 : 0) << "no copy past what is used at a one-interface shape";
+    EXPECT_EQ(SRP_TEST_LEAN_TX,one ? 1 : 0) << "no tx! an Applicant keeps at a one-interface shape";
+}
+// THE TRANSMIT's re-declarations in a slice of their own (#977, its ruling of 2026-11-23, item 3; CTRL_LOOP_DECLARE_ALONE
+// at 8x8/1if): a call whose declarations re-declared a Listener ends after them and the next call builds the MRPDU, no
+// SRP record taken between; at every other shape one call declares and builds.
+TEST_F(Srp, ARedeclarationBuildsItsMrpduInTheNextCallWhereTheShapeSaysSo) {
+    settle(); advance(400);
+    const msrp_stream_id sid{{2,1,2,3,4,5,6,7}};
+    const uint8_t da[]={0x91,0xe0,0xf0,0,0,9};
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,&sid,da,2));
+    settle(); advance(400);
+    const auto f=frame(1,talker_value(sid,da,2),0);
+    ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0));
+    for(unsigned n=0;n<20u && loop.drain_taken==0u;++n) ctrl_loop_service(&loop);
+    ASSERT_NE(loop.drain_taken,0u) << "a pass took the registration";
+    ASSERT_NE(adapter.tx_due,0u) << "its Listener declaration is owed THE TRANSMIT";
+    const auto sent=adapter.transmitted;
+    loop.transmit(loop.transmit_ctx,CTRL_LOOP_BUILD_MOST);
+    EXPECT_NE(adapter.ifs[0].sinks[0].declared,0u) << "the call declares the Listener";
+    if(CTRL_LOOP_DECLARE_ALONE) {
+        EXPECT_EQ(adapter.transmitted,sent) << "the call that re-declared builds nothing";
+        EXPECT_TRUE(adapter.declared_alone) << "its build owed to the next call";
+        // a Listener of no source here, posted before the mark a pass's events read (THE DRAIN's order)
+        const auto r=frame(3,{9,9,9,9,9,9,9,9},0,2);
+        ASSERT_TRUE(mbx_model_rx(&model,r.data(),r.size(),0));
+        loop.rx_order=mbx_rx_mark(MBX_CH_SRP);
+        EXPECT_FALSE(loop.rx[MBX_CH_SRP].ready(&adapter)) << "no SRP record is taken before the build";
+        loop.transmit(loop.transmit_ctx,CTRL_LOOP_BUILD_MOST);
+        EXPECT_GT(adapter.transmitted,sent) << "the next call builds the MRPDU";
+        EXPECT_FALSE(adapter.declared_alone);
+        EXPECT_TRUE(loop.rx[MBX_CH_SRP].ready(&adapter)) << "and records are taken again";
+    } else {
+        EXPECT_GT(adapter.transmitted,sent) << "the call that declares builds the MRPDU";
+        EXPECT_FALSE(adapter.declared_alone);
+    }
+    settle();
 }
 TEST_F(Srp, RefusedMailboxRetainsOwedFrameAndDefersInput) {
     mbx_model_tx_pause(&model,true);
@@ -1515,6 +1761,22 @@ TEST_F(Srp, ARecordThatChangesNoRegistrationCostsNoWalk) {
     settle(); expect_held(adapter,"a Talker registered");
 }
 
+// A Listener declaration of a StreamID no source talks shares its attribute with no registration the walk copies
+// (#977, srp_mbx.c prepare_declarations): THE TRANSMIT's re-declaration after a registration owes no walk.
+TEST_F(Srp, ADeclarationOfAStreamNoSourceTalksOwesNoWalk) {
+    settle(); advance(400);
+    const msrp_stream_id sid{{2,1,2,3,4,5,6,7}};
+    const uint8_t da[]={0x91,0xe0,0xf0,0,0,9};
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,&sid,da,2)); settle(); advance(400);
+    receive_before_poll(frame(1,talker_value(sid,da,2),1));
+    ASSERT_EQ(adapter.ifs[0].sinks[0].desired,2u) << "the registration asks for a Ready declaration";
+    const uint32_t before=adapter.walks;
+    settle(); advance(400);
+    EXPECT_EQ(adapter.ifs[0].sinks[0].declared,2u) << "THE TRANSMIT declared it";
+    EXPECT_EQ(adapter.walks,before) << "a declaration of a StreamID no source talks owes no walk";
+    expect_held(adapter,"declared Ready");
+}
+
 // A sink bound to the entity's own stream shares each attribute with a source:
 // the adapter's own declarations then rewrite a value a registration holds,
 // with no Registrar change and no indication.
@@ -1899,6 +2161,9 @@ TEST_F(Srp, AnOwedFrameComesBeforeTheBuild) {
     for (unsigned n=0;n<8u;++n) {
         mbx_model_advance_ms(&model,MBX_TICK_MS);
         ctrl_loop_service(&loop);
+        // The posted tick must not be the reason the owed frame wins: give
+        // the build another opportunity before advancing either clock.
+        ctrl_loop_service(&loop);
     }
     ASSERT_GT(adapter.owed_len,0u);
     EXPECT_NE(adapter.tx_due&(1u<<adapter.owed_if),0u)<<"the interface stays due";
@@ -2229,6 +2494,13 @@ protected:
     // stream s, one for each STREAM_INPUT and one past them: its StreamID, destination and Talker record
     static msrp_stream_id stream(unsigned s) { return {{2,1,2,3,4,5,0x40,static_cast<uint8_t>(s)}}; }
     static std::array<uint8_t,6> dest(unsigned s) { return {0x91,0xe0,0xf0,0,1,static_cast<uint8_t>(s)}; }
+    // stream s's twin: a StreamID of the same talker whose unique ID differs in its first octet alone, so both end in
+    // the same octet, which the kept list's and the held table's searches compare first (#977)
+    static msrp_stream_id twin(unsigned s) { auto id=stream(s); id.bytes[6]=0x41; return id; }
+    std::vector<uint8_t> twin_advertise(unsigned s) {
+        const auto d=dest(s);
+        return frame(1u,talker_value(twin(s),d.data(),2),kJoinIn,0,false);
+    }
     std::vector<uint8_t> talker(unsigned s, unsigned kind, unsigned event, bool la=false, uint32_t latency=0u) {
         const auto d=dest(s);
         auto v=talker_value(stream(s),d.data(),2);
@@ -2240,6 +2512,10 @@ protected:
         const auto sid=stream(s); const auto d=dest(s);
         ASSERT_TRUE(srp_mbx_bind(&adapter,0,k,&sid,d.data(),2));
     }
+    // A block returned to the pool owes the count a pending one waits for (srp_mbx.c count_kept), as the MAP work's
+    // reservation returned one with every indication; at a one-interface shape lwSRP makes none at one port
+    // (LWSRP_ONE_PORT_MAP), so a test that needs that count returns a block of its own (#977).
+    void return_block() { ctrl_pool_free(&pool,ctrl_pool_alloc(&pool,1u)); }
     // The Listener declarations of stream s in interface 0's first MSRP MRPDU sent from frame `from` on, and when it
     // left.
     std::vector<Declaration> first_mrpdu(uint32_t from, unsigned s, unsigned *at_ms) {
@@ -2294,7 +2570,59 @@ protected:
     void expect_every_input_declares(const std::string &words) {
         for (unsigned k=0;k<CTRL_SRP_SINKS;++k) expect_bound_declares(k,k,kAdvertise,words);
     }
+    // One Talker Advertise Message (JoinIn) of one vector of n values from stream 0, each value its predecessor's plus
+    // one (IEEE 802.1Q-2018 35.2.2.8.4), its list's EndMark and the MRPDU's, after `before`'s Messages.
+    std::vector<uint8_t> vector_of(unsigned n, const std::vector<uint8_t> &before = {}) {
+        auto f=talker(0,kAdvertise,kJoinIn);
+        f.resize(46u);
+        wire_put_be(f.data()+19,n,2);
+        wire_put_be(f.data()+17,29u+(n+2u)/3u,2);
+        for (unsigned k=0;k<n;k+=3u) {
+            f.push_back(static_cast<uint8_t>(kJoinIn*36u+(k+1u<n ? kJoinIn*6u : 0u)+(k+2u<n ? kJoinIn : 0u)));
+        }
+        f.insert(f.end(),{0,0,0,0});
+        f.insert(f.begin()+15,before.begin(),before.end());
+        return f;
+    }
+    // The Talker Advertise attributes interface 0's participant registers (Registrar IN).
+    unsigned registered_talkers() {
+        unsigned n=0;
+        mrp_attr_visit(adapter.ifs[0].msrp,0,[](void *p,const mrp_attr_status *s) {
+            if (s->attr_type==MSRP_ATTR_TYPE_TALKER_ADV && s->reg==MRP_REG_STATE_IN) ++*static_cast<unsigned *>(p);
+        },&n);
+        return n;
+    }
 };
+
+// The population a record registers (#977, its ruling of 2026-11-27 on the population bound, item 2): with enough
+// sinks bound that the bound and the kept fill V, one vector of V + 3 Talkers from the bound ones' registers V, the
+// bound and the kept, and THE DRAIN charges at least the unit and the cost of each, as read from the record before
+// lwSRP parses it; and so after eight Listener Messages, past which the rest of the record is charged by its length.
+TEST_F(SrpEarlyTalker, AVectorOfBoundAndKeptTalkersRegistersVAndIsChargedForEach) {
+    const unsigned bound=CTRL_SRP_SINKS<SRP_RECORD_VALUES ? CTRL_SRP_SINKS : CTRL_SRP_SINKS/3u;
+    std::vector<uint8_t> listeners;
+    for (unsigned k=0;k<8u;++k) {
+        const std::vector<uint8_t> m={3,8,0,14,0x00,0x01,1,2,3,4,5,6,7,8,kJoinIn*36u,0x40,0,0};
+        listeners.insert(listeners.end(),m.begin(),m.end());
+    }
+    for (bool after_eight : {false,true}) {
+        settle(); advance(400);
+        for (unsigned k=0;k<bound;++k) { bind_stream(k,k); settle(); }
+        const auto f=vector_of(SRP_RECORD_VALUES+3u,after_eight ? listeners : std::vector<uint8_t>{});
+        mbx_model_advance_ms(&model,100); settle();
+        ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0));
+        const unsigned charge=loop.drain_charge(&adapter);
+        settle();
+        const unsigned n=registered_talkers();
+        EXPECT_EQ(n,SRP_RECORD_VALUES)
+            << (after_eight ? "R2 after eight Messages the bound and the kept a vector registers fill V"
+                            : "R1 the bound and the kept a vector registers fill V");
+        EXPECT_GE(charge,CTRL_LOOP_SRP_UNIT_US+CTRL_LOOP_SRP_REG_US*n)
+            << (after_eight ? "R2 after eight Messages THE DRAIN charges every Talker the record registers"
+                            : "R1 THE DRAIN charges every Talker the record registers");
+        TearDown(); SetUp();
+    }
+}
 
 // Registration, then binding: every STREAM_INPUT's Talker is declared shortly after power-on, the talker is then
 // quiet, and each input's binding lands some seconds later (the probe's answer), within the DUT's first LeaveAll
@@ -2386,8 +2714,8 @@ TEST_F(SrpEarlyTalker, AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBi
 }
 
 // A kept registration that ends holds its block until mrp_reclaim frees it, so it is counted until then, by a walk made
-// meanwhile too (a bound Talker's indication owes one); once the block is freed, the walk its return owes counts it no
-// more, and another StreamID's Talker is kept in its place.
+// meanwhile too (a bound Talker's indication owes one) and by the count a returned block owes (return_block); once the
+// block is freed, the walk its return owes counts it no more, and another StreamID's Talker is kept in its place.
 TEST_F(SrpEarlyTalker, AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed) {
     settle(); advance(400);
     const unsigned past=CTRL_SRP_SINKS, bound=CTRL_SRP_SINKS+1u;
@@ -2401,6 +2729,7 @@ TEST_F(SrpEarlyTalker, AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFree
     // bound indication owes runs before any poll reclaims, and the declaration it leaves as it was owes no transmit
     receive_before_poll(then(talker(0,kAdvertise,kLv),talker(bound,kAdvertise,kJoinIn,false,1000u)));
     ASSERT_EQ(sink(0).declared,kAdvertise);
+    return_block();
     const unsigned left=ctrl_pool_in_use(&pool);
     receive_before_poll(talker(past,kAdvertise,kJoinIn));
     EXPECT_EQ(ctrl_pool_in_use(&pool),left)<<"a kept registration that left is counted until its block is freed";
@@ -2419,8 +2748,9 @@ TEST_F(SrpEarlyTalker, AnUnboundRegistrationIsKeptAndCountedAgainstTheBound) {
     offer(talker(mine,kAdvertise,kJoinIn)); advance(kJoinMs);
     ASSERT_EQ(sink(0).declared,kAdvertise);
     for (unsigned k=1;k<CTRL_SRP_SINKS;++k) offer(talker(k,kAdvertise,kJoinIn));
-    // a refresh of one kept: the count before it sees every one kept registered, so none is pending when the binding
-    // changes, and the unbinding alone owes the next count
+    // a refresh of one kept: the count before it, owed by a block returned (return_block), sees every one kept
+    // registered, so none is pending when the binding changes, and the unbinding alone owes the next count
+    return_block();
     offer(talker(1,kAdvertise,kJoinIn)); quiet(400);
     ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,nullptr,nullptr,0)); settle(); advance(kJoinMs);
     const unsigned full=ctrl_pool_in_use(&pool);
@@ -2447,6 +2777,59 @@ TEST_F(SrpEarlyTalker, AnUnbindingAtTheBoundIsCountedPastIt) {
     EXPECT_EQ(ctrl_pool_in_use(&pool),full)<<"a kept one refreshed takes no block";
     quiet(400);
     expect_bound_declares(1,mine,kAdvertise,"the registration an unbinding left past the bound, bound again");
+}
+
+// A StreamID whose last octet a kept one's shares is kept as its own, against the bound (#969): the kept list's search
+// enters same only where the last octets agree (#977), so a Talker past the bound in the same MRPDU is refused.
+TEST_F(SrpEarlyTalker, AStreamIDOfAKeptOnesLastOctetIsKeptAsItsOwnAgainstTheBound) {
+    settle(); advance(400);
+    for (unsigned k=0;k+1u<CTRL_SRP_SINKS;++k) offer(talker(k,kAdvertise,kJoinIn));
+    quiet(400);
+    const unsigned before=ctrl_pool_in_use(&pool);
+    offer(then(twin_advertise(0),talker(CTRL_SRP_SINKS,kAdvertise,kJoinIn)));
+    EXPECT_EQ(ctrl_pool_in_use(&pool),before+1u)
+        <<"stream 0's twin is kept as its own: the one past the bound is refused";
+}
+
+// A binding of a StreamID whose last octet a held one's shares takes none of it (#925): the held table's search enters
+// same only where the last octets agree (#977), so the held StreamID's binding made later takes its own latest.
+TEST_F(SrpEarlyTalker, ABindingOfAStreamIDOfAHeldOnesLastOctetTakesNoneOfIt) {
+    settle(); advance(400);
+    offer(talker(0,kFailed,kJoinIn)); offer(talker(0,kAdvertise,kNew)); quiet(1000);
+    const auto other=twin(0); const auto d=dest(0);
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,&other,d.data(),2)); settle(); advance(kJoinMs);
+    EXPECT_EQ(sink(0).declared,0u)<<"stream 0's twin, never registered, declares nothing";
+    expect_bound_declares(1,0,kAdvertise,"stream 0 keeps its latest Advertise past its twin's binding");
+}
+
+// A kept registration refreshed after the count a returned block owes is counted once: the count lists it again with
+// its last octet, which the kept list's search reads first (#977, kept_octets), so its refresh finds it.
+TEST_F(SrpEarlyTalker, AKeptRegistrationRefreshedAfterACountIsCountedOnce) {
+    settle(); advance(400);
+    offer(talker(0,kAdvertise,kJoinIn));
+    return_block();
+    receive_before_poll(talker(0,kAdvertise,kJoinIn));
+    EXPECT_EQ(adapter.kept_count[0],1u)<<"a kept registration refreshed after a count is counted once";
+}
+
+// A binding that takes one held StreamID's latest leaves every other one held (#925): the held table's last octets
+// stay while it holds any (#977, held_octets), so a binding made later of another still takes its latest. Each is held
+// by its final unbinding with both kinds registered, and each hold ends by a binding, which no receive filter refuses,
+// so the kept bound decides nothing at any shape.
+TEST_F(SrpEarlyTalker, ABindingThatTakesOneHeldStreamLeavesAnotherHeld) {
+    settle(); advance(400);
+    for (unsigned k : {0u,1u}) {
+        bind_stream(k,k); settle();
+        offer(talker(k,kFailed,kJoinIn)); offer(talker(k,kAdvertise,kNew)); advance(kJoinMs);
+    }
+    for (unsigned k : {0u,1u}) {
+        ASSERT_TRUE(srp_mbx_bind(&adapter,0,k,nullptr,nullptr,0)); settle();
+    }
+    advance(kJoinMs);
+    ASSERT_EQ(adapter.held_count,2u)<<"each final unbinding holds its StreamID";
+    expect_bound_declares(0,0,kAdvertise,"stream 0's binding takes its latest Advertise");
+    ASSERT_EQ(adapter.held_count,1u)<<"stream 0's binding releases its hold";
+    expect_bound_declares(1,1,kAdvertise,"stream 1 keeps its latest Advertise past stream 0's binding");
 }
 
 // Past the held table's bound, a registration kept for a StreamID no binding has holds nothing: a binding made later

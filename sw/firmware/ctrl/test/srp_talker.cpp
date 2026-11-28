@@ -137,9 +137,10 @@ protected:
     }
     // Source 0 withdrawn `phase` ms into a second of the participants' periodic transmissions, the request on a
     // centisecond, and valid again at another destination 2 s later (#956), every frame traced from the withdrawal on.
-    // Held: the loop runs to the centisecond before the one whose tick ends the count, then is held from that tick for
-    // a JoinTime and THE TRANSMIT's figure, so the ticks it owes come together as it resumes; `busy` counts the
-    // interfaces whose join timer runs as the count ends. Serviced: the loop runs throughout.
+    // Held: the loop resumes at a JoinTime and THE TRANSMIT's figure after the tick that ends the count. When each
+    // join timer has more than that first tick left, start the first build slice at the count's end, then hold its
+    // resumption until the same deadline: the expiry must arrive between slices, even when a build drains previously
+    // posted ticks first. Otherwise hold the whole loop. `busy` counts running join timers. Serviced runs throughout.
     struct Lapse {
         uint32_t first=0;
         uint32_t at=0;
@@ -163,9 +164,20 @@ protected:
         for (unsigned k=0;k<1000u && adapter.held_cs[0]>1u;++k) advance_to(model.now_ms+1u);
         ASSERT_EQ(adapter.held_cs[0],1u) << "the hold-off counts down a centisecond at a time";
         while (model.tick_div!=9u) advance(1);
-        for (unsigned i=0;i<MBX_N_IF;++i) l.busy+=adapter.join_left[2u*i]!=0u;
+        bool split=true;
+        for (unsigned i=0;i<MBX_N_IF;++i) {
+            l.busy+=adapter.join_left[2u*i]!=0u;
+            split=split && adapter.join_left[2u*i]>1u;
+        }
         l.end=model.now_ms+1u;
-        mbx_model_advance_ms(&model,1u+kLatestMs);
+        if (split) {
+            mbx_model_advance_ms(&model,1u);
+            for (unsigned n=0;n<1000u && adapter.tx_resume==0u;++n) ctrl_loop_service(&loop);
+            ASSERT_NE(adapter.tx_resume,0u) << "the count's end starts the first build slice before its join expires";
+            mbx_model_advance_ms(&model,kLatestMs);
+        } else {
+            mbx_model_advance_ms(&model,1u+kLatestMs);
+        }
         settle();
         advance(1000);
     }

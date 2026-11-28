@@ -159,6 +159,17 @@ At the head of #1009's step 1, from each command's response to durable:
 The time runs from the port's answer to the notice's last recipient's commit, against its 20 ms: min(T_svc, the 24 ms notification ceiling), with no extra budget at a retry ([FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing); THE RETRY in `ctrl_loop.h`, #665).
 Groups `notice-every-<k>` and `notice-burst-<k>` run every notice the model holds pending at once, each its own row, in the `answering-every-port` arm: 40 at 8x8/2if and 12 at 1x1/1if, the second with the composed burst 6 ms after the answer.
 The first commit is held to `AECP_QUEUED_FIRST_MS` from its port's answer, 20 ms at 1x1/1if and 22 ms at 8x8/2if, and every row to `AECP_QUEUED_MS` (`notice_window.queued_first_ms` and `queued_ms` read them from the headers), and `run.notice_misses` fails the run on either whatever its options record.
+
+**The records that register a peer's Talkers (#977).**
+[`register_window.py`](register_window.py)'s two groups bind every STREAM_INPUT to its own stream first (BIND_RX and the talker's PROBE_TX_RESPONSE), so the receive filter keeps that StreamID's Talker declarations.
+`srp-register` then sends, on every interface, one MRPDU declaring every input's Talker Advertise, JoinIn (`srp.register_advertise`): each Registrar MT to IN, each attribute created with its indication and its observation.
+`srp-register-burst` runs, on interface 0 and on every receive channel's flood at its contract rate (`save_window.arrivals`), the fastest registering burst the MRP state machines allow: a peer's participant transmits at most three MRPDUs in any 1.5 x JoinTime (IEEE 802.1Q-2018 10.7.11), JoinTime at least 180 ms (Milan v1.2 Table 4.3), so three triples, each at least 270 ms after the one before and 1 ms ahead of one of ACMP's flood bursts, the SRP flood burst after it three records fewer.
+Each MRPDU declares every input's Talker JoinIn, Advertise and Failed alternating, so each record replaces the other kind (IEEE 802.1Q-2018 35.2.6; lwSRP's `attr_replaces`) and the replaced one leaves at once (Milan v1.2 4.2.7.2.2): every record registers every input anew; the last triple opens with the peer's LeaveAll on the kind registered then and its re-declaration of every input.
+Its probes are each triple's three records (`srp.register_burst`, each to its pass's end within T_svc, since the drain charges a registering record its registrations and it may wait for a slice that holds it), our MRPDU after the third (`srp.register_tx`, a JoinTime's wait, from the same commit: a probe's start `rxc:<channel>:<name>` names another probe's frame) and the last record of ACMP's and of AECP's next flood burst (`acmp.register_burst`, `aecp.register_burst`).
+Each SRP record's apply is held to its charge (`poll_grade.RECORD`; #977, its ruling of 2026-11-23, item 4): the unit, and for a frame of the group's own `CTRL_LOOP_SRP_REG_US` for each Talker value it can register, counted from its bytes as `srp_mbx.c`'s `rx_charge` counts them (`poll_grade.talker_values`); the k-th `srp_mbx:receive` takes SRP's k-th committed record, whose tag names the frame.
+Where a registration's re-declarations stay in THE TRANSMIT's build slice (1x1/1if, where `CTRL_LOOP_DECLARE_ALONE` is 0 and the registration cost is set), each build pass of either group that commits a Listener Message is held to its stated cost by name, a `re-declaring build` pass over it a STATED finding, and a registering group with none is refused, so the hold is never vacuous (`whole_grade.redeclared`; #977, the answer to its round 2's first question).
+With the drain's charge, THE SETTLE and, at 8x8/1if, the re-declarations in a slice of their own, no pass of either group is over THE SHARE at either point, every record is within T_svc and within its charge, and every slice is within its stated length: on round 3's image the longest SRP slice is 123,359 CPU cycles and THE TRANSMIT's build 131,717 of 147,500 at 8x8/1if, and 81,096 and 39,035 of 95,000 at 1x1/1if; the walk after a registering record, which the sink index confines to its StreamID's lane, is 681 and 408 cycles at most, within its stated 120 and 35 us ([the ruling](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7091882145), item 5).
+
 **THE SHAPES** ([`shape_costs.py`](shape_costs.py); [#894's ruling on its round 7](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867393730), item (b)).
 `ctrl_loop.h` states tier 2's slice, THE TRANSMIT's builds, an SRP record's cost, THE RETRY's round costs (a round's cold start and a refused attempt's), and two bounds in ms, the last queued notice's (`CTRL_LOOP_QUEUED_MS`, which `AECP_QUEUED_MS` is) and THE TRANSMIT's MRPDU by every source (`CTRL_LOOP_TX_MS`), for each static shape the image builder states; `shape_costs.py` names a point whose round costs fall back to the interface count's ([#894's round 3 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878014227), item 1).
 A shape is its interfaces, `MBX_N_IF`, and the talker sources and listener sinks that `srp_entity.py` writes from the configuration into the shape header every unit of an image is compiled with (`CTRL_SRP_SOURCES`, `CTRL_SRP_SINKS`).
@@ -230,7 +241,7 @@ The testbench traces a pass's first and last firmware poll and every item ([`pol
 [`load_grade.py`](load_grade.py) is the long-window load of every source at its stated arrival bound (#665, the round 24 ruling, item 2): each source's rate, a contract rate or a protocol timer, its clause in the module's term list and its value read from the tree, times its stated cost, at 1x1/1if, 8x8/2if and 32x32/2if.
 Its stated costs are `poll_grade.STATED_US`'s for the polls and `ctrl_loop.h`'s for THE TRANSMIT's builds and THE STEP at the two harness points, and its own `STATED_US` for the records, the events and a centisecond's consumers there and for every cost at 32x32/2if, measured on the 32x32 simulation shape (#859).
 That is the column at this tree's TSN stack pin. A second, `STATED_US_DONOR`, is measured with tsn-c-stack #32 applied at the pin in a scratch build (the ACMP core walking only the sinks an entry changed), each cost stated at every point. The gate holds 1x1/1if in both columns, the pin's being the image that merges and the donor's the load the pin move owes (#665), each named in what it finds (`load_grade.COLUMNS`), and reports both.
-A pass's own cost is no source and is reported beside the load. The ceiling is 0.70 (#665, the round 25 ruling, item 4); the gate holds it at 1x1/1if, for merge, at the pin and with tsn-c-stack #32. 32x32/2if is reported, not held: the more-compute image, #872 (decision D, #665 issuecomment-6759183115; the round 26 ruling, issuecomment-6779973927, item 6), with the compute its load with tsn-c-stack #32 would need for 0.70. A point over its ceiling fails the gate, and so does a term the load counts with no source in the term list, SRP's retries where the tree states no rule that bounds them (`RETRY_RULE`), or a column whose name is bound to another table than its own (`load_grade.unbound`: the pin's name to `STATED_US`, the donor's to `STATED_US_DONOR`, by identity), which would print each `HELD` line with the other column's load:
+A pass's own cost is no source and is reported beside the load, but for the binding changes and loss completions a registering record defers into later passes, the `deliveries` term (`load_grade.py`; its controls in `load_deliveries.py`). The ceiling is 0.70 (#665, the round 25 ruling, item 4); the gate holds it at 1x1/1if, for merge, at the pin and with tsn-c-stack #32. 32x32/2if is reported, not held: the more-compute image, #872 (decision D, #665 issuecomment-6759183115; the round 26 ruling, issuecomment-6779973927, item 6), with the compute its load with tsn-c-stack #32 would need for 0.70. A point over its ceiling fails the gate, and so does a term the load counts with no source in the term list, SRP's retries where the tree states no rule that bounds them (`RETRY_RULE`), or a column whose name is bound to another table than its own (`load_grade.unbound`: the pin's name to `STATED_US`, the donor's to `STATED_US_DONOR`, by identity), which would print each `HELD` line with the other column's load:
 
 ```sh
 python3 -B tb/verilator/ctrl_service_budget/load_grade.py --check
@@ -251,7 +262,7 @@ In R4 SRP's records are THE DRAIN's first, so every one that arrives before the 
 A retained SRP record's retry is counted at the retry's own rule, at most one a centisecond (`srp_mbx.c`), so one before the window's first centisecond and one after each, and one a pass (`rows_grade.retained_retries`), in R4 alone: a retained record holds SRP's channel, each up to `SRP_RX_RETRY_MS`, which is SRP's storage rule and not the CPU's service, so SRP's own rows, R5 and R6, are solved with no record of theirs refused for storage and count neither that hold nor the retry (`rows_grade.RETAINED_ROWS`).
 The fabric's datapath change records, COUNTERS_CHANGED, AVB_INFO_CHANGED, AS_PATH_CHANGED and AMAP_LIVE_WRITE, are not counted, each named with its reason (`rows_grade.EXCLUDED`): no group stages them, so no cost of theirs is stated, and the notices they mark are counted.
 `rows_grade.rule_findings` holds these rules against the tree at every point: the retry's rule as `srp_mbx.c` states it (`load_grade.RETRY_RULE`), R4's retries and SRP records against the rules' own counts at several windows (`rows_grade.rule_windows`: under, at and over each row's bound on SRP's 2 ms refill grid; each solved row's W at the point, off it; and a microsecond either side of R4's 20 ms bound plus R4's own record, the window at which the refill at that bound is the first R4's record no longer precedes, so a window off by a record or more counts an SRP record fewer or more there), no retry in an SRP row, and every event type of the contract counted or excluded; `flip_grade.py --check` prints what it finds.
-R4 is held to tier 1's 20 ms, R5 and R6 to SRP's 90 ms, the first queued notice to 20 ms and the last to 125 ms, these two at `aecp_mbx.h`'s `AECP_QUEUED_FIRST_MS` and `AECP_QUEUED_MS`. At 1x1/1if the last is held to 130 ms, `AECP_QUEUED_MS` there, for the built design's row, 127.31 ms by every source at the slice rule's 950 us once its notice path was restated as the owner decided on 2026-11-20 ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-7044585511), ruling item 4; the owner's bound stays 140 ms; 140 ms for 136.65 ms by [#895's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675), item 1, before it; 135 ms on AECP's REBOOT's merge on #894's head, #871, and 130 ms on #894's head by [#894's amendment](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874) to its contingent ruling's item 2): [`queued_bound.py`](queued_bound.py) derives it, the built design's row rounded up to the next 5 ms and never over 140 ms, and the flip check refuses any other statement (`queued_bound.controls`).
+R4 is held to tier 1's 20 ms, R5 and R6 to SRP's 90 ms, the first queued notice to 20 ms and the last to 125 ms, these two at `aecp_mbx.h`'s `AECP_QUEUED_FIRST_MS` and `AECP_QUEUED_MS`. At 1x1/1if the last is held to 135 ms, `AECP_QUEUED_MS` there, for the built design's row, 132.95 ms by every source at the slice rule's 950 us with its AECP notice item at 165 us ([#977's ruling of 2026-11-26](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7180135694), item 1; 130 ms for 127.31 ms once its notice path was restated as the owner decided on 2026-11-20, [#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-7044585511), ruling item 4; the owner's bound stays 140 ms; 140 ms for 136.65 ms by [#895's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675), item 1, before it; 135 ms on AECP's REBOOT's merge on #894's head, #871, and 130 ms on #894's head by [#894's amendment](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874) to its contingent ruling's item 2): [`queued_bound.py`](queued_bound.py) derives it, the built design's row rounded up to the next 5 ms and never over 140 ms, and the flip check refuses any other statement (`queued_bound.controls`).
 The flip at 1x1/1if must pass the check at that point; with the built design it passes there, every row within its bound ([section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#the-tiers)), and fails at 8x8/2if, whose rows by every source are reported, not held, by the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872; with `--design as-built` it fails at 1x1/1if at R4:
 
 ```sh
@@ -408,7 +419,8 @@ That is a CI change, outside this lane.
   It has the split placement's caches (`milan_soc.ctrl_cpu_args`: the 16 KiB two-way fetch L1 and the coherent 8 KiB data cache), or the `--fetch-l1` selection, where `none` is the CPU cacheless on both sides.
   The DMA port the shipping image has is kept; the split placement's record mover is its only master.
 - **The firmware memory** is `milan_soc.add_ctrl_memory`, the split placement's, built from the linked image.
-  At `8x8` its plan is held to the ledgered point's tiles, `ctrl_memory.LEDGERED`'s 60.5 RAMB36 (`split_soc.ledgered_plan`; 59.0 until the arms on the size fixture, with GET_AS_PATH's read composed on SRP's Talker declarations, needed 59.5, #897, then each arm's measured tiles: 60.0 with the map edits' commit, #923, and 60.5 with the largest legal record's cut on the composed train, its `answering-ports` arm 131,128 B of `rom`).
+  At `8x8` its plan is held to the ledgered point's tiles, `ctrl_memory.LEDGERED`'s 62.5 RAMB36 (`split_soc.ledgered_plan`; 59.0 until the arms on the size fixture, with GET_AS_PATH's read composed on SRP's Talker declarations, needed 59.5, #897, then each arm's measured tiles: 60.0 with the map edits' commit, #923, 60.5 with the largest legal record's cut on the composed train, its `answering-ports` arm 131,128 B of `rom`, 61.0 with the SRP drain's charge, #977, its `declaring-outputs` arm 133,688 B, then 62.0 and 62.5 with #977's later images, ROM debt owed to the hybrid XIP lane's issue).
+  At `8x8-1if` it is held to the one-interface entry's 58.5 (#977: 56.5 for the fixture's own image, 132,816 B of `rom`, and 57.0 for its arms, `declaring-outputs` 133,600 B, then 58.0 and 58.5 with #977's later images, ROM debt owed to the hybrid XIP lane's issue).
 - **The mailbox** is this harness's own instance of `KL_mbx` behind `KL_mbx_wb`, with CtrlMailbox's hookup.
   `KL_mbx_wb` reaches it through the split placement's record mover (`milan_soc.CtrlMailboxDma`, #665), whose CSR bank sits where the image addresses it (`ctrl_build.SPLIT_MBX_DMA_BASE`).
   The host-port pads are `KL_mbx`'s side, so the mover's ring accesses are observed with the CPU's; the mover holds each request's fields through its answer, as `KL_mbx_wb` does.
@@ -798,33 +810,30 @@ is the bound path the base has: every input bound to its own stream through BIND
 PROBE_TX_RESPONSE, then the same MRPDU, as a bridge re-declares the bound Talkers after any LeaveAll.
 
 A record that registers more than one or two Talkers is past `CTRL_LOOP_SRP_UNIT_US`, on that bound path as for the
-kept ones. That cost is owed to [#977](https://github.com/kebag-logic/milan-fpga/issues/977), and the unit is not
-restated (the owner's ruling on #969, 2026-11-22, [amended 2026-11-23](https://github.com/kebag-logic/milan-fpga/issues/969#issuecomment-7116192252)).
-[`kept_grade.py`](kept_grade.py) grades both groups as owed to it: each record over the unit, and the bound group's
-walk, polls base, builds of one MRPDU (as passes and as THE TRANSMIT's tier-2 slices) and work passes over THE SHARE,
-are named OWED #977 while every condition holds, each breach a finding by name: both groups' logs are present and
-finished (no incomplete simulation, trap or bus error); every probe the point makes is marked, none other, and each
-has its record; every kept record costs no more than the bound record of its own interface on the same image within
-the measurement rule's 5 % (`record_classes.rule`; kept <= bound x 1.05), that record present, printed with both
-figures and the margin; no work pass of `srp-kept` is over THE SHARE, nor any idle run's longest pass in either group
-(an idle pass makes no registration, so none is owed); every pass of both given whole to THE TRANSMIT's build, and
-every build of one of `srp-kept`, is within its stated cost. A tier-2 slice of THE TRANSMIT's build over the slice is
-owed only where `whole_grade.held` itself classes its pass, by the pass's start, as `srp-bound`'s build of one over its
-stated cost, the pass the amendment owes (its round idle, not an aged step, at most one SRP frame). Every other such
-slice stays a failure: a pass either group gives whole to the build (both MRPDUs), as over its stated cost, and a
-`srp-bound` build of one whose round did work or that is an aged step's. A build of one and a pass given whole of the
-same length make the slice line ambiguous, so both fail. Every shape's slice is at least its build of one's stated
-cost, so a build of one over the slice is over that cost too. `CTRL_LOOP_BUILD_ONE_PASS_US` and the SRP unit are not
-restated. THE SHARE is read from the logs graded, never from a result file beside them, so a stale, empty or absent
-`<group>.json` neither clears nor hides it. `run.py` gives its STATED and SHARE lines the same disposition
-(`kept_grade.Disposition`), and one of the two groups graded alone is a finding. `--selftest` breaks each condition in
-synthetic logs at 1x1/1if, through `held`, `Disposition` and the standalone entry point (32 checks), and each must be
-the finding it names: kept 4 % over bound holds and 6 % over breaks, kept exactly bound + 5 % (105,000 against
-100,000) holds and one cycle more breaks, a kept pass over THE SHARE and a kept build of one over its slice are
-findings, and the bound path's are owed, while a `srp-bound` pass given whole to THE TRANSMIT's build, over the slice
-and within `CTRL_LOOP_BUILD_PASS_US`, a bound build of one over the slice whose round did work or that is an aged
-step's, and a build of one as long as a pass given whole each keep their slice lines failing (`run.py`'s own STATED
-lines).
+kept ones. That cost was owed to [#977](https://github.com/kebag-logic/milan-fpga/issues/977) (the owner's ruling on
+#969, 2026-11-22, [amended 2026-11-23](https://github.com/kebag-logic/milan-fpga/issues/969#issuecomment-7116192252)),
+and #977 charges it: the drain charges each record the unit plus `CTRL_LOOP_SRP_REG_US` for each Talker value its
+frame carries. [`kept_grade.py`](kept_grade.py) owes nothing and holds both groups to every condition, each breach a
+finding by name: both groups' logs are present and finished (no incomplete simulation, trap or bus error); every
+probe the point makes is marked, none other, and each has its record, its dearest within its charge
+(`poll_grade.record_limits`, from the group's own tagged frames, the record its own handler's span); every kept record
+costs no more than the bound record of its own interface on the same image within the measurement rule's 5 %
+(`record_classes.rule`; kept <= bound x 1.05), that record present, printed with both figures and the margin; no work
+pass of either group is over THE SHARE, nor any idle run's longest pass; every pass of both given whole to THE
+TRANSMIT's build, and every build of one MRPDU, is within its stated cost. A tier-2 slice of THE TRANSMIT's build is a
+build of one's only where `whole_grade.held` itself classes its pass so, by the pass's start (its round idle, not an
+aged step, at most one SRP frame); with nothing owed every slice over the slice stays a failure, a build of one's, one
+whose round did work or that is an aged step's, and a pass given whole to the build. THE SHARE is read from the logs
+graded, never from a result file beside them, so a stale, empty or absent `<group>.json` neither clears nor hides it.
+`run.py` gives its STATED and SHARE lines the same grade (`kept_grade.Disposition`, which owes nothing), and one of
+the two groups graded alone is a finding. `--selftest` breaks each condition in synthetic logs at 1x1/1if, through
+`held`, `Disposition` and the standalone entry point (33 checks), and each must be the finding it names: a record over
+its charge, a record whose tagged frame carries Talker values charged them (held at that charge, one cycle more a
+finding), kept 4 % over bound holds and 6 % over breaks, kept exactly bound + 5 % (105,000 against 100,000) holds and
+one cycle more breaks, a pass of either group over THE SHARE and a build of one over its stated cost are findings,
+nothing owed, and a pass given whole to THE TRANSMIT's build over the slice, a bound build of one over it whose round
+did work or that is an aged step's, and a build of one as long as a pass given whole each keep their slice lines
+failing (`run.py`'s own STATED lines).
 
 ### Backlog rows
 
@@ -1487,7 +1496,7 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | tables: misses are counted per probe instance only (earlier rule) | misses are counted per path and per probe instance |
 | tables: a control instance is its own path (earlier rule) | a control instance is its functional path |
 | tables: a starved instance is not its path's worst | a starved instance is its path's worst |
-| build: the 1x1 point names the ledgered override too | the ledgered point is named at 8x8 with two interfaces only, as the planner ledgers it |
+| build: the 1x1 point names the ledgered override too | the ledgered points are named at 8x8 only, two interfaces and one (#977), as the planner ledgers them |
 | build: arm B anchors the fixture's own observation callbacks (earlier rule) | every labelled arm and control plant applies to the checkout's sources |
 | build: arm B's path port answers no entries at once, reading no window (earlier rule) | the answering-ports arm's path port is arm_path.py's, which reads the window |
 | fetch bus: the cacheless observers on a cached CPU | the fetch observers follow the CPU's fetch plugin |

@@ -372,9 +372,10 @@ class Grader:
         kind, *args = probe.start.split(':')
         if kind == 'rxc':
             ch = int(args[0])
-            # A probe's own frames carry its name; any other frame on the ring is not its input.
+            # A probe's own frames carry its name, or its start's (rxc:<ch>:<name>, #977); no other frame is its input.
+            own = args[1] if len(args) > 1 else probe.name
             hits = [c for c, k, i, tag, _ in self.log.rxc if after <= c < before and k == ch
-                    and i in (interface, -1) and tag == probe.name]
+                    and i in (interface, -1) and tag == own]
         elif kind == 'rxh':
             # the probe's own frame, held by its channel's bucket (#917): its path starts at the frame's last byte
             hits = held.starts(self.log, probe, int(args[0]), interface, after, before)
@@ -990,7 +991,9 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int,
                                        modules=worst.modules) if worst else None,
                             composed=window, share=pass_share(log), steps=save_grade.step_figures(grader),
                             stated=whole_grade.held(log, stated_at), rounds=round_grade.held(log, stated_at),
-                            polls=poll_grade.held(log, stated_at), slices=slice_grade.held(log, stated_at),
+                            redeclared=whole_grade.redeclared(log, stated_at, group.name),
+                            polls=poll_grade.held(log, stated_at, group.steps),
+                            slices=slice_grade.held(log, stated_at),
                             joins=join_grade.held(log)),
                 save=save_grade.save_time(log, group), burst=save_burst.grade(log, group, journal),
                 bind=bind_save.grade(log, group, journal),

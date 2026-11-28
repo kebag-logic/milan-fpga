@@ -233,12 +233,11 @@ MUTANTS = (
            "port", "Loop.L4TickFanOut", "L4 every centisecond"),
     # the receive loop's bound and THE TICK's cap inside it together: either alone still stops a pass at
     # CTRL_LOOP_RX_PER_PASS records (#665)
-    Mutant("rx-pass-unbounded", "loop/ctrl_loop.c",
-           "for (unsigned k = 0; k < most; ++k) {\n\t\tif (k >= l->rx_cap && (l->clock == NULL || l->rx_held || "
-           "(int32_t)(stop - l->clock(l->clock_ctx)) < 0)) {\n"
-           "\t\t\tbreak;\n\t\t}\n",
-           "(void)most;\n\t(void)stop;\n\tfor (unsigned k = 0; k < 64u; ++k) {\n", "port", "Loop.L2PerPassRxBound",
-           "L2 a pass takes at most"),
+    Mutant("rx-pass-unbounded", "loop/ctrl_loop.c", "for (unsigned k = 0; k < most; ++k) {\n\t\tuint32_t now = 0u;\n"
+           "\t\tif (k >= l->rx_cap) {\n\t\t\tif (l->clock == NULL || l->rx_held) {\n\t\t\t\tbreak;\n\t\t\t}\n\t\t\t"
+           "now = l->clock(l->clock_ctx);\n\t\t\tif ((int32_t)(stop - now) < 0) {\n\t\t\t\tbreak;\n\t\t\t}\n\t\t}\n",
+           "(void)most;\n\t(void)stop;\n\tfor (unsigned k = 0; k < 64u; ++k) {\n\t\tuint32_t now = 0u;\n", "port",
+           "Loop.L2PerPassRxBound", "L2 a pass takes at most"),
     Mutant("poll-owes-nothing", "adp/adp_mbx.c", "\treturn owed;\n}", "\treturn false;\n}",
            "adp", "AdpOwed.E0toE3PendingWake",
            "E1 the loop does not sleep while a frame is owed"),
@@ -250,7 +249,7 @@ MUTANTS = (
     Mutant("rx-before-events", "loop/ctrl_loop.c",
            "\tunsigned work = service_events(l);\n\tl->backlog = false;\n",
            "\tunsigned work = 0;\n\tl->backlog = false;\n\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n"
-           "\t\tif (l->rx[ch].fn != NULL) {\n\t\t\twork += service_rx(l, ch, l->rx_cap, deadline);\n\t\t}\n\t}\n"
+           "\t\tif (l->rx[ch].fn != NULL) {\n\t\t\twork += service_rx(l, ch, l->rx_cap, deadline, false);\n\t\t}\n\t}\n"
            "\twork += service_events(l);\n", "adp", "AdpBacklog.F0toF7FullBacklogs", "F1 events first"),
     Mutant("carried-ticks-overwritten", "loop/ctrl_loop.c", "l->ticks_owed += ev.tick_count;",
            "l->ticks_owed = ev.tick_count;",
@@ -655,16 +654,17 @@ PUB_BINDING_ENTRY = ("bool mbx_pub_sink_binding(unsigned interface, unsigned sin
                      "bool sid_valid)\n{\n")
 PUB_SINK_REFUSAL = "\tif (interface >= MBX_N_IF || sink >= MBX_N_PUB_SINKS) {"
 ACMP_PUB_MOVED = "if (s->bound != s->published_bound || s->started != s->published_started || moved) {"
-ACMP_FINISH = ("\tpublish(a);\n\trearm(a);\n\tadmit(a);\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n"
-               "\t\tif (!marked(a, k)) {\n\t\t\tcontinue;\n\t\t}\n"
-               "\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tuint8_t record[ACMP_BINDING_BYTES];\n"
-               "\t\trecord_of(s, record);\n\t\tif (!same_record(record, s->saved)) {\n"
-               "\t\t\tmemcpy(s->saved, record, ACMP_BINDING_BYTES);\n\t\t\tp_persist(a, k);\n\t\t}\n"
-               "\t\tstruct acmp_sink_view v;\n\t\tview_of(s, &v);\n"
-               "\t\tif (s->change_owed == 0u && !view_equal(&v, &s->reported)) {\n"
-               "\t\t\ts->reported = v;\n\t\t\tp_changed(a, k);\n\t\t}\n\t}\n")
+ACMP_FINISH = ("\tpublish(a);\n\trearm(a);\n\tadmit(a);\n\tuint32_t bits = 0u;\n"
+               "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k, bits >>= 1) {\n"
+               "\t\tif (k % 32u == 0u) {\n\t\t\tbits = a->dirty[k / 32u];\n\t\t}\n"
+               "\t\tif ((bits & 1u) == 0u) {\n\t\t\tcontinue;\n\t\t}\n"
+               "\t\tstruct acmp_sink *s = &a->sinks[k];\n"
+               "\t\tif (record_moved(s)) {\n\t\t\trecord_of(s, s->saved);\n\t\t\tp_persist(a, k);\n\t\t}\n"
+               "\t\tif (s->change_owed == 0u && view_moved(s, &s->reported)) {\n"
+               "\t\t\tview_of(s, &s->reported);\n\t\t\tp_changed(a, k);\n\t\t}\n\t}\n")
 #: The walk's marks are cleared last (tsn-c-stack#32), so a publication moved behind the report still sees them.
-ACMP_FINISH_CLEAR = "\tmemset(a->dirty, 0, sizeof a->dirty);\n\ta->dirty_if = 0u;\n}"
+ACMP_FINISH_CLEAR = ("\tfor (unsigned w = 0; w < ACMP_DIRTY_WORDS; ++w) {\n\t\ta->dirty[w] = 0u;\n\t}\n"
+                     "\ta->dirty_if = 0u;\n}")
 ACMP_REBIND = "\t\ts->started = !sw;\n\t\tbind_response(a, interface, k, cmd);\n\t\treturn;"
 A31S = "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised"
 B12 = "AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream"

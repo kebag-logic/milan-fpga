@@ -61,12 +61,16 @@ struct Filter {
     void *ctx;
 };
 std::list<Filter> filters;
-// The reference's filter recomputes every sink, as a stale interface's does, and leaves the walk's mark as it found it.
+// The reference's filter recomputes every sink, as a stale interface's did before the filter took only the sinks an
+// indication touched (#977), and leaves the walk's mark as it found it.
 bool filtered(void *ctx, uint8_t port, uint8_t type, const void *value) {
     const auto *f=static_cast<const Filter *>(ctx);
     auto *i=static_cast<srp_interface *>(f->ctx);
     const bool stale=i->stale;
-    if(reference_reclaim) i->stale=true;
+    if(reference_reclaim) {
+        i->stale=true;
+        i->touched=(1u<<CTRL_SRP_SINKS)-1u;
+    }
     const bool interested=f->fn(f->ctx,port,type,value);
     i->stale=stale;
     return interested;

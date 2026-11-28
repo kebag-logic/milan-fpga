@@ -48,7 +48,9 @@ TEST_F(SrpRetry, RefusedMixedPayloadRetriesWithoutPeerRetransmission) {
     settle(); advance(400);
     const unsigned i=MBX_N_IF-1;
     EXPECT_CALL(licence,Change(i,0,true)); offer(frame(3,identity(i),0,2),i);
-    auto f=mixed(frame(3,identity(i),5,2),frame(4,{6,4,0,7},0));
+    // the Domain first: its new attribute is the allocation refused, before the Listener's Leave applies, where lwSRP
+    // reserves MAP work at one port and where it does not (LWSRP_ONE_PORT_MAP, #977), so the whole payload waits
+    auto f=mixed(frame(4,{6,4,0,7},0),frame(3,identity(i),5,2));
     const auto before=adapter.received;
     exhaust(); offer(f,i);
     ASSERT_EQ(adapter.pending_rx.len,f.size());
@@ -203,7 +205,9 @@ TEST_F(SrpRetry, LaterRecordsCannotOvertakeRetainedInterface) {
     settle(); advance(400);
     const unsigned i=MBX_N_IF-1;
     EXPECT_CALL(licence,Change(i,0,true)); offer(frame(3,identity(i),0,2),i);
-    exhaust(); offer(frame(3,identity(i),5,2),i);
+    // a Listener of the unallocated source first, a new attribute: its allocation is the one refused, the Leave behind
+    // it not applied, with or without MAP work at one port (LWSRP_ONE_PORT_MAP, #977)
+    exhaust(); offer(mixed(frame(3,identity(i,1),1,2),frame(3,identity(i),5,2)),i);
     auto next=frame(3,identity(),0,2);
     ASSERT_TRUE(mbx_model_rx(&model,next.data(),next.size(),0));
     const auto records=loop.stats.rx_records;

@@ -171,6 +171,8 @@ import ctrl_mutants  # noqa: E402
 import srp_arms  # noqa: E402
 import srp_mutants  # noqa: E402
 import srp_pub_mutants  # noqa: E402
+import srp_drain_mutants  # noqa: E402
+import srp_lane_mutants  # noqa: E402
 import srp_listener_mutants  # noqa: E402
 import srp_reclaim_mutants  # noqa: E402
 import srp_early_mutants  # noqa: E402
@@ -242,20 +244,27 @@ def run_srp_mutants(args: argparse.Namespace, out: Path) -> bool:
     leg = getattr(args, "campaign_shard", None)
     share = slice(None) if leg is None else slice(leg[0], None, leg[1])
     try:
-        srp_mutants.DEFECTS = complete_srp_table[share]
+        # the drain's charge, THE SETTLE and the re-declarations' pass bite at the one-interface shapes alone (#977)
+        srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
+                                    if not d.name.startswith(srp_drain_mutants.PREFIX))[share]
         failed = srp_mutants.campaign(out / "srp-mutants", lwsrp, args.jobs)
         srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
                                   if d.name.startswith(("four-way-", "binding-", "feedback-", "r10-",
                                                         "p11-", "srp-bound-", "srp-term-",
                                                         "srp-poll-extra", "srp-send-extra", "talker-",
                                                         srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX,
-                                                        srp_link_mutants.PREFIX, *srp_pub_mutants.ROUND5)))[share]
+                                                        srp_drain_mutants.PREFIX, srp_link_mutants.PREFIX,
+                                                        srp_lane_mutants.PREFIX, *srp_pub_mutants.ROUND5))
+                                  and not d.name.startswith(srp_drain_mutants.PREFIX_8X8))[share]
         failed = srp_mutants.campaign(out / "srp-if1-mutants", lwsrp, args.jobs, 1) or failed
         # the Listener copies at 8x8/1if too (#930), the SRP cut (#665's ruling of 2026-11-20, item 3), the
-        # Talkers kept for StreamIDs no binding holds (#969) and the link level in a loop pass (#973)
+        # Talkers kept for StreamIDs no binding holds (#969), the link level in a loop pass (#973) and #977's
+        # drain charge, THE SETTLE, the re-declarations' pass and the sink index
         srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
                                     if d.name.startswith((srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX,
-                                                          srp_early_mutants.PREFIX, srp_link_mutants.PREFIX)))[share]
+                                                          srp_drain_mutants.PREFIX, srp_early_mutants.PREFIX,
+                                                          srp_link_mutants.PREFIX, srp_lane_mutants.PREFIX))
+                                    and not d.name.startswith(srp_drain_mutants.PREFIX_1X1))[share]
         failed = srp_mutants.campaign(out / "srp-8x8-if1-mutants", lwsrp, args.jobs, 1,
                                       srp_listener_mutants.ENTITY) or failed
     finally:

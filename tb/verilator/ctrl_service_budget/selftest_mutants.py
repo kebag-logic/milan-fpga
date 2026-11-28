@@ -536,6 +536,9 @@ MUTANTS: dict[str, Patches] = {
     "shapes: an owed MRPDU held to the interface count's build of one (earlier rule)": lambda: [patch.object(
         poll_grade, 'stated_us', lambda interfaces, f=poll_grade.stated_us: f(shape_costs.interfaces(interfaces)))],
     'shapes: the slice cap not held': lambda: [patch.object(shape_costs, 'SLICE_MOST_US', 10_000)],
+    "flip: 8x8/2if's ceiling at 0.71": lambda: [patch.dict(flip_grade.FLIP, {'8x8/2if': 0.71})],
+    'flip: an escape the flip check does not name': lambda: [patch.object(
+        flip_grade, 'controls', lambda root, f=flip_grade.controls: [*f(root), 'an unnamed escape'])],
     "shapes: 8x8/1if's polls held at the interface count's (earlier rule)": lambda: [patch.dict(
         poll_grade.STATED_US, {shape_costs.of_point('8x8/1if'): poll_grade.ONE})],
     "load: 8x8/1if's polls at 8x8/2if's, the nearest point's (earlier rule)": lambda: [patch.object(
@@ -741,6 +744,12 @@ MUTANTS: dict[str, Patches] = {
         whole_grade, 'held', lambda log, n, f=whole_grade.held: f(dataclasses.replace(log, stepped=[]), n))],
     'stated: in bus cycles, not CPU time': lambda: [patch.object(
         whole_grade, 'held', lambda log, n, f=whole_grade.held: f(dataclasses.replace(log, cpu_hz=2 * log.cpu_hz), n))],
+    're-declared: no re-declaring build pass is held to its cost': lambda: [patch.object(
+        whole_grade, 'redeclared', lambda log, n, g, f=whole_grade.redeclared: dict(f(log, n, g), over=[]))],
+    're-declared: a frame without a Listener Message re-declares': lambda: [patch.object(
+        whole_grade, 'listener_message', lambda frame: True)],
+    're-declared: held at every shape': lambda: [patch.object(whole_grade, 'declared_in_build', lambda shape: True)],
+    're-declared: no group registers': lambda: [patch.object(whole_grade, 'REDECLARING', ())],
     "save: a save's window carries no defined load": lambda: [patch.object(save_window, 'row', lambda name: name)],
     'save: a window outside its flash phase is graded': lambda: [patch.object(grade, 'save_phase', lambda *a: None)],
     'save: the phase read off the last save, not the first': lambda: [patch.object(
@@ -864,6 +873,10 @@ MUTANTS: dict[str, Patches] = {
     "slice: one point's length at both": lambda: [patch.object(
         slice_grade, 'stated_us', lambda interfaces, f=slice_grade.stated_us: f(2))],
     "slice: SRP's records are not a slice": lambda: [patch.object(slice_grade, 'RECORD', 'srp_mbx:none')],
+    'slice: a pass of one record held to its pass alone doubled': lambda: [patch.object(
+        slice_grade, 'alone_us', lambda interfaces, f=slice_grade.alone_us: 2 * f(interfaces))],
+    'slice: a pass of one record held to the slice': lambda: [patch.object(
+        slice_grade, 'alone_us', slice_grade.stated_us)],
     "slice: SRP's slice from its first record": lambda: [patch.object(
         slice_grade, 'origin', lambda p, records: min(cpu for cpu, _ in records))],
     'slice: a build pass is not a slice': lambda: [patch.object(slice_grade, 'BUILD', 'build_none')],

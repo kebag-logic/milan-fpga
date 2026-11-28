@@ -9,10 +9,14 @@ documented memory exceptions and the owner's rule of 2026-11-15 (#923's ruling o
 size fixture's 8x8 images plan 57.0 with one interface, its own point since then, and 61.5 with two (its arms' most),
 the platform's 64.0 with two and 59.0 with one; on the post-flip composition train (#956, #957, #950, #954, #948,
 #584, #969, #973, #972) the size fixture's 57.5 with one (its declaring-outputs arm) and 61.5 with two, the platform's
-64.5 with two and 59.5 with one, each half a tile past its entry refused; before it: at 8x8 with two
-interfaces the size fixture's at 60.5 RAMB36 (59.0 before GET_AS_PATH's read composed with SRP's Talker declarations,
-#897, 59.5 before the map edits' commit through the EDIT window, #923, 60.0 before the largest legal record's cut,
-#665) and the target platform's at 63.5 (60.5, the
+64.5 with two and 59.5 with one; with #977's drain charge, sink index and lwSRP's end-station options composed on that
+train the size fixture's 58.0 with one and 62.0 with two, the platform's 64.5 with two and 60.5 with one; with #977's
+last-octet sets of the kept list and the held table the size fixture's 58.5 with one and the platform's 65.0 with two;
+with #977's pin of tsn-c-stack f71c8870 the size fixture's 62.5 with two; with #977's delivery bound the platform's
+61.0 with one; each half a tile past its entry refused;
+before it: at 8x8 with two interfaces the size fixture's at 60.5 RAMB36 (59.0 before GET_AS_PATH's read composed
+with SRP's Talker declarations, #897, 59.5 before the map edits' commit through the EDIT window, #923, 60.0 before the
+largest legal record's cut, #665) and the target platform's at 63.5 (60.5, the
 owner's decision's cap of 2026-11-12, with SRP's Talker declarations, #895, and AECP's REBOOT, #871, 61.0 with the PHY
 poll and its advertisement, #919, 61.5 on the composed flip train, #665, 62.0 with the commit, #923, 62.5 with the
 StreamIDs held with their latest Talker kind, #925, 63.0 with each AAF Stream Input's format written into its
@@ -51,7 +55,7 @@ FIXTURE, PLATFORM, PRODUCT = "8x8-two-interfaces", "platform-8x8-two-interfaces"
 FIXTURE1 = "8x8-one-interface"
 #: sizeof(struct ctrl_plat) in the platform's image at each point (plat/ctrl_plat.h), as ctrl_plat_image.py links
 #: it: 1x1 with one and two interfaces, 8x8 with one and two.
-PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 18_048, 19_840, 19_136, 21_888
+PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 18_240, 19_968, 19_264, 22_016
 
 
 class Case(NamedTuple):
@@ -65,46 +69,46 @@ class Case(NamedTuple):
 
 
 #: Each ledgered point's own image, at its ledgered tiles.
-OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 61.5), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 64.5),
-       PRODUCT: Case(STAGE_8X8, None, PLAT_8X8_1, 59.5), FIXTURE1: Case(STAGE_8X8, 1, None, 57.5)}
+OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 62.5), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 65.0),
+       PRODUCT: Case(STAGE_8X8, None, PLAT_8X8_1, 61.0), FIXTURE1: Case(STAGE_8X8, 1, None, 58.5)}
 #: What the ledger must hold for each: the symbols that make an image that point, and its tiles.
-HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 61.5),
-        PLATFORM: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_2)), 64.5),
-        PRODUCT: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_1)), 59.5),
-        FIXTURE1: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 8)), 57.5)}
+HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 62.5),
+        PLATFORM: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_2)), 65.0),
+        PRODUCT: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_1)), 61.0),
+        FIXTURE1: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 8)), 58.5)}
 #: (what, override, image), each refused by `budget`: the point half a tile past its tiles, its image's other
 #: points at its tiles and within the budget, the other override's image, an image carrying one of its two
 #: symbols, and names the ledger does not hold.
 REFUSED = (
-    ("its own image at 62.0 RAMB36, half a tile past its 61.5", FIXTURE, OWN[FIXTURE]._replace(tiles=62.0)),
-    ("the size fixture's 1x1 one-interface image at 61.5", FIXTURE, Case(STAGE_1X1, 1, None, 61.5)),
-    ("the size fixture's 1x1 two-interface image at 61.5", FIXTURE, Case(STAGE_1X1, 2, None, 61.5)),
-    ("the size fixture's 8x8 one-interface image at 61.5", FIXTURE, Case(STAGE_8X8, 1, None, 61.5)),
-    ("an 8x8 image with no image_allocation at 61.5", FIXTURE, Case(STAGE_8X8, None, None, 61.5)),
+    ("its own image at 63.0 RAMB36, half a tile past its 62.5", FIXTURE, OWN[FIXTURE]._replace(tiles=63.0)),
+    ("the size fixture's 1x1 one-interface image at 62.5", FIXTURE, Case(STAGE_1X1, 1, None, 62.5)),
+    ("the size fixture's 1x1 two-interface image at 62.5", FIXTURE, Case(STAGE_1X1, 2, None, 62.5)),
+    ("the size fixture's 8x8 one-interface image at 62.5", FIXTURE, Case(STAGE_8X8, 1, None, 62.5)),
+    ("an 8x8 image with no image_allocation at 62.5", FIXTURE, Case(STAGE_8X8, None, None, 62.5)),
     ("the size fixture's 1x1 one-interface image within the budget", FIXTURE, Case(STAGE_1X1, 1, None, 56.0)),
-    ("the platform's 8x8 two-interface image at 61.5", FIXTURE, OWN[PLATFORM]._replace(tiles=61.5)),
-    ("its own image at 65.0 RAMB36, half a tile past its 64.5", PLATFORM, OWN[PLATFORM]._replace(tiles=65.0)),
-    ("the platform's 1x1 one-interface image at 64.5", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 64.5)),
-    ("the platform's 1x1 two-interface image at 64.5", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_2, 64.5)),
-    ("the platform's 8x8 one-interface image at 64.5", PLATFORM, Case(STAGE_8X8, None, PLAT_8X8_1, 64.5)),
-    ("an image with the point's ctrl_plat and the 1x1 stage at 64.5", PLATFORM,
-     Case(STAGE_1X1, None, PLAT_8X8_2, 64.5)),
-    ("an 8x8 image with no ctrl_plat at 64.5", PLATFORM, Case(STAGE_8X8, None, None, 64.5)),
+    ("the platform's 8x8 two-interface image at 62.5", FIXTURE, OWN[PLATFORM]._replace(tiles=62.5)),
+    ("its own image at 65.5 RAMB36, half a tile past its 65.0", PLATFORM, OWN[PLATFORM]._replace(tiles=65.5)),
+    ("the platform's 1x1 one-interface image at 65.0", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 65.0)),
+    ("the platform's 1x1 two-interface image at 65.0", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_2, 65.0)),
+    ("the platform's 8x8 one-interface image at 65.0", PLATFORM, Case(STAGE_8X8, None, PLAT_8X8_1, 65.0)),
+    ("an image with the point's ctrl_plat and the 1x1 stage at 65.0", PLATFORM,
+     Case(STAGE_1X1, None, PLAT_8X8_2, 65.0)),
+    ("an 8x8 image with no ctrl_plat at 65.0", PLATFORM, Case(STAGE_8X8, None, None, 65.0)),
     ("the platform's 1x1 one-interface image within the budget", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 56.0)),
-    ("the size fixture's 8x8 two-interface image at 64.5", PLATFORM, OWN[FIXTURE]._replace(tiles=64.5)),
-    ("its own image at 60.0 RAMB36, half a tile past its 59.5", PRODUCT, OWN[PRODUCT]._replace(tiles=60.0)),
-    ("the platform's 1x1 one-interface image at 59.5", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_1, 59.5)),
-    ("the platform's 1x1 two-interface image at 59.5", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_2, 59.5)),
-    ("the platform's 8x8 two-interface image at 59.5", PRODUCT, OWN[PLATFORM]._replace(tiles=59.5)),
-    ("an image with the point's ctrl_plat and the 1x1 stage at 59.5", PRODUCT,
-     Case(STAGE_1X1, None, PLAT_8X8_1, 59.5)),
-    ("an 8x8 image with no ctrl_plat at 59.5", PRODUCT, Case(STAGE_8X8, None, None, 59.5)),
-    ("the size fixture's 8x8 one-interface image at 59.5", PRODUCT, Case(STAGE_8X8, 1, None, 59.5)),
-    ("its own image at 58.0 RAMB36, half a tile past its 57.5", FIXTURE1, OWN[FIXTURE1]._replace(tiles=58.0)),
-    ("the size fixture's 8x8 two-interface image at 57.5", FIXTURE1, OWN[FIXTURE]._replace(tiles=57.5)),
-    ("the size fixture's 1x1 one-interface image at 57.5", FIXTURE1, Case(STAGE_1X1, 1, None, 57.5)),
-    ("an 8x8 image with no image_allocation at 57.5", FIXTURE1, Case(STAGE_8X8, None, None, 57.5)),
-    ("the platform's 8x8 one-interface image at 57.5", FIXTURE1, OWN[PRODUCT]._replace(tiles=57.5)),
+    ("the size fixture's 8x8 two-interface image at 65.0", PLATFORM, OWN[FIXTURE]._replace(tiles=65.0)),
+    ("its own image at 61.5 RAMB36, half a tile past its 61.0", PRODUCT, OWN[PRODUCT]._replace(tiles=61.5)),
+    ("the platform's 1x1 one-interface image at 61.0", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_1, 61.0)),
+    ("the platform's 1x1 two-interface image at 61.0", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_2, 61.0)),
+    ("the platform's 8x8 two-interface image at 61.0", PRODUCT, OWN[PLATFORM]._replace(tiles=61.0)),
+    ("an image with the point's ctrl_plat and the 1x1 stage at 61.0", PRODUCT,
+     Case(STAGE_1X1, None, PLAT_8X8_1, 61.0)),
+    ("an 8x8 image with no ctrl_plat at 61.0", PRODUCT, Case(STAGE_8X8, None, None, 61.0)),
+    ("the size fixture's 8x8 one-interface image at 61.0", PRODUCT, Case(STAGE_8X8, 1, None, 61.0)),
+    ("its own image at 59.0 RAMB36, half a tile past its 58.5", FIXTURE1, OWN[FIXTURE1]._replace(tiles=59.0)),
+    ("the size fixture's 8x8 two-interface image at 58.5", FIXTURE1, OWN[FIXTURE]._replace(tiles=58.5)),
+    ("the size fixture's 1x1 one-interface image at 58.5", FIXTURE1, Case(STAGE_1X1, 1, None, 58.5)),
+    ("an 8x8 image with no image_allocation at 58.5", FIXTURE1, Case(STAGE_8X8, None, None, 58.5)),
+    ("the platform's 8x8 one-interface image at 58.5", FIXTURE1, OWN[PRODUCT]._replace(tiles=58.5)),
     ("the size fixture's 8x8 two-interface image, a name the ledger does not hold", "1x1-one-interface",
      OWN[FIXTURE]),
     ("the image of the point it names, a name the ledger does not hold", "1x1-one-interface",
@@ -178,17 +182,17 @@ def planted() -> list[tuple[str, dict[str, ctrl_memory.Ledgered]]]:
              ("the platform's entry without ctrl_plat", PLATFORM, {"symbols": (stage,)}),
              ("the platform's entry at the 8x8 one-interface ctrl_plat", PLATFORM,
               {"symbols": (stage, ("ctrl_plat", PLAT_8X8_1))}),
-             ("the platform's entry at 65.0 RAMB36", PLATFORM, {"tiles": 65.0}),
+             ("the platform's entry at 65.5 RAMB36", PLATFORM, {"tiles": 65.5}),
              ("the size fixture's entry without image_allocation", FIXTURE, {"symbols": (stage,)}),
-             ("the size fixture's entry at the platform's 64.5", FIXTURE, {"tiles": 64.5}),
+             ("the size fixture's entry at the platform's 65.0", FIXTURE, {"tiles": 65.0}),
              ("the size fixture's one-interface entry without image_allocation", FIXTURE1, {"symbols": (stage,)}),
-             ("the size fixture's one-interface entry at 58.0 RAMB36", FIXTURE1, {"tiles": 58.0}),
+             ("the size fixture's one-interface entry at 59.0 RAMB36", FIXTURE1, {"tiles": 59.0}),
              ("the size fixture's one-interface entry at the two-interface allocation", FIXTURE1,
               {"symbols": (stage, ("image_allocation", 16))}),
              ("the product entry without ctrl_plat", PRODUCT, {"symbols": (stage,)}),
              ("the product entry at the 1x1 one-interface ctrl_plat and stage", PRODUCT,
               {"symbols": ((ctrl_memory.STAGE_SYMBOL, STAGE_1X1), ("ctrl_plat", PLAT_1X1_1))}),
-             ("the product entry at 60.0 RAMB36", PRODUCT, {"tiles": 60.0}),
+             ("the product entry at 61.5 RAMB36", PRODUCT, {"tiles": 61.5}),
              ("the product entry at the two-interface ctrl_plat", PRODUCT,
               {"symbols": (stage, ("ctrl_plat", PLAT_8X8_2))}))
     return [(what, {**held, name: dataclasses.replace(held[name], **change)}) for what, name, change in edits]

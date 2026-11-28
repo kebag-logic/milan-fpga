@@ -1,48 +1,46 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""The records that register Talkers, the kept Talkers' (#969) and the bound ones the base makes, owed to #977
-(kept_window.py's srp-kept and srp-bound groups).
+"""The records that register Talkers, the kept Talkers' (#969) and the bound ones the base makes (kept_window.py's
+srp-kept and srp-bound groups), each held to the drain's charge since #977.
 
 Each SRP record is a span of srp_mbx.c's record handler (receive, a SPAN line), and each probe's records are those
 from its mark to the next mark. A record that registers more than one or two Talkers is past ctrl_loop.h's
 CTRL_LOOP_SRP_UNIT_US (by the stated rule: its cycles at the CPU clock, plus 5 %, rounded up to 5 us;
 record_classes.rule) on the bound path the base has, a bridge re-declaring the bound Talkers after any LeaveAll, and
-the kept Talkers make the same registrations before the bindings. That cost is #977's, owed and never restated here
-(the owner's ruling on #969, 2026-11-22: DISPOSITION, amended 2026-11-23: AMENDED). So each record of either group over
-the unit, each of their tier-2 slices of SRP's records over the slice, and the bound group's walk, polls base, builds
-of one MRPDU (as passes and as THE TRANSMIT's slices) and work passes over THE SHARE that its registrations make are
-each named OWED #977, never a pass, while all of these hold, each a finding otherwise. A tier-2 slice of THE
-TRANSMIT's build over the slice is owed only where its pass is the bound group's build of one; a pass either group
-gives whole to the build (both MRPDUs) stays a failure over the slice, as it does over its stated cost:
+the kept Talkers make the same registrations before the bindings. That cost was #977's, owed here by the owner's
+ruling on #969 (2026-11-22: DISPOSITION, amended 2026-11-23: AMENDED). #977 charges it: the drain charges each record
+CTRL_LOOP_SRP_UNIT_US plus CTRL_LOOP_SRP_REG_US for each Talker value its frame carries (poll_grade.record_limits), so
+each record of either group is held to that charge, and nothing is owed: every condition below is a finding when it
+fails, srp-bound's passes over THE SHARE and its builds of one over their stated cost as srp-kept's are:
 
   the logs        both groups' logs are present and each finished: the simulation completed, with no trap or bus
                   error (grade.refuse_run, as run.py refuses a group's log);
   the records     every probe kept_window makes at the point's interface count is marked in its group's log, none
-                  other is, and each has its record;
+                  other is, and each has its record, its dearest within its charge;
   kept <= bound   every srp-kept probe's dearest record costs no more than the dearest srp-bound record of its own
                   interface on the same image (the same MRPDU, its inputs unbound and bound), that record present,
                   held within the measurement rule's 5 % (record_classes.rule): kept <= bound x 1.05 (#969's
                   2026-11-23 amendment), printed with both figures and the margin;
-  the share       no work pass of srp-kept is over THE SHARE (share.py, 2 ms), nor the longest of any idle run of
-                  either group (an idle pass makes no registration, so none is owed); both are read from the logs
-                  graded here (grade.pass_share), never from a result file beside them;
-  the builds      every pass of either group given whole to THE TRANSMIT's build, and every build of one MRPDU of
-                  srp-kept, is within its stated cost (whole_grade.held; CTRL_LOOP_BUILD_PASS_US,
-                  CTRL_LOOP_BUILD_ONE_PASS_US); srp-bound's build of one over its cost is the registration cost #977
-                  owns, owed and never restated (#969's 2026-11-23 amendment);
+  the share       no work pass of either group is over THE SHARE (share.py, 2 ms), nor the longest of any idle run of
+                  either; both are read from the logs graded here (grade.pass_share), never from a result file beside
+                  them;
+  the builds      every pass of either group given whole to THE TRANSMIT's build, and every build of one MRPDU, is
+                  within its stated cost (whole_grade.held; CTRL_LOOP_BUILD_PASS_US, CTRL_LOOP_BUILD_ONE_PASS_US);
   the pair        both groups are graded together, on one image.
 
-run.py applies the same disposition to its STATED and SHARE lines (Disposition): with every condition held, the
-owed ones are printed OWED and fail nothing; otherwise each stays a failure and each finding is one more.
+run.py applies the same grade to its STATED and SHARE lines (Disposition): none is owed, each stays a failure, and
+each finding is one more.
 
 usage: python3 -I kept_grade.py <build-dir> [--results DIR] | --selftest
 Exit 0 = every condition held; 1 = a finding, or a group's log missing.
 --selftest grades synthetic logs at 1x1/1if, through held, Disposition and the standalone entry point: each
-condition's breach is a finding of its own, by name, the unit's overrun and the bound path's build of one and passes
-over THE SHARE alone are owed, kept 4 % over bound holds and 6 % over breaks, bound + 5 % exactly holds and one cycle
-more breaks, a bound pass given whole to THE TRANSMIT's build over the slice stays a failure, as does a bound build of
-one over it whose round did work or that is an aged step's (whole_grade.held classes neither a build of one), a build
-of one as long as a pass given whole fails both slice lines, and a record is its own probe's, never an earlier mark's.
+condition's breach is a finding of its own, by name, a record over its charge and the bound path's build of one and
+passes over THE SHARE among them, a record whose tagged frame carries Talker values charged them (held at that charge,
+one cycle more a finding), nothing is owed, kept 4 % over bound holds and 6 % over breaks, bound + 5 % exactly
+holds and one cycle more breaks, a pass given whole to THE TRANSMIT's build over the slice stays a failure, as does a
+bound build of one over it, one whose round did work or that is an aged step's (whole_grade.held classes neither a
+build of one), and a build of one as long as a pass given whole, and a record is its own probe's, never an earlier
+mark's.
 """
 from __future__ import annotations
 
@@ -53,11 +51,13 @@ import json
 import sys
 import tempfile
 from bisect import bisect_left
+from collections.abc import Callable
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import grade  # noqa: E402
 import kept_window  # noqa: E402
+import poll_grade  # noqa: E402
 import record_classes  # noqa: E402
 import scenario  # noqa: E402
 import shape_costs  # noqa: E402
@@ -75,14 +75,11 @@ KEPT_MARGIN_PERCENT = 5
 #: run.py's STATED line of a tier-2 slice of THE TRANSMIT's build (run.stated_misses' words). AMENDED owes srp-bound's
 #: only where its pass is a build of one (Disposition.owes), never a pass given whole to the build, never srp-kept's.
 TRANSMIT_SLICE = "a tier-2 slice of THE TRANSMIT's build of "
-#: run.py's STATED lines the registrations make, each group's (run.stated_misses' words), owed while held; srp-bound's
-#: build of one, as a pass and as THE TRANSMIT's tier-2 slice it fills, is owed to #977 by AMENDED, never srp-kept's.
-OWED_KINDS = {kept_window.NAME: ("an SRP record's apply of ", "a tier-2 slice of SRP's records of "),
-              kept_window.BOUND: ("an SRP record's apply of ", "a tier-2 slice of SRP's records of ",
-                                  "a walk item of ", "a pass's polls base of ", "a build-one pass of ",
-                                  TRANSMIT_SLICE)}
-#: The pass kinds of whole_grade.held srp-bound's registrations make that are owed to #977 (AMENDED), never srp-kept's.
-BOUND_OWED_BUILDS = ('build-one',)
+#: run.py's STATED lines owed, each group's (run.stated_misses' words): none since #977 charges the registrations, the
+#: groups graded together on one image.
+OWED_KINDS: dict[str, tuple[str, ...]] = {kept_window.NAME: (), kept_window.BOUND: ()}
+#: The pass kinds of whole_grade.held owed: none since #977 (srp-bound's build of one was, by AMENDED).
+BOUND_OWED_BUILDS: tuple[str, ...] = ()
 
 
 def kept_within(kept: int, bound: int) -> bool:
@@ -104,25 +101,44 @@ def probes(interfaces: int) -> dict[str, list[str]]:
     return {g.name: [p.name for p in g.probes] for g in kept_window.groups(point)}
 
 
-def records(log: grade.Log) -> list[tuple[str, int, int]]:
-    """Each SRP record of the log: the mark it follows, its bus cycle and its CPU cycles."""
+def records(log: grade.Log) -> list[tuple[str, int, int, int]]:
+    """Each SRP record of the log: the mark it follows, its bus cycle, its CPU cycles and the CPU cycle it started."""
     marks = sorted(log.marks)
     starts = [cycle for cycle, _ in marks]
     out = []
     for kind, *rest in log.traced:
         if kind == 'SPAN' and len(rest) >= 5 and rest[4] == RECORD:
-            sys_start, cycles = int(rest[0]), int(rest[2])
+            sys_start, cpu_start, cycles = int(rest[0]), int(rest[1]), int(rest[2])
             k = bisect_left(starts, sys_start + 1) - 1
-            out.append((marks[k][1] if k >= 0 else '', sys_start, cycles))
+            out.append((marks[k][1] if k >= 0 else '', sys_start, cycles, cpu_start))
     return out
 
 
-def dearest(log: grade.Log, names: list[str]) -> dict[str, int | None]:
-    """Each named probe marked in the log, its dearest record's CPU cycles, None for none."""
+def dearest(log: grade.Log, names: list[str], charge: Callable[[int], int] | None = None
+            ) -> dict[str, tuple[int, int] | None]:
+    """Each named probe marked in the log, its dearest record's CPU cycles and that record's charge (charge, from the
+    CPU cycle it started; 0 without one), None for none."""
     found = records(log)
     marked = {probe for _, probe in log.marks}
-    return {probe: max((cycles for mark, _, cycles in found if mark == probe), default=None)
-            for probe in names if probe in marked}
+    out: dict[str, tuple[int, int] | None] = {}
+    for probe in names:
+        if probe in marked:
+            mine = [(cycles, start) for mark, _, cycles, start in found if mark == probe]
+            cycles, start = max(mine, default=(None, 0))
+            out[probe] = None if cycles is None else (cycles, charge(start) if charge else 0)
+    return out
+
+
+def charges(log: grade.Log, shape: shape_costs.Shape, name: str) -> Callable[[int], int]:
+    """The drain's charge of the group's SRP record that starts at a CPU cycle, in CPU cycles: CTRL_LOOP_SRP_UNIT_US
+    plus CTRL_LOOP_SRP_REG_US for each Talker value its own tagged frame carries (poll_grade.record_limits), from the
+    group's steps at the shape (#977). A record here is its handler's own span, starting on the handler's cycle, so its
+    charge is the last handler's to start at or before it (charged takes the last strictly before)."""
+    unit = shape_costs.at(shape, scenario.ROOT)[UNIT] * log.cpu_hz // 1_000_000
+    point = scenario.Point('', '', shape.interfaces, 0, 0, shape.sources, shape.sinks)
+    steps = next(g.steps for g in kept_window.groups(point) if g.name == name)
+    limits = poll_grade.record_limits(log, poll_grade.spans(log), shape, unit, list(steps))
+    return lambda start: poll_grade.charged(limits, start + 1, unit)
 
 
 def over_share(log: grade.Log) -> tuple[list[tuple[int, int]], list[tuple[int, int]]]:
@@ -150,17 +166,18 @@ def held(kept: grade.Log, bound: grade.Log, shape: shape_costs.Shape, interfaces
         findings += [f'{probe}: never marked in the {name} log' for probe in want[name] if probe not in marked]
         findings += [f'{probe}: marked in the {name} log, not a probe of {name} at {interfaces} interface(s)'
                      for probe in marked if probe.startswith(prefix) and probe not in want[name]]
-        recs[name] = dearest(log, want[name])
-        for probe, cycles in recs[name].items():
-            if cycles is None:
+        found = dearest(log, want[name], charges(log, shape, name))
+        recs[name] = {probe: None if r is None else r[0] for probe, r in found.items()}
+        for probe, record in found.items():
+            if record is None:
                 findings.append(f'{probe}: no SRP record follows its mark')
                 continue
+            cycles, charge = record
             us = record_classes.rule(cycles, kept.cpu_hz)
-            lines.append(f'RECORD {probe}: the dearest {cycles:,} CPU cycles, {us} us by the rule, against {UNIT} '
-                         f'{unit} us')
-            if us > unit:
-                owed.append(f'{probe}: a record of {cycles:,} CPU cycles, {us} us by the rule, over {UNIT} {unit} us, '
-                            f'owed to {DISPOSITION}')
+            lines.append(f'RECORD {probe}: the dearest {cycles:,} CPU cycles, {us} us by the rule, against its '
+                         f'charge {charge:,} ({UNIT} {unit} us and its Talker values)')
+            if cycles > charge:
+                findings.append(f'{probe}: a record of {cycles:,} CPU cycles over its charge {charge:,}')
     mates = {probe.rpartition('.')[2]: probe for probe in want[kept_window.BOUND]}
     for probe, cycles in recs[kept_window.NAME].items():
         mate = mates.get(probe.rpartition('.')[2])
@@ -181,14 +198,10 @@ def held(kept: grade.Log, bound: grade.Log, shape: shape_costs.Shape, interfaces
               f'{len(log.passes)} work pass(es) and {len(log.idle)} idle run(s) in its log'
               for name, log, work, idle in ((kept_window.NAME, kept, k_work, k_idle),
                                             (kept_window.BOUND, bound, b_work, b_idle))]
-    findings += [f'{kept_window.NAME}: a work pass of {cycles:,} CPU cycles at bus cycle {at} over THE SHARE'
-                 for at, cycles in k_work]
-    owed += [f'{kept_window.BOUND}: a work pass of {cycles:,} CPU cycles at bus cycle {at} over THE SHARE, the '
-             f'bound path\'s registrations, owed to {DISPOSITION}' for at, cycles in b_work]
-    findings += [f'{name}: idle run {run}\'s longest pass, {cycles:,} CPU cycles, over THE SHARE (an idle pass makes '
-                 f'no registration, so it is not owed)' for name, idle in ((kept_window.NAME, k_idle),
-                                                                       (kept_window.BOUND, b_idle))
-                 for run, cycles in idle]
+    findings += [f'{name}: a work pass of {cycles:,} CPU cycles at bus cycle {at} over THE SHARE'
+                 for name, work in ((kept_window.NAME, k_work), (kept_window.BOUND, b_work)) for at, cycles in work]
+    findings += [f'{name}: idle run {run}\'s longest pass, {cycles:,} CPU cycles, over THE SHARE'
+                 for name, idle in ((kept_window.NAME, k_idle), (kept_window.BOUND, b_idle)) for run, cycles in idle]
     for name, log in ((kept_window.NAME, kept), (kept_window.BOUND, bound)):
         builds = whole_grade.held(log, shape)
         for kind in ('build', 'build-one'):
@@ -253,10 +266,10 @@ class Disposition:
         self.slices = transmit_slices(logs[kept_window.BOUND], point_shape(spec))
 
     def owes(self, line: str) -> bool:
-        """Whether a STATED line is one the registrations make in a group this disposition holds. srp-bound's slice of
-        THE TRANSMIT's build is owed only where its log's slice of those cycles is a build of one, and none given whole
-        to the build is: a pass given whole to THE TRANSMIT's build is never owed (AMENDED)."""
-        if self.findings:
+        """Whether a STATED line is one the registrations make in a group this disposition holds: none since #977
+        charges them (OWED_KINDS empty). srp-bound's slice of THE TRANSMIT's build was owed only where its log's slice
+        of those cycles is a build of one (AMENDED)."""
+        if self.findings or not any(OWED_KINDS.values()):
             return False
         if line.startswith(f'{kept_window.BOUND}: {TRANSMIT_SLICE}'):
             cycles = stated_cycles(line)
@@ -266,13 +279,13 @@ class Disposition:
                    if name in self.ran)
 
     def stated(self, lines: list[str]) -> list[str]:
-        """The STATED lines that still fail: those not owed, and each finding."""
+        """The STATED lines that still fail: those not owed (every one since #977), and each finding."""
         self.owed += [f'{line}, owed to {DISPOSITION}' for line in lines if self.owes(line)]
-        return [line for line in lines if not self.owes(line)] + [f'{DISPOSITION}: {f}' for f in self.findings]
+        return [line for line in lines if not self.owes(line)] + [f'kept_grade: {f}' for f in self.findings]
 
     def shares(self, lines: list[str]) -> list[str]:
-        """The SHARE lines that still fail: srp-bound's is owed while the disposition holds (its passes are OWED)."""
-        return [line for line in lines if self.findings or not line.startswith(f'{kept_window.BOUND}:')]
+        """The SHARE lines that still fail: every one since #977 (srp-bound's was owed while the disposition held)."""
+        return list(lines)
 
 
 def grade_dir(build_dir: Path, results: Path | None = None) -> tuple[list[str], list[str], list[str]]:
@@ -318,6 +331,11 @@ class Synthetic:
                            f'TXC 9500020 {srp} 0', f'TXC 9500030 {srp} 0')   # each at the head, so no record to read
         self.slice = slice_grade.held(grade.parse('', self.hz, self.hz), self.shape)['limit']
         self.limits = limits
+        #: the drain's charge of srp.bound_advertise's record (and srp.kept_advertise's), its tagged frame's Talker
+        #: values, one a sink, at most V a vector (poll_grade.record_values), each CTRL_LOOP_SRP_REG_US past the unit
+        self.values = poll_grade.talker_values(kept_window.declared(0, self.shape.sinks),
+                                               poll_grade.record_values(self.shape))
+        self.charge = (self.unit + self.values * poll_grade.registration_us(self.shape)) * self.hz // 1_000_000
         #: a build of one MRPDU one cycle over the slice (and so over its stated cost, below the slice), and a pass
         #: given whole to THE TRANSMIT's build over the slice and within CTRL_LOOP_BUILD_PASS_US (above the slice)
         self.one_cycles, self.whole_cycles = self.slice + 1, (self.slice + limits['build']) // 2
@@ -333,23 +351,31 @@ class Synthetic:
         #: a build of one as long as the pass given whole: the slice line's figure names either, so it is ambiguous
         self.slice_equal = (f'PASS 1 9500000 9500000 {self.whole_cycles}', *self.slice_one[1:], *self.slice_whole)
         self.spec = dict(sys_hz=self.hz, cpu_hz=self.hz, interfaces=1)
+        #: whether each record's frame is committed to SRP carrying its probe's name (text)
+        self.tagged = False
 
     @staticmethod
-    def text(probes: list[tuple[str, int | None]], extra: tuple[str, ...] = (), result: str = 'PASS') -> str:
-        """A log of the probes' marks, each followed by a record of those cycles, or none, then the extra lines."""
+    def text(probes: list[tuple[str, int | None]], extra: tuple[str, ...] = (), result: str = 'PASS',
+             tagged: bool = False) -> str:
+        """A log of the probes' marks, each followed by a record of those cycles, or none, then the extra lines;
+        tagged, each record's frame is committed to SRP carrying its probe's name first, so the record is charged that
+        frame's Talker values."""
         lines = []
         for k, (probe, c) in enumerate(probes):
             at = 1_000_000 * (k + 1)
             lines.append(f'MARK {at} {probe}')
+            if c is not None and tagged:
+                lines += [f'RXS {at + 1} 0 60 {probe}', f'RXE {at + 50}', f'RXC {at + 60} {scenario.CH["srp"]}']
             if c is not None:
                 lines.append(f'SPAN {at + 100} {at + 100} {c} 00002000 {RECORD}')
         return '\n'.join([*lines, *extra, 'SUMMARY passes=1', f'RESULT: {result}']) + '\n'
 
     def texts(self, kept: list[int | None], bound: list[tuple[str, int | None]], kept_extra: tuple[str, ...] = (),
               bound_extra: tuple[str, ...] = (), kept_result: str = 'PASS') -> dict[str, str]:
-        """srp-kept's three probes, those cycles each, and srp-bound's probes, each log with its extra lines."""
-        return {kept_window.NAME: self.text(list(zip(self.KEPT, kept)), kept_extra, kept_result),
-                kept_window.BOUND: self.text(bound, bound_extra)}
+        """srp-kept's three probes, those cycles each, and srp-bound's probes, each log with its extra lines, their
+        frames tagged where self.tagged is set."""
+        return {kept_window.NAME: self.text(list(zip(self.KEPT, kept)), kept_extra, kept_result, self.tagged),
+                kept_window.BOUND: self.text(bound, bound_extra, tagged=self.tagged)}
 
     def graded(self, *args, **kwargs) -> tuple[list[str], list[str]]:
         """The owed lines and the findings of held on those logs; an exception is a finding of its own."""
@@ -365,16 +391,22 @@ def only(found: list[str], *words: str) -> bool:
     return len(found) == 1 and all(w in found[0] for w in words)
 
 
+def compared(graded: tuple[list[str], list[str]]) -> tuple[list[str], list[str]]:
+    """The owed lines and the findings but the records' charges, for the checks of kept <= bound, whose records are
+    past the synthetic logs' charge, the unit (their frames are not tagged)."""
+    return graded[0], [f for f in graded[1] if 'over its charge' not in f]
+
+
 def selftest_held(s: Synthetic) -> list[tuple[str, bool, str]]:
     """Each condition's outcome through held."""
     within = s.graded(*s.clean)
     owed = s.graded([2 * s.edge, s.edge, 1_000], [('srp.bound_advertise.if0', 3 * s.edge)])
     bound = 3 * s.edge
     allowed = bound * (100 + KEPT_MARGIN_PERCENT) // 100
-    rule = {name: s.graded([kept, s.edge, 1_000], [('srp.bound_advertise.if0', bound)])
+    rule = {name: compared(s.graded([kept, s.edge, 1_000], [('srp.bound_advertise.if0', bound)]))
             for name, kept in (('4 %', bound * 104 // 100), ('6 %', bound * 106 // 100), ('at', allowed),
                                ('past', allowed + 1))}
-    integral = {name: s.graded([kept, s.edge, 1_000], [('srp.bound_advertise.if0', 100_000)])
+    integral = {name: compared(s.graded([kept, s.edge, 1_000], [('srp.bound_advertise.if0', 100_000)]))
                 for name, kept in (('equal', 105_000), ('over', 105_001))}
     missing = s.graded([1_000, None, 1], [('srp.bound_advertise.if0', s.edge)])
     shared = s.graded(*s.clean, kept_extra=s.over_share, bound_extra=s.over_share)
@@ -385,11 +417,21 @@ def selftest_held(s: Synthetic) -> list[tuple[str, bool, str]]:
     unfinished = s.graded(*s.clean, kept_result='FAIL')
     unmarked = s.graded([1_000, 1_000], [('srp.bound_advertise.if0', s.edge)])
     unmated = s.graded(s.clean[0], [('srp.bound_advertise.if1', s.edge)])
+    s.tagged = True
+    charged = {name: s.graded([s.charge, s.edge, 1_000], [('srp.bound_advertise.if0', s.charge + extra)])
+               for name, extra in (('at', 0), ('past', 1))}
+    s.tagged = False
     return [(f'records at the unit by the rule ({s.edge:,} cycles, {s.unit} us), kept <= bound: nothing owed or found',
              within == ([], []), str(within)),
-            ('records past the unit with kept <= bound are owed to #977, by name and link, and found nothing',
-             len(owed[0]) == 2 and all('#977' in o and '/issues/977' in o for o in owed[0]) and owed[1] == [],
-             str(owed)),
+            (f'records whose tagged frames carry Talker values are charged them: at the unit and CTRL_LOOP_SRP_REG_US '
+             f'for each of {s.values} ({s.charge:,} cycles, past the unit) they hold, one cycle more is its own '
+             f'probe\'s finding', s.values == s.shape.sinks > 0 and charged['at'] == ([], []) and
+             charged['past'][0] == [] and only(charged['past'][1], 'srp.bound_advertise.if0', 'over its charge',
+                                                f'{s.charge:,}'), str(charged)),
+            ('records past their charge with kept <= bound are findings, each its own probe\'s, and nothing is owed',
+             owed[0] == [] and len(owed[1]) == 2 and all('over its charge' in f for f in owed[1]) and
+             any(f.startswith('srp.kept_advertise') for f in owed[1]) and
+             any(f.startswith('srp.bound_advertise') for f in owed[1]), str(owed)),
             ('a kept record 4 % dearer than the bound one holds kept <= bound within the rule\'s 5 %: no finding',
              rule['4 %'][1] == [], str(rule['4 %'])),
             ('a kept record 6 % dearer than the bound one breaks kept <= bound, its own probe\'s, never owed',
@@ -402,11 +444,12 @@ def selftest_held(s: Synthetic) -> list[tuple[str, bool, str]]:
              only(integral['over'][1], 'kept_advertise', 'kept <= bound broken'), str(integral)),
             ('a probe with no record is a finding, the next probe\'s record not taken for it',
              only(missing[1], 'kept_recount', 'no SRP record'), str(missing)),
-            ('a work pass of srp-kept over THE SHARE is a finding; srp-bound\'s is owed to #977',
-             only(shared[1], kept_window.NAME, 'work pass', 'THE SHARE') and
-             any(kept_window.BOUND in o and 'THE SHARE' in o and '#977' in o for o in shared[0]), str(shared)),
-            ('a work pass of srp-bound alone over THE SHARE is owed to #977 by name and link, and found nothing',
-             bound_shared[1] == [] and only(bound_shared[0], kept_window.BOUND, 'THE SHARE', '/issues/977'),
+            ('a work pass of either group over THE SHARE is a finding of its own, nothing owed',
+             shared[0] == [] and len(shared[1]) == 2 and
+             all(any(f.startswith(name) and 'work pass' in f and 'THE SHARE' in f for f in shared[1])
+                 for name in OWED_KINDS), str(shared)),
+            ('a work pass of srp-bound alone over THE SHARE is a finding, nothing owed',
+             bound_shared[0] == [] and only(bound_shared[1], kept_window.BOUND, 'work pass', 'THE SHARE'),
              str(bound_shared)),
             ('an idle run over THE SHARE in either group is a finding, never owed, read without a work pass\'s start',
              all(only(f, name, 'idle run', 'THE SHARE') and not any('idle' in o for o in o_)
@@ -414,10 +457,9 @@ def selftest_held(s: Synthetic) -> list[tuple[str, bool, str]]:
             ('a build of one MRPDU one cycle over its stated cost is a finding in srp-kept, never owed',
              only(built[0][1], kept_window.NAME, 'build-one pass', 'over its stated cost') and
              not any('build-one' in o for o in built[0][0]), str(built[0])),
-            ('srp-bound\'s build of one MRPDU one cycle over its stated cost is owed to #977 by name and link, its '
-             'cost named and not restated, and found nothing',
-             built[1][1] == [] and only(built[1][0], kept_window.BOUND, 'build-one pass', 'CTRL_LOOP_BUILD_ONE_PASS_US',
-                                        'not restated', '/issues/977'), str(built[1])),
+            ('srp-bound\'s build of one MRPDU one cycle over its stated cost is a finding, nothing owed',
+             built[1][0] == [] and only(built[1][1], kept_window.BOUND, 'build-one pass', 'over its stated cost'),
+             str(built[1])),
             ('a pass given whole to THE TRANSMIT\'s build one cycle over its stated cost is a finding in either group',
              all(only(f, name, 'build pass', 'over its stated cost') and o_ == [] for (o_, f), name in
                  zip(whole, OWED_KINDS)), str(whole)),
@@ -472,8 +514,8 @@ def unowed(d: tuple[Disposition, list[str], list[str]], cycles: str, count: int)
 
 
 def selftest_transmit(s: Synthetic, out: Path) -> list[tuple[str, bool, str]]:
-    """Each tier-2 slice of THE TRANSMIT's build over the slice through Disposition, on files in out: owed only where
-    its pass is srp-bound's build of one as whole_grade.held classes it."""
+    """Each tier-2 slice of THE TRANSMIT's build over the slice through Disposition, on files in out: none owed since
+    #977 charges the registrations; srp-bound's build of one, as whole_grade.held classes it, a finding of its own."""
     one = disposed(s, out, bound_extra=s.slice_one)
     whole = disposed(s, out, bound_extra=s.slice_whole)
     both = disposed(s, out, bound_extra=(*s.slice_one, *s.slice_whole))
@@ -483,18 +525,19 @@ def selftest_transmit(s: Synthetic, out: Path) -> list[tuple[str, bool, str]]:
     equal = disposed(s, out, bound_extra=s.slice_equal)
     whole_slice = f"{kept_window.BOUND}: {TRANSMIT_SLICE}{s.whole_cycles:,} CPU cycles"
     one_slice = f"{kept_window.BOUND}: {TRANSMIT_SLICE}{s.one_cycles:,} CPU cycles"
+    built = f'kept_grade: {kept_window.BOUND}: a build-one pass at bus cycle 9500000: '
     return [(f'srp-bound\'s build of one over the slice ({s.one_cycles:,} against {s.slice:,}): run.py\'s build-one '
-             f'and THE TRANSMIT slice lines are both owed, nothing fails',
-             one[0].findings == [] and one[2] == [] and len(one[1]) == 2 and
-             any(TRANSMIT_SLICE in line for line in one[1]), str(one[1:])),
+             f'and THE TRANSMIT slice lines both fail, and it is a finding, nothing owed',
+             one[2][:-1] == one[1] and one[2][-1].startswith(f'{built}{s.one_cycles:,} CPU cycles') and
+             len(one[1]) == 2 and any(TRANSMIT_SLICE in line for line in one[1]) and one[0].owed == [], str(one[1:])),
             (f'a srp-bound pass given whole to THE TRANSMIT\'s build, over the slice and within '
              f'CTRL_LOOP_BUILD_PASS_US ({s.whole_cycles:,} against {s.slice:,} and {s.limits["build"]:,}): its slice '
              f'line FAILS, never owed', s.slice < s.whole_cycles <= s.limits['build'] and whole[0].findings == [] and
              len(whole[1]) == 1 and len(whole[2]) == 1 and whole[2][0].startswith(whole_slice) and
              not any(TRANSMIT_SLICE in o for o in whole[0].owed), str(whole[1:])),
-            ('srp-bound\'s build of one and its pass given whole, in one log: the one\'s slice is owed, the whole\'s '
-             'still fails', both[0].findings == [] and len(both[2]) == 1 and both[2][0].startswith(whole_slice) and
-             sum(TRANSMIT_SLICE in o for o in both[0].owed) == 1, str(both[1:])),
+            ('srp-bound\'s build of one and its pass given whole, in one log: both fail, nothing owed',
+             both[2][:-1] == both[1] and both[2][-1].startswith(f'{built}{s.one_cycles:,} CPU cycles') and
+             any(line.startswith(whole_slice) for line in both[2]) and both[0].owed == [], str(both[1:])),
             ('srp-kept\'s pass given whole to THE TRANSMIT\'s build over the slice fails, never owed',
              kept_whole[0].findings == [] and len(kept_whole[2]) == 1 and
              kept_whole[2][0].startswith(f'{kept_window.NAME}: {TRANSMIT_SLICE}'), str(kept_whole[1:])),
@@ -505,10 +548,10 @@ def selftest_transmit(s: Synthetic, out: Path) -> list[tuple[str, bool, str]]:
             ('srp-bound\'s build of one over the slice that is an aged step\'s: no build-one pass, its slice line '
              'FAILS, never owed', unowed(aged, one_slice, 1) and aged[1] == aged[2], str(aged[1:])),
             (f'srp-bound\'s build of one and its pass given whole, of equal length ({s.whole_cycles:,}): the build-one '
-             f'pass is owed, both slice lines FAIL (ambiguous, so failed closed)',
-             unowed(equal, whole_slice, 2) and
-             any(o.startswith(f'{kept_window.BOUND}: a build-one pass of {s.whole_cycles:,} CPU cycles')
-                 for o in equal[0].owed),
+             f'pass is a finding, both slice lines FAIL, nothing owed',
+             equal[0].owed == [] and only(equal[0].findings, kept_window.BOUND, 'build-one pass') and
+             equal[2][:-1] == equal[1] and equal[2][-1].startswith(f'{built}{s.whole_cycles:,} CPU cycles') and
+             sum(line.startswith(whole_slice) for line in equal[2]) == 2,
              str((equal[1:], equal[0].owed)))]
 
 
@@ -534,6 +577,7 @@ def selftest_files(s: Synthetic) -> list[tuple[str, bool, str]]:
         alone_failed = standalone(out, s.texts(*s.clean, kept_result='FAIL'), stale)
         alone_garbled = standalone(out, {**s.texts(*s.clean), kept_window.NAME: 'NOT-A-LINE 1\nRESULT: PASS\n'})
         transmit = selftest_transmit(s, out)
+        built = f'kept_grade: {kept_window.BOUND}: a build-one pass at bus cycle 9500000: {s.one_cycles:,} CPU cycles'
         for name, body in s.texts(*s.clean, bound_extra=s.slice_one).items():
             (out / f'{name}.log').write_text(body)
         pair = Disposition([dict(group=name) for name in OWED_KINDS], out, s.spec)
@@ -544,10 +588,11 @@ def selftest_files(s: Synthetic) -> list[tuple[str, bool, str]]:
             (out / f'{name}.log').write_text(body)
         broken = Disposition([dict(group=name) for name in OWED_KINDS], out, s.spec)
         broken_left = broken.stated(list(stated))
-    return [('both groups graded together: their #977 lines, srp-bound\'s build of one and its build slice with them, '
-             'are owed by name and link, and srp-kept\'s build of one and its slice stay failures',
-             pair.findings == [] and pair_left == kept_build and len(pair.owed) == len(stated) + 1 and
-             all('/issues/977' in o for o in pair.owed), str((pair.findings, pair_left, pair.owed))),
+    return [('both groups graded together: nothing is owed, each line of either group stays a failure, and '
+             'srp-bound\'s build of one over its stated cost is a finding of its own',
+             only(pair.findings, kept_window.BOUND, 'build-one pass') and pair.owed == [] and
+             pair_left[:-1] == [*stated, *kept_build] and pair_left[-1].startswith(built),
+             str((pair.findings, pair_left, pair.owed))),
             *transmit,
             ('one group graded alone is a finding: nothing is owed and every line stays a failure',
              only(alone.findings, 'graded together', 'alone') and alone.owed == [] and
@@ -555,7 +600,8 @@ def selftest_files(s: Synthetic) -> list[tuple[str, bool, str]]:
             ('both groups graded together with a condition broken in a log: the finding stays, nothing is owed',
              only(broken.findings, kept_window.NAME, 'work pass', 'THE SHARE') and broken.owed == [] and
              broken_left[:-1] == stated and len(broken_left) == len(stated) + 1 and
-             broken.shares([f'{kept_window.BOUND}: a pass over THE SHARE']) != [],
+             broken.shares([f'{kept_window.BOUND}: a pass over THE SHARE']) != [] and
+             pair.shares([f'{kept_window.BOUND}: a pass over THE SHARE']) != [],
              str((broken.findings, broken_left))),
             ('standalone: both logs complete and within: PASS',
              alone_clean[0] == 0 and 'kept_grade: PASS' in alone_clean[1], alone_clean[1]),
@@ -603,8 +649,8 @@ def main(argv: list[str]) -> int:
         print(f'OWED {line}')
     for finding in findings:
         print(f'FINDING {finding}')
-    print(f'kept_grade: {"PASS" if not findings else "FAIL"} ({len(findings)} finding(s), {len(owed)} owed to '
-          f'{DISPOSITION})')
+    print(f'kept_grade: {"PASS" if not findings else "FAIL"} ({len(findings)} finding(s), {len(owed)} owed: the '
+          f'registrations are charged since {DISPOSITION})')
     return 1 if findings else 0
 
 

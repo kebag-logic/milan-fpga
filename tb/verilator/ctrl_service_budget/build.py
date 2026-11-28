@@ -97,9 +97,11 @@ MUTATIONS = {
                       'answering-later'),
     # #665's planted age on the build: an MRPDU owed waits 300 passes before THE TRANSMIT's pass, so an MRPDU a
     # timer owes is committed past its bound, CTRL_LOOP_TX_BOUND_MS (mrpdu_grade.BUDGET_MS, 49 ms; FR_NFR.md 3.4.1).
-    'transmit-aged': ('srp/srp_mbx.c', '    return m->tx_owed != 0u && !m->owed_len;\n',
+    'transmit-aged': ('srp/srp_mbx.c',
+                      '    return m->tx_owed != 0u && !m->owed_len && !m->loop->ticks_owed && !mbx_tick_pending();\n',
                       '    static unsigned held;\n    held = m->tx_owed != 0u ? held + 1u : 0u;\n'
-                      '    return held > 300u && !m->owed_len;\n', ','.join(notice_window.names()), 'answering-later'),
+                      '    return held > 300u && !m->owed_len && !m->loop->ticks_owed && !mbx_tick_pending();\n',
+                      ','.join(notice_window.names()), 'answering-later'),
     **poll_items.PLANTS, **save_window.PLANTS, **talker_notice.PLANTS, **declaring_outputs.PLANTS,
 }
 #: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.

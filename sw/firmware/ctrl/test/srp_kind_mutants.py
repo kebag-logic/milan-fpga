@@ -36,6 +36,10 @@ FILTER_HOLDS = "        if (s->desired != previous) {\n            hold(i);\n   
 STORE = "            if (old.stream_kinds == 3u && m->held_count < SRP_HELD_STREAMS) {"
 HELD = KINDS + "AFinalUnbindingKeepsTheLatestWhileBothStayRegistered"
 ENDS = KINDS + "AHeldStreamEndsWithEitherRegistrationOrAReset"
+#: held_scan's match of an interface's StreamID, the last byte first (#977), and the test of a StreamID whose last
+#: octet a held one's shares.
+OWN_STREAM = "held[7] == stream_id[7] && m->held[n].interface == interface && same(held,stream_id,8)"
+TWIN = "SrpEarlyTalker.ABindingOfAStreamIDOfAHeldOnesLastOctetTakesNoneOfIt"
 
 
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:
@@ -93,9 +97,11 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
              "a final unbinding keeps the latest registration"),
         kind("feedback-latest-held-not-taken", HELD, "            replacement.latest_kind = h->latest_kind;\n", "",
              "a final unbinding keeps the latest registration"),
-        # the talker's MAC alone compared: another StreamID of the same talker takes it
-        kind("feedback-latest-held-for-another-stream", HELD, "same(m->held[n].stream_id.bytes,stream_id,8)",
-             "same(m->held[n].stream_id.bytes,stream_id,6)", "another StreamID takes none of it"),
+        # the talker's MAC alone compared: another StreamID of the same talker takes it; the table is scanned only for
+        # a StreamID ending in an octet one held ends in (#977, held_octets), so the test's is the same talker's twin
+        kind("feedback-latest-held-for-another-stream", TWIN, OWN_STREAM,
+             "m->held[n].interface == interface && same(held,stream_id,6)",
+             "stream 0 keeps its latest Advertise past its twin's binding"),
         kind("feedback-latest-held-with-one-kind", ENDS, "old.stream_kinds == 3u &&", "old.stream_kinds != 0u &&",
              "one kind registered holds nothing"),
         kind("feedback-latest-held-past-a-leave", ENDS,

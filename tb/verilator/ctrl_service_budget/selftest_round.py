@@ -131,6 +131,8 @@ def slice_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
         lines = {'srp': [f'PASS 1 {2 * start} {start} {cycles + 300} instr=10 store_mbx=1 W {2 * start + 2}:1:0',
                          f'SPAN {2 * start + 20} {start + 10} {cycles - 110} 00001000 srp_mbx:receive',
                          f'SPAN {2 * start + 2 * cycles - 160} {start + cycles - 80} 80 00001000 srp_mbx:receive'],
+                 'alone': [f'PASS 1 {2 * start} {start} {cycles + 300} instr=10 store_mbx=1 W {2 * start + 2}:1:0',
+                           f'SPAN {2 * start + 20} {start + 10} {cycles - 10} 00001000 srp_mbx:receive'],
                  'build': [f'PASS 1 {2 * start} {start} {cycles} instr=10 store_mbx=1 W {2 * start + 2}:1:0',
                            f'ENTRY {2 * start + 20} build_mrpdu',
                            f'SPAN {2 * start + 2 * cycles - 400} {start + cycles - 200} 150 00001000 {ROUND}'],
@@ -176,6 +178,20 @@ def slice_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
     out.append(("SRP's slice runs from its pass's start, not from its first record",
                 kinds(held('srp', limit + 1)) == ['srp'] and held('srp', limit + 1)['over'][0]['cycles'] == limit + 1,
                 ''))
+    alone = shape_costs.at(shapes['8x8/1if'])[shape_costs.ALONE] * cpu_hz // 1_000_000
+    alone_at, alone_over = held('alone', alone, shapes['8x8/1if']), held('alone', alone + 1, shapes['8x8/1if'])
+    out.append(("a pass of one SRP record at 8x8/1if is held to the record's pass alone, past the slice, and one of "
+                "two records to the slice (#977's ruling of 2026-11-27 on the alone records, item 1)",
+                alone > wide_cycles and not alone_at['over'] and kinds(alone_over) == ['srp'] and
+                alone_over['over'][0]['held'] == alone and kinds(held('srp', wide_cycles + 1, shapes['8x8/1if'])) ==
+                ['srp'], str((alone, alone_at, alone_over))))
+    out.append(("a pass of one SRP record at 1x1/1if is held to its slice, which is longer than its pass alone",
+                slice_grade.alone_us(1) == us[0] > shape_costs.at(shapes['1x1/1if'])[shape_costs.ALONE] and
+                kinds(held('alone', one + 1, 1)) == ['srp'] and not held('alone', one, 1)['over'], ''))
+    named = run.stated_misses([dict(group='g', passes=dict(slices=alone_over))])
+    out.append(('a pass of one record over its pass alone is named with that length',
+                named == [f"g: a tier-2 slice of SRP's records of {alone + 1:,} CPU cycles, over the stated pass "
+                          f"alone {alone:,}"], str(named)))
     out.append(("a round in a pass given whole to a build is that slice's, not one of its own",
                 held('build', limit)['slices'] == 1, str(held('build', limit))))
     named = run.stated_misses([dict(group='g', passes=dict(slices=held('build', limit + 1)))])

@@ -25,6 +25,8 @@ import poll_items
 import run
 import scenario
 import selftest_leaveall
+import shape_costs
+import whole_grade
 
 Check = tuple[str, bool, str]
 #: The labels the testbench prints for each span, read here apart from poll_grade.ITEMS: a pass's first and last
@@ -307,6 +309,50 @@ def join_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int,
                               record_share_findings=True)
     out.append(('a join interval outside its range fails a run whatever findings it records',
                 run.verdict(args, [scenario.Group('j')], [], [], [], named[:1]) == 1, ''))
+    return out + redeclare_checks(synthetic, sys_hz, cpu_hz, tx_record)
+
+
+def redeclare_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int,
+                     tx_record: Callable[..., list[str]]) -> list[Check]:
+    """The re-declaration's build where it stays in the build's slice (#977; whole_grade.redeclared): at 1x1/1if a
+    registering group's build pass that commits a Listener Message is held to its stated cost by name and a cycle over
+    it is a finding, one with no such pass is refused, and at 8x8/1if, whose re-declarations take a slice of their
+    own, or in another group, nothing is held."""
+    one, eight = shape_costs.Shape(1, 2, 2), shape_costs.Shape(1, 9, 9)
+    limit = whole_grade.stated_us(one)['build-one'] * cpu_hz // 1_000_000
+    # an MRPDU of one Listener Message (type 3, an 8-octet FirstValue and its packed events), and one of a Talker's
+    listener = (bytes.fromhex('0180c200000e02030401020322ea00') + bytes((3, 8, 0, 14, 0, 1)) + bytes(8) +
+                bytes((36, 128, 0, 0)) + bytes(2))
+    talker = listener[:15] + bytes((1,)) + listener[16:]
+
+    def redeclared(cycles: int, frame: bytes = listener, group: str = 'srp-register',
+                   shape: shape_costs.Shape = one) -> dict:
+        """The hold of one build pass of those cycles that commits frame."""
+        lines = tx_record(scenario.CH['srp'], 0, frame, 0, 5_000)
+        words = lines[0].split()
+        words[4] = str(cycles)
+        lines = [' '.join(words), 'ENTRY 4950 build_mrpdu', *lines[1:]]
+        return whole_grade.redeclared(grade.parse(synthetic(lines), sys_hz, cpu_hz), shape, group)
+
+    kinds = lambda r: [o['kind'] for o in r['over']]
+    at, over = redeclared(limit), redeclared(limit + 1)
+    out = [('at 1x1/1if a re-declaring build pass at its stated cost fits it and one a cycle over is named',
+            whole_grade.declared_in_build(one) and len(at['passes']) == 1 and kinds(at) == [] and
+            kinds(over) == [whole_grade.REDECLARE], str((at, over)))]
+    try:
+        redeclared(limit, talker)
+        out.append(('a registering group with no build pass committing a Listener Message is refused', False, ''))
+    except grade.Refusal as error:
+        out.append(('a registering group with no build pass committing a Listener Message is refused',
+                    'no build pass committed a re-declaration' in str(error), str(error)))
+    elsewhere = (redeclared(limit + 1, shape=eight), redeclared(limit + 1, group='srp'))
+    out.append(('at 8x8/1if, whose re-declarations take a slice of their own, and in another group nothing is held',
+                not whole_grade.declared_in_build(eight) and all(r == dict(passes=[], over=[]) for r in elsewhere),
+                str(elsewhere)))
+    named = run.stated_misses([dict(group='srp-register', passes=dict(redeclared=over))])
+    out.append(('a re-declaring build pass over its stated cost is named, with the cost it passed',
+                named == [f"srp-register: a {whole_grade.REDECLARE} pass of {limit + 1:,} CPU cycles, over its "
+                          f"stated {limit:,}"], str(named)))
     return out
 
 

@@ -62,10 +62,10 @@ core-only unit tests:
 
 | Header | What it is |
 |---|---|
-| [`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/a795471c0abc4e38f7e5146b4e539dd607b6f501/include/adp.h) | ADP advertising (Milan v1.2 5.6.3) |
-| [`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/a795471c0abc4e38f7e5146b4e539dd607b6f501/include/acmp.h) | Milan ACMP: the listener, the talker's answers and discovery |
-| [`maap.h`](https://github.com/kebag-logic/tsn-c-stack/blob/a795471c0abc4e38f7e5146b4e539dd607b6f501/include/maap.h) | MAAP allocation (IEEE 1722-2016 Annex B) |
-| [`wire.h`](https://github.com/kebag-logic/tsn-c-stack/blob/a795471c0abc4e38f7e5146b4e539dd607b6f501/include/wire.h) | the big-endian wire layer |
+| [`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/5a07d9b7d87298f04b15aa28f0304ec88b0aef81/include/adp.h) | ADP advertising (Milan v1.2 5.6.3) |
+| [`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/5a07d9b7d87298f04b15aa28f0304ec88b0aef81/include/acmp.h) | Milan ACMP: the listener, the talker's answers and discovery |
+| [`maap.h`](https://github.com/kebag-logic/tsn-c-stack/blob/5a07d9b7d87298f04b15aa28f0304ec88b0aef81/include/maap.h) | MAAP allocation (IEEE 1722-2016 Annex B) |
+| [`wire.h`](https://github.com/kebag-logic/tsn-c-stack/blob/5a07d9b7d87298f04b15aa28f0304ec88b0aef81/include/wire.h) | the big-endian wire layer |
 
 The stack depends on nothing in this repository.
 It includes only its own headers and the C library.
@@ -83,7 +83,7 @@ The composed `DA_GATE` requires valid destination state and either an answered
 probe younger than 15 seconds or a registered Listener, including Asking Failed.
 The SRP licence remains separate. Idle service ticks refresh probe expiry.
 Its callback and timing obligations are in its
-[porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/a795471c0abc4e38f7e5146b4e539dd607b6f501/docs/PORTING.md).
+[porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/5a07d9b7d87298f04b15aa28f0304ec88b0aef81/docs/PORTING.md).
 
 [`ctrl_boundary.py`](test/ctrl_boundary.py) holds both directions, in the builders' own compiles.
 It judges exactly the sources a capture of the builders' compiler invocations recorded as compiled; it lists no source of its own.
@@ -302,7 +302,7 @@ The gate [below](#the-host-test) builds the stack's own core tests into the
 `adp`, `reentry_debug`, `reentry_release`, `acmp`, `maap` and `maap_debug` binaries.
 The coverage gate measures the stack's sources, and the campaign plants core defects into a copy of them.
 The stack's own suite runs from the submodule, as its
-[CI](https://github.com/kebag-logic/tsn-c-stack/blob/a795471c0abc4e38f7e5146b4e539dd607b6f501/.github/workflows/quality.yml)
+[CI](https://github.com/kebag-logic/tsn-c-stack/blob/5a07d9b7d87298f04b15aa28f0304ec88b0aef81/.github/workflows/quality.yml)
 runs it, with GoogleTest and GoogleMock 1.14.0:
 
 ```sh
@@ -311,7 +311,7 @@ cmake --build <build directory> -j16
 ctest --test-dir <build directory> --output-on-failure -j16
 ```
 
-The stack is [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/a795471c0abc4e38f7e5146b4e539dd607b6f501/LICENSE) (Kebag Logic).
+The stack is [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/5a07d9b7d87298f04b15aa28f0304ec88b0aef81/LICENSE) (Kebag Logic).
 Its files keep their MIT identifiers inside this platform.
 The platform's own files stay [CERN-OHL-W-2.0](../../../LICENSE).
 lwSRP stays a separate Apache-2.0 component.
@@ -324,7 +324,7 @@ machine), in three units, each stating its clauses in its header:
 
 | Unit | What it is |
 |---|---|
-| [`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/a795471c0abc4e38f7e5146b4e539dd607b6f501/include/acmp.h), [`acmp.c`](https://github.com/kebag-logic/tsn-c-stack/blob/a795471c0abc4e38f7e5146b4e539dd607b6f501/src/acmp.c) (the TSN stack's) | the core, with no mailbox: every listener transition of Table 5.30, the talker's answers of 5.5.4, the discovery machine of Table 5.54, the timers of Tables 5.26 and 5.29, the lock, the saved binding record, and the no-callback guard of #678 |
+| [`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/5a07d9b7d87298f04b15aa28f0304ec88b0aef81/include/acmp.h), [`acmp.c`](https://github.com/kebag-logic/tsn-c-stack/blob/5a07d9b7d87298f04b15aa28f0304ec88b0aef81/src/acmp.c) (the TSN stack's) | the core, with no mailbox: every listener transition of Table 5.30, the talker's answers of 5.5.4, the discovery machine of Table 5.54, the timers of Tables 5.26 and 5.29, the lock, the saved binding record, and the no-callback guard of #678 |
 | [`acmp_mbx.h`](acmp/acmp_mbx.h), [`acmp_mbx.c`](acmp/acmp_mbx.c) | the mailbox adapter: the acmp channel, one fabric timer slot per AVB interface armed at the earliest deadline of its sinks, the tap that hands the adp channel's ENTITY_AVAILABLE and ENTITY_DEPARTING to discovery and everything else to ADP, the adp channel's bound-talker table kept equal to the bindings, a command the core declines at its owed bound kept and offered again after the next accepting poll, and the service-latency figures per path |
 | [`acmp_nvm.h`](acmp/acmp_nvm.h), [`acmp_nvm.c`](acmp/acmp_nvm.c) | the binding group on lane F1's state port (`ctrl_nvm/nvm_state.h`), every other group forwarded to the integrator's owners |
 
@@ -477,7 +477,7 @@ port from the hand-rolled checks and the coverage ratchet are described in
 | Arm | Source | What it shows |
 |---|---|---|
 | `model` | `model_suite.cpp` | the mailbox suite's checks, which the RTL passes through both adapters, pass on the model too |
-| `port` | `test_port_loop.cpp` | the pool, the debug sink, the driver on the model (TX commit order across channels included, and the own MAC the filter matches with the FILTER_MISMATCH it counts), the loop's order (every interface's own MAC before a channel opens), bounds, owed work and tick slices, a TICK record taken while centiseconds are carried, and THE STEP: its binding's refusals, its client last in every pass that takes no input, given the deadline read as the pass starts, and its age limit, past which the step is the next pass's alone, before any input, counted in the centiseconds a dispatch carries (one TICK record of three ages it past the limit); and THE RETRY: its binding's refusals, its client called only in a pass that takes no input and dispatches no centisecond, after the polls and before the step, or after an aged step or a build, or in a pass of its own at its client's pace, told what the pass has left under its margin; and THE TRANSMIT: its binding's refusals, its client's pass given whole, ahead of an aged step, with the round after it; the row those passes stand in, three at most and one while an event or a record of THE DRAIN's channel waits, or while records wait and the client yields; THE DRAIN: its channel first, past `CTRL_LOOP_RX_PER_PASS`, while the pass has spent less than `CTRL_LOOP_DRAIN_US`, and a record ordered behind only the events posted before it; and THE TICK's cap, one record of a channel in a pass that dispatches a centisecond |
+| `port` | `test_port_loop.cpp` | the pool, the debug sink, the driver on the model (TX commit order across channels included, and the own MAC the filter matches with the FILTER_MISMATCH it counts), the loop's order (every interface's own MAC before a channel opens), bounds, owed work and tick slices, a TICK record taken while centiseconds are carried, and THE STEP: its binding's refusals, its client last in every pass that takes no input, given the deadline read as the pass starts, and its age limit, past which the step is the next pass's alone, before any input, counted in the centiseconds a dispatch carries (one TICK record of three ages it past the limit); and THE RETRY: its binding's refusals, its client called only in a pass that takes no input and dispatches no centisecond, after the polls and before the step, or after an aged step or a build, or in a pass of its own at its client's pace, told what the pass has left under its margin; and THE TRANSMIT: its binding's refusals, its client's pass given whole, ahead of an aged step, with the round after it; the row those passes stand in, three at most and one while an event or a record of THE DRAIN's channel waits, or while records wait and the client yields; THE DRAIN: its channel first, past `CTRL_LOOP_RX_PER_PASS`, while the pass has spent less than `CTRL_LOOP_DRAIN_US`, and a record ordered behind only the events posted before it, and each record past the unit started only while its slice holds its charge, the first of a quiet pass on the unit (#977); THE SETTLE: its binding's refusals and its client first in an ordinary pass, before its events, a pass whose settle did work starting no record alone; and THE TICK's cap, one record of a channel in a pass that dispatches a centisecond |
 | `portable` | `test_port_loop.cpp` | portable C11 (#665: the firmware ports to a hard core): no source or header of the tree outside `test/` names a GNU attribute or built-in but [`plat/ctrl_cc.h`](plat/ctrl_cc.h), and the port arm's tests pass built with that header's portable fallback (`CTRL_CC_GNU=0`: `memcpy` for the pool's link, no `noinline`) |
 | `unit` | `test_unit_seams.cpp`, `test_unit_driver.cpp`, `test_mmio.cpp`, `test_mmio_driver.cpp`, `test_mbx_dma_driver.cpp` | the firmware's own seams on GoogleMock: the app's composition order over the mailbox window (`mbx_hal.h`) and lwSRP's port layer (`shlan_port.h`), the entity's MAC as every interface's own MAC, the contract check field by field, the driver's refusals and bounds, a record's payload words at every length, frame alignment and across the ring's end (D15), each interface's own MAC block and the FILTER_MISMATCH read, the adapter's slot, interface and loop-room refusals, the MMIO platform over a host window, the driver built for that window with its accesses in place (M3), and the driver as the split image builds it, each payload moved by the record mover over a register model of it (`mmio_dma.h`): a record moved and released (R1), a move that ends in ERR resynchronising the ring (R2), a frame on a word moved and committed (T1), a move that ends in ERR not committed and the record after it reported lost (T2), a frame off a word taking the word loop (T3), a record's commit judging its own move and no other, so a frame off a word after a failed move is committed (T4), and the notice's fan port over it (`aecp_mbx.c`) reporting a frame its move lost for that frame, from the next fan or from fan_end, with no completion kept for it (T5), and its fan_end keeping a completion only for a walk that reached its last recipient, none after a mid-walk loss and one when the resumed walk ends (T6), and refusing a whole walk's end for a full completion queue only once its last frame is committed, the notice resumed past its last recipient sending no frame and keeping its one completion (T7) |
 | `adp` | the stack's `tests/test_adp.cpp`, `test_adp.cpp` | the ADP core over fake ports (deferred sends, strays, discards, the two draw kinds, the available_index every DEPARTING and restart carries on the wire, an owed DEPARTING across a restart and a second SHUTDOWN, owed frames across a link loss, a GM change, a DISCOVER and a stray expiry, and the bound of two owed DEPARTINGs with the SHUTDOWNs beyond it coalesced and counted), the tag race, the latency bound of every path, an owed frame behind a full transmit ring under a HAL that sleeps, the owed DEPARTING across a restart through the mailbox, the pass an AVAILABLE behind owed DEPARTINGs is committed in, and the bound with both rings full and ticks coalesced |
@@ -646,9 +646,12 @@ The CI firmware step also requires the control mutation campaign.
 
 Initialize `third_party/lwSRP` and `third_party/tsn-c-stack` at their recorded gitlinks before running the gate.
 An alternate `--lwsrp` checkout must match `ctrl_arms.LWSRP_REV`, currently
-`d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b`, with every compiled source unchanged.
+`e27b34c9231abaa862bdb73f807238b330aa4c51`, with every compiled source unchanged.
 Moving either pin requires a reviewed change.
-The pin is published on public lwSRP `main`, including PR #12, PR #15, PR #18 and PR #21.
+The pin is lwSRP `main` at `e27b34c9`, the squash merge of PR #22: PR #12, PR #15, PR #18 and PR #21, the optimisation line's
+`opt-exec-1` (its build options, the attribute key and buckets, the timer wheel and the merged Message build), and the
+end-station options a one-interface shape sets (#977; [the SRP adapter](srp/README.md)).
+[lwSRP PR #22](https://github.com/kebag-logic/lwSRP/pull/22) merged as `e27b34c9`; its compiled sources are the branch's.
 Anonymous HTTPS checkout needs no repository credentials.
 
 ## Linked size

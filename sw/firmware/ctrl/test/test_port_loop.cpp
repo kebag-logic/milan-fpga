@@ -394,6 +394,31 @@ std::uint32_t& adp_rx_tail_word() {
 
 using Driver = Model;
 
+TEST_F(Driver, PendingTickScanPreservesEventsAcrossRingWrap) {
+    ASSERT_TRUE(mbx_open());
+    mbx_tick_enable(true);
+    mbx_event event{};
+    for (unsigned n = 0; n < MBX_EVT_WORDS / MBX_EV_WORDS + 1u; ++n) {
+        mbx_model_gm_change(&model, 0, n + 1u, 0);
+        EXPECT_FALSE(mbx_tick_pending());
+        ASSERT_TRUE(mbx_event_take(&event));
+        EXPECT_EQ(event.type, MBX_EV_TYPE_GM);
+    }
+    mbx_model_gm_change(&model, 0, 0x12345678u, 0);
+    mbx_model_advance_ms(&model, MBX_TICK_MS);
+    const auto tail = model.evt_tail;
+    EXPECT_TRUE(mbx_tick_pending());
+    EXPECT_EQ(model.evt_tail, tail);
+    ASSERT_TRUE(mbx_event_take(&event));
+    EXPECT_EQ(event.type, MBX_EV_TYPE_GM);
+    EXPECT_TRUE(mbx_tick_pending());
+    ASSERT_TRUE(mbx_event_take(&event));
+    EXPECT_EQ(event.type, MBX_EV_TYPE_TICK);
+    EXPECT_FALSE(mbx_tick_pending());
+    model.evt_head = static_cast<std::uint16_t>(model.evt_tail + MBX_EVT_WORDS + MBX_EV_WORDS);
+    EXPECT_TRUE(mbx_tick_pending()) << "an invalid producer distance cannot license a timer arm";
+}
+
 TEST_F(Driver, D0RxRecordByteForByte) {
     static mbx_frame got;
     std::uint8_t f[82];
@@ -571,6 +596,12 @@ struct LoopProbe {
     unsigned rx_at_transmit_aged;  // the records taken when its age was last read
     std::string order_of;      // the deferrable clients in call order: T transmit, R retry, S step
     std::function<void()> on_event;   // what the next event's sink does besides counting it
+    unsigned charge_us;        // what THE DRAIN's charge reports (#977)
+    unsigned charges;          // its calls
+    unsigned charged_len;      // the next record's length the charge last read (mbx_rx_next_len)
+    bool settle_work;          // what THE SETTLE's client reports
+    unsigned settles;          // its calls
+    unsigned events_at_settle; // the events taken when it was last called
 };
 
 LoopProbe probe;
@@ -583,6 +614,18 @@ void probe_event(void*, const mbx_event*) {
     if (probe.on_event) {
         probe.on_event();
     }
+}
+
+unsigned probe_charge(void*) {
+    probe.charges++;
+    probe.charged_len = mbx_rx_next_len(MBX_CH_ADP);
+    return probe.charge_us;
+}
+
+bool probe_settle(void*) {
+    probe.settles++;
+    probe.events_at_settle = probe.events;
+    return probe.settle_work;
 }
 
 bool probe_poll(void*) {
@@ -1502,6 +1545,112 @@ TEST_F(Loop, L23TheDrainIsTierTwoInASlice) {
     static_cast<void>(ctrl_loop_service(&loop_));
     EXPECT_EQ(probe.rx_acmp, acmp + CTRL_LOOP_DRAIN_RECORDS) << "L23 and stops at CTRL_LOOP_DRAIN_RECORDS";
     drain(&loop_);
+    loop_.drain_ch = 0u;
+}
+
+// THE DRAIN's charge (#977, its ruling of 2026-11-23, item 4): a record past the unit starts only while its slice holds
+// its charge, in ring order, so it holds the records behind it and none is dropped; one alone in its slice, the first
+// of a pass whose THE SETTLE did nothing and that took no tier-1 record and dispatched no centisecond, starts on the
+// unit. THE SETTLE runs as each ordinary pass starts, before its events, and a pass whose settle did work starts no
+// record alone.
+TEST_F(Loop, L23bTheDrainChargesARecordAndSettlesFirst) {
+    drain(&loop_);
+    EXPECT_FALSE(ctrl_loop_set_settle(&loop_, nullptr, nullptr)) << "L23b a settle needs its client";
+    ASSERT_TRUE(ctrl_loop_set_settle(&loop_, probe_settle, nullptr));
+    EXPECT_FALSE(ctrl_loop_set_settle(&loop_, probe_settle, &loop_)) << "L23b and binds once";
+    std::uint8_t f[82];
+    build_frame(f, sizeof f, 0x22F0, 0xFA, 2);
+    loop_.drain_ch = MBX_CH_ADP + 1u;
+    loop_.drain_charge = probe_charge;
+    probe.charge_us = CTRL_LOOP_SRP_UNIT_US;
+    ASSERT_TRUE(ctrl_loop_set_step(&loop_, probe_step, nullptr, probe_clock, nullptr));
+    drain(&loop_);
+    unsigned rx = 0;
+    const auto refill = [&]() {
+        mbx_model_advance_ms(&model, MBX_CH_ADP_RATE_REFILL_MS * MBX_CH_ADP_RATE_BURST);
+        drain(&loop_);
+        for (unsigned k = 0; k < MBX_CH_ADP_RATE_BURST; ++k) {
+            ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+        }
+        rx = probe.rx;
+    };
+    static_assert(MBX_CH_ADP_RATE_BURST > 4u, "the test charges a burst of records");
+    refill();
+    probe.now_step = (CTRL_LOOP_SLICE_US - CTRL_LOOP_SRP_UNIT_US) / 2u;   // room for two at the unit, then none
+    static_cast<void>(ctrl_loop_service(&loop_));
+    probe.now_step = 0u;
+    EXPECT_EQ(probe.rx, rx + 2u) << "L23b a record charged the unit starts as the unit's rule starts it";
+    EXPECT_EQ(probe.charged_len, sizeof f) << "L23b the charge reads the next record's length, the record left";
+    EXPECT_EQ(loop_.drain_taken, 2u) << "L23b and the pass counts what its drain took";
+    drain(&loop_);
+    refill();
+    probe.charge_us = 2u * CTRL_LOOP_SLICE_US;   // past any slice
+    unsigned settles = probe.settles;
+    unsigned events = probe.events;
+    mbx_timer_arm(0u, 0x977u, mbx_now_ms());   // an event the pass takes, after its settle
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_EQ(probe.rx, rx + 1u) << "L23b a record past any slice starts alone, and holds the next";
+    EXPECT_FALSE(loop_.drained) << "L23b its channel left holding records";
+    EXPECT_TRUE(probe.settles == settles + 1u && probe.events_at_settle == events)
+        << "L23b THE SETTLE runs as an ordinary pass starts, before its events";
+    rx = probe.rx;
+    probe.settle_work = true;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    probe.settle_work = false;
+    EXPECT_EQ(probe.rx, rx) << "L23b and none starts alone after a settle that did work";
+    EXPECT_EQ(loop_.drain_taken, 0u) << "L23b its drain took nothing";
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_EQ(probe.rx, rx + 1u) << "L23b the next pass, settling nothing, starts it alone";
+    // a pass that dispatched a centisecond, and one that took a tier-1 record, start none alone (#977): the time the
+    // centiseconds take refills ACMP's bucket, so its record then needs no more time, which would post one too
+    rx = probe.rx;
+    mbx_model_advance_ms(&model, MBX_CH_ACMP_RATE_REFILL_MS * MBX_CH_ACMP_RATE_BURST);
+    const auto before = loop_.stats.ticks;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_GT(loop_.stats.ticks, before) << "L23b the pass dispatches the centiseconds";
+    EXPECT_EQ(probe.rx, rx) << "L23b and none starts alone after a centisecond";
+    for (unsigned k = 0; k < 64u; ++k) {   // the passes that dispatch the rest of them, then the first that does not
+        const auto t = loop_.stats.ticks;
+        static_cast<void>(ctrl_loop_service(&loop_));
+        if (loop_.stats.ticks == t) {
+            break;
+        }
+        EXPECT_EQ(probe.rx, rx) << "L23b nor after each centisecond behind it";
+    }
+    for (unsigned k = 0; k < 8u && probe.rx == rx; ++k) {   // past the passes given whole the time left due
+        static_cast<void>(ctrl_loop_service(&loop_));
+    }
+    EXPECT_EQ(probe.rx, rx + 1u) << "L23b the next ordinary pass, with no centisecond, starts it alone";
+    rx = probe.rx;
+    ASSERT_TRUE(ctrl_loop_bind_rx(&loop_, MBX_CH_ACMP, probe_rx_acmp, nullptr));
+    model.filter_en |= 1u << MBX_CH_ACMP;
+    std::uint8_t a[48];
+    build_frame(a, sizeof a, 0x22F0, 0xFC, 2);
+    std::memset(a + 16, 0, sizeof a - 16u);   // the entity the loop opened as, which the filter's terms name
+    unsigned message = 0;
+    while (message < 16u && !mbx_model_rx(&model, a, sizeof a, 0)) {
+        a[15] = static_cast<std::uint8_t>(++message);
+    }
+    ASSERT_LT(message, 16u) << "(a message the channel takes)";
+    const unsigned acmp = probe.rx_acmp;
+    const auto ticks = loop_.stats.ticks;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_TRUE(probe.rx_acmp == acmp + 1u && loop_.stats.ticks == ticks) << "L23b a tier-1 record alone is taken";
+    EXPECT_EQ(probe.rx, rx) << "L23b and none starts alone after a tier-1 record";
+    for (unsigned k = 0; k < 8u && probe.rx == rx; ++k) {
+        static_cast<void>(ctrl_loop_service(&loop_));
+    }
+    EXPECT_EQ(probe.rx, rx + 1u) << "L23b the next ordinary pass, with no tier-1 record, starts it alone";
+    drain(&loop_);
+    refill();
+    probe.now_step = (CTRL_LOOP_SLICE_US - CTRL_LOOP_SRP_UNIT_US) / 4u;   // room for four at the unit
+    probe.charge_us = CTRL_LOOP_SLICE_US - 2u * probe.now_step;   // the second fits, the third does not
+    static_cast<void>(ctrl_loop_service(&loop_));
+    probe.now_step = 0u;
+    EXPECT_EQ(probe.rx, rx + 2u) << "L23b each record past the first starts only while its slice holds its charge";
+    probe.charge_us = CTRL_LOOP_SRP_UNIT_US;
+    drain(&loop_);
+    loop_.drain_charge = nullptr;
     loop_.drain_ch = 0u;
 }
 

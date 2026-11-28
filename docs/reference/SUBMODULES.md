@@ -23,8 +23,8 @@ Dirty submodules invalidate local evidence.
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `3ce71b768a2f6f6a5274c127080146e755d02275` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `801ef2283ec793e35a2590fc6593c90313a64041` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
-| `third_party/lwSRP` | `d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
-| `third_party/tsn-c-stack` | `c3bff8f3dea03870ea7ae62965db360b509ee3b3` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
+| `third_party/lwSRP` | `e27b34c9231abaa862bdb73f807238b330aa4c51` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
+| `third_party/tsn-c-stack` | `5a07d9b7d87298f04b15aa28f0304ec88b0aef81` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -1185,6 +1185,7 @@ Issue #665 adopts stack pin `715589c1`.
 | [28](https://github.com/kebag-logic/tsn-c-stack/pull/28) (issue 26) | A command behind the full owed set is declined, not dropped; the ACMP adapter keeps it and offers it again after an accepting poll |
 | [33](https://github.com/kebag-logic/tsn-c-stack/pull/33) (issue 31) | The owed-release mask is sized from `ACMP_MAX_SINKS`; one word at the firmware's 16 sinks |
 | [34](https://github.com/kebag-logic/tsn-c-stack/pull/34) (issue 32) | Each ACMP entry walks only the sinks it changed |
+| [36](https://github.com/kebag-logic/tsn-c-stack/pull/36) | ADP's grandmaster-change tests prove a fresh draw in WAITING; tests and documents only, no source change |
 
 Issue #1013 adopts stack pin `a795471c`.
 
@@ -1210,6 +1211,26 @@ Issue #970 adopts stack pin `c3bff8f3`, the merge of PR #40.
 
 The mailbox publishes the stack declaration predicate as `DA_GATE`.
 
+Issue #977 moves the pin to `5a07d9b7`.
+
+| Stack PR | Parent-visible result |
+|---|---|
+| [41](https://github.com/kebag-logic/tsn-c-stack/pull/41), merged as `5a07d9b7` (#977) | An entry's completion walks only its marked sinks, loading each mark word once, and builds the saved binding record and the reported view only where a sink's own fields changed; the calls, their order and their arguments are unchanged (ACMP-13). Tests hold each field of the record's comparison, sink 32's publication and admission, and the view's STREAMING_WAIT |
+
+That commit merges tsn-c-stack PR #41 into `main`.
+
+Its tree is that of branch `977-settle` `0f72ca69`.
+
+The branch held two commits on `main` `a795471c`.
+
+It then merged `main` `c3bff8f3`, PR 40's merge.
+
+Two commits after that added tests only.
+
+Its cut shortens ACMP's completion of each sink.
+
+It adds margin under the [8x8/1if load ceiling](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7213594113).
+
 ## Initialize safely
 
 Firmware and root gates use these five submodules.
@@ -1226,8 +1247,15 @@ git submodule update --init \
 lwSRP uses the HTTPS URL recorded in `.gitmodules`.
 The repository is public; anonymous HTTPS fetch needs no credentials.
 
-The pin is published on `main`.
-It includes PR #12, PR #15 and PR #18.
+The pin is lwSRP `main` `e27b34c9`.
+
+It is the squash merge of lwSRP PR #22.
+
+It holds PR #12, #15, #18 and #21.
+
+Its compiled sources match the earlier pin `73007b48`.
+
+The merge adds comments and an unbuilt restore arm.
 
 The [SRP adapter](../../sw/firmware/ctrl/srp/README.md) documents compilation and ownership.
 
@@ -1236,9 +1264,11 @@ Its pinned `LICENSE` and `NOTICE` retain dependency terms.
 
 tsn-c-stack uses HTTPS and needs no credentials.
 
-The pin is the merge of tsn-c-stack PR 38 on `main`.
+The pin is tsn-c-stack `main` `5a07d9b7`, PR 41's merge.
 
-The previous pin, `715589c1`, is its ancestor on `main`.
+It holds PR 40's merge on `main`, `c3bff8f3`.
+
+The previous pin, `a795471c`, PR 38's merge on `main`, is its ancestor.
 
 The current pin includes #19's `src/adp.c` discovery refusals.
 
@@ -1248,7 +1278,7 @@ It holds the ADP, ACMP and MAAP cores.
 
 The [control firmware](../../sw/firmware/ctrl/README.md) uses its public headers.
 
-tsn-c-stack is licensed under [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/c3bff8f3dea03870ea7ae62965db360b509ee3b3/LICENSE).
+tsn-c-stack is licensed under [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/5a07d9b7d87298f04b15aa28f0304ec88b0aef81/LICENSE).
 
 The unused external import uses SSH.
 
@@ -1293,7 +1323,7 @@ The cleanliness command must print nothing.
 | `gptp-processor` | `make -C gptp-processor` | `make -C tb/verilator/gptp_shadow` |
 | `third_party/verilog-axis` | Upstream evidence | `make -C tb/verilator/queues` |
 | `third_party/lwSRP` | cgreen and behave | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
-| `third_party/tsn-c-stack` | [Quality workflow](https://github.com/kebag-logic/tsn-c-stack/blob/c3bff8f3dea03870ea7ae62965db360b509ee3b3/.github/workflows/quality.yml) | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
+| `third_party/tsn-c-stack` | [Quality workflow](https://github.com/kebag-logic/tsn-c-stack/blob/5a07d9b7d87298f04b15aa28f0304ec88b0aef81/.github/workflows/quality.yml) | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
 | `external` | Upstream evidence | Not applicable; no active product consumer |
 
 ## Known documentation conflicts

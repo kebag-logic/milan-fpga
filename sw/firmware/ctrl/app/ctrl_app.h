@@ -100,6 +100,14 @@ struct ctrl_app {
 	// interface's record (srp_interface.noticed), and the AECP bridge notifies each and clears it (ctrl_app_aecp.c).
 	uint32_t srp_noticed;
 	bool adp_held;                          // ctrl_app_open_held(): ADP waits for ctrl_app_release_adp()
+	// ACMP's completion of the sinks SRP's Talker registrations changed, owed by a pass whose drain took a record to
+	// the next ordinary pass's THE SETTLE (ctrl_loop.h; CTRL_LOOP_SETTLE_ALONE, ctrl_app_srp.c, #977).
+	bool srp_settle_owed;
+	// The sinks a delivery takes its one binding change and its one loss completion from, each the sink after the last
+	// it took (ctrl_app_srp.c, deliver; #977's ruling of 2026-11-27 on the delivery bound, item 2).
+	uint8_t srp_bind_turn;
+	uint8_t srp_loss_turn;
+	bool srp_lost_last;                     // the last delivery's SRP work was a loss completion
 };
 
 struct ctrl_app_config {

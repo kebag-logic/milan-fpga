@@ -505,6 +505,17 @@ bool mbx_rx_waiting(unsigned ch, uint16_t mark)
     return (uint16_t)(mark - rx_tail[ch] - 1u) < 0x7fffu;
 }
 
+uint16_t mbx_rx_next_len(unsigned ch)
+{
+	return (uint16_t)mbx_field(rx_word(ch, rx_tail[ch]), MBX_RXREC_W0_LEN_LSB, MBX_RXREC_W0_LEN_WIDTH);
+}
+
+uint8_t mbx_rx_next_byte(unsigned ch, unsigned at)
+{
+	// byte k of a frame is ring word k / 4 past the header, lane k % 4 (mbx_wire.h)
+	return (uint8_t)(rx_word(ch, (uint32_t)rx_tail[ch] + MBX_RX_HDR_WORDS + at / 4u) >> (8u * (at % 4u)));
+}
+
 // The payload's words in ring order from ring index at, each whole word but a
 // short last one; a frame that starts on a word gives each whole word in one
 // load. The two loops stay apart, or the compiler takes the byte form for
@@ -664,6 +675,22 @@ static void event_decode(struct mbx_event *ev, uint32_t w1, uint32_t w2, uint32_
 		ev->count = (uint16_t)mbx_field(w1, MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_LSB, MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_WIDTH);
 		ev->now_ms = w3;
 	}
+}
+
+bool mbx_tick_pending(void)
+{
+	const uint16_t head = counter(MBX_REG_EVT_HEAD);
+	const uint16_t words = (uint16_t)(head - evt_tail);
+	if (words > MBX_EVT_WORDS) {
+		return true;
+	}
+	for (unsigned n = 0; n < words; n += MBX_EV_WORDS) {
+		const uint32_t word = evt_word((uint32_t)evt_tail + n);
+		if (mbx_field(word, MBX_EVREC_W0_TYPE_LSB, MBX_EVREC_W0_TYPE_WIDTH) == MBX_EV_TYPE_TICK) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool mbx_event_take(struct mbx_event *ev)

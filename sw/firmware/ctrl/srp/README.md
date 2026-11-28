@@ -38,7 +38,8 @@ and fund up to 12 Talkers kept for StreamIDs no binding holds, one for each sink
 The arena includes conservative allocator overhead for each block.
 Receive-interest filters retain every valid Class A Domain value, output Listener
 IDs, bound input Talker IDs and required VLANs, and up to `SRP_KEPT_TALKERS` Talker
-attributes of StreamIDs no binding holds (#969, below).
+attributes of StreamIDs no binding holds (#969, below), at most V less the
+interface's bound sinks (`SRP_RECORD_VALUES`, below).
 Quiescent, undeclared MT attributes are reclaimed under Table 10-3 note 11.
 `refused` counts unsuccessful attempts, including retries, rather than records.
 Exhaustion is counted and refused; it cannot overwrite another reservation.
@@ -87,6 +88,7 @@ A Listener's change is copied where lwSRP reports it, as the walk copies that Li
 Otherwise it keeps the copies and runs each sink's capture, as a walk would, so a record that changes no registration walks nothing (`srp_mbx.walks` counts the walks).
 The receive filter, the indications and the walk compare each StreamID and destination MAC with `same`, an equality test that stops at the first byte that differs, from the last: one talker's StreamIDs differ in their unique ID, the last two bytes (IEEE 802.1Q-2018 35.2.2.8.2), so a record's comparisons no longer pay `memcmp`'s alignment checks and the byte loop that orders a difference (#665).
 A Listener is looked up among the sources once a use (`sources_of`), its StreamID compared with a source's only where their last bytes agree, so each other source of the shape costs that one compare and no call ([#665's ruling of 2026-11-20](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-7029526172), item 3).
+The kept list's search of a Talker no binding holds (`keep_talker`) and the held table's (`held_stream`) compare the last bytes first in the same way, and each scans its list only where a StreamID it lists ends in the same octet, which a set of 256 bits a list records (`kept_octets`, `held_octets`); each copies a StreamID an octet at a time, where a call of `memcpy` cost the control CPU about 400 cycles. So a record that keeps every input's Talker unbound pays one test for each, not a scan and two calls (#977).
 The receive filter recomputes each sink's declaration from the first Talker indication of the receive on, the only change it reads, which marks the interface stale; before it every sink holds what the snapshot before the receive left (same ruling).
 The reclaim of freeable attributes is owed only where one may arise, and stays owed while the participant holds the owed frame (same ruling).
 lwSRP frees an attribute whose Registrar is MT and whose Applicant is VO, AO or QO, and reports every change of either state to the adapter's observer but an attribute's creation, at VO and MT.
@@ -146,6 +148,17 @@ After SRP's poll returns, a composition poll calls
 `srp_mbx_bind(interface, sink, identity, destination, VID)` for pending requests.
 The sink index and its configured interface are preserved independently.
 An accepted request retires; transient refusal stays pending and keeps the loop awake.
+One delivery makes at most one binding change, and outside THE SETTLE at most one loss completion (#977, [its
+ruling of 2026-11-27 on the delivery bound](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7212897415),
+item 2).
+Each is the first owed from its turn, the sink after the last it made; where both are owed, a delivery makes only
+the kind the last one did not, so an owed one waits at most 2 x `n_sinks` deliveries of passes that took no SRP record.
+A pass that carries an SRP record alone makes no binding change: the change stays pending, owed to the next delivery
+(#977, [its ruling of 2026-11-27 on the alone records](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7216582862),
+item 4). The rest stay pending and keep the loop awake. THE SETTLE still completes every loss it owes.
+THE TRANSMIT waits on none of them: several reservations ended at once withdraw across MRPDUs, the first in the next
+and each later one in the MRPDU after its delivery, within a JoinTime (IEEE 802.1Q-2018 10.7.4.1, Table 10-7).
+A probe response that overtakes a pending unbind replaces it in the request slot, so its Listener stays declared.
 Permanent VID refusal parks until a new ACMP request, as described above.
 Unbind or replacement supersedes that sink's previous pending request.
 Keep both objects alive until loop service stops, then destroy SRP and the pool.
@@ -418,7 +431,17 @@ keeps a Talker attribute of a StreamID none of the interface's bindings holds,
 one already kept or while the interface keeps fewer than `SRP_KEPT_TALKERS`, one
 for each STREAM_INPUT of the shape, each a pool block of the fixed 16; the
 release processor's listener keeps the same count of port registrars
-(`KL_srp_listener_fsm.sv`, protocol-processor #212). Its registration is then
+(`KL_srp_listener_fsm.sv`, protocol-processor #212).
+The Talkers one record can register are bounded at V, `SRP_RECORD_VALUES`:
+4 at 1x1/1if and 9 at 8x8/1if ([#977's ruling of
+2026-11-27](https://github.com/kebag-logic/milan-fpga/issues/977#issuecomment-7210763364),
+item 2). The filter keeps at most min(`SRP_KEPT_TALKERS`, V - bound sinks),
+so a record registers at most V, and THE DRAIN charges each Talker vector
+at most V. At 1x1/1if this keeps a Talker for every input, as before. At
+8x8/1if it is one kept Talker for each unbound STREAM_INPUT (#1023). With
+every input bound nothing is kept, and a rebind to a Talker not registered
+completes at that Talker's next declaration, at the latest after a LeaveAll
+(IEEE 802.1Q-2018 Table 10-3 and 10.7.8's NOTE; Milan v1.2 5.5.3.5.18 step 4). Its registration is then
 the registrar's, and the walk a binding made later owes takes it as one made
 after the binding is taken; the binding declares in THE TRANSMIT's next MRPDU.
 A receive starts from exactly the attributes kept: before it, outside lwSRP's
@@ -495,6 +518,12 @@ The poll builds no MRPDU and declares nothing: THE TRANSMIT does both (`ctrl_loo
 An MRPDU owed takes a tier-2 slice of a pass given whole, the first the loop gives after a pass that left tier 1 no record to take (THE TIERS, `ctrl_loop.h`, #894), so no pass that takes a record carries a build.
 What owes that pass: a participant's join count ending, a LeaveAll where no join timer holds it (IEEE 802.1Q 10.7.4.1, Table 10-5), an Applicant moved outside a build with its own join timer idle, a walk that changes a binding's declaration, an unbinding that withdraws a declared Listener or VLAN, a new participant, or the first link up (a binding itself owes none: the walk that finds its declaration does).
 lwSRP arms a join timer as it sends and reports no expiry, so the adapter keeps the same count, restarted by what a build sent and by nothing else.
+Before accepting a transmit slice, the adapter waits for posted centiseconds
+and the loop's undispatched ticks to be consumed. The bounded event-ring scan
+does not consume records and ignores other event types, so grandmaster changes
+cannot hold a build back. A tick posted during the previous ordinary pass must
+age the existing timers before a build arms a new join timer. This preserves
+the timer schedule when MAAP demand refresh changes the polling cadence.
 The call makes every interface's declarations, then sends both MRPDUs of the first interface that owes one (`SRP_MBX_TRANSMIT_FRAMES`, `srp_bounds.h`), and the next such pass takes the next interface; then it makes that interface's declarations again, for what a first VLAN send licensed.
 A slice holds `CTRL_LOOP_BUILD_MOST` MRPDUs, one at every point (a 950 us slice at 1x1/1if, against 1,010 us for both of an interface's MRPDUs, `CTRL_LOOP_BUILD_PASS_US`; 1,475 us at 8x8/1if against 1,795, each stated for its shape, THE SHAPES in `ctrl_loop.h`): a build the slice cannot hold stops after them, reclaims as the next build would, and resumes in the next slice at the next participant (`tx_resume`) with its declarations already made, so the frames are those of the build made whole (`Srp.ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole`); an interface reset ends the build it was resuming. The pause takes its interface's due, and the build waiting for its next slice is THE TRANSMIT's due and the poll's owed (`tx_owed`, the due and `tx_resume` read whole), so what comes due between the two slices, a join timer's end among the centiseconds dispatched there or a declaration another pass made owed, is owed again once the build ends, as after a build made whole, a build with nothing due between its slices ends owing nothing, what its own sends moved included, and a frame the ring refuses in the second slice stays the poll's with its interface due, as in a build made whole (A3) (#956; `Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue`). Before it, the resumed slice's end cleared a due a join timer's end set again between the slices, so a declaration that timer held waited for the next periodic MRPDU, past two longest LeaveAll periods after a withdrawal with the loop held (`Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning`, and `EveryPhase/TalkerPhase.*`, every centisecond of a second, the loop held and serviced).
 An MRPDU a join, periodic or LeaveAll timer owes now waits for tier 1's records. At 1x1/1if it is held within 49 ms of the centisecond that owes it ([#894's ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6840564634), item 1; [its contingent ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6858269025), item 3; [its egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1): `CTRL_LOOP_TX_BOUND_MS`, the most lateness the MRP timer budget holds, since the join timer is armed as an MRPDU is committed and the armed join time (`CTRL_LOOP_JOIN_CS`, 190 ms, which `SRP_JOIN_CS` configures lwSRP with) plus the lateness and the frame's `T_egress` (`CTRL_LOOP_T_EGRESS_MS`, 1 ms) must stay within Milan Table 4.3's 240 ms. By every source it is 34.00 ms there at the slice rule's 900 us, the last queued notice's bound at 140 ms, at the Talker declarations' costs composed with #894's SET_CONFIGURATION cut and measured again, which `CTRL_LOOP_TX_MS` states as 34 ms, and 35 ms since GET_AS_PATH's read composed with them puts the row at 34.20 (#897) (34.05 at 950 us after the one cut, 33.88 at the composed tables, 33.69 before that cut, 33.64 at 900 us, 33.39 at the edit cut's composed tables, 33.20 before that cut, 33.01 at its own; `rows_tiers.py`, the tx row, which `CTRL_LOOP_TX_MS` states as 35 ms; `ctrl_loop.c` holds it to the bound at compile time; #895), and the flip check holds it with every AECP notice the largest legal one too (txL) ([FR_NFR.md 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
@@ -504,6 +533,13 @@ No declaration is made while a retained receive waits, so none takes the room it
 A frame a build left owed is the poll's: it sends it, one a pass, in every pass, and no pass goes to a build until it is sent.
 The poll reclaims the attributes lwSRP may free, so a record the next pass takes finds the room.
 SRP's records are tier 2's first (THE TIERS, `ctrl_loop.h`, #894): a pass takes them only once tier 1's takes left none, in a slice ending `CTRL_LOOP_SLICE_US` after the pass started, a record started only while the slice holds `CTRL_LOOP_SRP_UNIT_US`, stated for each shape (THE SHAPES; at 8x8/1if 375 us, its heaviest record plus 5 %, on #665's final head with its cuts, [#665's ruling of 2026-11-18, re-ruled](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6972255348), item 2b), and a record follows only the events posted before it, by ring position.
+A record that can register Talkers is charged more ([#977](https://github.com/kebag-logic/milan-fpga/issues/977), its ruling of 2026-11-23, item 4): `rx_charge` reads the record in the ring before lwSRP parses it, its MSRP Talker Messages' vectors each at most `CTRL_SRP_SINKS` values (the receive filter takes a Talker value only for a bound sink's StreamID, and a vector's values are distinct StreamIDs), every other Message skipped by its AttributeListLength and nothing past the PDU's EndMark, and the drain charges the unit plus `CTRL_LOOP_SRP_REG_US` for each such value (125 us at 8x8/1if, 110 at 1x1/1if, 0 at the two-interface shapes).
+The record starts only while its slice holds that charge, the records behind it waiting in ring order; one alone in its slice, the first of a pass that settled nothing, took no tier-1 record and dispatched no centisecond, starts on the unit, so none waits for good and none is dropped (`Loop.L23bTheDrainChargesARecordAndSettlesFirst`, `Srp.TheDrainChargesARecordTheTalkersItsVectorsCanRegister`).
+At both one-interface shapes ACMP's completion of the sinks a record's Talker indications changed (`ctrl_app_srp.c`, `complete`) is not made in the polls of the pass whose drain took the record: that delivery owes it to THE SETTLE, the next ordinary pass's first work, before its events, from each binding's latest kind (`CTRL_LOOP_SETTLE_ALONE`).
+At 8x8/1if a TRANSMIT call whose declarations re-declared a Listener or joined a VLAN ends after them, and the next pass given whole builds the MRPDU, SRP's records held until it does (`rx_order_ready`), so no record comes between the declarations and their frame (`CTRL_LOOP_DECLARE_ALONE`; ruling item 3).
+The one-interface shapes build lwSRP with its end-station options through the shape header (`srp_entity.py`): the lookup buckets, no MAP work at one port, no zeroing in the parser's validation pass, no leave timer event for a Talker the Milan rapid leave replaced (`LWSRP_RAPID_REPLACE`), no copy past what is used (`LWSRP_LEAN_COPY`), no tx! to an Applicant it leaves as it is (`LWSRP_LEAN_TX`), and at 8x8/1if alone the merged Message build, which reverses a Message encoded strictly descending in place ([lwSRP's integrator guide](https://github.com/kebag-logic/lwSRP/blob/opt-exec-3/doc/integrator.md#one-port-propagation)).
+A Talker's indication, the receive filter, the kept count and the registrar walk find a StreamID's bound sinks through each interface's sink index, the sinks in the lane of their StreamID's last byte, which every binding rebuilds (`index_sinks`), so none visits every sink for each attribute; the declarations compare StreamIDs by their last byte first; and a Listener declaration owes the walk only where a source talks its StreamID, the only registration it copies (#977, its ruling of 2026-11-23, item 5; `Srp.EveryBindingInASinkLaneTakesItsOwnStreamsTalkersAlone`, `Srp.ADeclarationOfAStreamNoSourceTalksOwesNoWalk`).
+Without MAP work at one port, a receive whose only allocation was a propagation reservation is no longer refused when the pool is spent; a receive is still refused where an attribute cannot be created, after the values before it applied, and retried whole.
 The composed burst's last record is a row by every source against SRP's 90 ms (R5, R6; decision D, [`rows_tiers.py`](../../../../tb/verilator/ctrl_service_budget/rows_tiers.py)).
 lwSRP's periodic transmission had built all four MRPDUs at two interfaces in one pass of 8.7 ms on the split core, against the share of 2.0 ms (`ctrl_loop.h`).
 SRP RX waits behind that owed record; Registrar clocks continue to run.
@@ -726,7 +762,9 @@ source MAAP has allocated, no split source holds a licence. Each source's
 [maap README](../maap/README.md)), and that check's `[SID]` holds a split
 talker's stream frames to the stream_id its Talker Advertise declares.
 
-The lwSRP pin is public `main` at `d1bb4f4e`, which merges PR #21: an Applicant takes one event at its own LeaveAll (lwSRP #20).
+The lwSRP pin is its `main` at `e27b34c9`, the squash merge of PR #22 on `d1bb4f4e`, which merges PR #21 (an Applicant
+takes one event at its own LeaveAll, lwSRP #20), with the optimisation line's build options, every one off by default.
+[lwSRP PR #22](https://github.com/kebag-logic/lwSRP/pull/22) merged as `e27b34c9`, with the compiled sources of its branch `opt-exec-3` (`73007b48`).
 Its PR #18 sends one Message per AttributeType in each MRPDU (IEEE 802.1Q-2018 10.8.1.2).
 Decoded events are unchanged; the H-SRP LeaveAll walk reads every vector to each EndMark.
 Round 6 adapts to its recoverable receive-allocation contract.

@@ -5,7 +5,9 @@ slices of at most a stated length, and a gate fails any slice over it). The leng
 at the point's shape (shape_costs.py, THE SHAPES), and each slice is measured from where the loop starts it:
 
 - SRP's records in an ordinary pass (THE DRAIN's channel), from the pass's start to the end of its last record's
-  handler, srp_mbx's receive (a SPAN line);
+  handler, srp_mbx's receive (a SPAN line). A pass of one record, which THE DRAIN may take alone whatever its charge, is
+  held to the larger of the slice and ctrl_loop.h's CTRL_LOOP_ALONE_US at the shape (#977's ruling of 2026-11-27 on the
+  alone records, item 1: the slice stays as stated); a pass of more records to the slice;
 - a pass given whole to THE TRANSMIT's build, from its start to its end, THE RETRY's round after the build in the same
   slice (the build is the ENTRY of build_mrpdu inside the pass);
 - every other round of THE RETRY, ctrl_loop.c's round_of (a SPAN line), from its own start: an aged step's, whose slice
@@ -27,6 +29,7 @@ import shape_costs
 
 #: The stated slice length and the spans that end or make a slice.
 SLICE = 'CTRL_LOOP_SLICE_US'
+ALONE = 'CTRL_LOOP_ALONE_US'
 RECORD = 'srp_mbx:receive'
 ROUND = round_grade.ROUND
 BUILD = mrpdu_grade.BUILD
@@ -36,6 +39,12 @@ def stated_us(interfaces: int | shape_costs.Shape) -> int:
     """The slice length ctrl_loop.h states at a shape, or at that many interfaces at the shipping shape's streams
     (shape_costs.at; #894's shape ruling, item (b)), in microseconds."""
     return shape_costs.at(interfaces, scenario.ROOT)[SLICE]
+
+
+def alone_us(interfaces: int | shape_costs.Shape) -> int:
+    """The length a pass of one SRP record is held to at a shape, in microseconds: the larger of the slice and the
+    pass of a record THE DRAIN takes alone, as ctrl_loop.h states them there."""
+    return max(stated_us(interfaces), shape_costs.at(interfaces, scenario.ROOT)[ALONE])
 
 
 def claimed(inside: list[tuple[int, int, int, str]]) -> set[int]:
@@ -64,7 +73,7 @@ def slices(log: grade.Log) -> list[dict]:
             continue
         records = [(cpu, cpu + cycles) for cpu, cycles, _, label in inside if label == RECORD]
         if records:
-            out.append(dict(kind='srp', start_sys=p.start_sys,
+            out.append(dict(kind='srp', start_sys=p.start_sys, records=len(records),
                             cycles=max(end for _, end in records) - origin(p, records)))
     out += [dict(kind='round', start_sys=sys, cycles=cycles) for cpu, cycles, sys, label in spans
             if label == ROUND and cpu not in held_rounds]
@@ -72,9 +81,13 @@ def slices(log: grade.Log) -> list[dict]:
 
 
 def held(log: grade.Log, interfaces: int | shape_costs.Shape) -> dict:
-    """Each kind's longest slice, the point's stated length in CPU cycles (at its shape), and each slice over it."""
+    """Each kind's longest slice, the point's stated length in CPU cycles (at its shape) and a one-record pass's
+    (alone_us), and each slice over the length it is held to."""
     limit = stated_us(interfaces) * log.cpu_hz // 1_000_000
+    alone = alone_us(interfaces) * log.cpu_hz // 1_000_000
     every = slices(log)
     longest = {kind: max((s['cycles'] for s in every if s['kind'] == kind), default=0)
                for kind in ('srp', 'build', 'round')}
-    return dict(slices=len(every), longest=longest, limit=limit, over=[s for s in every if s['cycles'] > limit])
+    return dict(slices=len(every), longest=longest, limit=limit, alone=alone,
+                over=[dict(s, held=alone, held_as='pass alone') if s.get('records') == 1 else s for s in every
+                      if s['cycles'] > (alone if s.get('records') == 1 else limit)])

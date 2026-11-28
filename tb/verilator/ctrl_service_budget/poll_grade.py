@@ -105,8 +105,20 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: At 1x1/1if on the SRP cut's head, measured over every arm and group, the AECP notice item 150 us (14,084 CPU cycles
 #: in the declaring-outputs arm's aecp-fanout; 210 before) and a notice longer than AECP_FAN_BYTES 315 (29,652 in arm
 #: A's aecp-largest-notice; 365 before), each restated from its measurement by the rule by ruling item 4 of 2026-11-20,
-#: as the owner decided (#665).
-ONE = dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=285, mrpdu=0, acmp=55, aecp=150,
+#: as the owner decided (#665). With #977's change (the drain's charge, THE SETTLE, lwSRP's one-interface options),
+#: measured over every group of every arm on its image (3de17804), the walk is 7,289 cycles in the default (none) arm's
+#: srp-register-burst, a registrar walk after a record that replaced both inputs' Talkers, 80 us by the rule (7,025 at
+#: the base, dd163e41); every other item's measurement is within this table's, the AECP notice item's 14,370 cycles
+#: in the answering-every-port arm's notice-every-0 (14,084 at the base) within its 150 us, not restated: with the
+#: rule's 5 % it would state 155, which moves the last queued notice's row past AECP_QUEUED_MS, the stated 130 ms
+#: (the queued rule's figure; the owner's bound is 140 ms). With #977's sink index change the walk after a registering
+#: record is gone (the sink index, a declaration's walk owed only for a source's StreamID): its heaviest in that group
+#: 343 cycles, so the walk is stated 35 us again, as before the drain and settlement change, within it every arm's.
+#: With #977's completion cut (the tsn-c-stack completion cut and the hot list relearned on it) the AECP notice item is
+#: 15,464 CPU cycles in the answering-ports arm, the most over every arm and group, 165 us by the rule, restated by the
+#: ruling of 2026-11-26 on #977 (item 1), so the last queued notice's bound is 135 ms (queued_bound.py; the owner's
+#: stays 140).
+ONE = dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=285, mrpdu=0, acmp=55, aecp=165,
            aecp_long=315, acmp_declined=20)
 TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=0, acmp=70, aecp=275,
            aecp_long=700, acmp_declined=20)
@@ -134,14 +146,25 @@ TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=36
 #: arm and group: 8x8/1if a notice longer than AECP_FAN_BYTES 30,948 CPU cycles (the declaring-outputs arm's
 #: aecp-largest-notice; arm A's 30,912), 325 us by the rule (record_classes.rule), raised with every owner bound
 #: still held (#665's ruling of 2026-11-23 on the #958 sync's STOP: a further statement over is raised by the same
-#: rule while every owner bound holds).
-EIGHT_ONE = dict(base=300, withdraw=110, rebuild=590, walk=120, reclaim=40, retained=375, mrpdu=0, acmp=80, aecp=145,
+#: rule while every owner bound holds). With #977's change (the drain's charge, THE SETTLE, lwSRP's one-interface
+#: options), measured over every group of every arm on its image (f7d07720, the image 3de17804 links unchanged
+#: there), the walk is 18,004 cycles in the default (none) arm's srp-register-burst, a registrar walk after a record
+#: that replaced every input's Talker, 190 us by the rule (18,694 at the base, dd163e41); every other item is within
+#: this table's. With #977's sink index change that walk is gone (its heaviest in the burst 637 cycles), so it is
+#: stated 120 us again, as before the drain and settlement change, within it every arm's. With #977's delivery bound
+#: (one binding change or loss completion a delivery), measured over every registering group of both arms at e62e1936,
+#: the base is 33,137 cycles in srp-register-swap and the walk 14,270 there, restated by the rule at 350 and 150 us
+#: (#977's ruling of 2026-11-27 on the alone records, item 2: no finer split of the delivery).
+EIGHT_ONE = dict(base=350, withdraw=110, rebuild=590, walk=150, reclaim=40, retained=375, mrpdu=0, acmp=80, aecp=145,
                  aecp_long=325, acmp_declined=30)
 STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_ONE, shape_costs.Shape(2, 2, 2): TWO,
              shape_costs.Shape(2, 9, 9): TWO}
 
 
-#: An SRP record's own apply (srp_mbx:apply_receive outside the polls), held to the retained item's stated cost.
+#: An SRP record's own apply (srp_mbx:apply_receive outside the polls), held to THE DRAIN's charge of it (#977, its
+#: ruling of 2026-11-23, item 4): the retained item's stated cost, the unit, and for a frame of the group's own the
+#: registration's stated cost (ctrl_loop.h, CTRL_LOOP_SRP_REG_US) for each Talker value it can register, counted here
+#: from its bytes as srp_mbx.c's rx_charge counts them (talker_values), so the firmware's count is held, not read.
 RECORD = 'record'
 #: An aecp item that committed a notice longer than AECP_FAN_BYTES, held to its own stated cost.
 LONG = 'aecp_long'
@@ -293,7 +316,87 @@ def offered(traced: dict, sends: int, limits: dict) -> tuple[dict, list[dict]]:
     return heaviest, over
 
 
-def held(log: grade.Log, interfaces: int | shape_costs.Shape) -> dict:
+def talker_values(frame: bytes, most: int) -> int:
+    """The Talker values an SRP record can register, as srp_mbx.c's rx_charge bounds them (#977): an MSRP record's
+    Talker Messages' vectors, at most `most` (V, record_values) a vector, a vector of no values (a LeaveAll's) skipped
+    by its FirstValue with the walk going on, only a VectorHeader of 0 ending a Message's vectors (IEEE 802.1Q-2018
+    10.8.1.2, 10.8.2.8), every other Message skipped by its AttributeListLength, none past the PDU's EndMark, and past
+    eight Messages the rest at `most` for each 28 octets."""
+    if len(frame) <= 15 or frame[12:14] != b'\x22\xea':
+        return 0
+    at, values = 15, 0
+    for messages in range(1 << 16):
+        if at + 4 > len(frame):
+            break
+        if messages == 8:
+            return values + most * ((len(frame) - at) // 28)
+        kind, alen, length = frame[at], frame[at + 1], int.from_bytes(frame[at + 2:at + 4], 'big')
+        if kind == 0 and alen == 0:
+            break
+        at += 4
+        end = len(frame) if length > len(frame) - at else at + length
+        while kind in (1, 2) and at + 2 <= end:
+            header = int.from_bytes(frame[at:at + 2], 'big')
+            if header == 0:
+                break
+            count = header & 0x1FFF
+            values += min(count, most)
+            at += 2 + alen + (count + 2) // 3
+        at = end
+    return values
+
+
+def record_values(shape: shape_costs.Shape) -> int:
+    """SRP_RECORD_VALUES at a shape (srp_mbx.h, V; #977, its ruling of 2026-11-27 on the population bound, item 2),
+    the bound and the kept together where its chain's #else states it."""
+    text = (scenario.ROOT / 'sw/firmware/ctrl/srp/srp_mbx.h').read_text()
+    chain = r'#(?:el)?if CTRL_LOOP_SHAPE\((\d+)u, (\d+)u, (\d+)u\)\n#define SRP_RECORD_VALUES (\d+)u'
+    for *head, v in re.findall(chain, text):
+        if shape_costs.Shape(*map(int, head)) == shape:
+            return int(v)
+    return 2 * shape.sinks
+
+
+def registration_us(shape: shape_costs.Shape) -> int:
+    """CTRL_LOOP_SRP_REG_US at a shape (ctrl_loop.h, THE DRAIN's registration cost after THE SHAPES), 0 where its
+    chain's #else states it."""
+    text = (scenario.ROOT / shape_costs.HEADER).read_text()
+    chain = text[text.index("// THE DRAIN's registration cost"):]
+    chain = chain[:chain.index('#endif')]
+    pattern = r'#(?:el)?if CTRL_LOOP_SHAPE\((\d+)u, (\d+)u, (\d+)u\)\n#define CTRL_LOOP_SRP_REG_US (\d+)u'
+    for *head, us in re.findall(pattern, chain):
+        if shape_costs.Shape(*map(int, head)) == shape:
+            return int(us)
+    return int(re.search(r'#else\n#define CTRL_LOOP_SRP_REG_US (\d+)u', chain)[1])
+
+
+def own_frames(steps: list[str]) -> dict[str, bytes]:
+    """The group's tagged frames, by tag: a step `frame <interface> <hex> <tag>` (scenario.tagged)."""
+    return {words[3]: bytes.fromhex(words[2]) for words in (step.split() for step in steps)
+            if len(words) == 4 and words[0] == 'frame'}
+
+
+def record_limits(log: grade.Log, traced: dict, interfaces: int | shape_costs.Shape, unit: int,
+                  steps: list[str]) -> list[tuple[int, int]]:
+    """Each SRP record handler's (CPU cycle it started, the record's stated cost in CPU cycles): the k-th handler's
+    record is SRP's k-th commit, and a frame of the group's own is charged its Talker values (talker_values)."""
+    shape = shape_costs.shape(interfaces, scenario.ROOT)
+    reg = registration_us(shape) * log.cpu_hz // 1_000_000
+    frames = own_frames(steps)
+    tags = [tag for _, ch, _, tag, _ in log.rxc if ch == scenario.CH['srp']]
+    most = record_values(shape)
+    return [(start, unit + reg * talker_values(frames.get(tags[k], b''), most) if k < len(tags) else unit)
+            for k, (start, _, _) in enumerate(traced.get(poll_items.RECEIVE, []))]
+
+
+def charged(limits: list[tuple[int, int]], start: int, unit: int) -> int:
+    """The stated cost of the SRP record whose apply starts at start: its handler's, the last that started before
+    it, or the unit."""
+    k = bisect_left(limits, (start, -1)) - 1
+    return limits[k][1] if k >= 0 else unit
+
+
+def held(log: grade.Log, interfaces: int | shape_costs.Shape, steps: list[str] = ()) -> dict:
     """Each pass's base and each item against its stated cost in CPU cycles: the passes, the heaviest of each, every
     one over its cost, and each LONG item."""
     limits = {kind: us * log.cpu_hz // 1_000_000 for kind, us in stated_us(interfaces).items()}
@@ -318,14 +421,16 @@ def held(log: grade.Log, interfaces: int | shape_costs.Shape) -> dict:
     found, beyond = offered(traced, sends, limits)
     heaviest.update(found)
     over += beyond
-    # each SRP record's own apply: an apply_receive call in no pass's polls
+    # each SRP record's own apply: an apply_receive call in no pass's polls, held to its charge (#977)
     polls = [(start, end) for start, end, _ in every]
+    of = record_limits(log, traced, interfaces, limits[RECORD], list(steps))
     for s, cycles, s_sys in traced.get(ITEMS['retained'][0], []):
         k = bisect_left(polls, (s + 1, -1)) - 1
         if k >= 0 and polls[k][0] <= s < polls[k][1]:
             continue
         heaviest[RECORD] = max(heaviest[RECORD], cycles)
-        if cycles > limits[RECORD]:
-            over.append(dict(kind=RECORD, start_sys=s_sys, cycles=cycles))
+        limit = charged(of, s, limits[RECORD])
+        if cycles > limit:
+            over.append(dict(kind=RECORD, start_sys=s_sys, cycles=cycles, limit=limit))
     # each LONG item, (the bus cycle its pass's polls began, CPU cycles): a long notice's polls, reported
     return dict(passes=len(every), heaviest=heaviest, limits=limits, over=over, long=sent)

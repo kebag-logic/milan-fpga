@@ -6,6 +6,7 @@ import shutil
 from ctrl_build import CTRL, ROOT, Tree, Refusal, Outcome
 import fw_gtest
 from srp_arms import DEFAULT_ENTITY, arm_srp
+import srp_deliver_mutants
 import srp_pub_mutants
 import srp_reopen_mutants
 import srp_compare_mutants
@@ -15,6 +16,8 @@ import srp_talker_mutants
 import srp_listener_mutants
 import srp_kind_mutants
 import srp_reclaim_mutants
+import srp_drain_mutants
+import srp_lane_mutants
 import srp_early_mutants
 import srp_link_mutants
 def caught(test: str, needle: str, outcome: Outcome) -> bool:
@@ -50,14 +53,14 @@ class Defect:
     also: tuple[tuple[str, str], ...] = ()   # further (old, new) edits of the same file, each at one site
     entity: str = ""   # the config the two-interface campaign plants it at (default the 1x1 entity)
 
+#: The delivery's accumulator of what stays owed, the line three defects plant at (ctrl_app_srp.c, deliver).
+PENDING = 'pending = r->pending || (delivered(r) && s->withdrawn) || pending;'
 DEFECTS = (
-    Defect('four-way-f3b-listener-not-forwarded',
-           'AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate',
+    Defect('four-way-f3b-listener-not-forwarded', 'AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate',
            'app->srp->ifs[interface].listener_present[source]', 'false',
            'registered Listener controls only its source interface gate',
            path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
-    Defect('f3b-listener-wrong-interface',
-           'AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate',
+    Defect('f3b-listener-wrong-interface', 'AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate',
            'app->srp->ifs[interface].listener_present[source]',
            'app->srp->ifs[(interface + 1u) % MBX_N_IF].listener_present[source]',
            'registered Listener controls only its source interface gate',
@@ -150,8 +153,8 @@ DEFECTS = (
     Defect(
         name='rx-overtakes-expiry',
         test='ExpiryBacklogPrecedesSamePassReceive',
-        old='return m->owed_len == 0 && m->loop->ticks_owed == 0;',
-        new='return m->owed_len == 0;',
+        old='return m->owed_len == 0 && m->loop->ticks_owed == 0 && !m->declared_alone;',
+        new='return m->owed_len == 0 && !m->declared_alone;',
         needle='adapter.stops',
         path='srp/srp_mbx.c',
         suite='srp_mbx.cpp',
@@ -715,10 +718,10 @@ DEFECTS = (
            'app->srp,interface,sink,r->bound', 'app->srp,interface,0u,r->bound',
            'binding delivered', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('binding-refusal-dropped','SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry',
-           'pending = r->pending || pending;', 'r->pending = false; pending = r->pending || pending;',
+           PENDING, 'r->pending = false; ' + PENDING,
            'binding delivered', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('binding-owed-retry-dropped','SrpBinding.OwedTransmissionRetriesAfterCommit',
-           'pending = r->pending || pending;', 'r->pending = false; pending = r->pending || pending;',
+           PENDING, 'r->pending = false; ' + PENDING,
            'binding delivered', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('binding-unbind-lost','SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding',
            'r->bound = stream != NULL;', 'if (!stream) { return; }\n    r->bound = true;',
@@ -773,8 +776,8 @@ DEFECTS = (
            'acmp_tk_registered(&app->acmp.acmp,sink,false)',
            'Failed flag reaches ACMP', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('feedback-withdrawal-missing','SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes',
-           'if (s->withdrawn)',
-           'if (false)',
+           'if (s->withdrawn && lose)',
+           'if (false && lose)',
            'withdrawal reaches ACMP', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('feedback-sink-crossed','SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity',
            'uint8_t registered = s->feedback_kind;',
@@ -789,8 +792,8 @@ DEFECTS = (
            'if ((void)state, registered)',
            'unchanged registration is delivered once', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('binding-park-keeps-old','SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding',
-           'r->pending = app->srp->ifs[interface].sinks[sink].bound &&',
-           'r->pending = false &&',
+           'r->pending = s->bound && (sink != bind',
+           'r->pending = false && (sink != bind',
            'parking retires the old accepted binding', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('binding-invalid-retries','SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink',
            'if (r->parked)',
@@ -888,8 +891,8 @@ DEFECTS = (
            '                s->withdrawn = false;\n            }', '            }',
            'kind preserves settled state', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('feedback-withdrawal-sink-crossed','SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream',
-           'if (s->withdrawn)',
-           'if (app->srp->ifs[interface].sinks[1u - sink].withdrawn)',
+           'if (s->withdrawn && lose)',
+           'if (app->srp->ifs[interface].sinks[1u - sink].withdrawn && lose)',
            'retained withdrawal reprobes', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('feedback-advertise-copy-lost','SrpFeedback.SinglePduKindReplacementsRemainContinuous',
            'talker_changed(from_ctx(ctx),value,2u,true);', '(void)ctx; (void)value;',
@@ -910,10 +913,10 @@ DEFECTS = (
            'if (!s->withdrawn && s->desired) {', 'if (s->desired) {',
            'retained pre-withdrawal kind', suite='test_acmp_mbx.cpp'),
     Defect('r10-feedback-ignores-pending','SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration',
-           'if (!r->pending && r->bound) {', 'if (r->bound) {',
+           'return !r->parked && !r->pending && r->bound;', 'return !r->parked && r->bound;',
            'old registration cannot settle replacement', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('r10-transient-refusal-forgotten','SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake',
-           'pending = r->pending || pending;', 'pending = r->pending;',
+           PENDING, PENDING.replace(' || pending;', ';'),
            'earlier refusal keeps delivery awake', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('r10-feedback-allowance-quarter','SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath',
            '(ACMP_MAX_SINKS * 7u)', '(ACMP_MAX_SINKS * 1u)',
@@ -935,10 +938,7 @@ DEFECTS = (
            '    if (!i->stale) {\n', '    if (!i->stale && !i->link) {\n',
            'a record that changes nothing walks no registrar'),
     Defect('own-listener-declaration-not-copied','OwnDeclarationsThatRewriteARegisteredValueAreCopied',
-           '        if (desired != s->declared) {\n'
-           '            // A declaration rewrites the value of the attribute a registration shares (#665).\n'
-           '            i->stale = true;\n        }\n', '',
-           'the own Listener Ready declaration rewrote the registered Listener'),
+           srp_lane_mutants.DECLARATION, '', 'the own Listener Ready declaration rewrote the registered Listener'),
     Defect('own-talker-declaration-not-copied','OwnDeclarationsThatRewriteARegisteredValueAreCopied',
            '    bool done = true;\n'
            '    // A join rewrites the value of the attribute a registration shares (#665).\n'
@@ -957,7 +957,10 @@ DEFECTS += srp_talker_mutants.defects(Defect)
 DEFECTS += srp_listener_mutants.defects(Defect)
 DEFECTS += srp_kind_mutants.defects(Defect)
 DEFECTS += srp_reclaim_mutants.defects(Defect)
+DEFECTS += srp_drain_mutants.defects(Defect)
+DEFECTS += srp_lane_mutants.defects(Defect)
 DEFECTS += srp_early_mutants.defects(Defect)
+DEFECTS += srp_deliver_mutants.defects(Defect)
 DEFECTS += srp_link_mutants.defects(Defect)
 
 def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2, entity: str = "") -> bool:
