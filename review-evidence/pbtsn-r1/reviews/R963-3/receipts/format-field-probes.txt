@@ -1,0 +1,12 @@
+head ebaac61dfa3c83f9c6663ce1c361bf79f395f704
+baseline (unmodified): rc 0 (0 = all pass)
+ignore-reserved-53-55-together (drops UINT64_C(0x7) << 53): KILLED by: 12 a one-bit change outside the channel count is refused, bit N;4 reserved bit 53 of the rate octet is refused;4 reserved bit 54 of the rate octet is refused;4 reserved bit 55 of the rate octet is refused;
+ignore-ut-and-reserved-nibble (drops UINT64_C(0xf) << 52): KILLED by: 16 a one-bit change outside the channel count is refused, bit N;4 reserved bit 53 of the rate octet is refused;4 reserved bit 54 of the rate octet is refused;4 reserved bit 55 of the rate octet is refused;4 the family entry is not a stream format;
+ignore-low-reserved-bits-1-11 (drops UINT64_C(0xffe)): KILLED by: 44 a one-bit change outside the channel count is refused, bit N;4 reserved bit 11 is refused;
+ignore-low-reserved-bits-1-10 (drops UINT64_C(0x7fe)): KILLED by: 40 a one-bit change outside the channel count is refused, bit N;
+ignore-low-reserved-bit-0 (drops UINT64_C(0x1)): KILLED by: 4 a nonzero reserved low bit is refused;4 a one-bit change outside the channel count is refused, bit N;
+ignore-low-reserved-bit-5 (drops UINT64_C(0x20)): KILLED by: 4 a one-bit change outside the channel count is refused, bit N;
+ignore-bit-depth-low-bit (drops UINT64_C(1) << 32): KILLED by: 4 a one-bit change outside the channel count is refused, bit N;
+ignore-format-code-high-bit (drops UINT64_C(1) << 47): KILLED by: 4 a one-bit change outside the channel count is refused, bit N;
+ignore-subtype-bit-57 (drops UINT64_C(1) << 57): KILLED by: 4 a one-bit change outside the channel count is refused, bit N;
+probe tree restored to head bytes

@@ -1,0 +1,29 @@
+milan-fpga 58f7673b protocol-processor gitlink:
+submodule 801ef2283ec793e35a2590fc6593c90313a64041 https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+builder files in that submodule commit:
+hdl/aecp/desc/gen_desc_image.py
+tb/desc_store/test_gen_desc_image.py
+
+board support repository branches and end-station configuration files (filename scan, read 2026-11-28T11:06:57Z):
+main 7791ccc923a98c70d86637df26a0a0ee7677bf16 false 0 []
+pb2-aecp-1 a5cd7c1e48019f89583e8df930299d457e016fe3 false 1 ["milan-linux/config/endstation_pb2_bridge.yaml"]
+pb2-ethcap-phy-irq 8e567b5b7365877f0beae8d68b610c65a48b4e4b false 0 []
+pb2-tsn b6d8594c1aaff38b5e9d6b13213d90ef5e4024d4 false 0 []
+pb2aecp-review-evidence ed7686fd3072b57bb77bc7584ec15806702f0380 false 0 []
+
+pb2-aecp-1 endstation_pb2_bridge.yaml header:
+#                      (aecp_entity.py)
+#   srp_entity_gen.h   the shape header every firmware unit is compiled with
+#                      (srp_entity.py): 1 interface, 1 source, 2 sinks
+#   nvm_shape_gen.h    the saved-state store's shape (nvm_bench.py)
+#
+# The stream inventory (bsp#29):
+#   STREAM_INPUT 0   AAF, 48 kHz, 8 channels, 32-bit: what milan-mediad plays
+#                    to the USB host
+#   STREAM_INPUT 1   CRF, the media clock input an AAF talker requires (Milan
+#                    v1.2 7.2.2). milan-mediad does not clock from it
+#                    (AECP-STATUS.md)
+#   STREAM_OUTPUT 0  AAF, the same format: what milan-mediad sends from the
+#                    USB host
+# No second AAF stream and no CRF output (7.2.3 asks one only of a listener
+# with two AAF inputs). ADP advertises 1 source and 2 sinks.

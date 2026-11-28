@@ -1,0 +1,21 @@
+evidence branch pbtsn-review-evidence tip 6aff8627f3a656def30294ed1c2d23f8f4853bab (Add the round-3 packet); task-pinned 2a261083 is its round-1 ancestor and holds no author-r2 or author-r3:
+review-evidence/pbtsn-r1/author
+
+author-r2 receipts pointers at 6aff8627f3a656def30294ed1c2d23f8f4853bab:
+21:- Receipts are in `../receipts/round2/`.
+40:Receipts: `receipts/round2/`.
+author-r2 directories:
+review-evidence/pbtsn-r1/author-r2/receipts-round2
+review-evidence/pbtsn-r1/author-r2/round2
+
+author-r3 pointers:
+10:| both, RES-1 | The packet names a receipts directory that is published as `receipts-round2/` | `round2/HANDOFF-r2.md`: "Receipts are in `../receipts-round2/`". This file is rewritten and names no round directory; receipts are listed in `receipts/INDEX.md`. | packet |
+35:Receipts: the round 3 section of `receipts/INDEX.md`.
+17:- RES-1 (both reviews): `round2/HANDOFF-r2.md` now says "Receipts are in `../receipts-round2/`". REVIEW-READY.md is rewritten for this round. It no longer names a round-2 directory, and it points to `receipts/INDEX.md` for receipts.
+29:- Receipts: see the round 3 section of `../receipts/INDEX.md`.
+INDEX.md files anywhere in pbtsn-r1:
+review-evidence/pbtsn-r1/author/receipts/INDEX.md
+lines mentioning round 3 in author/receipts/INDEX.md:
+(none)
+packet commit verification:
+verified=false reason=unsigned
