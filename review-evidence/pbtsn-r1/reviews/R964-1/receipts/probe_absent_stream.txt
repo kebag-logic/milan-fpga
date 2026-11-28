@@ -1,0 +1,16 @@
+== exact head src/pbaem.c
+supported(5, AAF 8ch)=0
+set(5, AAF 8ch)=0 available_index=0x00000007 clock_source=0 identify=0
+rc=0
+== probe aaf-stream-bound-off-by-one-supported (plain build)
+47c47
+< 	if (stream >= PBAEM_STREAMS) {
+---
+> 	if (stream > PBAEM_STREAMS) {
+supported(5, AAF 8ch)=1
+set(5, AAF 8ch)=1 available_index=0x02006000 clock_source=544 identify=5
+rc=0
+== same probe under -fsanitize=address,undefined
+supported(5, AAF 8ch)=1
+scratch/probes/aaf-stream-bound-off-by-one-supported/pbaem.c:71:22: runtime error: index 5 out of bounds for type 'uint64_t [5]'
+rc=1

@@ -1,0 +1,15 @@
+HEAD ef5e5ce1a6a79cfb317023e3067b89cb510a51db
+tree a8680cc0e56ad0c887aa1e39a549ad2f4a7dfc9a
+status --porcelain --ignored lines: 1
+!! scripts/__pycache__/
+worktree equals HEAD (git diff --quiet HEAD rc 0)
+index equals HEAD (git diff --cached --quiet HEAD rc 0)
+write-tree a8680cc0e56ad0c887aa1e39a549ad2f4a7dfc9a
+ls-files -s sha256 85ed5d154104988ba70cde5679759bd25f43bbd0fb4f3f87988aea407ddcced8
+ls-tree -r HEAD sha256 aa3db8bfefb6509ecf620affe118a19749f82122c2602d79749dfc8b73f801e1
+tracked files 107; mode/blob mismatches vs HEAD: 0
+fsck of worktree bytes: 33bda96e4570070da01dda3acd20dda9c86f8698b20ba3a18e767bfaf84fca02 vs index blobs 33bda96e4570070da01dda3acd20dda9c86f8698b20ba3a18e767bfaf84fca02
+gitlinks (mode 160000) in HEAD: 0
+.gitmodules present: no
+after removing the interpreter cache written by the reviewer runs: status --porcelain --ignored lines: 0
+final check after all runs: HEAD ef5e5ce1a6a79cfb317023e3067b89cb510a51db, write-tree a8680cc0e56ad0c887aa1e39a549ad2f4a7dfc9a, status --porcelain --ignored lines 0

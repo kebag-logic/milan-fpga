@@ -1,0 +1,21 @@
+SURVIVED   control-none                             
+SURVIVED   name-copy-32                             
+SURVIVED   firmware-copy-32                         
+SURVIVED   group-copy-32                            
+SURVIVED   serial-copy-32                           
+SURVIVED   model-id-constant                        
+SURVIVED   aaf-ignore-samples-per-frame             
+SURVIVED   aaf-ignore-format-field                  
+KILLED     aaf-ignore-bit-depth                     Pbaem.StreamFormats
+KILLED     aaf-ignore-up-to-bit                     Pbaem.StreamFormats
+SURVIVED   aaf-ignore-reserved-low                  
+SURVIVED   aaf-ignore-subtype                       
+SURVIVED   aaf-stream-bound-off-by-one-supported    
+KILLED     set-format-wrong-stream                  Pbaem.StreamFormats
+KILLED     init-keeps-old-state                     EntityYaml.AemImageRoundTrip
+SURVIVED   init-clock-default                       
+KILLED     descriptor-not-zeroed                    Pbaem.ClockSourcesAndControl,Pbaem.ConfigurationAndAudioUnit,Pbaem.DescriptorBounds,Pbaem.EntityFromIdentity,EntityYaml.AemImageRoundTrip
+KILLED     output-format-bound                      Pbaem.StreamFormats
+KILLED     crf-output-not-sync                      Pbaem.StreamFormats,EntityYaml.AemImageRoundTrip
+KILLED     strings-model-name                       EntityYaml.AemImageRoundTrip
+KILLED     locale-count                             EntityYaml.AemImageRoundTrip

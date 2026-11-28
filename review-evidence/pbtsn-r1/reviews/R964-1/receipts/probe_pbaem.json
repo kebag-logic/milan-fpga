@@ -1,0 +1,235 @@
+[
+  {
+    "name": "control-none",
+    "verdict": "SURVIVED",
+    "failed": [],
+    "rc": {
+      "pbaem_tests": 0,
+      "entity_tests": 0
+    },
+    "note": "unmodified source: both binaries must pass"
+  },
+  {
+    "name": "name-copy-32",
+    "verdict": "SURVIVED",
+    "failed": [],
+    "rc": {
+      "pbaem_tests": 0,
+      "entity_tests": 0
+    },
+    "note": "ENTITY entity_name truncated to 32 octets"
+  },
+  {
+    "name": "firmware-copy-32",
+    "verdict": "SURVIVED",
+    "failed": [],
+    "rc": {
+      "pbaem_tests": 0,
+      "entity_tests": 0
+    },
+    "note": "ENTITY firmware_version truncated to 32 octets"
+  },
+  {
+    "name": "group-copy-32",
+    "verdict": "SURVIVED",
+    "failed": [],
+    "rc": {
+      "pbaem_tests": 0,
+      "entity_tests": 0
+    },
+    "note": "ENTITY group_name truncated to 32 octets"
+  },
+  {
+    "name": "serial-copy-32",
+    "verdict": "SURVIVED",
+    "failed": [],
+    "rc": {
+      "pbaem_tests": 0,
+      "entity_tests": 0
+    },
+    "note": "ENTITY serial_number truncated to 32 octets"
+  },
+  {
+    "name": "model-id-constant",
+    "verdict": "SURVIVED",
+    "failed": [],
+    "rc": {
+      "pbaem_tests": 0,
+      "entity_tests": 0
+    },
+    "note": "ENTITY entity_model_id ignores the caller identity"
+  },
+  {
+    "name": "aaf-ignore-samples-per-frame",
+    "verdict": "SURVIVED",
+    "failed": [],
+    "rc": {
+      "pbaem_tests": 0,
+      "entity_tests": 0
+    },
+    "note": "AAF input accepts any samples_per_frame (for example 12 at 48 kHz)"
+  },
+  {
+    "name": "aaf-ignore-format-field",
+    "verdict": "SURVIVED",
+    "failed": [],
+    "rc": {
+      "pbaem_tests": 0,
+      "entity_tests": 0
+    },
+    "note": "AAF input accepts any AAF format code (float, 24-bit, 16-bit, AES3)"
+  },
+  {
+    "name": "aaf-ignore-bit-depth",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.StreamFormats"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "note": "AAF input accepts any bit_depth (expected killed by the 24-bit assertion)"
+  },
+  {
+    "name": "aaf-ignore-up-to-bit",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.StreamFormats"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "note": "AAF input accepts the up-to family entry (expected killed)"
+  },
+  {
+    "name": "aaf-ignore-reserved-low",
+    "verdict": "SURVIVED",
+    "failed": [],
+    "rc": {
+      "pbaem_tests": 0,
+      "entity_tests": 0
+    },
+    "note": "AAF input accepts nonzero reserved low bits"
+  },
+  {
+    "name": "aaf-ignore-subtype",
+    "verdict": "SURVIVED",
+    "failed": [],
+    "rc": {
+      "pbaem_tests": 0,
+      "entity_tests": 0
+    },
+    "note": "AAF input accepts any version and subtype octet"
+  },
+  {
+    "name": "aaf-stream-bound-off-by-one-supported",
+    "verdict": "SURVIVED",
+    "failed": [],
+    "rc": {
+      "pbaem_tests": 0,
+      "entity_tests": 0
+    },
+    "note": "stream 5 reaches the AAF check: an AAF format is then supported on an absent input"
+  },
+  {
+    "name": "set-format-wrong-stream",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.StreamFormats"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "note": "accepted format stored on stream 0 (expected killed)"
+  },
+  {
+    "name": "init-keeps-old-state",
+    "verdict": "KILLED",
+    "failed": [
+      "EntityYaml.AemImageRoundTrip"
+    ],
+    "rc": {
+      "pbaem_tests": 0,
+      "entity_tests": 1
+    },
+    "note": "pbaem_init leaves available_index, clock_source and identify of a reused model"
+  },
+  {
+    "name": "init-clock-default",
+    "verdict": "SURVIVED",
+    "failed": [],
+    "rc": {
+      "pbaem_tests": 0,
+      "entity_tests": 0
+    },
+    "note": "equivalent control (expected SURVIVED: no behaviour change)"
+  },
+  {
+    "name": "descriptor-not-zeroed",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.ClockSourcesAndControl",
+      "Pbaem.ConfigurationAndAudioUnit",
+      "Pbaem.DescriptorBounds",
+      "Pbaem.EntityFromIdentity",
+      "EntityYaml.AemImageRoundTrip"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 1
+    },
+    "note": "descriptor padding left as stack bytes (expected killed)"
+  },
+  {
+    "name": "output-format-bound",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.StreamFormats"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 0
+    },
+    "note": "stream 5 reads past the channel table (expected killed)"
+  },
+  {
+    "name": "crf-output-not-sync",
+    "verdict": "KILLED",
+    "failed": [
+      "Pbaem.StreamFormats",
+      "EntityYaml.AemImageRoundTrip"
+    ],
+    "rc": {
+      "pbaem_tests": 1,
+      "entity_tests": 1
+    },
+    "note": "CRF output loses CLOCK_SYNC_SOURCE (expected killed)"
+  },
+  {
+    "name": "strings-model-name",
+    "verdict": "KILLED",
+    "failed": [
+      "EntityYaml.AemImageRoundTrip"
+    ],
+    "rc": {
+      "pbaem_tests": 0,
+      "entity_tests": 1
+    },
+    "note": "STRINGS string 0 changed by one letter (expected killed by the golden only)"
+  },
+  {
+    "name": "locale-count",
+    "verdict": "KILLED",
+    "failed": [
+      "EntityYaml.AemImageRoundTrip"
+    ],
+    "rc": {
+      "pbaem_tests": 0,
+      "entity_tests": 1
+    },
+    "note": "LOCALE number_of_strings 2 (expected killed by the golden only)"
+  }
+]
