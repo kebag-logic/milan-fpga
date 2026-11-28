@@ -287,7 +287,8 @@ def arrival_checks() -> list[Check]:
 def bind_checks(m: ModuleType) -> list[Check]:
     """Every check of this module (m: the self-test)."""
     return [*idle_checks(m), *flight_checks(m), *burst_checks(m), *verify_checks(m), *arrival_checks(),
-            ('bind: the targets are the scope ruling\'s (#1009, items 3 and 4; arty-1x1 by PR #1004\'s ruling)',
-             bind_save.IDLE_MS == 800 and bind_save.FLIGHT_MS == {'1x1': 450, '8x8-1if': 950, 'arty-1x1': 400}
-             and bind_save.BURST_SAVES == {'1x1': 4, '8x8-1if': 3, 'arty-1x1': 4}
+            ('bind: the targets are the scope ruling\'s (#1009, items 3 and 4; the Arty points by PR #1004\'s rule)',
+             bind_save.IDLE_MS == 800 and bind_save.FLIGHT_MS == {'1x1': 450, '8x8-1if': 950, 'arty-1x1': 400,
+                                                                 'arty-4x4': 550}
+             and bind_save.BURST_SAVES == {'1x1': 4, '8x8-1if': 3, 'arty-1x1': 4, 'arty-4x4': 4}
              and bind_save.FLASH_US == (120000, 500), '')]
