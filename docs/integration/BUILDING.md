@@ -358,7 +358,7 @@ Its seven held-egress rows have their own ledger, from its own 100 MHz measureme
 As for every recipe, the entity-shape gate launches it only once the tracked entity
 definition is that configuration's.
 
-The clock ruling keeps `_CRG`'s `margin=0` contract.
+The 1x1's clock ruling keeps `_CRG`'s `margin=0` contract.
 Its selected VCO is 800 MHz, divided by ten for sys/CPU.
 Companion outputs use divisors 32, 16 and four: 25/50/200 MHz.
 The configuration and launcher use those exact frequencies.
@@ -372,7 +372,7 @@ Its seven misses remain recorded misses, with no normative wait allowance.
 `ctrl_service_budget/egress_ledger.py` bounds each by its own 80 MHz measurement.
 It applies #894's hold-plus-service rule and rejects a new or larger miss.
 The scheduler costs, slice and pace pass the complete 80 MHz service campaign.
-[Section 15](../design/SPLIT_CONTROL_MEMORY.md#15-arty-split-at-80-mhz) records the measurements and the Arty memory ledger.
+[Section 15](../design/SPLIT_CONTROL_MEMORY.md#15-arty-split-points) records the measurements and the Arty memory ledger.
 Each routed image needs its own timing and identity evidence.
 For this split image, #878 applies the #818 floor: WNS at least +0.030 ns
 and WHS at least zero in all four signoff reports.

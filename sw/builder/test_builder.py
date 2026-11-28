@@ -23897,7 +23897,8 @@ def test_clock_plan_instance_gate_bites() -> None:
 SPLIT_SUFFIX = "+split"
 FABRIC_SUFFIX = "+all-fabric"
 #: The tracked configs that ship the split placement since the flip (#665):
-#: the two AX7101 shapes its bench gate qualified. Every other tracked
+#: the two AX7101 shapes its bench gate qualified and the two Arty split
+#: images (#878, #1027). Every other tracked
 #: config is all-fabric (gate 23n).
 SPLIT_SHIPPING = ("ax7101_1x1_tdm8", "ax7101_8x8", "arty_split", "arty_split_4x4")
 

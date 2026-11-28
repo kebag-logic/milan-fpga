@@ -25,7 +25,7 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[12. The remaining firmware levers at the present clock](#12-the-remaining-firmware-levers-at-the-present-clock)** -- The indexed descriptor lookup, the hot list's gate, ACMP's wire packing as a TSN stack change, the record copies and lwSRP's receive checked, the composed rows after them at a 100 MHz test clock, what a larger fetch L1 would save by the model, and, with the CPU on `sys` at 100 MHz, a save in a composed window, its worst case, aged windows, THE RETRY, and THE TRANSMIT with every pass class.
 - **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at a 100 MHz test clock, the rows again at the approved T_svc = 20 ms and with contract 2.3's face writer, the refills per window, what holds the 8x8 rows, every row and pass at the Milan clock of 2026-10-29, every row and pass with the CPU on `sys` at 100 MHz, a save in each flash phase and both links at once, with the store's step held to the pass's share, a save's worst case under any input, with one build a pass either way, the queued notices at stated costs, the polls by source: a base every pass is charged and the heavy items, each at its stated cost, and the long-window load of every source at its arrival bound, graded with tsn-c-stack #32 and held to 0.70 at 1x1/1if and 8x8/2if, and a burst of names and a change in flight under the held load, every acknowledged change durable within 5 s of its response at 1x1/1if and 8x8/1if (#920).
 - **[14. The 32x32 estimate](#14-the-32x32-estimate)** -- The service load per row at four times the 8x8 streams, an estimate against T_svc; each per-item cost measured on the 32x32/2if simulation shape, with the line's error against it; one CPU, measured on the cacheless core at 100 MHz; gPTP's share, a labelled assumption; and what it leaves to the owner.
-- **[15. Arty split at 80 MHz](#15-arty-split-at-80-mhz)** -- The Arty 1x1 point, its own held-egress measurements and firmware memory ledger, and the 4x4/1if point, qualified with its CPU at 100 MHz.
+- **[15. Arty split points](#15-arty-split-points)** -- The Arty 1x1 point, its own held-egress measurements and firmware memory ledger, and the 4x4/1if point, qualified with its CPU at 100 MHz.
 
 ## 1. Memory map
 
@@ -3490,7 +3490,7 @@ These are not decided here.
 - **Which CPU lever 4 means.** The split placement already has one hart. The cacheless core would save about 300 LUTs and 5 tiles, and does not fit 8x8.
 - **The CPU clock past 100 MHz, or a second hart,** if the firmware's levers do not close 32x32. Each runs against the area target.
 
-## 15. Arty split at 80 MHz
+## 15. Arty split points
 
 The Arty FPGA point is `arty-1x1`: one interface, one AAF source and two sinks,
 the AAF listener and the CRF input.
@@ -3631,9 +3631,13 @@ The routed image binds that firmware through `image_manifest.json`.
 
 ### Arty split 4x4/1if
 
+[#1027](https://github.com/kebag-logic/milan-fpga/issues/1027) is this point's task contract: its scope, its
+acceptance and the decisions below (its decisions 1 to 5), beside #878's 1x1 point, whose rulings it leaves in force.
+
 The `arty-4x4` point is `configs/endstation_arty_split_4x4.yaml`: one interface, four AAF talkers and the CRF output,
 four AAF listeners and the CRF input, the scheduler shape (1,5,5).
-Its sys and CPU clock is 100 MHz, the same 800 MHz VCO divided by eight; the datapath stays at 50 MHz.
+Its sys and CPU clock is 100 MHz (#1027, decision 1), the same 800 MHz VCO divided by eight; the datapath stays at
+50 MHz. #878's 80 MHz clock ruling stays the 1x1's.
 At 80 MHz its census leaves no row that meets every owner bound: over every queued-notice bound and pace the least
 txL is 58.71 ms, the least ACMP 37.39 ms and the least last notice 201.93 ms.
 At 100 MHz the routed image meets the +0.030 ns floor at every corner with `ExtraPostPlacementOpt` (Slow WNS
@@ -3646,6 +3650,24 @@ Each cost is the largest of its three measurements; the installed row is the der
 derives it again with no firmware byte changed.
 The `srp-kept` and `srp-bound` registrations are owed to #977 under #969's disposition, as at the 1x1; counted, they
 put the load at 0.82 and no last-notice row is finite.
+Two rows meet every rule and bound on the merged costs: 125 ms, 5 ms, 1250 us and 130 ms, 5 ms, 1000 us (queued-notice
+bound, pace, slice). The derivation orders the qualifying rows by pace, then queued-notice bound, then slice, and
+installs the first.
+
+| Stated cost at 100 MHz (`ctrl_loop.h`, THE SHAPES (1,5,5)) | Value |
+|---|---:|
+| `CTRL_LOOP_SLICE_US` | 1250 us |
+| `CTRL_LOOP_BUILD_PASS_US` | 825 us |
+| `CTRL_LOOP_BUILD_ONE_PASS_US` | 600 us |
+| `CTRL_LOOP_SRP_UNIT_US` | 300 us |
+| `CTRL_LOOP_RETRY_COLD_US` | 125 us |
+| `CTRL_LOOP_RETRY_ATTEMPT_US` | 25 us |
+| `CTRL_LOOP_QUEUED_MS` | 125 ms |
+| `CTRL_LOOP_TX_MS` | 29 ms |
+| `CTRL_LOOP_STEP_PASS_US` | 850 us |
+| `CTRL_LOOP_TICK_US` | 190 us |
+| `AECP_NOTICE_US` | 195 us |
+| `AECP_PACE_MS` | 5 ms |
 
 | Row or bound | 4x4 at 100 MHz | Owner bound |
 |---|---:|---:|
@@ -3659,10 +3681,10 @@ put the load at 0.82 and no last-notice row is finite.
 
 The qualification of the link-rate census passes over all 159 cases and eight variants.
 The bind groups' in-flight bound and burst saves are the 1x1's rule applied to this census's `save-bind` group,
-550 ms and 4 saves.
+550 ms and 4 saves (#1027, decision 3).
 
-The seven `backlog-owed` held-egress rows are this point's own ledger, by the 1x1's rule above, as
-[#1020's ruling](https://github.com/kebag-logic/milan-fpga/pull/1020#issuecomment-7234489667) (item 3) makes the
+The seven `backlog-owed` held-egress rows are this point's own ledger, by the 1x1's rule above (#1027, decision 2),
+as [#1020's ruling](https://github.com/kebag-logic/milan-fpga/pull/1020#issuecomment-7234489667) (item 3) makes the
 USB-network Arty its own ledger point.
 Each figure is the 60 ms hold plus the service measured at exactly 100 MHz on the link-rate census of the image the
 row qualifies, with 5 percent on the service only, rounded up to 0.01 ms.

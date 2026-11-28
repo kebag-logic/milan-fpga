@@ -12,7 +12,7 @@ The scheduler shape is one interface, one source and two sinks.
 Its service-budget point is `arty-1x1`; it requires its own measured costs.
 The AX7101 1x1 point has two sources and cannot supply those costs.
 
-The Arty split 4x4 configuration is `configs/endstation_arty_split_4x4.yaml` (#878).
+The Arty split 4x4 configuration is `configs/endstation_arty_split_4x4.yaml` (#1027).
 Its entity has four AAF talkers, four AAF listeners, the CRF input and the CRF output that Milan v1.2 7.2.3
 requires with two or more AAF inputs, all on the one 100 Mb/s interface.
 Each listener is the 1x1 split's: eight clusters, the 2-channel 48 kHz Base format current and the 48 kHz family
@@ -22,10 +22,10 @@ Its sys/CPU clock is 100 MHz, the 800 MHz VCO divided by eight; the datapath sta
 Its held-egress rows are their own ledger point, from its own 100 MHz measurement.
 The Arty recipe takes it through `BUILD_CFG=configs/endstation_arty_split_4x4.yaml`.
 
-The Arty sys/CPU clock is exactly 80,000,000 Hz.
+The Arty 1x1 split's sys/CPU clock is exactly 80,000,000 Hz.
 The datapath stays at 50 MHz; the exact-divider contract keeps `margin=0`.
 An 800 MHz VCO supplies sys, Ethernet reference, datapath and IDELAY.
-Their divisors are 10, 32, 16 and four respectively.
+Their divisors are 10, 32, 16 and four respectively (the 4x4 divides sys by eight).
 The MII platform advertises 100BASE-TX full duplex only.
 This follows IEEE 802.1BA-2011 Table 6-1 and 6.5 through Milan v1.2 4.2.1.
 
@@ -36,7 +36,7 @@ Those rows remain service-budget misses; the ledger permits only their bounded e
 It grants no normative wait allowance and never restarts the service clock.
 Other misses still fail, as does any larger held-egress miss.
 The 80 MHz costs, slice and pace pass the complete service campaign.
-[Section 15](design/SPLIT_CONTROL_MEMORY.md#15-arty-split-at-80-mhz) records their measured basis and memory ledger.
+[Section 15](design/SPLIT_CONTROL_MEMORY.md#15-arty-split-points) records their measured basis and memory ledger.
 No image is qualified by a successful builder export alone.
 
 **Purpose.** One declarative config (`configs/endstation_*.yaml`, schema

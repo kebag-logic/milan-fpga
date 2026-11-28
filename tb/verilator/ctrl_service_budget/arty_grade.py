@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""#878's Arty model gate: the (1,1,2) FPGA point at exactly 80 MHz and the (1,5,5) point at exactly 100 MHz.
+"""The Arty model gate: #878's (1,1,2) FPGA point at exactly 80 MHz and #1027's (1,5,5) point at exactly 100 MHz.
 
 This checks the stated costs and the rows derived from them. Measurement
 completeness and the measured 2 ms share remain the service harness's gates;

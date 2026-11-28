@@ -54,8 +54,8 @@ SLICE, BUILD, BUILD_ONE, SRP_UNIT, RETRY_COLD, RETRY_ATTEMPT = NAMES
 #: design, which rows_tiers.py holds and a withdrawn Talker's hold-off counts (srp_mbx.c, SRP_REDECLARE_CS).
 BOUNDS = ('CTRL_LOOP_QUEUED_MS', 'CTRL_LOOP_TX_MS')
 QUEUED, TX = BOUNDS
-#: Arty's 80 MHz FPGA points state these additional measured costs and their own pace, each at its shape:
-#: (1,1,2), the 1x1, and (1,5,5), four AAF streams and the CRF each way (#878).
+#: Arty's FPGA points state these additional measured costs and their own pace, each at its shape and clock:
+#: (1,1,2), the 1x1, at 80 MHz (#878), and (1,5,5), four AAF streams and the CRF each way, at 100 MHz (#1027).
 ARTY_NAMES = ('CTRL_LOOP_STEP_PASS_US', 'CTRL_LOOP_TICK_US', 'AECP_NOTICE_US', 'AECP_PACE_MS')
 ARTY_SHAPES = ((1, 1, 2), (1, 5, 5))
 #: THE RETRY's round costs AECP reads, each where it is defined and the name of the table's it must be: a round's cold
