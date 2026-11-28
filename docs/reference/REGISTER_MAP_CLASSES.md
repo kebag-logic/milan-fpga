@@ -34,9 +34,9 @@ ownerless option-OFF elaboration and the media-boundary slip counters.
 
 ## Contents
 
-- **[The three classes](#the-three-classes)** — needed/optional/debug defined by who reads the register and through which supported access path: bare-metal firmware, a remote AECP or UART diagnostic session, or a bench engineer with a ProfiShark beside the board.
-- **[Classification](#classification)** — the row-by-row verdict for every CSR group from `0x000` to the latency taps, each with the rationale that assigned its class, and the 2026-08-13 truth column.
-- **[The rules behind the table](#the-rules-behind-the-table)** — why supported remote observability is optional rather than debug, why the mapping law that killed the raw write window has itself been overtaken, and why the prune must be one frozen build (~700–900 LUTs back).
+- **[The three classes](#the-three-classes)** -- needed/optional/debug defined by who reads the register and through which supported access path: bare-metal firmware, a remote AECP or UART diagnostic session, or a bench engineer with an inline capture tap beside the board.
+- **[Classification](#classification)** -- the row-by-row verdict for every CSR group from `0x000` to the latency taps, each with the rationale that assigned its class, and the 2026-08-13 truth column.
+- **[The rules behind the table](#the-rules-behind-the-table)** -- why supported remote observability is optional rather than debug, why the mapping law that killed the raw write window has itself been overtaken, and why the prune must be one frozen build (~700–900 LUTs back).
 
 ## The three classes
 
@@ -49,7 +49,7 @@ ownerless option-OFF elaboration and the media-boundary slip counters.
 The test that assigns the class is: *"who reads this register, and through
 which supported access path?"* Bare-metal firmware → needed. A remote
 diagnostic client using AECP, UART, or the validated external CSR aperture →
-optional. An engineer with a ProfiShark beside the board → debug.
+optional. An engineer with an inline capture tap beside the board → debug.
 
 **One input to that test changed.** The *optional* class used to lean on
 "diagnoses a failure through local diagnostics **or AECP**". The processor now serves a broader

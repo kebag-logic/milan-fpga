@@ -614,11 +614,11 @@ class _SrpWireArms:
 
 
 class _CaptureFormatArms:
-    """The capture itself: the 28-octet ProfiShark record header and the
+    """The capture itself: the 28-octet capture-tap record header and the
     pcap round trip."""
 
     def test_the_28_octet_tap_record_header_is_handled_and_tested(self) -> None:
-        """The ProfiShark inline tap prepends a 28-octet record header, so
+        """The inline capture tap prepends a 28-octet record header, so
         EVERY ether offset shifts by +28: in a BPF filter the EtherType is
         ether[40:2] and the DMAC is at 28.  A decoder that ignores it sees
         garbage; one that assumes it on an already-stripped capture also sees
