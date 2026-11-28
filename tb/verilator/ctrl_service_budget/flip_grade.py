@@ -23,8 +23,8 @@ when ctrl_loop.h states THE TRANSMIT's figure under its row. The flip at 1x1/1if
 8x8/2if's rows by every source are reported, not held (#894, the owner's decision of 2026-11-12, owed to #872).
 
 8x8/1if is the flip's other point (#894's shape ruling, items (a) and (b)), held by --check --point
-8x8/1if to its load, at most 0.77 (#977's owner decision of 2026-11-27; 0.76 by its decision of 2026-11-25, 0.75
-before), the 8x8 shape's stated costs
+8x8/1if to its load, at most 0.79 (owner decision pending, for #977's deliveries term; 0.77 by its owner decision
+of 2026-11-27, 0.76 by its decision of 2026-11-25, 0.75 before), the 8x8 shape's stated costs
 with THE TRANSMIT's builds at its own shape (load_grade.NEAREST), and to ctrl_loop.h's table of shapes
 (shape_costs.findings: its slice at most 1,600 us). Its measured rows are the CPU budget harness's on its built
 image (run.py --point 8x8-1if: 0 budget misses, every row within its bound and its join intervals in range); its
@@ -62,12 +62,14 @@ import shape_costs  # noqa: E402
 ROOT = load_grade.ROOT
 #: The points whose load the flip check holds, and each one's ceiling: 8x8/2if's 0.70 (#665, option D) and 8x8/1if's
 #: 0.77 (#894's shape ruling, item (b), at 0.75; raised to 0.76 by #977's owner decision of 2026-11-25, and to
-#: 0.77 by its owner decision of 2026-11-27, for the registration cost its swap record states by the rule).
-FLIP = {'8x8/2if': 0.70, '8x8/1if': 0.77}
+#: 0.77 by its owner decision of 2026-11-27, for the registration cost its swap record states by the rule; 0.79 for
+#: the deliveries a registering record defers, a load term since #977's manager decision of 2026-11-27 on deferred
+#: deliveries, owner decision pending).
+FLIP = {'8x8/2if': 0.70, '8x8/1if': 0.79}
 #: The ceilings the flip check is ruled to hold (a control refuses FLIP at any other), and at 8x8/1if a load within its
 #: ceiling and one over it; each control's name is built from them, so controls() and CONTROLS name it alike.
-RULED_FLIP = {'8x8/2if': 0.70, '8x8/1if': 0.77}
-EDGE_1IF = (0.761, 0.771)
+RULED_FLIP = {'8x8/2if': 0.70, '8x8/1if': 0.79}
+EDGE_1IF = (0.790, 0.791)
 CEILINGS_CONTROL = (f"the flip ceilings not {RULED_FLIP['8x8/2if']:.2f} at 8x8/2if and {RULED_FLIP['8x8/1if']:.2f} "
                     "at 8x8/1if")
 EDGE_CONTROL = f'8x8/1if: {EDGE_1IF[0]:.3f} refused or {EDGE_1IF[1]:.3f} passed'
