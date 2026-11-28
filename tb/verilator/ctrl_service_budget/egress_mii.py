@@ -65,6 +65,8 @@ CROSS_DP = 3
 #: The SR stream's frame: destination, source, 802.1Q tag and EtherType (18), the AAF header (24, IEEE 1722-2016
 #: 7.3), and the samples of one class A interval (125 us, 6 at 48 kHz) at 32 bits a channel (Milan v1.2 6.4).
 SR_HEADER, AAF_HEADER, SAMPLE_BYTES, SR_PERIOD_PS = 18, 24, 4, 125_000_000
+#: The CRF output's AVTPDU (Milan v1.2 7.3.2, one timestamp a PDU), octets.
+CRF_AVTPDU = 28
 #: gPTP's frames, each a 14-byte Ethernet header and its message (IEEE 802.1AS-2020 11.4, 10.6, 10.5.3.2.8): Sync
 #: 44, Follow_Up 76, Announce 76 with a one-entry path trace, Pdelay_Req, Pdelay_Resp and Pdelay_Resp_Follow_Up 54,
 #: Signaling 60. All of them every 125 ms, the Sync interval, though only Sync and Follow_Up come that often.
@@ -128,10 +130,14 @@ def link_mbps(shape: str) -> int | None:
 
 
 def sr_frames(shape: str) -> tuple:
-    """Each talker's frame of one class A interval, bytes."""
+    """Each talker's frame of one class A interval, bytes, and the CRF output's where the shape has one (Milan v1.2
+    7.2.3): its 28-octet AVTPDU, one timestamp a PDU, behind the tagged header. The CRF stream sends one frame every
+    2 ms; counting it every interval overstates its load sixteen-fold, which only lengthens the waits."""
     cfg = yaml.safe_load((CONFIGS / f'{shape}.yaml').read_text())
     samples = cfg['clocking']['sampling_rate_hz'] * SR_PERIOD_PS // 10**12
-    return tuple(SR_HEADER + AAF_HEADER + t['channels'] * samples * SAMPLE_BYTES for t in cfg['streams']['talkers'])
+    aaf = tuple(SR_HEADER + AAF_HEADER + t['channels'] * samples * SAMPLE_BYTES for t in cfg['streams']['talkers'])
+    crf = (SR_HEADER + CRF_AVTPDU,) if (cfg['clocking'].get('crf_output') or {}).get('enabled') else ()
+    return aaf + crf
 
 
 def params(spec: dict) -> Params | None:
