@@ -19,6 +19,7 @@ usage: python3 -I egress_fixed.py BUILD_DIR [SYS_HZ] | --selftest
 
 from __future__ import annotations
 
+import contextlib
 import subprocess
 import sys
 from pathlib import Path
@@ -148,7 +149,7 @@ MUTANTS = {
 }
 
 
-def patch_attr(me: object, name: str, value: object):
+def patch_attr(me: object, name: str, value: object) -> contextlib.AbstractContextManager:
     """A context that sets one module attribute and restores it."""
     from unittest.mock import patch
     return patch.object(me, name, value)
